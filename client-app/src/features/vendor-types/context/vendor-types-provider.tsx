@@ -1,0 +1,42 @@
+import React, { createContext, useContext, useState } from 'react';
+import type { VendorType } from '../api/schema';
+
+interface VendorTypesContextType {
+  selectedVendorType: VendorType | null;
+  setSelectedVendorType: (vendorType: VendorType | null) => void;
+  isDrawerOpen: boolean;
+  setIsDrawerOpen: (isOpen: boolean) => void;
+  isDeleteDialogOpen: boolean;
+  setIsDeleteDialogOpen: (isOpen: boolean) => void;
+}
+
+const VendorTypesContext = createContext<VendorTypesContextType | undefined>(undefined);
+
+export const VendorTypesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [selectedVendorType, setSelectedVendorType] = useState<VendorType | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  return (
+    <VendorTypesContext.Provider
+      value={{
+        selectedVendorType,
+        setSelectedVendorType,
+        isDrawerOpen,
+        setIsDrawerOpen,
+        isDeleteDialogOpen,
+        setIsDeleteDialogOpen,
+      }}
+    >
+      {children}
+    </VendorTypesContext.Provider>
+  );
+};
+
+export const useVendorTypes = () => {
+  const context = useContext(VendorTypesContext);
+  if (context === undefined) {
+    throw new Error('useVendorTypes must be used within a VendorTypesProvider');
+  }
+  return context;
+};

@@ -1,0 +1,105 @@
+package com.eps.module.api.epsone.state.controller;
+
+import com.eps.module.api.epsone.state.dto.StateRequestDto;
+import com.eps.module.api.epsone.state.dto.StateResponseDto;
+import com.eps.module.api.epsone.state.service.StateService;
+import com.eps.module.common.response.ApiResponse;
+import com.eps.module.common.response.ResponseBuilder;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/states")
+@RequiredArgsConstructor
+public class StateController {
+
+    private final StateService stateService;
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<StateResponseDto>> createState(
+            @Valid @RequestBody StateRequestDto stateRequestDto) {
+        log.info("POST /api/states - Creating new state");
+        StateResponseDto state = stateService.createState(stateRequestDto);
+        return ResponseBuilder.success(state, "State created successfully", HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<StateResponseDto>> getStateById(@PathVariable Long id) {
+        log.info("GET /api/states/{} - Fetching state by ID", id);
+        StateResponseDto state = stateService.getStateById(id);
+        return ResponseBuilder.success(state, "State retrieved successfully");
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<Page<StateResponseDto>>> getAllStates(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortDirection) {
+        
+        log.info("GET /api/states - Fetching all states with pagination");
+        
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") 
+            ? Sort.Direction.DESC 
+            : Sort.Direction.ASC;
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Page<StateResponseDto> states = stateService.getAllStates(pageable);
+        
+        return ResponseBuilder.success(states, "States retrieved successfully");
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Page<StateResponseDto>>> searchStates(
+            @RequestParam String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortDirection) {
+        
+        log.info("GET /api/states/search - Searching states with keyword: {}", search);
+        
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") 
+            ? Sort.Direction.DESC 
+            : Sort.Direction.ASC;
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Page<StateResponseDto> states = stateService.searchStates(search, pageable);
+        
+        return ResponseBuilder.success(states, "States search completed successfully");
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<StateResponseDto>>> getAllStatesList() {
+        log.info("GET /api/states/list - Fetching all states as list");
+        List<StateResponseDto> states = stateService.getAllStatesList();
+        return ResponseBuilder.success(states, "States list retrieved successfully");
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<StateResponseDto>> updateState(
+            @PathVariable Long id,
+            @Valid @RequestBody StateRequestDto stateRequestDto) {
+        log.info("PUT /api/states/{} - Updating state", id);
+        StateResponseDto state = stateService.updateState(id, stateRequestDto);
+        return ResponseBuilder.success(state, "State updated successfully");
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteState(@PathVariable Long id) {
+        log.info("DELETE /api/states/{} - Deleting state", id);
+        stateService.deleteState(id);
+        return ResponseBuilder.success(null, "State deleted successfully");
+    }
+}
