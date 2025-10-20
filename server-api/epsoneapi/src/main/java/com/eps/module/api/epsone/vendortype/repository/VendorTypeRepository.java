@@ -15,7 +15,7 @@ public interface VendorTypeRepository extends JpaRepository<VendorType, Long> {
     
     @Query("SELECT vt FROM VendorType vt WHERE " +
            "LOWER(vt.typeName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(vt.vendorCategory) LIKE LOWER(CONCAT('%', :search, '%'))")
+           "LOWER(vt.vendorCategory.categoryName) LIKE LOWER(CONCAT('%', :search, '%'))")
     Page<VendorType> searchVendorTypes(@Param("search") String search, Pageable pageable);
     
     boolean existsByTypeNameIgnoreCase(String typeName);
