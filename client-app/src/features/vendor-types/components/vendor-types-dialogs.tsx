@@ -4,7 +4,6 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { VendorTypesMutateDrawer } from './vendor-types-mutate-drawer';
 import { useVendorTypes } from '../context/vendor-types-provider';
 import { vendorTypesApi } from '../api/vendor-types-api';
-import { handleServerError } from '@/lib/handle-server-error';
 
 export function VendorTypesDialogs() {
   const queryClient = useQueryClient();
@@ -24,10 +23,6 @@ export function VendorTypesDialogs() {
       toast.success('Vendor type deleted successfully');
       setIsDeleteDialogOpen(false);
       setSelectedVendorType(null);
-    },
-    onError: (error) => {
-      const errorMessage = handleServerError(error);
-      toast.error(errorMessage?.message || 'Failed to delete vendor type');
     },
   });
 

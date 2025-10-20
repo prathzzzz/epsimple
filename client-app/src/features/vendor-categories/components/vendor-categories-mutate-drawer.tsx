@@ -28,7 +28,6 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { vendorCategoriesApi } from '../api/vendor-categories-api';
 import { vendorCategoryFormSchema, type VendorCategoryFormData, type VendorCategory } from '../api/schema';
-import { handleServerError } from '@/lib/handle-server-error';
 
 interface VendorCategoriesMutateDrawerProps {
   open: boolean;
@@ -75,10 +74,6 @@ export function VendorCategoriesMutateDrawer({
       form.reset();
       onOpenChange(false);
     },
-    onError: (error) => {
-      const errorMessage = handleServerError(error);
-      toast.error(errorMessage?.message || 'Failed to create vendor category');
-    },
   });
 
   const updateMutation = useMutation({
@@ -89,10 +84,6 @@ export function VendorCategoriesMutateDrawer({
       toast.success('Vendor category updated successfully');
       form.reset();
       onOpenChange(false);
-    },
-    onError: (error) => {
-      const errorMessage = handleServerError(error);
-      toast.error(errorMessage?.message || 'Failed to update vendor category');
     },
   });
 

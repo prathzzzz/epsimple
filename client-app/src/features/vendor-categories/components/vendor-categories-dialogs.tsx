@@ -4,7 +4,6 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { VendorCategoriesMutateDrawer } from './vendor-categories-mutate-drawer';
 import { useVendorCategories } from '../context/vendor-categories-provider';
 import { vendorCategoriesApi } from '../api/vendor-categories-api';
-import { handleServerError } from '@/lib/handle-server-error';
 
 export function VendorCategoriesDialogs() {
   const queryClient = useQueryClient();
@@ -24,10 +23,6 @@ export function VendorCategoriesDialogs() {
       toast.success('Vendor category deleted successfully');
       setIsDeleteDialogOpen(false);
       setSelectedVendorCategory(null);
-    },
-    onError: (error) => {
-      const errorMessage = handleServerError(error);
-      toast.error(errorMessage?.message || 'Failed to delete vendor category');
     },
   });
 

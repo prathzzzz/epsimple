@@ -4,14 +4,19 @@ import com.eps.module.api.epsone.vendorcategory.dto.VendorCategoryRequestDto;
 import com.eps.module.api.epsone.vendorcategory.dto.VendorCategoryResponseDto;
 import com.eps.module.api.epsone.vendorcategory.mapper.VendorCategoryMapper;
 import com.eps.module.api.epsone.vendorcategory.repository.VendorCategoryRepository;
+import com.eps.module.api.epsone.vendortype.repository.VendorTypeRepository;
+import com.eps.module.common.exception.ForeignKeyConstraintException;
 import com.eps.module.vendor.VendorCategory;
+import com.eps.module.vendor.VendorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +24,7 @@ public class VendorCategoryServiceImpl implements VendorCategoryService {
 
     private final VendorCategoryRepository vendorCategoryRepository;
     private final VendorCategoryMapper vendorCategoryMapper;
+    private final VendorTypeRepository vendorTypeRepository;
 
     @Override
     @Transactional
@@ -52,9 +58,30 @@ public class VendorCategoryServiceImpl implements VendorCategoryService {
     @Override
     @Transactional
     public void deleteVendorCategory(Long id) {
-        if (!vendorCategoryRepository.existsById(id)) {
-            throw new IllegalArgumentException("Vendor category not found with id: " + id);
+        VendorCategory vendorCategory = vendorCategoryRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Vendor category not found with id: " + id));
+        
+        // Check if this category is being used by any vendor types
+        List<VendorType> dependentTypes = vendorTypeRepository.findByVendorCategoryId(id);
+        if (!dependentTypes.isEmpty()) {
+            String typeNames = dependentTypes.stream()
+                .limit(3) // Show max 3 names
+                .map(VendorType::getTypeName)
+                .collect(Collectors.joining(", "));
+            
+            // If there are more than 3, add "and X more"
+            if (dependentTypes.size() > 3) {
+                typeNames += " and " + (dependentTypes.size() - 3) + " more";
+            }
+            
+            throw new ForeignKeyConstraintException(
+                vendorCategory.getCategoryName(), 
+                "Vendor Category", 
+                typeNames, 
+                null
+            );
         }
+        
         vendorCategoryRepository.deleteById(id);
     }
 

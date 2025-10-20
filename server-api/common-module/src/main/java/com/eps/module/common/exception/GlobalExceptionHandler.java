@@ -1,6 +1,7 @@
 package com.eps.module.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -55,6 +56,38 @@ public class GlobalExceptionHandler {
         
         log.warn("Validation failed: {}", errors);
         return ResponseBuilder.validationError(errors);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalStateException(IllegalStateException ex) {
+        log.warn("Illegal state: {}", ex.getMessage());
+        return ResponseBuilder.error(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.warn("Illegal argument: {}", ex.getMessage());
+        return ResponseBuilder.error(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+        @ExceptionHandler(ForeignKeyConstraintException.class)
+    public ResponseEntity<ApiResponse<Object>> handleForeignKeyConstraint(ForeignKeyConstraintException ex) {
+        return ResponseBuilder.error(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String message = "Unable to complete operation due to data dependencies.";
+        
+        if (ex.getMessage() != null) {
+            if (ex.getMessage().contains("foreign key constraint")) {
+                message = "Cannot delete this record because it is being used by other records. Please remove the dependencies first.";
+            } else if (ex.getMessage().contains("unique constraint") || ex.getMessage().contains("duplicate key")) {
+                message = "This record already exists. Please use different values.";
+            }
+        }
+        
+        return ResponseBuilder.error(message, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(RuntimeException.class)

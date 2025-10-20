@@ -60,3 +60,7 @@ Desktop.ini
 *.tmp
 *.temp
 .cache/
+
+# Postman collections (development only)
+postman-*.json
+*-postman.json

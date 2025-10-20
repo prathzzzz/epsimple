@@ -35,7 +35,6 @@ import {
 
 import { vendorTypesApi } from '../api/vendor-types-api';
 import { vendorTypeFormSchema, type VendorTypeFormData, type VendorType } from '../api/schema';
-import { handleServerError } from '@/lib/handle-server-error';
 import { vendorCategoriesApi } from '@/features/vendor-categories/api/vendor-categories-api';
 
 interface VendorTypesMutateDrawerProps {
@@ -94,10 +93,6 @@ export function VendorTypesMutateDrawer({
       form.reset();
       onOpenChange(false);
     },
-    onError: (error) => {
-      const errorMessage = handleServerError(error);
-      toast.error(errorMessage?.message || 'Failed to create vendor type');
-    },
   });
 
   const updateMutation = useMutation({
@@ -108,10 +103,6 @@ export function VendorTypesMutateDrawer({
       toast.success('Vendor type updated successfully');
       form.reset();
       onOpenChange(false);
-    },
-    onError: (error) => {
-      const errorMessage = handleServerError(error);
-      toast.error(errorMessage?.message || 'Failed to update vendor type');
     },
   });
 

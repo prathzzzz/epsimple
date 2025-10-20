@@ -25,4 +25,7 @@ public interface VendorTypeRepository extends JpaRepository<VendorType, Long> {
     @Query("SELECT CASE WHEN COUNT(vt) > 0 THEN true ELSE false END FROM VendorType vt WHERE " +
            "LOWER(vt.typeName) = LOWER(:typeName) AND vt.id <> :id")
     boolean existsByTypeNameAndIdNot(@Param("typeName") String typeName, @Param("id") Long id);
+    
+    @Query("SELECT vt FROM VendorType vt WHERE vt.vendorCategory.id = :categoryId")
+    java.util.List<VendorType> findByVendorCategoryId(@Param("categoryId") Long categoryId);
 }
