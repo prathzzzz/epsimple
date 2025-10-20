@@ -34,14 +34,14 @@
 - ✅ `DELETE /api/person-types/{id}` - Delete person type
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
-#### 1.4 Vendor Type Masters ✅ COMPLETED
-- ✅ `POST /api/vendor-types` - Create vendor type
-- ✅ `GET /api/vendor-types` - List vendor types (with pagination and search)
-- ✅ `GET /api/vendor-types/search` - Search vendor types
-- ✅ `GET /api/vendor-types/list` - Get all vendor types as list
-- ✅ `GET /api/vendor-types/{id}` - Get vendor type by ID
-- ✅ `PUT /api/vendor-types/{id}` - Update vendor type
-- ✅ `DELETE /api/vendor-types/{id}` - Delete vendor type
+#### 1.4 Vendor Category Masters ✅ COMPLETED
+- ✅ `POST /api/vendor-categories` - Create vendor category
+- ✅ `GET /api/vendor-categories` - List vendor categories (with pagination and search)
+- ✅ `GET /api/vendor-categories/search` - Search vendor categories
+- ✅ `GET /api/vendor-categories/list` - Get all vendor categories as list
+- ✅ `GET /api/vendor-categories/{id}` - Get vendor category by ID
+- ✅ `PUT /api/vendor-categories/{id}` - Update vendor category
+- ✅ `DELETE /api/vendor-categories/{id}` - Delete vendor category
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
 #### 1.5 Activity Masters
@@ -86,14 +86,25 @@
 - `PUT /api/cities/{id}` - Update city
 - `DELETE /api/cities/{id}` - Delete city
 
-#### 2.2 Person Details (depends: PersonType)
+#### 2.2 Vendor Type Masters (depends: VendorCategory) ✅ COMPLETED - REFACTORED
+- ✅ `POST /api/vendor-types` - Create vendor type (requires vendorCategoryId)
+- ✅ `GET /api/vendor-types` - List vendor types (with pagination and search)
+- ✅ `GET /api/vendor-types/search` - Search vendor types
+- ✅ `GET /api/vendor-types/list` - Get all vendor types as list
+- ✅ `GET /api/vendor-types/{id}` - Get vendor type by ID
+- ✅ `PUT /api/vendor-types/{id}` - Update vendor type
+- ✅ `DELETE /api/vendor-types/{id}` - Delete vendor type
+- ✅ Frontend: Full CRUD UI with category dropdown, data table, real-time search, pagination
+- ✅ **Note**: VendorType now has FK to VendorCategory (vendorCategoryId required)
+
+#### 2.3 Person Details (depends: PersonType)
 - `POST /api/person-details` - Create person (requires personTypeId)
 - `GET /api/person-details` - List persons
 - `GET /api/person-details/{id}` - Get person details
 - `PUT /api/person-details/{id}` - Update person
 - `DELETE /api/person-details/{id}` - Delete person
 
-#### 2.3 Managed Projects (depends: Bank)
+#### 2.4 Managed Projects (depends: Bank)
 - `POST /api/projects` - Create project (requires bankId)
 - `GET /api/projects` - List projects
 - `GET /api/banks/{bankId}/projects` - List projects by bank

@@ -29,6 +29,7 @@ logs/
 
 # Spring Boot (server-api)
 /server-api/target/
+**/target/
 /server-api/logs/
 /server-api/uploads/
 /server-api/.mvn/

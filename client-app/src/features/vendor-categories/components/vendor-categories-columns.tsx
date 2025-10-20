@@ -1,21 +1,13 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '@/components/data-table';
-import type { VendorType } from '../api/schema';
+import type { VendorCategory } from '../api/schema';
 import { format } from 'date-fns';
 
-export const vendorTypesColumns: ColumnDef<VendorType>[] = [
+export const vendorCategoriesColumns: ColumnDef<VendorCategory>[] = [
   {
-    accessorKey: 'typeName',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Type Name" />,
-    cell: ({ row }) => <div className="font-medium">{row.getValue('typeName')}</div>,
-  },
-  {
-    accessorKey: 'vendorCategory.categoryName',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Category" />,
-    cell: ({ row }) => {
-      const vendorCategory = row.original.vendorCategory;
-      return <div>{vendorCategory?.categoryName || '-'}</div>;
-    },
+    accessorKey: 'categoryName',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Category Name" />,
+    cell: ({ row }) => <div className="font-medium">{row.getValue('categoryName')}</div>,
   },
   {
     accessorKey: 'description',

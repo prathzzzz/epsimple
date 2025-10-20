@@ -24,16 +24,16 @@ import {
 } from '@/components/ui/table';
 
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table';
-import { vendorTypesApi } from '../api/vendor-types-api';
+import { vendorCategoriesApi } from '../api/vendor-categories-api';
 import { DataTableRowActions } from './data-table-row-actions';
 
-interface VendorTypesTableProps<TData, TValue> {
+interface VendorCategoriesTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
 }
 
-export function VendorTypesTable<TData, TValue>({
+export function VendorCategoriesTable<TData, TValue>({
   columns,
-}: VendorTypesTableProps<TData, TValue>) {
+}: VendorCategoriesTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
@@ -48,13 +48,13 @@ export function VendorTypesTable<TData, TValue>({
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ['vendor-types', pagination.pageIndex, pagination.pageSize, globalFilter, sorting],
+    queryKey: ['vendor-categories', pagination.pageIndex, pagination.pageSize, globalFilter, sorting],
     queryFn: async () => {
       const sortBy = sorting.length > 0 ? sorting[0].id : 'id';
       const sortDirection = sorting.length > 0 && sorting[0].desc ? 'DESC' : 'ASC';
 
       if (globalFilter && globalFilter.trim() !== '') {
-        return await vendorTypesApi.search(
+        return await vendorCategoriesApi.search(
           globalFilter,
           pagination.pageIndex,
           pagination.pageSize,
@@ -63,7 +63,7 @@ export function VendorTypesTable<TData, TValue>({
         );
       }
 
-      return await vendorTypesApi.getAll(
+      return await vendorCategoriesApi.getAll(
         pagination.pageIndex,
         pagination.pageSize,
         sortBy,
@@ -72,7 +72,7 @@ export function VendorTypesTable<TData, TValue>({
     },
   });
 
-  const vendorTypes = (data?.data?.content || []) as TData[];
+  const vendorCategories = (data?.data?.content || []) as TData[];
   const totalPages = data?.data?.totalPages || 0;
 
   // Reset to first page when search query changes
@@ -93,7 +93,7 @@ export function VendorTypesTable<TData, TValue>({
   );
 
   const table = useReactTable({
-    data: vendorTypes,
+    data: vendorCategories,
     columns: columnsWithActions as ColumnDef<TData, TValue>[],
     pageCount: totalPages,
     state: {
@@ -122,7 +122,7 @@ export function VendorTypesTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} searchPlaceholder="Search vendor types..." />
+      <DataTableToolbar table={table} searchPlaceholder="Search vendor categories..." />
       <div className="rounded-md border">
         <Table>
           <TableHeader>

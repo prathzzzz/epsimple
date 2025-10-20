@@ -1,9 +1,11 @@
 package com.eps.module.api.epsone.vendortype.service;
 
+import com.eps.module.api.epsone.vendorcategory.repository.VendorCategoryRepository;
 import com.eps.module.api.epsone.vendortype.dto.VendorTypeRequestDto;
 import com.eps.module.api.epsone.vendortype.dto.VendorTypeResponseDto;
 import com.eps.module.api.epsone.vendortype.mapper.VendorTypeMapper;
 import com.eps.module.api.epsone.vendortype.repository.VendorTypeRepository;
+import com.eps.module.vendor.VendorCategory;
 import com.eps.module.vendor.VendorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +20,7 @@ import java.util.List;
 public class VendorTypeServiceImpl implements VendorTypeService {
 
     private final VendorTypeRepository vendorTypeRepository;
+    private final VendorCategoryRepository vendorCategoryRepository;
     private final VendorTypeMapper vendorTypeMapper;
 
     @Override
@@ -28,7 +31,12 @@ public class VendorTypeServiceImpl implements VendorTypeService {
             throw new IllegalArgumentException("Vendor type with name '" + requestDto.getTypeName() + "' already exists");
         }
         
+        // Validate and fetch vendor category
+        VendorCategory vendorCategory = vendorCategoryRepository.findById(requestDto.getVendorCategoryId())
+            .orElseThrow(() -> new IllegalArgumentException("Vendor category not found with id: " + requestDto.getVendorCategoryId()));
+        
         VendorType vendorType = vendorTypeMapper.toEntity(requestDto);
+        vendorType.setVendorCategory(vendorCategory);
         VendorType savedVendorType = vendorTypeRepository.save(vendorType);
         return vendorTypeMapper.toResponseDto(savedVendorType);
     }
@@ -44,7 +52,12 @@ public class VendorTypeServiceImpl implements VendorTypeService {
             throw new IllegalArgumentException("Vendor type with name '" + requestDto.getTypeName() + "' already exists");
         }
         
+        // Validate and fetch vendor category
+        VendorCategory vendorCategory = vendorCategoryRepository.findById(requestDto.getVendorCategoryId())
+            .orElseThrow(() -> new IllegalArgumentException("Vendor category not found with id: " + requestDto.getVendorCategoryId()));
+        
         vendorTypeMapper.updateEntityFromDto(requestDto, existingVendorType);
+        existingVendorType.setVendorCategory(vendorCategory);
         VendorType updatedVendorType = vendorTypeRepository.save(existingVendorType);
         return vendorTypeMapper.toResponseDto(updatedVendorType);
     }

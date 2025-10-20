@@ -9,7 +9,7 @@
 | **State** | `state` | Geographic states - no dependencies |
 | **Bank** | `bank` | Bank master data |
 | **Activity** | `activity` | Activity types (installation, maintenance, etc.) |
-| **VendorType** | `vendor_type` | Vendor classification types |
+| **VendorCategory** | `vendor_category` | Vendor category classifications |
 | **PersonType** | `person_type` | Person role types |
 | **PayeeType** | `payee_type` | Payee classification |
 | **PaymentMethod** | `payment_method` | Payment methods (NEFT, RTGS, etc.) |
@@ -28,6 +28,7 @@
 | Entity | Table | Dependencies | Description |
 |--------|-------|--------------|-------------|
 | **City** | `city` | State | Cities belong to states |
+| **VendorType** | `vendor_type` | VendorCategory | Vendor type classifications under categories |
 | **PersonDetails** | `person_details` | PersonType | Person information with type |
 | **ManagedProject** | `managed_project` | Bank | Bank-managed projects |
 | **PayeeDetails** | `payee_details` | Bank | Payee banking details |
@@ -101,6 +102,11 @@ State → City → Location → (Site/Warehouse/Datacenter)
 CostCategory → CostType → CostItem → (ExpendituresInvoice/ExpendituresVoucher)
 ```
 
+### Vendor Flow
+```
+VendorCategory → VendorType → Vendor (with PersonDetails)
+```
+
 ### Payment Flow
 ```
 PayeeType → Payee (Vendor/Landlord) → (Invoice/Voucher) → PaymentDetails
@@ -129,7 +135,7 @@ Bank → ManagedProject → Site → Activities/Assets
 
 1. **Geographic**: State before City before Location
 2. **Bank Projects**: Bank before ManagedProject before Site
-3. **Vendors**: PersonType before PersonDetails before Vendor
+3. **Vendors**: VendorCategory before VendorType, PersonType before PersonDetails, then both before Vendor
 4. **Assets**: AssetType → AssetCategory → Asset
 5. **Costs**: CostCategory → CostType → CostItem
 6. **Work Orders**: Activity → Activities → ActivityWork

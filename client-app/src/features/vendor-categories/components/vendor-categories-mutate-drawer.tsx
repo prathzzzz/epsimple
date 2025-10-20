@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -25,97 +25,78 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
-import { vendorTypesApi } from '../api/vendor-types-api';
-import { vendorTypeFormSchema, type VendorTypeFormData, type VendorType } from '../api/schema';
+import { vendorCategoriesApi } from '../api/vendor-categories-api';
+import { vendorCategoryFormSchema, type VendorCategoryFormData, type VendorCategory } from '../api/schema';
 import { handleServerError } from '@/lib/handle-server-error';
-import { vendorCategoriesApi } from '@/features/vendor-categories/api/vendor-categories-api';
 
-interface VendorTypesMutateDrawerProps {
+interface VendorCategoriesMutateDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  currentRow: VendorType | null;
+  currentRow: VendorCategory | null;
 }
 
-export function VendorTypesMutateDrawer({
+export function VendorCategoriesMutateDrawer({
   open,
   onOpenChange,
   currentRow,
-}: VendorTypesMutateDrawerProps) {
+}: VendorCategoriesMutateDrawerProps) {
   const queryClient = useQueryClient();
   const isUpdate = !!currentRow;
 
-  const form = useForm<VendorTypeFormData>({
-    resolver: zodResolver(vendorTypeFormSchema),
+  const form = useForm<VendorCategoryFormData>({
+    resolver: zodResolver(vendorCategoryFormSchema),
     defaultValues: {
-      typeName: '',
-      vendorCategoryId: 0,
+      categoryName: '',
       description: '',
     },
   });
-
-  // Fetch vendor categories list
-  const { data: categoriesData } = useQuery({
-    queryKey: ['vendor-categories-list'],
-    queryFn: vendorCategoriesApi.getList,
-  });
-
-  const categories = categoriesData?.data || [];
 
   // Reset form when currentRow changes
   useEffect(() => {
     if (currentRow) {
       form.reset({
-        typeName: currentRow.typeName,
-        vendorCategoryId: currentRow.vendorCategory?.id || 0,
+        categoryName: currentRow.categoryName,
         description: currentRow.description || '',
       });
     } else {
       form.reset({
-        typeName: '',
-        vendorCategoryId: 0,
+        categoryName: '',
         description: '',
       });
     }
   }, [currentRow, form]);
 
   const createMutation = useMutation({
-    mutationFn: vendorTypesApi.create,
+    mutationFn: vendorCategoriesApi.create,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vendor-types'] });
-      toast.success('Vendor type created successfully');
+      queryClient.invalidateQueries({ queryKey: ['vendor-categories'] });
+      toast.success('Vendor category created successfully');
       form.reset();
       onOpenChange(false);
     },
     onError: (error) => {
       const errorMessage = handleServerError(error);
-      toast.error(errorMessage?.message || 'Failed to create vendor type');
+      toast.error(errorMessage?.message || 'Failed to create vendor category');
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: VendorTypeFormData }) =>
-      vendorTypesApi.update(id, data),
+    mutationFn: ({ id, data }: { id: number; data: VendorCategoryFormData }) =>
+      vendorCategoriesApi.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vendor-types'] });
-      toast.success('Vendor type updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['vendor-categories'] });
+      toast.success('Vendor category updated successfully');
       form.reset();
       onOpenChange(false);
     },
     onError: (error) => {
       const errorMessage = handleServerError(error);
-      toast.error(errorMessage?.message || 'Failed to update vendor type');
+      toast.error(errorMessage?.message || 'Failed to update vendor category');
     },
   });
 
-  const onSubmit = (data: VendorTypeFormData) => {
+  const onSubmit = (data: VendorCategoryFormData) => {
     if (isUpdate && currentRow) {
       updateMutation.mutate({ id: currentRow.id, data });
     } else {
@@ -127,56 +108,29 @@ export function VendorTypesMutateDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="flex flex-col">
         <SheetHeader className="text-start">
-          <SheetTitle>{isUpdate ? 'Update' : 'Create'} Vendor Type</SheetTitle>
+          <SheetTitle>{isUpdate ? 'Update' : 'Create'} Vendor Category</SheetTitle>
           <SheetDescription>
             {isUpdate
-              ? 'Update the vendor type by providing necessary info.'
-              : 'Add a new vendor type by providing necessary info.'}
+              ? 'Update the vendor category by providing necessary info.'
+              : 'Add a new vendor category by providing necessary info.'}
             Click save when you&apos;re done.
           </SheetDescription>
         </SheetHeader>
         <Form {...form}>
           <form
-            id="vendor-types-form"
+            id="vendor-categories-form"
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex-1 space-y-6 overflow-y-auto px-4"
           >
             <FormField
               control={form.control}
-              name="typeName"
+              name="categoryName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Type Name *</FormLabel>
+                  <FormLabel>Category Name *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter vendor type name" {...field} />
+                    <Input placeholder="Enter category name" {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="vendorCategoryId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Vendor Category *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a vendor category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categories.map((category: any) => (
-                        <SelectItem key={category.id} value={String(category.id)}>
-                          {category.categoryName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -213,7 +167,7 @@ export function VendorTypesMutateDrawer({
           </SheetClose>
           <Button
             type="submit"
-            form="vendor-types-form"
+            form="vendor-categories-form"
             disabled={createMutation.isPending || updateMutation.isPending}
           >
             {createMutation.isPending || updateMutation.isPending ? (

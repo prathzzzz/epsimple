@@ -1,6 +1,5 @@
-package com.eps.module.api.epsone.vendortype.dto;
+package com.eps.module.api.epsone.vendorcategory.dto;
 
-import com.eps.module.api.epsone.vendorcategory.dto.VendorCategoryResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,10 +11,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VendorTypeResponseDto {
+public class VendorCategoryResponseDto {
     private Long id;
-    private String typeName;
-    private VendorCategoryResponseDto vendorCategory;
+    private String categoryName;
     private String description;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

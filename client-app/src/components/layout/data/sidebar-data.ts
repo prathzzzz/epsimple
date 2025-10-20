@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Landmark,
   MapIcon,
+  Tags,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -59,6 +60,11 @@ export const sidebarData: SidebarData = {
           title: 'Person Types',
           url: '/person-types',
           icon: Users,
+        },
+        {
+          title: 'Vendor Categories',
+          url: '/vendor-categories',
+          icon: Tags,
         },
         {
           title: 'Vendor Types',

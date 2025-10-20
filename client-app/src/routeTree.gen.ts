@@ -23,6 +23,7 @@ import { Route as authOtpRouteImport } from './routes/(auth)/otp'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
 import { Route as AuthenticatedVendorTypesIndexRouteImport } from './routes/_authenticated/vendor-types/index'
+import { Route as AuthenticatedVendorCategoriesIndexRouteImport } from './routes/_authenticated/vendor-categories/index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedStatesIndexRouteImport } from './routes/_authenticated/states/index'
@@ -103,6 +104,12 @@ const AuthenticatedVendorTypesIndexRoute =
     path: '/vendor-types/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedVendorCategoriesIndexRoute =
+  AuthenticatedVendorCategoriesIndexRouteImport.update({
+    id: '/vendor-categories/',
+    path: '/vendor-categories/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
@@ -170,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/states': typeof AuthenticatedStatesIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/vendor-categories': typeof AuthenticatedVendorCategoriesIndexRoute
   '/vendor-types': typeof AuthenticatedVendorTypesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -192,6 +200,7 @@ export interface FileRoutesByTo {
   '/states': typeof AuthenticatedStatesIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/vendor-categories': typeof AuthenticatedVendorCategoriesIndexRoute
   '/vendor-types': typeof AuthenticatedVendorTypesIndexRoute
 }
 export interface FileRoutesById {
@@ -217,6 +226,7 @@ export interface FileRoutesById {
   '/_authenticated/states/': typeof AuthenticatedStatesIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
+  '/_authenticated/vendor-categories/': typeof AuthenticatedVendorCategoriesIndexRoute
   '/_authenticated/vendor-types/': typeof AuthenticatedVendorTypesIndexRoute
 }
 export interface FileRouteTypes {
@@ -242,6 +252,7 @@ export interface FileRouteTypes {
     | '/states'
     | '/tasks'
     | '/users'
+    | '/vendor-categories'
     | '/vendor-types'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/states'
     | '/tasks'
     | '/users'
+    | '/vendor-categories'
     | '/vendor-types'
   id:
     | '__root__'
@@ -288,6 +300,7 @@ export interface FileRouteTypes {
     | '/_authenticated/states/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
+    | '/_authenticated/vendor-categories/'
     | '/_authenticated/vendor-types/'
   fileRoutesById: FileRoutesById
 }
@@ -405,6 +418,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVendorTypesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/vendor-categories/': {
+      id: '/_authenticated/vendor-categories/'
+      path: '/vendor-categories'
+      fullPath: '/vendor-categories'
+      preLoaderRoute: typeof AuthenticatedVendorCategoriesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/users/': {
       id: '/_authenticated/users/'
       path: '/users'
@@ -489,6 +509,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStatesIndexRoute: typeof AuthenticatedStatesIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedVendorCategoriesIndexRoute: typeof AuthenticatedVendorCategoriesIndexRoute
   AuthenticatedVendorTypesIndexRoute: typeof AuthenticatedVendorTypesIndexRoute
 }
 
@@ -501,6 +522,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStatesIndexRoute: AuthenticatedStatesIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
+  AuthenticatedVendorCategoriesIndexRoute:
+    AuthenticatedVendorCategoriesIndexRoute,
   AuthenticatedVendorTypesIndexRoute: AuthenticatedVendorTypesIndexRoute,
 }
 
