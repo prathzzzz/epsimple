@@ -2,7 +2,7 @@ package com.eps.module.seeder;
 
 import com.eps.module.asset.AssetType;
 import com.eps.module.common.seeder.base.AbstractSeeder;
-import com.eps.module.seeder.repository.asset.AssetTypeRepository;
+import com.eps.module.seeder.repository.asset.AssetTypeSeederRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AssetTypeSeeder extends AbstractSeeder {
 
-    private final AssetTypeRepository assetTypeRepository;
+    private final AssetTypeSeederRepository assetTypeRepository;
 
     @Override
     public String getSeederName() {

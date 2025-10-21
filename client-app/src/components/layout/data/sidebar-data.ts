@@ -15,6 +15,7 @@ import {
   UserCheck,
   Tags,
   Layers,
+  Package,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -77,6 +78,11 @@ export const sidebarData: SidebarData = {
               title: 'Vendor Types',
               url: '/vendor-types',
               icon: Layers,
+            },
+            {
+              title: 'Asset Types',
+              url: '/asset-types',
+              icon: Package,
             },
           ],
         },
