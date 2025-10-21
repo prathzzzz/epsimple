@@ -88,9 +88,17 @@
 - ✅ `DELETE /api/cost-categories/{id}` - Delete cost category
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
-#### 1.10 Payment Masters
-- `POST /api/payment-methods` - Create payment method
-- `GET /api/payment-methods` - List payment methods
+#### 1.10 Payment Method Masters ✅ COMPLETED
+- ✅ `POST /api/payment-methods` - Create payment method
+- ✅ `GET /api/payment-methods` - List payment methods (with pagination and search)
+- ✅ `GET /api/payment-methods/search` - Search payment methods
+- ✅ `GET /api/payment-methods/list` - Get all payment methods as list
+- ✅ `GET /api/payment-methods/{id}` - Get payment method by ID
+- ✅ `PUT /api/payment-methods/{id}` - Update payment method
+- ✅ `DELETE /api/payment-methods/{id}` - Delete payment method
+- ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
+
+#### 1.11 Payee Type Masters
 - `POST /api/payee-types` - Create payee type
 - `GET /api/payee-types` - List payee types
 
