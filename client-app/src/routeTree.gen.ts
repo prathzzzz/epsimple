@@ -30,6 +30,7 @@ import { Route as AuthenticatedStatesIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
 import { Route as AuthenticatedPersonTypesIndexRouteImport } from './routes/_authenticated/person-types/index'
 import { Route as AuthenticatedPaymentMethodsIndexRouteImport } from './routes/_authenticated/payment-methods/index'
+import { Route as AuthenticatedPayeeTypesIndexRouteImport } from './routes/_authenticated/payee-types/index'
 import { Route as AuthenticatedMovementTypesIndexRouteImport } from './routes/_authenticated/movement-types/index'
 import { Route as AuthenticatedCostCategoriesIndexRouteImport } from './routes/_authenticated/cost-categories/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
@@ -148,6 +149,12 @@ const AuthenticatedPaymentMethodsIndexRoute =
     path: '/payment-methods/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPayeeTypesIndexRoute =
+  AuthenticatedPayeeTypesIndexRouteImport.update({
+    id: '/payee-types/',
+    path: '/payee-types/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMovementTypesIndexRoute =
   AuthenticatedMovementTypesIndexRouteImport.update({
     id: '/movement-types/',
@@ -203,6 +210,7 @@ export interface FileRoutesByFullPath {
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/cost-categories': typeof AuthenticatedCostCategoriesIndexRoute
   '/movement-types': typeof AuthenticatedMovementTypesIndexRoute
+  '/payee-types': typeof AuthenticatedPayeeTypesIndexRoute
   '/payment-methods': typeof AuthenticatedPaymentMethodsIndexRoute
   '/person-types': typeof AuthenticatedPersonTypesIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
@@ -230,6 +238,7 @@ export interface FileRoutesByTo {
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/cost-categories': typeof AuthenticatedCostCategoriesIndexRoute
   '/movement-types': typeof AuthenticatedMovementTypesIndexRoute
+  '/payee-types': typeof AuthenticatedPayeeTypesIndexRoute
   '/payment-methods': typeof AuthenticatedPaymentMethodsIndexRoute
   '/person-types': typeof AuthenticatedPersonTypesIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
@@ -260,6 +269,7 @@ export interface FileRoutesById {
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
   '/_authenticated/cost-categories/': typeof AuthenticatedCostCategoriesIndexRoute
   '/_authenticated/movement-types/': typeof AuthenticatedMovementTypesIndexRoute
+  '/_authenticated/payee-types/': typeof AuthenticatedPayeeTypesIndexRoute
   '/_authenticated/payment-methods/': typeof AuthenticatedPaymentMethodsIndexRoute
   '/_authenticated/person-types/': typeof AuthenticatedPersonTypesIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
@@ -290,6 +300,7 @@ export interface FileRouteTypes {
     | '/banks'
     | '/cost-categories'
     | '/movement-types'
+    | '/payee-types'
     | '/payment-methods'
     | '/person-types'
     | '/settings/'
@@ -317,6 +328,7 @@ export interface FileRouteTypes {
     | '/banks'
     | '/cost-categories'
     | '/movement-types'
+    | '/payee-types'
     | '/payment-methods'
     | '/person-types'
     | '/settings'
@@ -346,6 +358,7 @@ export interface FileRouteTypes {
     | '/_authenticated/banks/'
     | '/_authenticated/cost-categories/'
     | '/_authenticated/movement-types/'
+    | '/_authenticated/payee-types/'
     | '/_authenticated/payment-methods/'
     | '/_authenticated/person-types/'
     | '/_authenticated/settings/'
@@ -519,6 +532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPaymentMethodsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/payee-types/': {
+      id: '/_authenticated/payee-types/'
+      path: '/payee-types'
+      fullPath: '/payee-types'
+      preLoaderRoute: typeof AuthenticatedPayeeTypesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/movement-types/': {
       id: '/_authenticated/movement-types/'
       path: '/movement-types'
@@ -588,6 +608,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
   AuthenticatedCostCategoriesIndexRoute: typeof AuthenticatedCostCategoriesIndexRoute
   AuthenticatedMovementTypesIndexRoute: typeof AuthenticatedMovementTypesIndexRoute
+  AuthenticatedPayeeTypesIndexRoute: typeof AuthenticatedPayeeTypesIndexRoute
   AuthenticatedPaymentMethodsIndexRoute: typeof AuthenticatedPaymentMethodsIndexRoute
   AuthenticatedPersonTypesIndexRoute: typeof AuthenticatedPersonTypesIndexRoute
   AuthenticatedStatesIndexRoute: typeof AuthenticatedStatesIndexRoute
@@ -605,6 +626,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,
   AuthenticatedCostCategoriesIndexRoute: AuthenticatedCostCategoriesIndexRoute,
   AuthenticatedMovementTypesIndexRoute: AuthenticatedMovementTypesIndexRoute,
+  AuthenticatedPayeeTypesIndexRoute: AuthenticatedPayeeTypesIndexRoute,
   AuthenticatedPaymentMethodsIndexRoute: AuthenticatedPaymentMethodsIndexRoute,
   AuthenticatedPersonTypesIndexRoute: AuthenticatedPersonTypesIndexRoute,
   AuthenticatedStatesIndexRoute: AuthenticatedStatesIndexRoute,

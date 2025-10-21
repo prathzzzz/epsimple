@@ -1,6 +1,6 @@
 package com.eps.module.seeder;
 
-import com.eps.module.seeder.repository.payment.PayeeTypeRepository;
+import com.eps.module.seeder.repository.payment.PayeeTypeSeederRepository;
 import com.eps.module.common.seeder.base.AbstractSeeder;
 import com.eps.module.payment.PayeeType;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 public class PayeeTypeSeeder extends AbstractSeeder {
 
-    private final PayeeTypeRepository payeeTypeRepository;
+    private final PayeeTypeSeederRepository payeeTypeSeederRepository;
 
     @Override
     public String getSeederName() {
@@ -26,7 +26,7 @@ public class PayeeTypeSeeder extends AbstractSeeder {
 
     @Override
     protected boolean shouldSkipSeeding() {
-        return payeeTypeRepository.count() > 0;
+        return payeeTypeSeederRepository.count() > 0;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class PayeeTypeSeeder extends AbstractSeeder {
                         .build()
         );
 
-        payeeTypeRepository.saveAll(payeeTypes);
+        payeeTypeSeederRepository.saveAll(payeeTypes);
         log.info("Seeded {} payee types", payeeTypes.size());
     }
 }

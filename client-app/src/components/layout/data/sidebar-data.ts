@@ -19,6 +19,7 @@ import {
   ArrowRightLeft,
   DollarSign,
   CreditCard,
+  UserCog,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -101,6 +102,11 @@ export const sidebarData: SidebarData = {
               title: 'Payment Methods',
               url: '/payment-methods',
               icon: CreditCard,
+            },
+            {
+              title: 'Payee Types',
+              url: '/payee-types',
+              icon: UserCog,
             },
           ],
         },
