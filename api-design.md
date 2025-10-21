@@ -98,9 +98,15 @@
 - ✅ `DELETE /api/payment-methods/{id}` - Delete payment method
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
-#### 1.11 Payee Type Masters
-- `POST /api/payee-types` - Create payee type
-- `GET /api/payee-types` - List payee types
+#### 1.11 Payee Type Masters ✅ COMPLETED
+- ✅ `POST /api/payee-types` - Create payee type
+- ✅ `GET /api/payee-types` - List payee types (with pagination and search)
+- ✅ `GET /api/payee-types/search` - Search payee types
+- ✅ `GET /api/payee-types/list` - Get all payee types as list
+- ✅ `GET /api/payee-types/{id}` - Get payee type by ID
+- ✅ `PUT /api/payee-types/{id}` - Update payee type
+- ✅ `DELETE /api/payee-types/{id}` - Delete payee type
+- ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
 ---
 
