@@ -9,9 +9,12 @@ import {
   UserX,
   Users,
   ShieldCheck,
+  Database,
   Landmark,
-  MapIcon,
+  MapPin,
+  UserCheck,
   Tags,
+  Layers,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -47,29 +50,35 @@ export const sidebarData: SidebarData = {
       title: 'Masters',
       items: [
         {
-          title: 'Banks',
-          url: '/banks',
-          icon: Landmark,
-        },
-        {
-          title: 'States',
-          url: '/states',
-          icon: MapIcon,
-        },
-        {
-          title: 'Person Types',
-          url: '/person-types',
-          icon: Users,
-        },
-        {
-          title: 'Vendor Categories',
-          url: '/vendor-categories',
-          icon: Tags,
-        },
-        {
-          title: 'Vendor Types',
-          url: '/vendor-types',
-          icon: Users,
+          title: 'Master Data',
+          icon: Database,
+          items: [
+            {
+              title: 'Banks',
+              url: '/banks',
+              icon: Landmark,
+            },
+            {
+              title: 'States',
+              url: '/states',
+              icon: MapPin,
+            },
+            {
+              title: 'Person Types',
+              url: '/person-types',
+              icon: UserCheck,
+            },
+            {
+              title: 'Vendor Categories',
+              url: '/vendor-categories',
+              icon: Tags,
+            },
+            {
+              title: 'Vendor Types',
+              url: '/vendor-types',
+              icon: Layers,
+            },
+          ],
         },
       ],
     },
