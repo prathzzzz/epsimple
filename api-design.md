@@ -58,17 +58,30 @@
 - `POST /api/site-categories` - Create site category
 - `GET /api/site-categories` - List site categories
 
-#### 1.7 Asset Type Masters
-- `POST /api/asset-types` - Create asset type
-- `GET /api/asset-types` - List asset types
-- `POST /api/asset-movement-types` - Create movement type
-- `GET /api/asset-movement-types` - List movement types
+#### 1.7 Asset Type Masters ✅ COMPLETED
+- ✅ `POST /api/asset-types` - Create asset type
+- ✅ `GET /api/asset-types` - List asset types (with pagination and search)
+- ✅ `GET /api/asset-types/search` - Search asset types
+- ✅ `GET /api/asset-types/list` - Get all asset types as list
+- ✅ `GET /api/asset-types/{id}` - Get asset type by ID
+- ✅ `PUT /api/asset-types/{id}` - Update asset type
+- ✅ `DELETE /api/asset-types/{id}` - Delete asset type
+- ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
-#### 1.8 Cost Masters
+#### 1.8 Asset Movement Type Masters
+- `POST /api/movement-types` - Create movement type
+- `GET /api/movement-types` - List movement types (with pagination and search)
+- `GET /api/movement-types/search` - Search movement types
+- `GET /api/movement-types/list` - Get all movement types as list
+- `GET /api/movement-types/{id}` - Get movement type by ID
+- `PUT /api/movement-types/{id}` - Update movement type
+- `DELETE /api/movement-types/{id}` - Delete movement type
+
+#### 1.9 Cost Masters
 - `POST /api/cost-categories` - Create cost category
 - `GET /api/cost-categories` - List cost categories
 
-#### 1.9 Payment Masters
+#### 1.10 Payment Masters
 - `POST /api/payment-methods` - Create payment method
 - `GET /api/payment-methods` - List payment methods
 - `POST /api/payee-types` - Create payee type

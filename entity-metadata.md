@@ -17,8 +17,8 @@
 | **OwnershipStatus** | `ownership_status` | Asset ownership status |
 | **SiteType** | `site_type` | Site classifications |
 | **SiteCategory** | `site_category` | Site categories |
-| **AssetType** | `asset_type` | Asset type classifications |
-| **AssetMovementType** | `asset_movement_type` | Asset movement types |
+| **AssetType** | `asset_type` | Asset type classifications (ATM, Power Backup, etc.) |
+| **AssetMovementType** | `asset_movement_type` | Asset movement types (Installation, Relocation, etc.) |
 | **CostCategory** | `cost_category` | Expenditure category types |
 
 ---
