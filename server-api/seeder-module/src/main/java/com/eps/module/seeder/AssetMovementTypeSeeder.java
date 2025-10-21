@@ -1,7 +1,7 @@
 package com.eps.module.seeder;
 
 import com.eps.module.asset.AssetMovementType;
-import com.eps.module.seeder.repository.asset.AssetMovementTypeRepository;
+import com.eps.module.seeder.repository.asset.AssetMovementTypeSeederRepository;
 import com.eps.module.common.seeder.base.AbstractSeeder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 public class AssetMovementTypeSeeder extends AbstractSeeder {
 
-    private final AssetMovementTypeRepository assetMovementTypeRepository;
+    private final AssetMovementTypeSeederRepository assetMovementTypeRepository;
 
     @Override
     public String getSeederName() {

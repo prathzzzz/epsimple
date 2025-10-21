@@ -16,6 +16,7 @@ import {
   Tags,
   Layers,
   Package,
+  ArrowRightLeft,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -83,6 +84,11 @@ export const sidebarData: SidebarData = {
               title: 'Asset Types',
               url: '/asset-types',
               icon: Package,
+            },
+            {
+              title: 'Movement Types',
+              url: '/movement-types',
+              icon: ArrowRightLeft,
             },
           ],
         },

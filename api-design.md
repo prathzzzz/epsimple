@@ -68,14 +68,15 @@
 - ✅ `DELETE /api/asset-types/{id}` - Delete asset type
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
-#### 1.8 Asset Movement Type Masters
-- `POST /api/movement-types` - Create movement type
-- `GET /api/movement-types` - List movement types (with pagination and search)
-- `GET /api/movement-types/search` - Search movement types
-- `GET /api/movement-types/list` - Get all movement types as list
-- `GET /api/movement-types/{id}` - Get movement type by ID
-- `PUT /api/movement-types/{id}` - Update movement type
-- `DELETE /api/movement-types/{id}` - Delete movement type
+#### 1.8 Asset Movement Type Masters ✅ COMPLETED
+- ✅ `POST /api/movement-types` - Create movement type
+- ✅ `GET /api/movement-types` - List movement types (with pagination and search)
+- ✅ `GET /api/movement-types/search` - Search movement types
+- ✅ `GET /api/movement-types/list` - Get all movement types as list
+- ✅ `GET /api/movement-types/{id}` - Get movement type by ID
+- ✅ `PUT /api/movement-types/{id}` - Update movement type
+- ✅ `DELETE /api/movement-types/{id}` - Delete movement type
+- ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
 #### 1.9 Cost Masters
 - `POST /api/cost-categories` - Create cost category
