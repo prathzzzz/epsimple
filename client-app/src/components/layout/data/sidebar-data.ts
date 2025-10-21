@@ -17,6 +17,7 @@ import {
   Layers,
   Package,
   ArrowRightLeft,
+  DollarSign,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -89,6 +90,11 @@ export const sidebarData: SidebarData = {
               title: 'Movement Types',
               url: '/movement-types',
               icon: ArrowRightLeft,
+            },
+            {
+              title: 'Cost Categories',
+              url: '/cost-categories',
+              icon: DollarSign,
             },
           ],
         },

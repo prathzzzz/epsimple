@@ -78,9 +78,15 @@
 - ✅ `DELETE /api/movement-types/{id}` - Delete movement type
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
-#### 1.9 Cost Masters
-- `POST /api/cost-categories` - Create cost category
-- `GET /api/cost-categories` - List cost categories
+#### 1.9 Cost Category Masters ✅ COMPLETED
+- ✅ `POST /api/cost-categories` - Create cost category
+- ✅ `GET /api/cost-categories` - List cost categories (with pagination and search)
+- ✅ `GET /api/cost-categories/search` - Search cost categories
+- ✅ `GET /api/cost-categories/list` - Get all cost categories as list
+- ✅ `GET /api/cost-categories/{id}` - Get cost category by ID
+- ✅ `PUT /api/cost-categories/{id}` - Update cost category
+- ✅ `DELETE /api/cost-categories/{id}` - Delete cost category
+- ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
 #### 1.10 Payment Masters
 - `POST /api/payment-methods` - Create payment method
