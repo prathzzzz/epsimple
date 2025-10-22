@@ -20,6 +20,7 @@ import {
   DollarSign,
   CreditCard,
   UserCog,
+  Activity,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -107,6 +108,11 @@ export const sidebarData: SidebarData = {
               title: 'Payee Types',
               url: '/payee-types',
               icon: UserCog,
+            },
+            {
+              title: 'Activities',
+              url: '/activities',
+              icon: Activity,
             },
           ],
         },

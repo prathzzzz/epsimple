@@ -3,7 +3,7 @@ package com.eps.module.seeder;
 import com.eps.module.activity.Activities;
 import com.eps.module.activity.Activity;
 import com.eps.module.seeder.repository.activity.ActivitiesRepository;
-import com.eps.module.seeder.repository.activity.ActivityRepository;
+import com.eps.module.seeder.repository.activity.ActivitySeederRepository;
 import com.eps.module.common.seeder.base.AbstractSeeder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import java.util.List;
 public class ActivitiesSeeder extends AbstractSeeder {
 
     private final ActivitiesRepository activitiesRepository;
-    private final ActivityRepository activityRepository;
+    private final ActivitySeederRepository activitySeederRepository;
 
     @Override
     public String getSeederName() {
@@ -35,7 +35,7 @@ public class ActivitiesSeeder extends AbstractSeeder {
     @Override
     protected void performSeeding() {
         // Get Site Readiness activity (ID=1)
-        Activity siteReadiness = activityRepository.findById(1L)
+        Activity siteReadiness = activitySeederRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("Site Readiness activity not found. Please run ActivitySeeder first."));
 
         List<Activities> activitiesList = Arrays.asList(

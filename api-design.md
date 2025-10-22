@@ -44,9 +44,15 @@
 - ✅ `DELETE /api/vendor-categories/{id}` - Delete vendor category
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
-#### 1.5 Activity Masters
-- `POST /api/activities` - Create activity type
-- `GET /api/activities` - List activities
+#### 1.5 Activity Masters ✅ COMPLETED
+- ✅ `POST /api/activities` - Create activity
+- ✅ `GET /api/activities` - List activities (with pagination and search)
+- ✅ `GET /api/activities/search` - Search activities
+- ✅ `GET /api/activities/list` - Get all activities as list
+- ✅ `GET /api/activities/{id}` - Get activity by ID
+- ✅ `PUT /api/activities/{id}` - Update activity
+- ✅ `DELETE /api/activities/{id}` - Delete activity
+- ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
 #### 1.6 Status & Classification Masters
 - `POST /api/status-types` - Create generic status

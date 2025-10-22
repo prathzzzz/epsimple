@@ -1,7 +1,7 @@
 package com.eps.module.seeder;
 
 import com.eps.module.activity.Activity;
-import com.eps.module.seeder.repository.activity.ActivityRepository;
+import com.eps.module.seeder.repository.activity.ActivitySeederRepository;
 import com.eps.module.common.seeder.base.AbstractSeeder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 public class ActivitySeeder extends AbstractSeeder {
 
-    private final ActivityRepository activityRepository;
+    private final ActivitySeederRepository activitySeederRepository;
 
     @Override
     public String getSeederName() {
@@ -26,7 +26,7 @@ public class ActivitySeeder extends AbstractSeeder {
 
     @Override
     protected boolean shouldSkipSeeding() {
-        return activityRepository.count() > 0;
+        return activitySeederRepository.count() > 0;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ActivitySeeder extends AbstractSeeder {
                         .build()
         );
 
-        activityRepository.saveAll(activities);
+        activitySeederRepository.saveAll(activities);
         log.info("Seeded {} activities", activities.size());
     }
 }
