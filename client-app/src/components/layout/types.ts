@@ -17,12 +17,17 @@ type NavLink = BaseNavItem & {
   items?: never
 }
 
-type NavCollapsible = BaseNavItem & {
+type NavCollapsibleLevel2 = BaseNavItem & {
   items: (BaseNavItem & { url: LinkProps['to'] | (string & {}) })[]
   url?: never
 }
 
-type NavItem = NavCollapsible | NavLink
+type NavCollapsibleLevel1 = BaseNavItem & {
+  items: (NavCollapsibleLevel2 | NavLink)[]
+  url?: never
+}
+
+type NavItem = NavCollapsibleLevel1 | NavLink
 
 type NavGroup = {
   title: string
@@ -34,4 +39,4 @@ type SidebarData = {
   navGroups: NavGroup[]
 }
 
-export type { SidebarData, NavGroup, NavItem, NavCollapsible, NavLink }
+export type { SidebarData, NavGroup, NavItem, NavCollapsibleLevel1, NavCollapsibleLevel2, NavLink }

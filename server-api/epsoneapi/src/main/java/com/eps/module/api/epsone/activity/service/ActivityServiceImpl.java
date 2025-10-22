@@ -103,7 +103,7 @@ public class ActivityServiceImpl implements ActivityService {
                 .orElseThrow(() -> new IllegalArgumentException("Activity not found with ID: " + id));
 
         // Check if activity is being used by Activities records
-        List<com.eps.module.activity.Activities> dependentActivities = activitiesRepository.findByActivityId(id.intValue());
+        List<com.eps.module.activity.Activities> dependentActivities = activitiesRepository.findByActivityId((long) id.intValue());
         if (!dependentActivities.isEmpty()) {
             String activityNames = dependentActivities.stream()
                 .limit(3) // Show max 3 names

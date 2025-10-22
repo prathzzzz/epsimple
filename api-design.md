@@ -52,12 +52,24 @@
 - ✅ `GET /api/activity/{id}` - Get activity by ID
 - ✅ `PUT /api/activity/{id}` - Update activity
 - ✅ `DELETE /api/activity/{id}` - Delete activity (with dependency validation)
+- ✅ Backend: Full CRUD with validation and dependency checking
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 - ✅ Enhanced: Friendly error messages showing which Activities records are using the Activity
+- ✅ Fields: activityName, activityDescription
 
-#### 1.6 Status & Classification Masters
-- `POST /api/status-types` - Create generic status
-- `GET /api/status-types` - List status types
+#### 1.6 Generic Status Type Masters ✅ COMPLETED
+- ✅ `POST /api/generic-status-types` - Create generic status type
+- ✅ `GET /api/generic-status-types` - List generic status types (with pagination and search)
+- ✅ `GET /api/generic-status-types/search` - Search generic status types
+- ✅ `GET /api/generic-status-types/list` - Get all generic status types as list
+- ✅ `GET /api/generic-status-types/{id}` - Get generic status type by ID
+- ✅ `PUT /api/generic-status-types/{id}` - Update generic status type
+- ✅ `DELETE /api/generic-status-types/{id}` - Delete generic status type
+- ✅ Backend: Full CRUD with validation
+- ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
+- ✅ Fields: statusTypeName, statusTypeDescription
+
+#### 1.7 Other Status & Classification Masters
 - `POST /api/ownership-statuses` - Create ownership status
 - `GET /api/ownership-statuses` - List ownership statuses
 - `POST /api/site-types` - Create site type
@@ -65,7 +77,7 @@
 - `POST /api/site-categories` - Create site category
 - `GET /api/site-categories` - List site categories
 
-#### 1.7 Asset Type Masters ✅ COMPLETED
+#### 1.8 Asset Type Masters ✅ COMPLETED
 - ✅ `POST /api/asset-types` - Create asset type
 - ✅ `GET /api/asset-types` - List asset types (with pagination and search)
 - ✅ `GET /api/asset-types/search` - Search asset types
@@ -75,7 +87,7 @@
 - ✅ `DELETE /api/asset-types/{id}` - Delete asset type
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
-#### 1.8 Asset Movement Type Masters ✅ COMPLETED
+#### 1.9 Asset Movement Type Masters ✅ COMPLETED
 - ✅ `POST /api/movement-types` - Create movement type
 - ✅ `GET /api/movement-types` - List movement types (with pagination and search)
 - ✅ `GET /api/movement-types/search` - Search movement types
@@ -85,7 +97,7 @@
 - ✅ `DELETE /api/movement-types/{id}` - Delete movement type
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
-#### 1.9 Cost Category Masters ✅ COMPLETED
+#### 1.10 Cost Category Masters ✅ COMPLETED
 - ✅ `POST /api/cost-categories` - Create cost category
 - ✅ `GET /api/cost-categories` - List cost categories (with pagination and search)
 - ✅ `GET /api/cost-categories/search` - Search cost categories
@@ -95,7 +107,7 @@
 - ✅ `DELETE /api/cost-categories/{id}` - Delete cost category
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
-#### 1.10 Payment Method Masters ✅ COMPLETED
+#### 1.11 Payment Method Masters ✅ COMPLETED
 - ✅ `POST /api/payment-methods` - Create payment method
 - ✅ `GET /api/payment-methods` - List payment methods (with pagination and search)
 - ✅ `GET /api/payment-methods/search` - Search payment methods
@@ -105,7 +117,7 @@
 - ✅ `DELETE /api/payment-methods/{id}` - Delete payment method
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
-#### 1.11 Payee Type Masters ✅ COMPLETED
+#### 1.12 Payee Type Masters ✅ COMPLETED
 - ✅ `POST /api/payee-types` - Create payee type
 - ✅ `GET /api/payee-types` - List payee types (with pagination and search)
 - ✅ `GET /api/payee-types/search` - Search payee types

@@ -12,10 +12,9 @@ import java.util.List;
 
 @Repository
 public interface ActivitiesRepository extends JpaRepository<Activities, Long> {
+
     
-    long countByActivityId(Integer activityId);
-    
-    List<Activities> findByActivityId(Integer activityId);
+    List<Activities> findByActivityId(Long activity_id);
 
     @Query("SELECT a FROM Activities a WHERE " +
             "LOWER(a.activityName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +

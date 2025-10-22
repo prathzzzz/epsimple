@@ -12,15 +12,17 @@ import {
   Database,
   Landmark,
   MapPin,
+  Package,
+  Activity,
+  Building2,
   UserCheck,
+  CircleDot,
   Tags,
   Layers,
-  Package,
   ArrowRightLeft,
   DollarSign,
   CreditCard,
   UserCog,
-  Activity,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -60,64 +62,105 @@ export const sidebarData: SidebarData = {
           icon: Database,
           items: [
             {
-              title: 'Banks',
-              url: '/banks',
-              icon: Landmark,
-            },
-            {
-              title: 'States',
-              url: '/states',
+              title: 'Location',
               icon: MapPin,
+              items: [
+                {
+                  title: 'States',
+                  url: '/states',
+                  icon: MapPin,
+                },
+              ],
             },
             {
-              title: 'Person Types',
-              url: '/person-types',
-              icon: UserCheck,
+              title: 'Financial',
+              icon: Landmark,
+              items: [
+                {
+                  title: 'Banks',
+                  url: '/banks',
+                  icon: Landmark,
+                },
+                {
+                  title: 'Cost Categories',
+                  url: '/cost-categories',
+                  icon: DollarSign,
+                },
+                {
+                  title: 'Payment Methods',
+                  url: '/payment-methods',
+                  icon: CreditCard,
+                },
+                {
+                  title: 'Payee Types',
+                  url: '/payee-types',
+                  icon: UserCog,
+                },
+              ],
             },
             {
-              title: 'Vendor Categories',
-              url: '/vendor-categories',
-              icon: Tags,
+              title: 'Vendor',
+              icon: Building2,
+              items: [
+                {
+                  title: 'Vendor Categories',
+                  url: '/vendor-categories',
+                  icon: Tags,
+                },
+                {
+                  title: 'Vendor Types',
+                  url: '/vendor-types',
+                  icon: Layers,
+                },
+              ],
             },
             {
-              title: 'Vendor Types',
-              url: '/vendor-types',
-              icon: Layers,
-            },
-            {
-              title: 'Asset Types',
-              url: '/asset-types',
+              title: 'Asset',
               icon: Package,
-            },
-            {
-              title: 'Movement Types',
-              url: '/movement-types',
-              icon: ArrowRightLeft,
-            },
-            {
-              title: 'Cost Categories',
-              url: '/cost-categories',
-              icon: DollarSign,
-            },
-            {
-              title: 'Payment Methods',
-              url: '/payment-methods',
-              icon: CreditCard,
-            },
-            {
-              title: 'Payee Types',
-              url: '/payee-types',
-              icon: UserCog,
+              items: [
+                {
+                  title: 'Asset Types',
+                  url: '/asset-types',
+                  icon: Package,
+                },
+                {
+                  title: 'Movement Types',
+                  url: '/movement-types',
+                  icon: ArrowRightLeft,
+                },
+              ],
             },
             {
               title: 'Activity',
-              url: '/activities',
               icon: Activity,
+              items: [
+                {
+                  title: 'Activity Master',
+                  url: '/activities',
+                  icon: Activity,
+                },
+                {
+                  title: 'Activities',
+                  url: '/activities-list',
+                  icon: Activity,
+                },
+              ],
             },
             {
-              title: 'Activities',
-              url: '/activities-list',
-              icon: Activity,
+              title: 'System',
+              icon: Database,
+              items: [
+                {
+                  title: 'Person Types',
+                  url: '/person-types',
+                  icon: UserCheck,
+                },
+                {
+                  title: 'Status Types',
+                  url: '/generic-status-types',
+                  icon: CircleDot,
+                },
+              ],
             },
           ],
         },

@@ -2,48 +2,39 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { DataTableColumnHeader } from "@/components/data-table";
 import { LongText } from "@/components/long-text";
-import type { ActivitiesList } from "../api/schema";
+import type { GenericStatusType } from "../api/schema";
 
-export const activitiesListColumns: ColumnDef<ActivitiesList>[] = [
+export const genericStatusTypeColumns: ColumnDef<GenericStatusType>[] = [
   {
-    accessorKey: "activityId",
+    accessorKey: "statusName",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Activity" />
+      <DataTableColumnHeader column={column} title="Status Name" />
     ),
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("activityId")}</div>
+      <div className="font-medium">{row.getValue("statusName")}</div>
     ),
   },
   {
-    accessorKey: "activityName",
+    accessorKey: "statusCode",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Activity Name" />
-    ),
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("activityName")}</div>
-    ),
-  },
-  {
-    accessorKey: "activityCategory",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Category" />
+      <DataTableColumnHeader column={column} title="Status Code" />
     ),
     cell: ({ row }) => {
-      const category = row.getValue("activityCategory") as string | null;
-      return category ? (
-        <div>{category}</div>
+      const code = row.getValue("statusCode") as string | null;
+      return code ? (
+        <div className="font-mono text-sm">{code}</div>
       ) : (
         <span className="text-muted-foreground">-</span>
       );
     },
   },
   {
-    accessorKey: "activityDescription",
+    accessorKey: "description",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Description" />
     ),
     cell: ({ row }) => {
-      const description = row.getValue("activityDescription") as string | null;
+      const description = row.getValue("description") as string | null;
       return description ? (
         <LongText>{description}</LongText>
       ) : (
