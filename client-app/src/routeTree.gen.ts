@@ -36,6 +36,7 @@ import { Route as AuthenticatedCostCategoriesIndexRouteImport } from './routes/_
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
 import { Route as AuthenticatedAssetTypesIndexRouteImport } from './routes/_authenticated/asset-types/index'
 import { Route as AuthenticatedActivitiesIndexRouteImport } from './routes/_authenticated/activities/index'
+import { Route as AuthenticatedActivitiesListIndexRouteImport } from './routes/_authenticated/activities-list/index'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 
@@ -185,6 +186,12 @@ const AuthenticatedActivitiesIndexRoute =
     path: '/activities/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedActivitiesListIndexRoute =
+  AuthenticatedActivitiesListIndexRouteImport.update({
+    id: '/activities-list/',
+    path: '/activities-list/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsAccountRoute =
   AuthenticatedSettingsAccountRouteImport.update({
     id: '/account',
@@ -213,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
+  '/activities-list': typeof AuthenticatedActivitiesListIndexRoute
   '/activities': typeof AuthenticatedActivitiesIndexRoute
   '/asset-types': typeof AuthenticatedAssetTypesIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
@@ -242,6 +250,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
+  '/activities-list': typeof AuthenticatedActivitiesListIndexRoute
   '/activities': typeof AuthenticatedActivitiesIndexRoute
   '/asset-types': typeof AuthenticatedAssetTypesIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
@@ -274,6 +283,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
+  '/_authenticated/activities-list/': typeof AuthenticatedActivitiesListIndexRoute
   '/_authenticated/activities/': typeof AuthenticatedActivitiesIndexRoute
   '/_authenticated/asset-types/': typeof AuthenticatedAssetTypesIndexRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
@@ -306,6 +316,7 @@ export interface FileRouteTypes {
     | '/'
     | '/errors/$error'
     | '/settings/account'
+    | '/activities-list'
     | '/activities'
     | '/asset-types'
     | '/banks'
@@ -335,6 +346,7 @@ export interface FileRouteTypes {
     | '/'
     | '/errors/$error'
     | '/settings/account'
+    | '/activities-list'
     | '/activities'
     | '/asset-types'
     | '/banks'
@@ -366,6 +378,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/errors/$error'
     | '/_authenticated/settings/account'
+    | '/_authenticated/activities-list/'
     | '/_authenticated/activities/'
     | '/_authenticated/asset-types/'
     | '/_authenticated/banks/'
@@ -587,6 +600,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActivitiesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/activities-list/': {
+      id: '/_authenticated/activities-list/'
+      path: '/activities-list'
+      fullPath: '/activities-list'
+      preLoaderRoute: typeof AuthenticatedActivitiesListIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings/account': {
       id: '/_authenticated/settings/account'
       path: '/account'
@@ -624,6 +644,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
+  AuthenticatedActivitiesListIndexRoute: typeof AuthenticatedActivitiesListIndexRoute
   AuthenticatedActivitiesIndexRoute: typeof AuthenticatedActivitiesIndexRoute
   AuthenticatedAssetTypesIndexRoute: typeof AuthenticatedAssetTypesIndexRoute
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
@@ -643,6 +664,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
+  AuthenticatedActivitiesListIndexRoute: AuthenticatedActivitiesListIndexRoute,
   AuthenticatedActivitiesIndexRoute: AuthenticatedActivitiesIndexRoute,
   AuthenticatedAssetTypesIndexRoute: AuthenticatedAssetTypesIndexRoute,
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,

@@ -19,7 +19,7 @@ export function ActivitiesDialogs() {
   const deleteMutation = useMutation({
     mutationFn: activitiesApi.delete,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activities"] });
+      queryClient.invalidateQueries({ queryKey: ["activity"] });
       toast.success("Activity deleted successfully");
       setIsDeleteDialogOpen(false);
       setSelectedActivity(null);

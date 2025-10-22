@@ -110,8 +110,13 @@ export const sidebarData: SidebarData = {
               icon: UserCog,
             },
             {
-              title: 'Activities',
+              title: 'Activity',
               url: '/activities',
+              icon: Activity,
+            },
+            {
+              title: 'Activities',
+              url: '/activities-list',
               icon: Activity,
             },
           ],

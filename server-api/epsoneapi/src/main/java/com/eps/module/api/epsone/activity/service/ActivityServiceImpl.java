@@ -22,17 +22,18 @@ public class ActivityServiceImpl implements ActivityService {
 
     private final ActivityRepository activityRepository;
     private final ActivityMapper activityMapper;
+    private final com.eps.module.api.epsone.activities.repository.ActivitiesRepository activitiesRepository;
 
     @Override
     @Transactional
-    public ActivityResponseDto createActivity(ActivityRequestDto activityRequestDto) {
-        log.info("Creating new activity: {}", activityRequestDto.getActivityName());
+    public ActivityResponseDto createActivity(ActivityRequestDto requestDto) {
+        log.info("Creating new activity: {}", requestDto.getActivityName());
 
-        if (activityRepository.existsByActivityNameIgnoreCase(activityRequestDto.getActivityName())) {
-            throw new IllegalArgumentException("Activity with name '" + activityRequestDto.getActivityName() + "' already exists");
+        if (activityRepository.existsByActivityNameIgnoreCase(requestDto.getActivityName())) {
+            throw new IllegalArgumentException("Activity with name '" + requestDto.getActivityName() + "' already exists");
         }
 
-        Activity activity = activityMapper.toEntity(activityRequestDto);
+        Activity activity = activityMapper.toEntity(requestDto);
         Activity savedActivity = activityRepository.save(activity);
 
         log.info("Activity created successfully with ID: {}", savedActivity.getId());
@@ -98,8 +99,26 @@ public class ActivityServiceImpl implements ActivityService {
     public void deleteActivity(Long id) {
         log.info("Deleting activity with ID: {}", id);
 
-        if (!activityRepository.existsById(id)) {
-            throw new IllegalArgumentException("Activity not found with ID: " + id);
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Activity not found with ID: " + id));
+
+        // Check if activity is being used by Activities records
+        List<com.eps.module.activity.Activities> dependentActivities = activitiesRepository.findByActivityId(id.intValue());
+        if (!dependentActivities.isEmpty()) {
+            String activityNames = dependentActivities.stream()
+                .limit(3) // Show max 3 names
+                .map(com.eps.module.activity.Activities::getActivityName)
+                .collect(Collectors.joining(", "));
+            
+            // If there are more than 3, add "and X more"
+            if (dependentActivities.size() > 3) {
+                activityNames += " and " + (dependentActivities.size() - 3) + " more";
+            }
+            
+            throw new IllegalStateException(
+                String.format("Activity '%s' cannot be deleted because it is being used by the following Activities: %s. Please remove these dependencies first.",
+                    activity.getActivityName(), activityNames)
+            );
         }
 
         activityRepository.deleteById(id);

@@ -1,8 +1,10 @@
 import api from "@/lib/api";
 
-export interface Activity {
+export interface ActivitiesList {
   id: number;
+  activityId: number;
   activityName: string;
+  activityCategory: string | null;
   activityDescription: string | null;
   createdAt: string;
   updatedAt: string;
@@ -10,8 +12,10 @@ export interface Activity {
   updatedBy: string;
 }
 
-export interface ActivityFormData {
+export interface ActivitiesListFormData {
+  activityId: number;
   activityName: string;
+  activityCategory?: string;
   activityDescription?: string;
 }
 
@@ -29,11 +33,11 @@ export interface ApiResponse<T> {
   status: number;
 }
 
-const BASE_URL = "/api/activity";
+const BASE_URL = "/api/activities";
 
-export const activitiesApi = {
-  create: async (data: ActivityFormData): Promise<ApiResponse<Activity>> => {
-    const response = await api.post<ApiResponse<Activity>>(BASE_URL, data);
+export const activitiesListApi = {
+  create: async (data: ActivitiesListFormData): Promise<ApiResponse<ActivitiesList>> => {
+    const response = await api.post<ApiResponse<ActivitiesList>>(BASE_URL, data);
     return response.data;
   },
 
@@ -42,8 +46,8 @@ export const activitiesApi = {
     size = 10,
     sortBy = "id",
     sortDirection: "ASC" | "DESC" = "ASC"
-  ): Promise<ApiResponse<PageResponse<Activity>>> => {
-    const response = await api.get<ApiResponse<PageResponse<Activity>>>(BASE_URL, {
+  ): Promise<ApiResponse<PageResponse<ActivitiesList>>> => {
+    const response = await api.get<ApiResponse<PageResponse<ActivitiesList>>>(BASE_URL, {
       params: { page, size, sortBy, sortDirection },
     });
     return response.data;
@@ -55,8 +59,8 @@ export const activitiesApi = {
     size = 10,
     sortBy = "id",
     sortDirection: "ASC" | "DESC" = "ASC"
-  ): Promise<ApiResponse<PageResponse<Activity>>> => {
-    const response = await api.get<ApiResponse<PageResponse<Activity>>>(
+  ): Promise<ApiResponse<PageResponse<ActivitiesList>>> => {
+    const response = await api.get<ApiResponse<PageResponse<ActivitiesList>>>(
       `${BASE_URL}/search`,
       {
         params: { searchTerm, page, size, sortBy, sortDirection },
@@ -65,18 +69,18 @@ export const activitiesApi = {
     return response.data;
   },
 
-  getList: async (): Promise<ApiResponse<Activity[]>> => {
-    const response = await api.get<ApiResponse<Activity[]>>(`${BASE_URL}/list`);
+  getList: async (): Promise<ApiResponse<ActivitiesList[]>> => {
+    const response = await api.get<ApiResponse<ActivitiesList[]>>(`${BASE_URL}/list`);
     return response.data;
   },
 
-  getById: async (id: number): Promise<ApiResponse<Activity>> => {
-    const response = await api.get<ApiResponse<Activity>>(`${BASE_URL}/${id}`);
+  getById: async (id: number): Promise<ApiResponse<ActivitiesList>> => {
+    const response = await api.get<ApiResponse<ActivitiesList>>(`${BASE_URL}/${id}`);
     return response.data;
   },
 
-  update: async (id: number, data: ActivityFormData): Promise<ApiResponse<Activity>> => {
-    const response = await api.put<ApiResponse<Activity>>(`${BASE_URL}/${id}`, data);
+  update: async (id: number, data: ActivitiesListFormData): Promise<ApiResponse<ActivitiesList>> => {
+    const response = await api.put<ApiResponse<ActivitiesList>>(`${BASE_URL}/${id}`, data);
     return response.data;
   },
 

@@ -4,15 +4,15 @@ import { ProfileDropdown } from "@/components/profile-dropdown";
 import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { ConfigDrawer } from "@/components/config-drawer";
-import { ActivitiesProvider } from "./context/activities-provider";
-import { ActivitiesTable } from "./components/activities-table";
-import { activitiesColumns } from "./components/activities-columns";
-import { ActivitiesDialogs } from "./components/activities-dialogs";
-import { ActivitiesPrimaryButtons } from "./components/activities-primary-buttons";
+import { ActivitiesListProvider } from "./context/activities-list-provider";
+import { ActivitiesListTable } from "./components/activities-list-table";
+import { activitiesListColumns } from "./components/activities-list-columns";
+import { ActivitiesListDialogs } from "./components/activities-list-dialogs";
+import { ActivitiesListPrimaryButtons } from "./components/activities-list-primary-buttons";
 
-export default function Activities() {
+export default function ActivitiesList() {
   return (
-    <ActivitiesProvider>
+    <ActivitiesListProvider>
       <Header fixed>
         <Search />
         <div className="ml-auto flex items-center space-x-4">
@@ -24,18 +24,18 @@ export default function Activities() {
       <Main fixed>
         <div className="mb-2 flex items-center justify-between space-y-2">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Activity</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Activities</h2>
             <p className="text-muted-foreground">
-              Manage activity types and classifications
+              Manage detailed activity records and classifications
             </p>
           </div>
-          <ActivitiesPrimaryButtons />
+          <ActivitiesListPrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
-          <ActivitiesTable columns={activitiesColumns} />
+          <ActivitiesListTable columns={activitiesListColumns} />
         </div>
       </Main>
-      <ActivitiesDialogs />
-    </ActivitiesProvider>
+      <ActivitiesListDialogs />
+    </ActivitiesListProvider>
   );
 }

@@ -24,16 +24,16 @@ import {
 } from "@/components/ui/table";
 
 import { DataTablePagination, DataTableToolbar } from "@/components/data-table";
-import { activitiesApi } from "../api/activities-api";
+import { activitiesListApi } from "../api/activities-list-api";
 import { DataTableRowActions } from "./data-table-row-actions";
 
-interface ActivitiesTableProps<TData, TValue> {
+interface ActivitiesListTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
 }
 
-export function ActivitiesTable<TData, TValue>({
+export function ActivitiesListTable<TData, TValue>({
   columns,
-}: ActivitiesTableProps<TData, TValue>) {
+}: ActivitiesListTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState("");
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
@@ -49,7 +49,7 @@ export function ActivitiesTable<TData, TValue>({
 
   const { data, isLoading } = useQuery({
     queryKey: [
-      "activity",
+      "activities",
       pagination.pageIndex,
       pagination.pageSize,
       globalFilter,
@@ -61,7 +61,7 @@ export function ActivitiesTable<TData, TValue>({
         sorting.length > 0 && sorting[0].desc ? "DESC" : "ASC";
 
       if (globalFilter && globalFilter.trim() !== "") {
-        return await activitiesApi.search(
+        return await activitiesListApi.search(
           globalFilter,
           pagination.pageIndex,
           pagination.pageSize,
@@ -70,7 +70,7 @@ export function ActivitiesTable<TData, TValue>({
         );
       }
 
-      return await activitiesApi.getAll(
+      return await activitiesListApi.getAll(
         pagination.pageIndex,
         pagination.pageSize,
         sortBy,
@@ -79,7 +79,7 @@ export function ActivitiesTable<TData, TValue>({
     },
   });
 
-  const activities = (data?.data?.content || []) as TData[];
+  const activitiesList = (data?.data?.content || []) as TData[];
   const totalPages = data?.data?.totalPages || 0;
 
   // Reset to first page when search query changes
@@ -100,7 +100,7 @@ export function ActivitiesTable<TData, TValue>({
   );
 
   const table = useReactTable({
-    data: activities,
+    data: activitiesList,
     columns: columnsWithActions as ColumnDef<TData, TValue>[],
     pageCount: totalPages,
     state: {

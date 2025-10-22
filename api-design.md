@@ -45,14 +45,15 @@
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
 
 #### 1.5 Activity Masters ✅ COMPLETED
-- ✅ `POST /api/activities` - Create activity
-- ✅ `GET /api/activities` - List activities (with pagination and search)
-- ✅ `GET /api/activities/search` - Search activities
-- ✅ `GET /api/activities/list` - Get all activities as list
-- ✅ `GET /api/activities/{id}` - Get activity by ID
-- ✅ `PUT /api/activities/{id}` - Update activity
-- ✅ `DELETE /api/activities/{id}` - Delete activity
+- ✅ `POST /api/activity` - Create activity
+- ✅ `GET /api/activity` - List activities (with pagination and search)
+- ✅ `GET /api/activity/search` - Search activities
+- ✅ `GET /api/activity/list` - Get all activities as list
+- ✅ `GET /api/activity/{id}` - Get activity by ID
+- ✅ `PUT /api/activity/{id}` - Update activity
+- ✅ `DELETE /api/activity/{id}` - Delete activity (with dependency validation)
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
+- ✅ Enhanced: Friendly error messages showing which Activities records are using the Activity
 
 #### 1.6 Status & Classification Masters
 - `POST /api/status-types` - Create generic status
@@ -136,6 +137,19 @@
 - ✅ `DELETE /api/vendor-types/{id}` - Delete vendor type
 - ✅ Frontend: Full CRUD UI with category dropdown, data table, real-time search, pagination
 - ✅ **Note**: VendorType now has FK to VendorCategory (vendorCategoryId required)
+
+#### 2.2.1 Activities (depends: Activity) ✅ COMPLETED
+- ✅ `POST /api/activities` - Create activities entry (requires activityId)
+- ✅ `GET /api/activities` - List activities (with pagination and search)
+- ✅ `GET /api/activities/search` - Search activities
+- ✅ `GET /api/activities/list` - Get all activities as list
+- ✅ `GET /api/activities/{id}` - Get activities entry by ID
+- ✅ `PUT /api/activities/{id}` - Update activities entry
+- ✅ `DELETE /api/activities/{id}` - Delete activities entry
+- ✅ Backend: Full CRUD with Activity FK validation
+- ✅ Frontend: Full CRUD UI with Activity dropdown, data table, real-time search, pagination
+- ✅ Relationship: ManyToOne with Activity entity (activityId required)
+- ✅ Fields: activityId (FK), activityName, activityCategory, activityDescription
 
 #### 2.3 Person Details (depends: PersonType)
 - `POST /api/person-details` - Create person (requires personTypeId)
