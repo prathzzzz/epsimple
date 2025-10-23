@@ -85,3 +85,7 @@ export const costCategoriesApi = {
     return response.data;
   },
 };
+
+export const getAllCostCategoriesList = async (): Promise<ApiResponse<CostCategory[]>> => {
+  return costCategoriesApi.getList();
+};

@@ -1,0 +1,116 @@
+package com.eps.module.api.epsone.costtype.service;
+
+import com.eps.module.api.epsone.costcategory.repository.CostCategoryRepository;
+import com.eps.module.api.epsone.costtype.dto.CostTypeRequestDto;
+import com.eps.module.api.epsone.costtype.dto.CostTypeResponseDto;
+import com.eps.module.api.epsone.costtype.mapper.CostTypeMapper;
+import com.eps.module.api.epsone.costtype.repository.CostTypeRepository;
+import com.eps.module.cost.CostCategory;
+import com.eps.module.cost.CostType;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class CostTypeServiceImpl implements CostTypeService {
+    
+    private final CostTypeRepository costTypeRepository;
+    private final CostCategoryRepository costCategoryRepository;
+    private final CostTypeMapper costTypeMapper;
+    
+    @Override
+    @Transactional
+    public CostTypeResponseDto createCostType(CostTypeRequestDto requestDto) {
+        log.info("Creating cost type: {}", requestDto.getTypeName());
+        
+        CostCategory costCategory = costCategoryRepository.findById(requestDto.getCostCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + requestDto.getCostCategoryId()));
+        
+        CostType entity = CostType.builder()
+                .typeName(requestDto.getTypeName())
+                .typeDescription(requestDto.getTypeDescription())
+                .costCategory(costCategory)
+                .build();
+        
+        CostType saved = costTypeRepository.save(entity);
+        
+        log.info("Cost type created successfully with ID: {}", saved.getId());
+        return costTypeMapper.toResponseDto(saved);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CostTypeResponseDto> getAllCostTypes(Pageable pageable) {
+        log.info("Fetching all cost types with pagination");
+        return costTypeRepository.findAll(pageable)
+                .map(costTypeMapper::toResponseDto);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CostTypeResponseDto> searchCostTypes(String searchTerm, Pageable pageable) {
+        log.info("Searching cost types with term: {}", searchTerm);
+        return costTypeRepository.searchCostTypes(searchTerm, pageable)
+                .map(costTypeMapper::toResponseDto);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<CostTypeResponseDto> getAllCostTypesList() {
+        log.info("Fetching all cost types as list");
+        return costTypeRepository.findAll().stream()
+                .map(costTypeMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public CostTypeResponseDto getCostTypeById(Long id) {
+        log.info("Fetching cost type by ID: {}", id);
+        CostType entity = costTypeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cost type not found with id: " + id));
+        return costTypeMapper.toResponseDto(entity);
+    }
+    
+    @Override
+    @Transactional
+    public CostTypeResponseDto updateCostType(Long id, CostTypeRequestDto requestDto) {
+        log.info("Updating cost type with ID: {}", id);
+        
+        CostType existing = costTypeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cost type not found with id: " + id));
+        
+        CostCategory costCategory = costCategoryRepository.findById(requestDto.getCostCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + requestDto.getCostCategoryId()));
+        
+        existing.setTypeName(requestDto.getTypeName());
+        existing.setTypeDescription(requestDto.getTypeDescription());
+        existing.setCostCategory(costCategory);
+        
+        CostType updated = costTypeRepository.save(existing);
+        
+        log.info("Cost type updated successfully with ID: {}", id);
+        return costTypeMapper.toResponseDto(updated);
+    }
+    
+    @Override
+    @Transactional
+    public void deleteCostType(Long id) {
+        log.info("Deleting cost type with ID: {}", id);
+        
+        if (!costTypeRepository.existsById(id)) {
+            throw new IllegalArgumentException("Cost type not found with id: " + id);
+        }
+        
+        costTypeRepository.deleteById(id);
+        log.info("Cost type deleted successfully with ID: {}", id);
+    }
+}

@@ -82,6 +82,10 @@ export const sidebarData: SidebarData = {
                   url: '/cost-categories',
                 },
                 {
+                  title: 'Cost Types',
+                  url: '/cost-types',
+                },
+                {
                   title: 'Payment Methods',
                   url: '/payment-methods',
                 },

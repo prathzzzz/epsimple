@@ -4,10 +4,13 @@ import com.eps.module.api.epsone.costcategory.dto.CostCategoryRequestDto;
 import com.eps.module.api.epsone.costcategory.dto.CostCategoryResponseDto;
 import com.eps.module.api.epsone.costcategory.mapper.CostCategoryMapper;
 import com.eps.module.api.epsone.costcategory.repository.CostCategoryRepository;
+import com.eps.module.api.epsone.costtype.repository.CostTypeRepository;
 import com.eps.module.cost.CostCategory;
+import com.eps.module.cost.CostType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 public class CostCategoryServiceImpl implements CostCategoryService {
     
     private final CostCategoryRepository costCategoryRepository;
+    private final CostTypeRepository costTypeRepository;
     private final CostCategoryMapper costCategoryMapper;
     
     @Override
@@ -99,8 +103,28 @@ public class CostCategoryServiceImpl implements CostCategoryService {
     public void deleteCostCategory(Long id) {
         log.info("Deleting cost category with ID: {}", id);
         
-        if (!costCategoryRepository.existsById(id)) {
-            throw new IllegalArgumentException("Cost category not found with id: " + id);
+        CostCategory costCategory = costCategoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + id));
+        
+        // Check for dependent cost types
+        Page<CostType> dependentCostTypes = costTypeRepository.findByCostCategoryId(id, PageRequest.of(0, 6));
+        
+        if (!dependentCostTypes.isEmpty()) {
+            long totalCount = dependentCostTypes.getTotalElements();
+            List<String> typeNames = dependentCostTypes.getContent().stream()
+                    .limit(5)
+                    .map(CostType::getTypeName)
+                    .collect(Collectors.toList());
+            
+            String typeNamesList = String.join(", ", typeNames);
+            String errorMessage = String.format(
+                    "Cannot delete '%s' cost category because it is being used by %d cost type%s: %s. Please delete or reassign these cost types first.",
+                    costCategory.getCategoryName(),
+                    totalCount,
+                    totalCount > 1 ? "s" : "",
+                    typeNamesList
+            );
+            throw new IllegalStateException(errorMessage);
         }
         
         costCategoryRepository.deleteById(id);
