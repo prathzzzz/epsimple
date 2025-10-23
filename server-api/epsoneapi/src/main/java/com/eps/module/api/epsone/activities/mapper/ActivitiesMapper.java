@@ -4,11 +4,9 @@ import com.eps.module.activity.Activities;
 import com.eps.module.activity.Activity;
 import com.eps.module.api.epsone.activities.dto.ActivitiesRequestDto;
 import com.eps.module.api.epsone.activities.dto.ActivitiesResponseDto;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ActivitiesMapper {
 
     @Mapping(source = "activity.id", target = "activityId")
@@ -18,6 +16,7 @@ public interface ActivitiesMapper {
     Activities toEntity(ActivitiesRequestDto activitiesRequestDto);
 
     @Mapping(target = "activity", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(ActivitiesRequestDto activitiesRequestDto, @MappingTarget Activities activities);
 
     default Activities toEntityWithActivity(ActivitiesRequestDto dto, Activity activity) {

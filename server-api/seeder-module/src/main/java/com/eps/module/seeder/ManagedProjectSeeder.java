@@ -1,7 +1,7 @@
 package com.eps.module.seeder;
 
 import com.eps.module.seeder.repository.bank.BankSeederRepository;
-import com.eps.module.seeder.repository.bank.ManagedProjectRepository;
+import com.eps.module.seeder.repository.bank.ManagedProjectSeederRepository;
 import com.eps.module.bank.Bank;
 import com.eps.module.bank.ManagedProject;
 import com.eps.module.common.seeder.base.AbstractSeeder;
@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 public class ManagedProjectSeeder extends AbstractSeeder {
 
-    private final ManagedProjectRepository managedProjectRepository;
+    private final ManagedProjectSeederRepository managedProjectSeederRepository;
     private final BankSeederRepository bankRepository;
 
     @Override
@@ -29,7 +29,7 @@ public class ManagedProjectSeeder extends AbstractSeeder {
 
     @Override
     protected boolean shouldSkipSeeding() {
-        return managedProjectRepository.count() > 0;
+        return managedProjectSeederRepository.count() > 0;
     }
 
     @Override
@@ -68,7 +68,7 @@ public class ManagedProjectSeeder extends AbstractSeeder {
                         .build()
         );
 
-        managedProjectRepository.saveAll(projects);
+        managedProjectSeederRepository.saveAll(projects);
         log.info("Seeded {} managed projects", projects.size());
     }
 }

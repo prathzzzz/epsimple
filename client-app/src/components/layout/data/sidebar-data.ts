@@ -74,6 +74,10 @@ export const sidebarData: SidebarData = {
                   url: '/banks',
                 },
                 {
+                  title: 'Managed Projects',
+                  url: '/managed-projects',
+                },
+                {
                   title: 'Cost Categories',
                   url: '/cost-categories',
                 },

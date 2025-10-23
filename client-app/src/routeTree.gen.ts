@@ -35,6 +35,7 @@ import { Route as AuthenticatedPersonDetailsIndexRouteImport } from './routes/_a
 import { Route as AuthenticatedPaymentMethodsIndexRouteImport } from './routes/_authenticated/payment-methods/index'
 import { Route as AuthenticatedPayeeTypesIndexRouteImport } from './routes/_authenticated/payee-types/index'
 import { Route as AuthenticatedMovementTypesIndexRouteImport } from './routes/_authenticated/movement-types/index'
+import { Route as AuthenticatedManagedProjectsIndexRouteImport } from './routes/_authenticated/managed-projects/index'
 import { Route as AuthenticatedGenericStatusTypesIndexRouteImport } from './routes/_authenticated/generic-status-types/index'
 import { Route as AuthenticatedCostCategoriesIndexRouteImport } from './routes/_authenticated/cost-categories/index'
 import { Route as AuthenticatedCitiesIndexRouteImport } from './routes/_authenticated/cities/index'
@@ -186,6 +187,12 @@ const AuthenticatedMovementTypesIndexRoute =
     path: '/movement-types/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedManagedProjectsIndexRoute =
+  AuthenticatedManagedProjectsIndexRouteImport.update({
+    id: '/managed-projects/',
+    path: '/managed-projects/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedGenericStatusTypesIndexRoute =
   AuthenticatedGenericStatusTypesIndexRouteImport.update({
     id: '/generic-status-types/',
@@ -262,6 +269,7 @@ export interface FileRoutesByFullPath {
   '/cities': typeof AuthenticatedCitiesIndexRoute
   '/cost-categories': typeof AuthenticatedCostCategoriesIndexRoute
   '/generic-status-types': typeof AuthenticatedGenericStatusTypesIndexRoute
+  '/managed-projects': typeof AuthenticatedManagedProjectsIndexRoute
   '/movement-types': typeof AuthenticatedMovementTypesIndexRoute
   '/payee-types': typeof AuthenticatedPayeeTypesIndexRoute
   '/payment-methods': typeof AuthenticatedPaymentMethodsIndexRoute
@@ -297,6 +305,7 @@ export interface FileRoutesByTo {
   '/cities': typeof AuthenticatedCitiesIndexRoute
   '/cost-categories': typeof AuthenticatedCostCategoriesIndexRoute
   '/generic-status-types': typeof AuthenticatedGenericStatusTypesIndexRoute
+  '/managed-projects': typeof AuthenticatedManagedProjectsIndexRoute
   '/movement-types': typeof AuthenticatedMovementTypesIndexRoute
   '/payee-types': typeof AuthenticatedPayeeTypesIndexRoute
   '/payment-methods': typeof AuthenticatedPaymentMethodsIndexRoute
@@ -335,6 +344,7 @@ export interface FileRoutesById {
   '/_authenticated/cities/': typeof AuthenticatedCitiesIndexRoute
   '/_authenticated/cost-categories/': typeof AuthenticatedCostCategoriesIndexRoute
   '/_authenticated/generic-status-types/': typeof AuthenticatedGenericStatusTypesIndexRoute
+  '/_authenticated/managed-projects/': typeof AuthenticatedManagedProjectsIndexRoute
   '/_authenticated/movement-types/': typeof AuthenticatedMovementTypesIndexRoute
   '/_authenticated/payee-types/': typeof AuthenticatedPayeeTypesIndexRoute
   '/_authenticated/payment-methods/': typeof AuthenticatedPaymentMethodsIndexRoute
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/cities'
     | '/cost-categories'
     | '/generic-status-types'
+    | '/managed-projects'
     | '/movement-types'
     | '/payee-types'
     | '/payment-methods'
@@ -408,6 +419,7 @@ export interface FileRouteTypes {
     | '/cities'
     | '/cost-categories'
     | '/generic-status-types'
+    | '/managed-projects'
     | '/movement-types'
     | '/payee-types'
     | '/payment-methods'
@@ -445,6 +457,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cities/'
     | '/_authenticated/cost-categories/'
     | '/_authenticated/generic-status-types/'
+    | '/_authenticated/managed-projects/'
     | '/_authenticated/movement-types/'
     | '/_authenticated/payee-types/'
     | '/_authenticated/payment-methods/'
@@ -658,6 +671,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMovementTypesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/managed-projects/': {
+      id: '/_authenticated/managed-projects/'
+      path: '/managed-projects'
+      fullPath: '/managed-projects'
+      preLoaderRoute: typeof AuthenticatedManagedProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/generic-status-types/': {
       id: '/_authenticated/generic-status-types/'
       path: '/generic-status-types'
@@ -751,6 +771,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCitiesIndexRoute: typeof AuthenticatedCitiesIndexRoute
   AuthenticatedCostCategoriesIndexRoute: typeof AuthenticatedCostCategoriesIndexRoute
   AuthenticatedGenericStatusTypesIndexRoute: typeof AuthenticatedGenericStatusTypesIndexRoute
+  AuthenticatedManagedProjectsIndexRoute: typeof AuthenticatedManagedProjectsIndexRoute
   AuthenticatedMovementTypesIndexRoute: typeof AuthenticatedMovementTypesIndexRoute
   AuthenticatedPayeeTypesIndexRoute: typeof AuthenticatedPayeeTypesIndexRoute
   AuthenticatedPaymentMethodsIndexRoute: typeof AuthenticatedPaymentMethodsIndexRoute
@@ -777,6 +798,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCostCategoriesIndexRoute: AuthenticatedCostCategoriesIndexRoute,
   AuthenticatedGenericStatusTypesIndexRoute:
     AuthenticatedGenericStatusTypesIndexRoute,
+  AuthenticatedManagedProjectsIndexRoute:
+    AuthenticatedManagedProjectsIndexRoute,
   AuthenticatedMovementTypesIndexRoute: AuthenticatedMovementTypesIndexRoute,
   AuthenticatedPayeeTypesIndexRoute: AuthenticatedPayeeTypesIndexRoute,
   AuthenticatedPaymentMethodsIndexRoute: AuthenticatedPaymentMethodsIndexRoute,

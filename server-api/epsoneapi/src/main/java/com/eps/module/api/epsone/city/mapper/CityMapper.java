@@ -3,11 +3,11 @@ package com.eps.module.api.epsone.city.mapper;
 import com.eps.module.api.epsone.city.dto.CityRequestDto;
 import com.eps.module.api.epsone.city.dto.CityResponseDto;
 import com.eps.module.location.City;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+import java.util.List;
+
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CityMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -19,7 +19,10 @@ public interface CityMapper {
     @Mapping(source = "state.stateCode", target = "stateCode")
     CityResponseDto toResponseDto(City city);
 
+    List<CityResponseDto> toResponseDtoList(List<City> cities);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "state", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(CityRequestDto requestDto, @MappingTarget City city);
 }

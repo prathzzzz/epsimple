@@ -4,14 +4,17 @@ import com.eps.module.api.epsone.bank.dto.BankRequestDto;
 import com.eps.module.api.epsone.bank.dto.BankResponseDto;
 import com.eps.module.api.epsone.bank.mapper.BankMapper;
 import com.eps.module.api.epsone.bank.repository.BankRepository;
+import com.eps.module.api.epsone.managedproject.repository.ManagedProjectRepository;
 import com.eps.module.api.epsone.storage.dto.FileUploadResponseDto;
 import com.eps.module.api.epsone.storage.service.FileStorageService;
 import com.eps.module.bank.Bank;
+import com.eps.module.bank.ManagedProject;
 import com.eps.module.common.exception.CustomException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.eps.module.api.epsone.bank.helper.BankHelper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -30,6 +34,7 @@ public class BankServiceImpl implements BankService {
     private final BankMapper bankMapper;
     private final FileStorageService fileStorageService;
     private final BankHelper bankHelper;
+    private final ManagedProjectRepository managedProjectRepository;
 
     @Override
     public BankResponseDto createBank(BankRequestDto bankRequestDto) {
@@ -147,6 +152,35 @@ public class BankServiceImpl implements BankService {
 
         Bank bank = bankRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Bank not found with ID: " + id));
+
+        // Check if this bank is being used by any managed projects
+        Page<ManagedProject> managedProjectsPage = managedProjectRepository.findByBankId(id, PageRequest.of(0, 6));
+        
+        if (managedProjectsPage.hasContent()) {
+            List<ManagedProject> managedProjectsList = managedProjectsPage.getContent();
+            long totalCount = managedProjectsPage.getTotalElements();
+            
+            // Build project names for the first 5 managed projects
+            List<String> projectNames = managedProjectsList.stream()
+                .limit(5)
+                .map(ManagedProject::getProjectName)
+                .collect(Collectors.toList());
+            
+            StringBuilder errorMessage = new StringBuilder();
+            errorMessage.append("Cannot delete '").append(bank.getBankName())
+                       .append("' bank because it is being used by ")
+                       .append(totalCount).append(" managed project")
+                       .append(totalCount > 1 ? "s" : "").append(": ")
+                       .append(String.join(", ", projectNames));
+            
+            if (totalCount > 5) {
+                errorMessage.append(" and ").append(totalCount - 5).append(" more");
+            }
+            
+            errorMessage.append(". Please delete or reassign these managed projects first.");
+            
+            throw new IllegalStateException(errorMessage.toString());
+        }
 
         // Delete logo file if exists
         if (bank.getBankLogo() != null && !bank.getBankLogo().isEmpty()) {
