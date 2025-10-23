@@ -227,11 +227,6 @@
 - ✅ UI Features: Header/Main layout with navbar, Sheet drawer with proper padding, proper flex layout for form/footer
 - ✅ API Error Handling: Uses handleServerError to display backend error messages instead of generic messages
 
-#### 2.4 Activity Instances (depends: Activity)
-- `POST /api/activity-instances` - Create activity instance
-- `GET /api/activity-instances` - List activity instances
-- `GET /api/activity-instances/{id}` - Get details
-
 #### 2.5 Cost Types (depends: CostCategory)
 - `POST /api/cost-types` - Create cost type (requires costCategoryId)
 - `GET /api/cost-types` - List cost types
