@@ -23,6 +23,7 @@ import {
   DollarSign,
   CreditCard,
   UserCog,
+  MapPinned,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -143,6 +144,22 @@ export const sidebarData: SidebarData = {
                   title: 'Activities',
                   url: '/activities-list',
                   icon: Activity,
+                },
+              ],
+            },
+            {
+              title: 'Sites',
+              icon: MapPinned,
+              items: [
+                {
+                  title: 'Site Types',
+                  url: '/site-types',
+                  icon: MapPinned,
+                },
+                {
+                  title: 'Site Categories',
+                  url: '/site-categories',
+                  icon: Layers,
                 },
               ],
             },

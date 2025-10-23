@@ -27,6 +27,8 @@ import { Route as AuthenticatedVendorCategoriesIndexRouteImport } from './routes
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedStatesIndexRouteImport } from './routes/_authenticated/states/index'
+import { Route as AuthenticatedSiteTypesIndexRouteImport } from './routes/_authenticated/site-types/index'
+import { Route as AuthenticatedSiteCategoriesIndexRouteImport } from './routes/_authenticated/site-categories/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
 import { Route as AuthenticatedPersonTypesIndexRouteImport } from './routes/_authenticated/person-types/index'
 import { Route as AuthenticatedPaymentMethodsIndexRouteImport } from './routes/_authenticated/payment-methods/index'
@@ -134,6 +136,18 @@ const AuthenticatedStatesIndexRoute =
     path: '/states/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSiteTypesIndexRoute =
+  AuthenticatedSiteTypesIndexRouteImport.update({
+    id: '/site-types/',
+    path: '/site-types/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSiteCategoriesIndexRoute =
+  AuthenticatedSiteCategoriesIndexRouteImport.update({
+    id: '/site-categories/',
+    path: '/site-categories/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsIndexRoute =
   AuthenticatedSettingsIndexRouteImport.update({
     id: '/',
@@ -238,6 +252,8 @@ export interface FileRoutesByFullPath {
   '/payment-methods': typeof AuthenticatedPaymentMethodsIndexRoute
   '/person-types': typeof AuthenticatedPersonTypesIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
+  '/site-categories': typeof AuthenticatedSiteCategoriesIndexRoute
+  '/site-types': typeof AuthenticatedSiteTypesIndexRoute
   '/states': typeof AuthenticatedStatesIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
@@ -269,6 +285,8 @@ export interface FileRoutesByTo {
   '/payment-methods': typeof AuthenticatedPaymentMethodsIndexRoute
   '/person-types': typeof AuthenticatedPersonTypesIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
+  '/site-categories': typeof AuthenticatedSiteCategoriesIndexRoute
+  '/site-types': typeof AuthenticatedSiteTypesIndexRoute
   '/states': typeof AuthenticatedStatesIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
@@ -303,6 +321,8 @@ export interface FileRoutesById {
   '/_authenticated/payment-methods/': typeof AuthenticatedPaymentMethodsIndexRoute
   '/_authenticated/person-types/': typeof AuthenticatedPersonTypesIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
+  '/_authenticated/site-categories/': typeof AuthenticatedSiteCategoriesIndexRoute
+  '/_authenticated/site-types/': typeof AuthenticatedSiteTypesIndexRoute
   '/_authenticated/states/': typeof AuthenticatedStatesIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
@@ -337,6 +357,8 @@ export interface FileRouteTypes {
     | '/payment-methods'
     | '/person-types'
     | '/settings/'
+    | '/site-categories'
+    | '/site-types'
     | '/states'
     | '/tasks'
     | '/users'
@@ -368,6 +390,8 @@ export interface FileRouteTypes {
     | '/payment-methods'
     | '/person-types'
     | '/settings'
+    | '/site-categories'
+    | '/site-types'
     | '/states'
     | '/tasks'
     | '/users'
@@ -401,6 +425,8 @@ export interface FileRouteTypes {
     | '/_authenticated/payment-methods/'
     | '/_authenticated/person-types/'
     | '/_authenticated/settings/'
+    | '/_authenticated/site-categories/'
+    | '/_authenticated/site-types/'
     | '/_authenticated/states/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
@@ -550,6 +576,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStatesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/site-types/': {
+      id: '/_authenticated/site-types/'
+      path: '/site-types'
+      fullPath: '/site-types'
+      preLoaderRoute: typeof AuthenticatedSiteTypesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/site-categories/': {
+      id: '/_authenticated/site-categories/'
+      path: '/site-categories'
+      fullPath: '/site-categories'
+      preLoaderRoute: typeof AuthenticatedSiteCategoriesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings/': {
       id: '/_authenticated/settings/'
       path: '/'
@@ -674,6 +714,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPayeeTypesIndexRoute: typeof AuthenticatedPayeeTypesIndexRoute
   AuthenticatedPaymentMethodsIndexRoute: typeof AuthenticatedPaymentMethodsIndexRoute
   AuthenticatedPersonTypesIndexRoute: typeof AuthenticatedPersonTypesIndexRoute
+  AuthenticatedSiteCategoriesIndexRoute: typeof AuthenticatedSiteCategoriesIndexRoute
+  AuthenticatedSiteTypesIndexRoute: typeof AuthenticatedSiteTypesIndexRoute
   AuthenticatedStatesIndexRoute: typeof AuthenticatedStatesIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
@@ -696,6 +738,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPayeeTypesIndexRoute: AuthenticatedPayeeTypesIndexRoute,
   AuthenticatedPaymentMethodsIndexRoute: AuthenticatedPaymentMethodsIndexRoute,
   AuthenticatedPersonTypesIndexRoute: AuthenticatedPersonTypesIndexRoute,
+  AuthenticatedSiteCategoriesIndexRoute: AuthenticatedSiteCategoriesIndexRoute,
+  AuthenticatedSiteTypesIndexRoute: AuthenticatedSiteTypesIndexRoute,
   AuthenticatedStatesIndexRoute: AuthenticatedStatesIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,

@@ -67,15 +67,31 @@
 - ✅ `DELETE /api/generic-status-types/{id}` - Delete generic status type
 - ✅ Backend: Full CRUD with validation
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination
-- ✅ Fields: statusTypeName, statusTypeDescription
+- ✅ Fields: statusName, statusCode, description
+- ✅ **Note**: This master serves as a generic reusable status type system that can be used for Ownership Status, Site Status, Asset Status, etc. by categorizing entries with appropriate status codes.
 
-#### 1.7 Other Status & Classification Masters
-- `POST /api/ownership-statuses` - Create ownership status
-- `GET /api/ownership-statuses` - List ownership statuses
-- `POST /api/site-types` - Create site type
-- `GET /api/site-types` - List site types
-- `POST /api/site-categories` - Create site category
-- `GET /api/site-categories` - List site categories
+#### 1.7 Site Classification Masters ✅ COMPLETED
+- ✅ `POST /api/site-types` - Create site type
+- ✅ `GET /api/site-types` - List site types (with pagination and search)
+- ✅ `GET /api/site-types/search` - Search site types
+- ✅ `GET /api/site-types/list` - Get all site types as list
+- ✅ `GET /api/site-types/{id}` - Get site type by ID
+- ✅ `PUT /api/site-types/{id}` - Update site type
+- ✅ `DELETE /api/site-types/{id}` - Delete site type
+- ✅ Backend: Full CRUD with validation
+- ✅ Frontend: Full CRUD UI with data table, real-time search, pagination, Sheet drawer
+- ✅ Fields: typeName, description
+- ✅ `POST /api/site-categories` - Create site category
+- ✅ `GET /api/site-categories` - List site categories (with pagination and search)
+- ✅ `GET /api/site-categories/search` - Search site categories
+- ✅ `GET /api/site-categories/list` - Get all site categories as list
+- ✅ `GET /api/site-categories/{id}` - Get site category by ID
+- ✅ `PUT /api/site-categories/{id}` - Update site category
+- ✅ `DELETE /api/site-categories/{id}` - Delete site category
+- ✅ Backend: Full CRUD with validation (with categoryCode regex validation)
+- ✅ Frontend: Full CRUD UI with data table, real-time search, pagination, Sheet drawer, delete dialog
+- ✅ Fields: categoryName, categoryCode (optional, uppercase alphanumeric), description
+- ✅ Sidebar: Grouped under "Sites" parent menu with Site Types and Site Categories
 
 #### 1.8 Asset Type Masters ✅ COMPLETED
 - ✅ `POST /api/asset-types` - Create asset type
