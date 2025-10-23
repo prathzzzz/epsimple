@@ -11,6 +11,7 @@ import com.eps.module.location.City;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,26 +122,32 @@ public class StateServiceImpl implements StateService {
         State state = stateRepository.findById(id)
                 .orElseThrow(() -> new CustomException("State not found with ID: " + id));
 
-        // Check if state is being used by any cities
-        List<City> citiesUsingState = cityRepository.findAll().stream()
-                .filter(city -> city.getState() != null && city.getState().getId().equals(id))
-                .collect(Collectors.toList());
+        // Check if state is being used by any cities (fetch only first 6 for efficiency)
+        Page<City> citiesPage = cityRepository.findByStateId(id, PageRequest.of(0, 6));
 
-        if (!citiesUsingState.isEmpty()) {
-            String cityNames = citiesUsingState.stream()
-                    .limit(5)  // Show maximum 5 cities
+        if (citiesPage.hasContent()) {
+            List<City> citiesList = citiesPage.getContent();
+            long totalCount = citiesPage.getTotalElements();
+            
+            // Get first 5 city names
+            String cityNames = citiesList.stream()
+                    .limit(5)
                     .map(City::getCityName)
                     .collect(Collectors.joining(", "));
             
-            String errorMessage = String.format(
-                "Cannot delete '%s' state because it is being used by %d city/cities: %s%s. Please delete or reassign these cities first.",
-                state.getStateName(),
-                citiesUsingState.size(),
-                cityNames,
-                citiesUsingState.size() > 5 ? " and " + (citiesUsingState.size() - 5) + " more" : ""
-            );
+            StringBuilder errorMessage = new StringBuilder();
+            errorMessage.append("Cannot delete '").append(state.getStateName())
+                       .append("' state because it is being used by ")
+                       .append(totalCount).append(totalCount > 1 ? " cities: " : " city: ")
+                       .append(cityNames);
             
-            throw new CustomException(errorMessage);
+            if (totalCount > 5) {
+                errorMessage.append(" and ").append(totalCount - 5).append(" more");
+            }
+            
+            errorMessage.append(". Please delete or reassign these cities first.");
+            
+            throw new CustomException(errorMessage.toString());
         }
 
         stateRepository.delete(state);

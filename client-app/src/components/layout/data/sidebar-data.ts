@@ -11,6 +11,8 @@ import {
   Activity,
   Building2,
   MapPinned,
+  UserCircle,
+  CheckCircle,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -142,13 +144,23 @@ export const sidebarData: SidebarData = {
               ],
             },
             {
-              title: 'System',
-              icon: Database,
+              title: 'Person',
+              icon: UserCircle,
               items: [
                 {
                   title: 'Person Types',
                   url: '/person-types',
                 },
+                {
+                  title: 'Person Details',
+                  url: '/person-details',
+                },
+              ],
+            },
+            {
+              title: 'Status',
+              icon: CheckCircle,
+              items: [
                 {
                   title: 'Status Types',
                   url: '/generic-status-types',

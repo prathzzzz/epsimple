@@ -1,17 +1,21 @@
 package com.eps.module.api.epsone.persontype.service;
 
+import com.eps.module.api.epsone.persondetails.repository.PersonDetailsRepository;
 import com.eps.module.api.epsone.persontype.dto.PersonTypeRequestDto;
 import com.eps.module.api.epsone.persontype.dto.PersonTypeResponseDto;
 import com.eps.module.api.epsone.persontype.mapper.PersonTypeMapper;
 import com.eps.module.api.epsone.persontype.repository.PersonTypeRepository;
+import com.eps.module.person.PersonDetails;
 import com.eps.module.person.PersonType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +23,7 @@ public class PersonTypeServiceImpl implements PersonTypeService {
 
     private final PersonTypeRepository personTypeRepository;
     private final PersonTypeMapper personTypeMapper;
+    private final PersonDetailsRepository personDetailsRepository;
 
     @Override
     @Transactional
@@ -52,10 +57,59 @@ public class PersonTypeServiceImpl implements PersonTypeService {
     @Override
     @Transactional
     public void deletePersonType(Long id) {
-        if (!personTypeRepository.existsById(id)) {
-            throw new IllegalArgumentException("Person type not found with id: " + id);
+        PersonType personType = personTypeRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Person type not found with id: " + id));
+        
+        // Check if this person type is being used by any person details
+        Page<PersonDetails> personDetailsPage = personDetailsRepository.findByPersonTypeId(id, PageRequest.of(0, 6));
+        
+        if (personDetailsPage.hasContent()) {
+            List<PersonDetails> personDetailsList = personDetailsPage.getContent();
+            long totalCount = personDetailsPage.getTotalElements();
+            
+            // Build full names for the first 5 person details
+            List<String> personNames = personDetailsList.stream()
+                .limit(5)
+                .map(this::buildFullName)
+                .collect(Collectors.toList());
+            
+            StringBuilder errorMessage = new StringBuilder();
+            errorMessage.append("Cannot delete '").append(personType.getTypeName())
+                       .append("' person type because it is being used by ")
+                       .append(totalCount).append(" person detail")
+                       .append(totalCount > 1 ? "s" : "").append(": ")
+                       .append(String.join(", ", personNames));
+            
+            if (totalCount > 5) {
+                errorMessage.append(" and ").append(totalCount - 5).append(" more");
+            }
+            
+            errorMessage.append(". Please delete or reassign these person details first.");
+            
+            throw new IllegalStateException(errorMessage.toString());
         }
+        
         personTypeRepository.deleteById(id);
+    }
+    
+    private String buildFullName(PersonDetails personDetails) {
+        StringBuilder fullName = new StringBuilder();
+        
+        if (personDetails.getFirstName() != null && !personDetails.getFirstName().trim().isEmpty()) {
+            fullName.append(personDetails.getFirstName().trim());
+        }
+        
+        if (personDetails.getMiddleName() != null && !personDetails.getMiddleName().trim().isEmpty()) {
+            if (fullName.length() > 0) fullName.append(" ");
+            fullName.append(personDetails.getMiddleName().trim());
+        }
+        
+        if (personDetails.getLastName() != null && !personDetails.getLastName().trim().isEmpty()) {
+            if (fullName.length() > 0) fullName.append(" ");
+            fullName.append(personDetails.getLastName().trim());
+        }
+        
+        return fullName.length() > 0 ? fullName.toString() : "Unknown";
     }
 
     @Override
