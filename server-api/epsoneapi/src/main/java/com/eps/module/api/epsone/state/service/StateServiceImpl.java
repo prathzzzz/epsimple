@@ -4,8 +4,10 @@ import com.eps.module.api.epsone.state.dto.StateRequestDto;
 import com.eps.module.api.epsone.state.dto.StateResponseDto;
 import com.eps.module.api.epsone.state.mapper.StateMapper;
 import com.eps.module.api.epsone.state.repository.StateRepository;
+import com.eps.module.api.epsone.city.repository.CityRepository;
 import com.eps.module.common.exception.CustomException;
 import com.eps.module.location.State;
+import com.eps.module.location.City;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class StateServiceImpl implements StateService {
 
     private final StateRepository stateRepository;
+    private final CityRepository cityRepository;
     private final StateMapper stateMapper;
 
     @Override
@@ -117,6 +120,28 @@ public class StateServiceImpl implements StateService {
 
         State state = stateRepository.findById(id)
                 .orElseThrow(() -> new CustomException("State not found with ID: " + id));
+
+        // Check if state is being used by any cities
+        List<City> citiesUsingState = cityRepository.findAll().stream()
+                .filter(city -> city.getState() != null && city.getState().getId().equals(id))
+                .collect(Collectors.toList());
+
+        if (!citiesUsingState.isEmpty()) {
+            String cityNames = citiesUsingState.stream()
+                    .limit(5)  // Show maximum 5 cities
+                    .map(City::getCityName)
+                    .collect(Collectors.joining(", "));
+            
+            String errorMessage = String.format(
+                "Cannot delete '%s' state because it is being used by %d city/cities: %s%s. Please delete or reassign these cities first.",
+                state.getStateName(),
+                citiesUsingState.size(),
+                cityNames,
+                citiesUsingState.size() > 5 ? " and " + (citiesUsingState.size() - 5) + " more" : ""
+            );
+            
+            throw new CustomException(errorMessage);
+        }
 
         stateRepository.delete(state);
         log.info("State deleted successfully with ID: {}", id);

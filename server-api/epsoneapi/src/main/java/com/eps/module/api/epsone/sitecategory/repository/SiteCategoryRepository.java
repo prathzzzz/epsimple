@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SiteCategorySeederRepository extends JpaRepository<SiteCategory, Long> {
+public interface SiteCategoryRepository extends JpaRepository<SiteCategory, Long> {
 
     @Query("SELECT sc FROM SiteCategory sc WHERE " +
             "LOWER(sc.categoryName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +

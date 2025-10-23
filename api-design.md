@@ -147,13 +147,22 @@
 
 ### Phase 2: Level 1 Dependent Entities
 
-#### 2.1 City Management (depends: State)
-- `POST /api/cities` - Create city (requires stateId)
-- `GET /api/cities` - List cities (filter by stateId)
-- `GET /api/cities/{id}` - Get city details
-- `GET /api/states/{stateId}/cities` - List cities by state
-- `PUT /api/cities/{id}` - Update city
-- `DELETE /api/cities/{id}` - Delete city
+#### 2.1 City Management (depends: State) ✅ COMPLETED
+- ✅ `POST /api/cities` - Create city (requires stateId)
+- ✅ `GET /api/cities` - List cities (with pagination and search)
+- ✅ `GET /api/cities/search` - Search cities
+- ✅ `GET /api/cities/state/{stateId}` - List cities by state
+- ✅ `GET /api/cities/list` - Get all cities as list
+- ✅ `GET /api/cities/{id}` - Get city details
+- ✅ `PUT /api/cities/{id}` - Update city
+- ✅ `DELETE /api/cities/{id}` - Delete city
+- ✅ Backend: Full CRUD with State FK validation and duplicate cityCode checks
+- ✅ Frontend: Full CRUD UI with State dropdown, data table, real-time search, pagination, Sheet drawer
+- ✅ Fields: cityName, cityCode (optional, alphanumeric), stateId (FK to State)
+- ✅ Sidebar: Added under Master Data → Location
+- ✅ Repository Pattern: Uses CityRepository (not SeederRepository)
+- ✅ State Delete Protection: Prevents state deletion if cities exist with specific error message
+- ✅ Error Messages: Shows specific dependency details (e.g., "Cannot delete 'Maharashtra' state because it is being used by 3 cities: Mumbai, Pune, Nagpur")
 
 #### 2.2 Vendor Type Masters (depends: VendorCategory) ✅ COMPLETED - REFACTORED
 - ✅ `POST /api/vendor-types` - Create vendor type (requires vendorCategoryId)

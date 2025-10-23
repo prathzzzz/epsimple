@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GenericStatusTypeSeederRepository extends JpaRepository<GenericStatusType, Long> {
+public interface GenericStatusTypeRepository extends JpaRepository<GenericStatusType, Long> {
 
     @Query("SELECT g FROM GenericStatusType g WHERE " +
             "LOWER(g.statusName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +

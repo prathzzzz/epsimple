@@ -1,0 +1,145 @@
+package com.eps.module.api.epsone.city.service;
+
+import com.eps.module.api.epsone.city.dto.CityRequestDto;
+import com.eps.module.api.epsone.city.dto.CityResponseDto;
+import com.eps.module.api.epsone.city.mapper.CityMapper;
+import com.eps.module.api.epsone.city.repository.CityRepository;
+import com.eps.module.api.epsone.state.repository.StateRepository;
+import com.eps.module.location.City;
+import com.eps.module.location.State;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class CityServiceImpl implements CityService {
+
+    private final CityRepository cityRepository;
+    private final StateRepository stateRepository;
+    private final CityMapper cityMapper;
+
+    @Override
+    @Transactional
+    public CityResponseDto createCity(CityRequestDto requestDto) {
+        log.info("Creating city with name: {}", requestDto.getCityName());
+
+        // Validate state exists
+        State state = stateRepository.findById(requestDto.getStateId())
+                .orElseThrow(() -> new EntityNotFoundException("State not found with ID: " + requestDto.getStateId()));
+
+        // Check for duplicate city code if provided
+        if (requestDto.getCityCode() != null && !requestDto.getCityCode().isEmpty()) {
+            cityRepository.findByCityCode(requestDto.getCityCode())
+                    .ifPresent(existingCity -> {
+                        throw new IllegalArgumentException("City code already exists: " + requestDto.getCityCode());
+                    });
+        }
+
+        City city = cityMapper.toEntity(requestDto);
+        city.setState(state);
+
+        City savedCity = cityRepository.save(city);
+        log.info("City created successfully with ID: {}", savedCity.getId());
+
+        return cityMapper.toResponseDto(savedCity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CityResponseDto> getAllCities(Pageable pageable) {
+        log.info("Fetching all cities with pagination");
+        Page<City> cities = cityRepository.findAllWithState(pageable);
+        return cities.map(cityMapper::toResponseDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CityResponseDto> searchCities(String searchTerm, Pageable pageable) {
+        log.info("Searching cities with term: {}", searchTerm);
+        Page<City> cities = cityRepository.searchCities(searchTerm, pageable);
+        return cities.map(cityMapper::toResponseDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CityResponseDto> getCitiesByState(Long stateId, Pageable pageable) {
+        log.info("Fetching cities for state ID: {}", stateId);
+        
+        // Validate state exists
+        stateRepository.findById(stateId)
+                .orElseThrow(() -> new EntityNotFoundException("State not found with ID: " + stateId));
+
+        Page<City> cities = cityRepository.findByStateId(stateId, pageable);
+        return cities.map(cityMapper::toResponseDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CityResponseDto> getCityList() {
+        log.info("Fetching all cities as list");
+        List<City> cities = cityRepository.findAllCitiesList();
+        return cities.stream()
+                .map(cityMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CityResponseDto getCityById(Long id) {
+        log.info("Fetching city with ID: {}", id);
+        City city = cityRepository.findByIdWithState(id)
+                .orElseThrow(() -> new EntityNotFoundException("City not found with ID: " + id));
+        return cityMapper.toResponseDto(city);
+    }
+
+    @Override
+    @Transactional
+    public CityResponseDto updateCity(Long id, CityRequestDto requestDto) {
+        log.info("Updating city with ID: {}", id);
+
+        City city = cityRepository.findByIdWithState(id)
+                .orElseThrow(() -> new EntityNotFoundException("City not found with ID: " + id));
+
+        // Validate state exists
+        State state = stateRepository.findById(requestDto.getStateId())
+                .orElseThrow(() -> new EntityNotFoundException("State not found with ID: " + requestDto.getStateId()));
+
+        // Check for duplicate city code if changed
+        if (requestDto.getCityCode() != null && !requestDto.getCityCode().isEmpty() &&
+                !requestDto.getCityCode().equals(city.getCityCode())) {
+            cityRepository.findByCityCode(requestDto.getCityCode())
+                    .ifPresent(existingCity -> {
+                        throw new IllegalArgumentException("City code already exists: " + requestDto.getCityCode());
+                    });
+        }
+
+        cityMapper.updateEntityFromDto(requestDto, city);
+        city.setState(state);
+
+        City updatedCity = cityRepository.save(city);
+        log.info("City updated successfully with ID: {}", updatedCity.getId());
+
+        return cityMapper.toResponseDto(updatedCity);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCity(Long id) {
+        log.info("Deleting city with ID: {}", id);
+
+        City city = cityRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("City not found with ID: " + id));
+
+        cityRepository.delete(city);
+        log.info("City deleted successfully with ID: {}", id);
+    }
+}

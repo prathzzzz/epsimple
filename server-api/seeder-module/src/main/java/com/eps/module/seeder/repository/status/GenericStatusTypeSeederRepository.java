@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GenericStatusTypeRepository extends JpaRepository<GenericStatusType, Long> {
+public interface GenericStatusTypeSeederRepository extends JpaRepository<GenericStatusType, Long> {
 }

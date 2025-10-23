@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SiteTypeSeederRepository extends JpaRepository<SiteType, Long> {
+public interface SiteTypeRepository extends JpaRepository<SiteType, Long> {
 
     @Query("SELECT st FROM SiteType st WHERE " +
             "LOWER(st.typeName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +

@@ -3,7 +3,7 @@ package com.eps.module.api.epsone.sitecategory.service;
 import com.eps.module.api.epsone.sitecategory.dto.SiteCategoryRequestDto;
 import com.eps.module.api.epsone.sitecategory.dto.SiteCategoryResponseDto;
 import com.eps.module.api.epsone.sitecategory.mapper.SiteCategoryMapper;
-import com.eps.module.api.epsone.sitecategory.repository.SiteCategorySeederRepository;
+import com.eps.module.api.epsone.sitecategory.repository.SiteCategoryRepository;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.site.SiteCategory;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SiteCategoryServiceImpl implements SiteCategoryService {
 
-    private final SiteCategorySeederRepository repository;
+    private final SiteCategoryRepository repository;
     private final SiteCategoryMapper mapper;
 
     @Override

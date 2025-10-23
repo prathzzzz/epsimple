@@ -1,6 +1,6 @@
 package com.eps.module.seeder;
 
-import com.eps.module.seeder.repository.status.GenericStatusTypeRepository;
+import com.eps.module.seeder.repository.status.GenericStatusTypeSeederRepository;
 import com.eps.module.common.seeder.base.AbstractSeeder;
 import com.eps.module.status.GenericStatusType;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 public class GenericStatusTypeSeeder extends AbstractSeeder {
 
-    private final GenericStatusTypeRepository genericStatusTypeRepository;
+    private final GenericStatusTypeSeederRepository genericStatusTypeSeederRepository;
 
     @Override
     public String getSeederName() {
@@ -26,7 +26,7 @@ public class GenericStatusTypeSeeder extends AbstractSeeder {
 
     @Override
     protected boolean shouldSkipSeeding() {
-        return genericStatusTypeRepository.count() > 0;
+        return genericStatusTypeSeederRepository.count() > 0;
     }
 
     @Override
@@ -171,7 +171,7 @@ public class GenericStatusTypeSeeder extends AbstractSeeder {
                         .build()
         );
 
-        genericStatusTypeRepository.saveAll(statusTypes);
+        genericStatusTypeSeederRepository.saveAll(statusTypes);
         log.info("Seeded {} generic status types", statusTypes.size());
     }
 }

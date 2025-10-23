@@ -3,7 +3,7 @@ package com.eps.module.api.epsone.sitetype.service;
 import com.eps.module.api.epsone.sitetype.dto.SiteTypeRequestDto;
 import com.eps.module.api.epsone.sitetype.dto.SiteTypeResponseDto;
 import com.eps.module.api.epsone.sitetype.mapper.SiteTypeMapper;
-import com.eps.module.api.epsone.sitetype.repository.SiteTypeSeederRepository;
+import com.eps.module.api.epsone.sitetype.repository.SiteTypeRepository;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.site.SiteType;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SiteTypeServiceImpl implements SiteTypeService {
 
-    private final SiteTypeSeederRepository repository;
+    private final SiteTypeRepository repository;
     private final SiteTypeMapper mapper;
 
     @Override

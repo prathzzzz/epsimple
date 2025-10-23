@@ -1,12 +1,7 @@
 import {
-  Construction,
   LayoutDashboard,
   Bug,
   ListTodo,
-  FileX,
-  Lock,
-  ServerOff,
-  UserX,
   Users,
   ShieldCheck,
   Database,
@@ -15,14 +10,6 @@ import {
   Package,
   Activity,
   Building2,
-  UserCheck,
-  CircleDot,
-  Tags,
-  Layers,
-  ArrowRightLeft,
-  DollarSign,
-  CreditCard,
-  UserCog,
   MapPinned,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -69,7 +56,10 @@ export const sidebarData: SidebarData = {
                 {
                   title: 'States',
                   url: '/states',
-                  icon: MapPin,
+                },
+                {
+                  title: 'Cities',
+                  url: '/cities',
                 },
               ],
             },
@@ -80,22 +70,18 @@ export const sidebarData: SidebarData = {
                 {
                   title: 'Banks',
                   url: '/banks',
-                  icon: Landmark,
                 },
                 {
                   title: 'Cost Categories',
                   url: '/cost-categories',
-                  icon: DollarSign,
                 },
                 {
                   title: 'Payment Methods',
                   url: '/payment-methods',
-                  icon: CreditCard,
                 },
                 {
                   title: 'Payee Types',
                   url: '/payee-types',
-                  icon: UserCog,
                 },
               ],
             },
@@ -106,12 +92,10 @@ export const sidebarData: SidebarData = {
                 {
                   title: 'Vendor Categories',
                   url: '/vendor-categories',
-                  icon: Tags,
                 },
                 {
                   title: 'Vendor Types',
                   url: '/vendor-types',
-                  icon: Layers,
                 },
               ],
             },
@@ -122,12 +106,10 @@ export const sidebarData: SidebarData = {
                 {
                   title: 'Asset Types',
                   url: '/asset-types',
-                  icon: Package,
                 },
                 {
                   title: 'Movement Types',
                   url: '/movement-types',
-                  icon: ArrowRightLeft,
                 },
               ],
             },
@@ -138,12 +120,10 @@ export const sidebarData: SidebarData = {
                 {
                   title: 'Activity Master',
                   url: '/activities',
-                  icon: Activity,
                 },
                 {
                   title: 'Activities',
                   url: '/activities-list',
-                  icon: Activity,
                 },
               ],
             },
@@ -154,12 +134,10 @@ export const sidebarData: SidebarData = {
                 {
                   title: 'Site Types',
                   url: '/site-types',
-                  icon: MapPinned,
                 },
                 {
                   title: 'Site Categories',
                   url: '/site-categories',
-                  icon: Layers,
                 },
               ],
             },
@@ -170,12 +148,10 @@ export const sidebarData: SidebarData = {
                 {
                   title: 'Person Types',
                   url: '/person-types',
-                  icon: UserCheck,
                 },
                 {
                   title: 'Status Types',
                   url: '/generic-status-types',
-                  icon: CircleDot,
                 },
               ],
             },
@@ -215,27 +191,22 @@ export const sidebarData: SidebarData = {
             {
               title: 'Unauthorized',
               url: '/errors/unauthorized',
-              icon: Lock,
             },
             {
               title: 'Forbidden',
               url: '/errors/forbidden',
-              icon: UserX,
             },
             {
               title: 'Not Found',
               url: '/errors/not-found',
-              icon: FileX,
             },
             {
               title: 'Internal Server Error',
               url: '/errors/internal-server-error',
-              icon: ServerOff,
             },
             {
               title: 'Maintenance Error',
               url: '/errors/maintenance-error',
-              icon: Construction,
             },
           ],
         },

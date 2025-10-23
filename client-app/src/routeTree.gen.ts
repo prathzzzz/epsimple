@@ -36,6 +36,7 @@ import { Route as AuthenticatedPayeeTypesIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedMovementTypesIndexRouteImport } from './routes/_authenticated/movement-types/index'
 import { Route as AuthenticatedGenericStatusTypesIndexRouteImport } from './routes/_authenticated/generic-status-types/index'
 import { Route as AuthenticatedCostCategoriesIndexRouteImport } from './routes/_authenticated/cost-categories/index'
+import { Route as AuthenticatedCitiesIndexRouteImport } from './routes/_authenticated/cities/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
 import { Route as AuthenticatedAssetTypesIndexRouteImport } from './routes/_authenticated/asset-types/index'
 import { Route as AuthenticatedActivitiesIndexRouteImport } from './routes/_authenticated/activities/index'
@@ -190,6 +191,12 @@ const AuthenticatedCostCategoriesIndexRoute =
     path: '/cost-categories/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCitiesIndexRoute =
+  AuthenticatedCitiesIndexRouteImport.update({
+    id: '/cities/',
+    path: '/cities/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedBanksIndexRoute = AuthenticatedBanksIndexRouteImport.update({
   id: '/banks/',
   path: '/banks/',
@@ -245,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/activities': typeof AuthenticatedActivitiesIndexRoute
   '/asset-types': typeof AuthenticatedAssetTypesIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
+  '/cities': typeof AuthenticatedCitiesIndexRoute
   '/cost-categories': typeof AuthenticatedCostCategoriesIndexRoute
   '/generic-status-types': typeof AuthenticatedGenericStatusTypesIndexRoute
   '/movement-types': typeof AuthenticatedMovementTypesIndexRoute
@@ -278,6 +286,7 @@ export interface FileRoutesByTo {
   '/activities': typeof AuthenticatedActivitiesIndexRoute
   '/asset-types': typeof AuthenticatedAssetTypesIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
+  '/cities': typeof AuthenticatedCitiesIndexRoute
   '/cost-categories': typeof AuthenticatedCostCategoriesIndexRoute
   '/generic-status-types': typeof AuthenticatedGenericStatusTypesIndexRoute
   '/movement-types': typeof AuthenticatedMovementTypesIndexRoute
@@ -314,6 +323,7 @@ export interface FileRoutesById {
   '/_authenticated/activities/': typeof AuthenticatedActivitiesIndexRoute
   '/_authenticated/asset-types/': typeof AuthenticatedAssetTypesIndexRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
+  '/_authenticated/cities/': typeof AuthenticatedCitiesIndexRoute
   '/_authenticated/cost-categories/': typeof AuthenticatedCostCategoriesIndexRoute
   '/_authenticated/generic-status-types/': typeof AuthenticatedGenericStatusTypesIndexRoute
   '/_authenticated/movement-types/': typeof AuthenticatedMovementTypesIndexRoute
@@ -350,6 +360,7 @@ export interface FileRouteTypes {
     | '/activities'
     | '/asset-types'
     | '/banks'
+    | '/cities'
     | '/cost-categories'
     | '/generic-status-types'
     | '/movement-types'
@@ -383,6 +394,7 @@ export interface FileRouteTypes {
     | '/activities'
     | '/asset-types'
     | '/banks'
+    | '/cities'
     | '/cost-categories'
     | '/generic-status-types'
     | '/movement-types'
@@ -418,6 +430,7 @@ export interface FileRouteTypes {
     | '/_authenticated/activities/'
     | '/_authenticated/asset-types/'
     | '/_authenticated/banks/'
+    | '/_authenticated/cities/'
     | '/_authenticated/cost-categories/'
     | '/_authenticated/generic-status-types/'
     | '/_authenticated/movement-types/'
@@ -639,6 +652,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCostCategoriesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cities/': {
+      id: '/_authenticated/cities/'
+      path: '/cities'
+      fullPath: '/cities'
+      preLoaderRoute: typeof AuthenticatedCitiesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/banks/': {
       id: '/_authenticated/banks/'
       path: '/banks'
@@ -708,6 +728,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivitiesIndexRoute: typeof AuthenticatedActivitiesIndexRoute
   AuthenticatedAssetTypesIndexRoute: typeof AuthenticatedAssetTypesIndexRoute
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
+  AuthenticatedCitiesIndexRoute: typeof AuthenticatedCitiesIndexRoute
   AuthenticatedCostCategoriesIndexRoute: typeof AuthenticatedCostCategoriesIndexRoute
   AuthenticatedGenericStatusTypesIndexRoute: typeof AuthenticatedGenericStatusTypesIndexRoute
   AuthenticatedMovementTypesIndexRoute: typeof AuthenticatedMovementTypesIndexRoute
@@ -731,6 +752,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivitiesIndexRoute: AuthenticatedActivitiesIndexRoute,
   AuthenticatedAssetTypesIndexRoute: AuthenticatedAssetTypesIndexRoute,
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,
+  AuthenticatedCitiesIndexRoute: AuthenticatedCitiesIndexRoute,
   AuthenticatedCostCategoriesIndexRoute: AuthenticatedCostCategoriesIndexRoute,
   AuthenticatedGenericStatusTypesIndexRoute:
     AuthenticatedGenericStatusTypesIndexRoute,
