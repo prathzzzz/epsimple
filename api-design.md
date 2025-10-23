@@ -161,8 +161,8 @@
 - ✅ Fields: cityName, cityCode (optional, alphanumeric), stateId (FK to State)
 - ✅ Sidebar: Added under Master Data → Location
 - ✅ Repository Pattern: Uses CityRepository (not SeederRepository)
-- ✅ State Delete Protection: Prevents state deletion if cities exist with specific error message
-- ✅ Error Messages: Shows specific dependency details (e.g., "Cannot delete 'Maharashtra' state because it is being used by 3 cities: Mumbai, Pune, Nagpur")
+- ✅ State Delete Protection: Optimized with pagination (fetches only 6 records), shows first 5 city names
+- ✅ Error Messages: Shows specific dependency details (e.g., "Cannot delete 'Maharashtra' state because it is being used by 15 cities: Mumbai, Pune, Nagpur, Thane, Nashik and 10 more")
 
 #### 2.2 Vendor Type Masters (depends: VendorCategory) ✅ COMPLETED - REFACTORED
 - ✅ `POST /api/vendor-types` - Create vendor type (requires vendorCategoryId)
@@ -188,12 +188,23 @@
 - ✅ Relationship: ManyToOne with Activity entity (activityId required)
 - ✅ Fields: activityId (FK), activityName, activityCategory, activityDescription
 
-#### 2.3 Person Details (depends: PersonType)
-- `POST /api/person-details` - Create person (requires personTypeId)
-- `GET /api/person-details` - List persons
-- `GET /api/person-details/{id}` - Get person details
-- `PUT /api/person-details/{id}` - Update person
-- `DELETE /api/person-details/{id}` - Delete person
+#### 2.3 Person Details (depends: PersonType) ✅ COMPLETED
+- ✅ `POST /api/person-details` - Create person (requires personTypeId)
+- ✅ `GET /api/person-details` - List persons (with pagination and search)
+- ✅ `GET /api/person-details/search` - Search persons
+- ✅ `GET /api/person-details/person-type/{personTypeId}` - List persons by type
+- ✅ `GET /api/person-details/list` - Get all persons as list
+- ✅ `GET /api/person-details/{id}` - Get person details
+- ✅ `PUT /api/person-details/{id}` - Update person
+- ✅ `DELETE /api/person-details/{id}` - Delete person
+- ✅ Backend: Full CRUD with PersonType FK validation and email uniqueness checks
+- ✅ Frontend: Full CRUD UI with PersonType dropdown, multi-field form (name, email, contact, addresses), backend search
+- ✅ Fields: personTypeId (FK), firstName, middleName, lastName, fullName (computed), contactNumber (10 digits), email (unique, required), permanentAddress, correspondenceAddress
+- ✅ Mapper: Builds fullName from firstName + middleName + lastName
+- ✅ Search: Backend searches across firstName, middleName, lastName, email, contactNumber
+- ✅ Sidebar: Added under Master Data → Person → Person Details
+- ✅ PersonType Delete Protection: Shows specific person names (e.g., "Cannot delete 'Vendor' person type because it is being used by 3 person details: Pratham Shah, John Doe, Jane Smith")
+- ✅ UI Features: Sheet drawer (600px), 3-column name grid, 2-column email/contact grid, Textarea for addresses, pagination fix (0 instead of -1)
 
 #### 2.4 Managed Projects (depends: Bank)
 - `POST /api/projects` - Create project (requires bankId)
