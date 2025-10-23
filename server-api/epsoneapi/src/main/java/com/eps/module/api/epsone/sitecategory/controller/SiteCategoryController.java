@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.sitecategory.controller;
 import com.eps.module.api.epsone.sitecategory.dto.SiteCategoryRequestDto;
 import com.eps.module.api.epsone.sitecategory.dto.SiteCategoryResponseDto;
 import com.eps.module.api.epsone.sitecategory.service.SiteCategoryService;
+import com.eps.module.common.response.ApiResponse;
+import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -76,8 +78,8 @@ public class SiteCategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSiteCategory(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteSiteCategory(@PathVariable Long id) {
         siteCategoryService.deleteSiteCategory(id);
-        return ResponseEntity.noContent().build();
+        return ResponseBuilder.success(null, "Site category deleted successfully");
     }
 }

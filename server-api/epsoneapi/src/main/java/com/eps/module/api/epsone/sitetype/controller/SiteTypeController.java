@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.sitetype.controller;
 import com.eps.module.api.epsone.sitetype.dto.SiteTypeRequestDto;
 import com.eps.module.api.epsone.sitetype.dto.SiteTypeResponseDto;
 import com.eps.module.api.epsone.sitetype.service.SiteTypeService;
+import com.eps.module.common.response.ApiResponse;
+import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -76,8 +78,8 @@ public class SiteTypeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSiteType(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteSiteType(@PathVariable Long id) {
         siteTypeService.deleteSiteType(id);
-        return ResponseEntity.noContent().build();
+        return ResponseBuilder.success(null, "Site type deleted successfully");
     }
 }
