@@ -21,8 +21,10 @@
 - ✅ `GET /api/banks/list` - Get all banks as list
 - ✅ `GET /api/banks/{id}` - Get bank details
 - ✅ `PUT /api/banks/{id}` - Update bank
-- ✅ `DELETE /api/banks/{id}` - Delete bank
+- ✅ `DELETE /api/banks/{id}` - Delete bank (with dependency protection for managed projects)
 - ✅ Frontend: Full CRUD UI with data table, real-time search, pagination, file upload for logos
+- ✅ **Dependency Protection**: Shows specific error with project names when deleting banks with managed projects
+  - Error format: "Cannot delete 'Bank of Baroda' bank because it is being used by 3 managed projects: Project Alpha, Project Beta, Project Gamma. Please delete or reassign these managed projects first."
 
 #### 1.3 Person Type Masters ✅ COMPLETED
 - ✅ `POST /api/person-types` - Create person type
@@ -206,13 +208,24 @@
 - ✅ PersonType Delete Protection: Shows specific person names (e.g., "Cannot delete 'Vendor' person type because it is being used by 3 person details: Pratham Shah, John Doe, Jane Smith")
 - ✅ UI Features: Sheet drawer (600px), 3-column name grid, 2-column email/contact grid, Textarea for addresses, pagination fix (0 instead of -1)
 
-#### 2.4 Managed Projects (depends: Bank)
-- `POST /api/projects` - Create project (requires bankId)
-- `GET /api/projects` - List projects
-- `GET /api/banks/{bankId}/projects` - List projects by bank
-- `GET /api/projects/{id}` - Get project details
-- `PUT /api/projects/{id}` - Update project
-- `DELETE /api/projects/{id}` - Delete project
+#### 2.4 Managed Projects ✅ COMPLETED (depends: Bank)
+- ✅ `POST /api/managed-projects` - Create managed project (requires bankId)
+- ✅ `GET /api/managed-projects` - List all managed projects (with pagination and search)
+- ✅ `GET /api/managed-projects/search` - Search managed projects
+- ✅ `GET /api/managed-projects/list` - Get all managed projects as list
+- ✅ `GET /api/managed-projects/bank/{bankId}` - List projects by bank
+- ✅ `GET /api/managed-projects/{id}` - Get project details
+- ✅ `PUT /api/managed-projects/{id}` - Update project
+- ✅ `DELETE /api/managed-projects/{id}` - Delete project
+- ✅ Backend: Full CRUD with Bank FK validation, unique projectCode validation
+- ✅ Frontend: Full CRUD UI with Bank dropdown, multi-field form (bankId, projectName, projectCode, projectType, projectDescription)
+- ✅ Fields: bankId (FK, required), projectName (required, max 255), projectCode (optional, unique, alphanumeric with hyphens/underscores, max 50), projectType (optional, max 50), projectDescription (optional, max 5000)
+- ✅ Validation: Bank existence check, projectCode uniqueness (create/update), alphanumeric pattern for projectCode
+- ✅ Search: Searches across projectName, projectCode, projectType
+- ✅ Mapper: Maps bank.id → bankId, bank.bankName → bankName
+- ✅ Sidebar: Added under Master Data → Banks → Managed Projects
+- ✅ UI Features: Header/Main layout with navbar, Sheet drawer with proper padding, proper flex layout for form/footer
+- ✅ API Error Handling: Uses handleServerError to display backend error messages instead of generic messages
 
 #### 2.4 Activity Instances (depends: Activity)
 - `POST /api/activity-instances` - Create activity instance
