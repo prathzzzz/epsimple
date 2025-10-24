@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -24,7 +24,6 @@ import {
 
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table';
 import { locationApi } from '../api/location-api';
-import { LocationRowActions } from './location-row-actions';
 import { useLocation } from '../context/location-provider';
 
 interface LocationTableProps<TData, TValue> {
@@ -48,7 +47,8 @@ export function LocationTable<TData, TValue>({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     sortBy: sorting.length > 0 ? sorting[0].id : 'locationName',
-    sortDirection: sorting.length > 0 && sorting[0].desc ? 'DESC' : 'ASC',
+    sortOrder: sorting.length > 0 && sorting[0].desc ? 'desc' : 'asc',
+    search: globalFilter,
   });
 
   const locations = (data?.content || []) as TData[];
@@ -59,21 +59,9 @@ export function LocationTable<TData, TValue>({
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   }, [globalFilter]);
 
-  // Add actions column
-  const columnsWithActions = React.useMemo(
-    () => [
-      ...columns,
-      {
-        id: 'actions',
-        cell: ({ row }: { row: any }) => <LocationRowActions row={row} />,
-      },
-    ],
-    [columns]
-  );
-
   const table = useReactTable({
     data: locations,
-    columns: columnsWithActions,
+    columns,
     pageCount: totalPages,
     state: {
       sorting,

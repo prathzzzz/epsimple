@@ -29,6 +29,7 @@ interface GetAllParams {
   size?: number;
   sortBy?: string;
   sortDirection?: 'ASC' | 'DESC';
+  search?: string;
 }
 
 interface SearchParams extends GetAllParams {
@@ -45,7 +46,21 @@ export const payeeDetailsApi = {
       size = 10,
       sortBy = 'id',
       sortDirection = 'ASC',
+      search,
     } = params;
+    
+    // If search is provided, use the search endpoint
+    if (search && search.trim()) {
+      const response = await api.get<ApiResponse<PagedResponse<PayeeDetails>>>(
+        `${PAYEE_DETAILS_BASE_URL}/search`,
+        {
+          params: { searchTerm: search, page, size, sortBy, sortDirection },
+        }
+      );
+      return response.data.data;
+    }
+    
+    // Otherwise use the regular getAll endpoint
     const response = await api.get<ApiResponse<PagedResponse<PayeeDetails>>>(
       PAYEE_DETAILS_BASE_URL,
       {

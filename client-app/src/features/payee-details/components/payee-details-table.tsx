@@ -47,6 +47,7 @@ export function PayeeDetailsTable<TData, TValue>({
     size: pagination.pageSize,
     sortBy: sorting.length > 0 ? sorting[0].id : 'payeeName',
     sortDirection: sorting.length > 0 && sorting[0].desc ? 'DESC' : 'ASC',
+    search: globalFilter && globalFilter.trim() !== "" ? globalFilter : undefined,
   });
 
   const payeeDetailsList = (data?.content || []) as TData[];

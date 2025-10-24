@@ -252,22 +252,46 @@
 - ✅ Fields: categoryCode, categoryName, categoryDescription, assetTypeId (FK)
 - ✅ Dependency Protection: AssetType cannot be deleted if AssetCategories exist
 
-#### 2.7 Payee Details (depends: Bank)
-- `POST /api/payee-details` - Create payee details (requires bankId)
-- `GET /api/payee-details` - List payee details
-- `GET /api/payee-details/{id}` - Get details
+#### 2.7 Payee Details (depends: Bank) ✅ COMPLETED
+- ✅ `POST /api/payee-details` - Create payee details (requires bankId)
+- ✅ `GET /api/payee-details` - List payee details (with pagination and search)
+- ✅ `GET /api/payee-details/search` - Search payee details
+- ✅ `GET /api/payee-details/list` - Get all payee details as list
+- ✅ `GET /api/payee-details/{id}` - Get payee details by ID
+- ✅ `PUT /api/payee-details/{id}` - Update payee details
+- ✅ `DELETE /api/payee-details/{id}` - Delete payee details
+- ✅ Backend: Full CRUD with Bank FK validation, unique PAN/Aadhaar/AccountNumber validation
+- ✅ Frontend: Full CRUD UI with Bank dropdown, multi-field form with validation patterns
+- ✅ Fields: bankId (FK, required), payeeName (required), panNumber (10 chars, optional), aadhaarNumber (12 digits, optional), ifscCode (11 chars, optional), accountNumber (9-18 digits, required), branch, upiId
+- ✅ Validation: PAN pattern (^[A-Z]{5}[0-9]{4}[A-Z]{1}$), Aadhaar (^\d{12}$), IFSC (^[A-Z]{4}0[A-Z0-9]{6}$), Account Number (^\d{9,18}$)
+- ✅ Uniqueness: PAN, Aadhaar (optional fields), AccountNumber+Bank combination must be unique
+- ✅ Bank Delete Protection: Enhanced to check for dependent PayeeDetails, shows up to 5 payee names
+- ✅ UI Features: Auto-uppercase for PAN/IFSC, font-mono styling for sensitive fields, Sheet drawer with responsive grid
+- ✅ Error Messages: Shows specific dependency details when deleting banks with payee details
 
 ---
 
 ### Phase 3: Level 2 Dependent Entities
 
-#### 3.1 Location Management (depends: City)
-- `POST /api/locations` - Create location (requires cityId)
-- `GET /api/locations` - List locations
-- `GET /api/cities/{cityId}/locations` - List locations by city
-- `GET /api/locations/{id}` - Get location details
-- `PUT /api/locations/{id}` - Update location
-- `DELETE /api/locations/{id}` - Delete location
+#### 3.1 Location Management (depends: City) ✅ COMPLETED
+- ✅ `POST /api/locations` - Create location (requires cityId)
+- ✅ `GET /api/locations` - List locations (with pagination and search)
+- ✅ `GET /api/locations/search` - Search locations by name/address/district/pincode
+- ✅ `GET /api/locations/list` - Get all locations as list
+- ✅ `GET /api/locations/{id}` - Get location details
+- ✅ `PUT /api/locations/{id}` - Update location
+- ✅ `DELETE /api/locations/{id}` - Delete location
+- ✅ Backend: Full CRUD with City FK validation, comprehensive field validation
+- ✅ Frontend: Full CRUD UI with City dropdown (shows cityName + stateName), data table, real-time search, pagination
+- ✅ Fields: cityId (FK, required), locationName (required), address, district, pincode (6 digits), region, zone, latitude (-90 to 90, 2 int + 8 decimal), longitude (-180 to 180, 3 int + 8 decimal)
+- ✅ Validation: Pincode pattern (^\d{6}$), Latitude/Longitude ranges with precision constraints
+- ✅ Search: Searches across locationName, address, district, pincode
+- ✅ Response: Includes cityName and stateName for display
+- ✅ City Delete Protection: Enhanced to check for dependent Locations, shows up to 5 location names
+- ✅ UI Features: Sheet drawer with responsive grid, number inputs for lat/long, proper flex layout
+- ✅ Table Columns: locationName, cityName, stateName, district, pincode, address
+- ✅ Sidebar: Added under Location section
+- ✅ Error Messages: Shows specific dependency details (e.g., "Cannot delete 'Mumbai' city because it is being used by N locations: Location A, Location B...")
 
 #### 3.2 Vendor Management (depends: VendorType, PersonDetails)
 - `POST /api/vendors` - Create vendor (requires vendorTypeId, personDetailsId)
