@@ -26,27 +26,27 @@ public class Asset extends BaseEntity {
     @Column(name = "asset_tag_id", nullable = false, unique = true, length = 50)
     private String assetTagId;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "asset_type_id", nullable = false)
         private AssetType assetType;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "asset_category_id", nullable = false)
         private AssetCategory assetCategory;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "vendor_id", nullable = false)
         private Vendor vendor;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "lender_bank_id", nullable = false)
         private Bank lenderBank;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "status_type_id")
         private GenericStatusType statusType;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "ownership_status_id")
         private OwnershipStatus ownershipStatus;
 

@@ -25,7 +25,7 @@ public class Site extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private ManagedProject project;
 
@@ -47,12 +47,12 @@ public class Site extends BaseEntity {
     @Column(name = "previous_msp_term_id", length = 50)
     private String previousMspTermId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "site_category_id")
     private SiteCategory siteCategory;
 
     @NotNull(message = "Location is required")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
@@ -60,11 +60,11 @@ public class Site extends BaseEntity {
     @Column(name = "location_class", length = 50)
     private String locationClass;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "site_type_id")
     private SiteType siteType;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "site_status_id")
     private GenericStatusType siteStatus;
 
@@ -125,23 +125,23 @@ public class Site extends BaseEntity {
     @Column(name = "branding_size", length = 50)
     private String brandingSize;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_manager_contact_id")
     private PersonDetails channelManagerContact;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "regional_manager_contact_id")
     private PersonDetails regionalManagerContact;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "state_head_contact_id")
     private PersonDetails stateHeadContact;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_person_contact_id")
     private PersonDetails bankPersonContact;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "master_franchisee_contact_id")
     private PersonDetails masterFranchiseeContact;
 

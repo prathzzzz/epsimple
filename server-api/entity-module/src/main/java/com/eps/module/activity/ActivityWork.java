@@ -21,11 +21,11 @@ public class ActivityWork extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "activities_id", nullable = false)
         private Activities activities;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "vendor_id", nullable = false)
         private Vendor vendor;
 
@@ -41,7 +41,7 @@ public class ActivityWork extends BaseEntity {
     @Column(name = "work_completion_date")
     private LocalDate workCompletionDate;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "status_type_id", nullable = false)
         private GenericStatusType statusType;
 }

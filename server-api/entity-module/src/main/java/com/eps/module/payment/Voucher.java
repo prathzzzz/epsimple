@@ -29,11 +29,11 @@ public class Voucher extends BaseEntity {
     @Column(name = "order_number", length = 100)
     private String orderNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payee_id", nullable = false)
     private Payee payee;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_details_id")
     private PaymentDetails paymentDetails;
 

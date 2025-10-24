@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.costtype.service;
 
 import com.eps.module.api.epsone.costcategory.repository.CostCategoryRepository;
+import com.eps.module.api.epsone.costitem.repository.CostItemRepository;
 import com.eps.module.api.epsone.costtype.dto.CostTypeRequestDto;
 import com.eps.module.api.epsone.costtype.dto.CostTypeResponseDto;
 import com.eps.module.api.epsone.costtype.mapper.CostTypeMapper;
@@ -24,6 +25,7 @@ public class CostTypeServiceImpl implements CostTypeService {
     
     private final CostTypeRepository costTypeRepository;
     private final CostCategoryRepository costCategoryRepository;
+    private final CostItemRepository costItemRepository;
     private final CostTypeMapper costTypeMapper;
     
     @Override
@@ -106,8 +108,15 @@ public class CostTypeServiceImpl implements CostTypeService {
     public void deleteCostType(Long id) {
         log.info("Deleting cost type with ID: {}", id);
         
-        if (!costTypeRepository.existsById(id)) {
-            throw new IllegalArgumentException("Cost type not found with id: " + id);
+        CostType costType = costTypeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cost type not found with id: " + id));
+        
+        // Check if cost type is being used by any cost items
+        long costItemCount = costItemRepository.countByCostTypeId(id);
+        if (costItemCount > 0) {
+            throw new IllegalStateException(
+                    String.format("Cannot delete cost type '%s' because it is being used by %d cost item(s). Please delete the cost item(s) first.",
+                            costType.getTypeName(), costItemCount));
         }
         
         costTypeRepository.deleteById(id);

@@ -19,7 +19,7 @@ public class ActivityWorkRemarks extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "activity_work_id", nullable = false)
         private ActivityWork activityWork;
 

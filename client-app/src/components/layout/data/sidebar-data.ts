@@ -90,6 +90,10 @@ export const sidebarData: SidebarData = {
                   url: '/cost-types',
                 },
                 {
+                  title: 'Cost Items',
+                  url: '/cost-items',
+                },
+                {
                   title: 'Payment Methods',
                   url: '/payment-methods',
                 },

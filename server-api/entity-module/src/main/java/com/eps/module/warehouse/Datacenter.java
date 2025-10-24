@@ -27,7 +27,7 @@ public class Datacenter extends BaseEntity {
     @Column(name = "datacenter_type", length = 100)
     private String datacenterType;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 }

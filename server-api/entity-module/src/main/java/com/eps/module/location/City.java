@@ -32,7 +32,7 @@ public class City extends BaseEntity {
     private String cityCode;
 
     @NotNull(message = "State is required")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "state_id", nullable = false)
     private State state;
 }

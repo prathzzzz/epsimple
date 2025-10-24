@@ -27,7 +27,7 @@ public class Warehouse extends BaseEntity {
     @Column(name = "warehouse_type", length = 100)
     private String warehouseType;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 }

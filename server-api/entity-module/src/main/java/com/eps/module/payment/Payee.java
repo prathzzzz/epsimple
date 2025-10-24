@@ -19,7 +19,7 @@ public class Payee extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "payee_type_id", nullable = false)
         private PayeeType payeeType;
 
@@ -27,11 +27,11 @@ public class Payee extends BaseEntity {
         @JoinColumn(name = "payee_details_id", nullable = false, unique = true)
         private PayeeDetails payeeDetails;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "vendor_id")
         private Vendor vendor;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "landlord_id")
         private Landlord landlord;
 }

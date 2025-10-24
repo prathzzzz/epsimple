@@ -23,7 +23,7 @@ public class PersonDetails extends BaseEntity {
     private Long id;
 
     @NotNull(message = "Person type is required")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_type_id", nullable = false)
     private PersonType personType;
 
