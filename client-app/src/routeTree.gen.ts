@@ -39,6 +39,7 @@ import { Route as AuthenticatedPayeeDetailsIndexRouteImport } from './routes/_au
 import { Route as AuthenticatedMovementTypesIndexRouteImport } from './routes/_authenticated/movement-types/index'
 import { Route as AuthenticatedManagedProjectsIndexRouteImport } from './routes/_authenticated/managed-projects/index'
 import { Route as AuthenticatedLocationsIndexRouteImport } from './routes/_authenticated/locations/index'
+import { Route as AuthenticatedLandlordsIndexRouteImport } from './routes/_authenticated/landlords/index'
 import { Route as AuthenticatedGenericStatusTypesIndexRouteImport } from './routes/_authenticated/generic-status-types/index'
 import { Route as AuthenticatedCostTypesIndexRouteImport } from './routes/_authenticated/cost-types/index'
 import { Route as AuthenticatedCostCategoriesIndexRouteImport } from './routes/_authenticated/cost-categories/index'
@@ -216,6 +217,12 @@ const AuthenticatedLocationsIndexRoute =
     path: '/locations/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLandlordsIndexRoute =
+  AuthenticatedLandlordsIndexRouteImport.update({
+    id: '/landlords/',
+    path: '/landlords/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedGenericStatusTypesIndexRoute =
   AuthenticatedGenericStatusTypesIndexRouteImport.update({
     id: '/generic-status-types/',
@@ -306,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/cost-categories': typeof AuthenticatedCostCategoriesIndexRoute
   '/cost-types': typeof AuthenticatedCostTypesIndexRoute
   '/generic-status-types': typeof AuthenticatedGenericStatusTypesIndexRoute
+  '/landlords': typeof AuthenticatedLandlordsIndexRoute
   '/locations': typeof AuthenticatedLocationsIndexRoute
   '/managed-projects': typeof AuthenticatedManagedProjectsIndexRoute
   '/movement-types': typeof AuthenticatedMovementTypesIndexRoute
@@ -347,6 +355,7 @@ export interface FileRoutesByTo {
   '/cost-categories': typeof AuthenticatedCostCategoriesIndexRoute
   '/cost-types': typeof AuthenticatedCostTypesIndexRoute
   '/generic-status-types': typeof AuthenticatedGenericStatusTypesIndexRoute
+  '/landlords': typeof AuthenticatedLandlordsIndexRoute
   '/locations': typeof AuthenticatedLocationsIndexRoute
   '/managed-projects': typeof AuthenticatedManagedProjectsIndexRoute
   '/movement-types': typeof AuthenticatedMovementTypesIndexRoute
@@ -391,6 +400,7 @@ export interface FileRoutesById {
   '/_authenticated/cost-categories/': typeof AuthenticatedCostCategoriesIndexRoute
   '/_authenticated/cost-types/': typeof AuthenticatedCostTypesIndexRoute
   '/_authenticated/generic-status-types/': typeof AuthenticatedGenericStatusTypesIndexRoute
+  '/_authenticated/landlords/': typeof AuthenticatedLandlordsIndexRoute
   '/_authenticated/locations/': typeof AuthenticatedLocationsIndexRoute
   '/_authenticated/managed-projects/': typeof AuthenticatedManagedProjectsIndexRoute
   '/_authenticated/movement-types/': typeof AuthenticatedMovementTypesIndexRoute
@@ -435,6 +445,7 @@ export interface FileRouteTypes {
     | '/cost-categories'
     | '/cost-types'
     | '/generic-status-types'
+    | '/landlords'
     | '/locations'
     | '/managed-projects'
     | '/movement-types'
@@ -476,6 +487,7 @@ export interface FileRouteTypes {
     | '/cost-categories'
     | '/cost-types'
     | '/generic-status-types'
+    | '/landlords'
     | '/locations'
     | '/managed-projects'
     | '/movement-types'
@@ -519,6 +531,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cost-categories/'
     | '/_authenticated/cost-types/'
     | '/_authenticated/generic-status-types/'
+    | '/_authenticated/landlords/'
     | '/_authenticated/locations/'
     | '/_authenticated/managed-projects/'
     | '/_authenticated/movement-types/'
@@ -764,6 +777,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLocationsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/landlords/': {
+      id: '/_authenticated/landlords/'
+      path: '/landlords'
+      fullPath: '/landlords'
+      preLoaderRoute: typeof AuthenticatedLandlordsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/generic-status-types/': {
       id: '/_authenticated/generic-status-types/'
       path: '/generic-status-types'
@@ -873,6 +893,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCostCategoriesIndexRoute: typeof AuthenticatedCostCategoriesIndexRoute
   AuthenticatedCostTypesIndexRoute: typeof AuthenticatedCostTypesIndexRoute
   AuthenticatedGenericStatusTypesIndexRoute: typeof AuthenticatedGenericStatusTypesIndexRoute
+  AuthenticatedLandlordsIndexRoute: typeof AuthenticatedLandlordsIndexRoute
   AuthenticatedLocationsIndexRoute: typeof AuthenticatedLocationsIndexRoute
   AuthenticatedManagedProjectsIndexRoute: typeof AuthenticatedManagedProjectsIndexRoute
   AuthenticatedMovementTypesIndexRoute: typeof AuthenticatedMovementTypesIndexRoute
@@ -906,6 +927,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCostTypesIndexRoute: AuthenticatedCostTypesIndexRoute,
   AuthenticatedGenericStatusTypesIndexRoute:
     AuthenticatedGenericStatusTypesIndexRoute,
+  AuthenticatedLandlordsIndexRoute: AuthenticatedLandlordsIndexRoute,
   AuthenticatedLocationsIndexRoute: AuthenticatedLocationsIndexRoute,
   AuthenticatedManagedProjectsIndexRoute:
     AuthenticatedManagedProjectsIndexRoute,

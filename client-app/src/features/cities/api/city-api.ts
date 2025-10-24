@@ -88,8 +88,9 @@ export const cityApi = {
         queryClient.invalidateQueries({ queryKey: ["cities"] });
         toast.success("City created successfully");
       },
-      onError: () => {
-        toast.error("Failed to create city");
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message || "Failed to create city";
+        toast.error(errorMessage);
       },
     });
   },
@@ -105,8 +106,9 @@ export const cityApi = {
         queryClient.invalidateQueries({ queryKey: ["cities"] });
         toast.success("City updated successfully");
       },
-      onError: () => {
-        toast.error("Failed to update city");
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message || "Failed to update city";
+        toast.error(errorMessage);
       },
     });
   },
@@ -121,8 +123,9 @@ export const cityApi = {
         queryClient.invalidateQueries({ queryKey: ["cities"] });
         toast.success("City deleted successfully");
       },
-      onError: () => {
-        toast.error("Failed to delete city");
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message || "Failed to delete city";
+        toast.error(errorMessage);
       },
     });
   },

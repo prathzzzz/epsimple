@@ -20,9 +20,9 @@ public class Landlord extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-        @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-        @JoinColumn(name = "landlord_details_id", nullable = false, unique = true)
-        private PersonDetails landlordDetails;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "landlord_details_id", nullable = false, unique = true)
+    private PersonDetails landlordDetails;
 
     @Column(name = "rent_share_percentage", precision = 5, scale = 2)
     private BigDecimal rentSharePercentage;

@@ -88,8 +88,9 @@ export const personDetailsApi = {
         queryClient.invalidateQueries({ queryKey: ["person-details"] });
         toast.success("Person details created successfully");
       },
-      onError: () => {
-        toast.error("Failed to create person details");
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message || "Failed to create person details";
+        toast.error(errorMessage);
       },
     });
   },
@@ -105,8 +106,9 @@ export const personDetailsApi = {
         queryClient.invalidateQueries({ queryKey: ["person-details"] });
         toast.success("Person details updated successfully");
       },
-      onError: () => {
-        toast.error("Failed to update person details");
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message || "Failed to update person details";
+        toast.error(errorMessage);
       },
     });
   },
@@ -121,8 +123,10 @@ export const personDetailsApi = {
         queryClient.invalidateQueries({ queryKey: ["person-details"] });
         toast.success("Person details deleted successfully");
       },
-      onError: () => {
-        toast.error("Failed to delete person details");
+      onError: (error: any) => {
+        // Extract the error message from the backend response
+        const errorMessage = error?.response?.data?.message || "Failed to delete person details";
+        toast.error(errorMessage);
       },
     });
   },

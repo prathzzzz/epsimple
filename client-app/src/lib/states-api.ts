@@ -77,7 +77,7 @@ export const statesApi = {
   },
 
   // Search states
-  search: async (query: string, params: { page?: number; size?: number } = {}): Promise<ApiResponse<PaginatedResponse<State>>> => {
+  search: async (query: string, params: { page?: number; size?: number } = {}): Promise<ApiResponse<FlatPageResponse<State>>> => {
     const { page = 0, size = 10 } = params
     const queryParams = new URLSearchParams({
       search: query,
@@ -85,9 +85,12 @@ export const statesApi = {
       size: size.toString(),
     })
     
-    const response = await api.get<ApiResponse<PaginatedResponse<State>>>(
+    const response = await api.get<ApiResponse<BackendPageResponse<State>>>(
       `/api/states/search?${queryParams}`
     )
-    return response.data
+    return {
+      ...response.data,
+      data: flattenPageResponse(response.data.data)
+    }
   },
 }

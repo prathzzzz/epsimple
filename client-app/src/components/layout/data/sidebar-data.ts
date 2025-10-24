@@ -122,6 +122,16 @@ export const sidebarData: SidebarData = {
               ],
             },
             {
+              title: 'Landlord',
+              icon: UserCircle,
+              items: [
+                {
+                  title: 'Landlords',
+                  url: '/landlords',
+                },
+              ],
+            },
+            {
               title: 'Asset',
               icon: Package,
               items: [

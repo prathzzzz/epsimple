@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { AssetCategory, AssetCategoryFormData } from "./schema";
 
 const ASSET_CATEGORY_ENDPOINTS = {
@@ -31,7 +31,7 @@ export const assetCategoryApi = {
     return useQuery({
       queryKey: ["asset-categories", params],
       queryFn: async () => {
-        const response = await api.get<ApiResponse<BackendBackendPageResponse<AssetCategory>>>(
+        const response = await api.get<ApiResponse<BackendPageResponse<AssetCategory>>>(
           ASSET_CATEGORY_ENDPOINTS.BASE,
           {
             params: {
@@ -56,14 +56,15 @@ export const assetCategoryApi = {
           ASSET_CATEGORY_ENDPOINTS.BASE,
           data
         );
-        return flattenPageResponse(response.data.data); // Unwrap the ApiResponse wrapper
+        return response.data.data; // Unwrap the ApiResponse wrapper
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["asset-categories"] });
         toast.success("Asset category created successfully");
       },
-      onError: () => {
-        toast.error("Failed to create asset category");
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message || "Failed to create asset category";
+        toast.error(errorMessage);
       },
     });
   },
@@ -82,14 +83,15 @@ export const assetCategoryApi = {
           ASSET_CATEGORY_ENDPOINTS.BY_ID(id),
           data
         );
-        return flattenPageResponse(response.data.data); // Unwrap the ApiResponse wrapper
+        return response.data.data; // Unwrap the ApiResponse wrapper
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["asset-categories"] });
         toast.success("Asset category updated successfully");
       },
-      onError: () => {
-        toast.error("Failed to update asset category");
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message || "Failed to update asset category";
+        toast.error(errorMessage);
       },
     });
   },
@@ -104,8 +106,9 @@ export const assetCategoryApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-categories"] });
         toast.success("Asset category deleted successfully");
       },
-      onError: () => {
-        toast.error("Failed to delete asset category");
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message || "Failed to delete asset category";
+        toast.error(errorMessage);
       },
     });
   },
@@ -116,8 +119,8 @@ export const assetCategoryApi = {
     sortBy: string;
     sortDirection: string;
     searchTerm?: string;
-  }): Promise<BackendBackendPageResponse<AssetCategory>> => {
-    const response = await api.get<ApiResponse<BackendBackendPageResponse<AssetCategory>>>(
+  }): Promise<FlatPageResponse<AssetCategory>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<AssetCategory>>>(
       params.searchTerm
         ? ASSET_CATEGORY_ENDPOINTS.SEARCH
         : ASSET_CATEGORY_ENDPOINTS.BASE,
@@ -128,6 +131,6 @@ export const assetCategoryApi = {
 
   getList: async (): Promise<AssetCategory[]> => {
     const response = await api.get<ApiResponse<AssetCategory[]>>(ASSET_CATEGORY_ENDPOINTS.LIST);
-    return flattenPageResponse(response.data.data); // Unwrap the ApiResponse wrapper
+    return response.data.data; // Unwrap the ApiResponse wrapper
   },
 };

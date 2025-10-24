@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -11,8 +11,7 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
-import { useQuery } from "@tanstack/react-query";
+} from '@tanstack/react-table';
 
 import {
   Table,
@@ -21,25 +20,21 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 
-import { DataTablePagination, DataTableToolbar } from "@/components/data-table";
-import { costCategoriesApi } from "../api/cost-categories-api";
-import { DataTableRowActions } from "./data-table-row-actions";
+import { DataTablePagination, DataTableToolbar } from '@/components/data-table';
+import { useLandlords } from '@/lib/landlords-api';
 
-interface CostCategoriesTableProps<TData, TValue> {
+interface LandlordsTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
 }
 
-export function CostCategoriesTable<TData, TValue>({
+export function LandlordsTable<TData, TValue>({
   columns,
-}: CostCategoriesTableProps<TData, TValue>) {
-  const [globalFilter, setGlobalFilter] = useState("");
+}: LandlordsTableProps<TData, TValue>) {
+  const [globalFilter, setGlobalFilter] = useState('');
   const [rowSelection, setRowSelection] = useState({});
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    createdAt: false,
-    updatedAt: false,
-  });
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({
@@ -47,61 +42,25 @@ export function CostCategoriesTable<TData, TValue>({
     pageSize: 10,
   });
 
-  const { data, isLoading } = useQuery({
-    queryKey: [
-      "cost-categories",
-      pagination.pageIndex,
-      pagination.pageSize,
-      globalFilter,
-      sorting,
-    ],
-    queryFn: async () => {
-      const sortBy = sorting.length > 0 ? sorting[0].id : "id";
-      const sortDirection =
-        sorting.length > 0 && sorting[0].desc ? "DESC" : "ASC";
-
-      if (globalFilter && globalFilter.trim() !== "") {
-        return await costCategoriesApi.search(
-          globalFilter,
-          pagination.pageIndex,
-          pagination.pageSize,
-          sortBy,
-          sortDirection
-        );
-      }
-
-      return await costCategoriesApi.getAll(
-        pagination.pageIndex,
-        pagination.pageSize,
-        sortBy,
-        sortDirection
-      );
-    },
+  const { data, isLoading } = useLandlords({
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    sortBy: sorting.length > 0 ? sorting[0].id : 'id',
+    sortDirection: sorting.length > 0 && sorting[0].desc ? 'DESC' : 'ASC',
+    search: globalFilter && globalFilter.trim() !== "" ? globalFilter : undefined,
   });
 
-  const costCategories = (data?.data?.content || []) as TData[];
-  const totalPages = data?.data?.page?.totalPages || 0;
+  const landlordsList = (data?.content || []) as TData[];
+  const totalPages = data?.totalPages || 0;
 
   // Reset to first page when search query changes
   useEffect(() => {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   }, [globalFilter]);
 
-  // Add actions column
-  const columnsWithActions = React.useMemo(
-    () => [
-      ...columns,
-      {
-        id: "actions",
-        cell: ({ row }: { row: any }) => <DataTableRowActions row={row} />,
-      },
-    ],
-    [columns]
-  );
-
   const table = useReactTable({
-    data: costCategories,
-    columns: columnsWithActions as ColumnDef<TData, TValue>[],
+    data: landlordsList,
+    columns,
     pageCount: totalPages,
     state: {
       sorting,
@@ -114,8 +73,8 @@ export function CostCategoriesTable<TData, TValue>({
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
@@ -129,10 +88,7 @@ export function CostCategoriesTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar
-        table={table}
-        searchPlaceholder="Search cost categories..."
-      />
+      <DataTableToolbar table={table} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -157,7 +113,7 @@ export function CostCategoriesTable<TData, TValue>({
             {isLoading ? (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length + 1}
+                  colSpan={columns.length}
                   className="h-24 text-center"
                 >
                   Loading...
@@ -167,7 +123,7 @@ export function CostCategoriesTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -182,7 +138,7 @@ export function CostCategoriesTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length + 1}
+                  colSpan={columns.length}
                   className="h-24 text-center"
                 >
                   No results.

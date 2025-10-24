@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import { handleServerError } from "@/lib/handle-server-error";
 import type { ManagedProject, ManagedProjectFormData } from "./schema";
 
@@ -33,7 +33,7 @@ export const managedProjectApi = {
     return useQuery({
       queryKey: ["managed-projects", params],
       queryFn: async () => {
-        const response = await api.get<ApiResponse<BackendBackendPageResponse<ManagedProject>>>(
+        const response = await api.get<ApiResponse<BackendPageResponse<ManagedProject>>>(
           MANAGED_PROJECT_ENDPOINTS.BASE,
           {
             params: {
@@ -63,7 +63,7 @@ export const managedProjectApi = {
       queryKey: ["managed-projects", "by-bank", bankId, params],
       queryFn: async () => {
         if (!bankId) return null;
-        const response = await api.get<ApiResponse<BackendBackendPageResponse<ManagedProject>>>(
+        const response = await api.get<ApiResponse<BackendPageResponse<ManagedProject>>>(
           MANAGED_PROJECT_ENDPOINTS.BY_BANK(bankId),
           {
             params: {
@@ -85,7 +85,7 @@ export const managedProjectApi = {
     return useMutation({
       mutationFn: async (data: ManagedProjectFormData) => {
         const response = await api.post<ApiResponse<ManagedProject>>(MANAGED_PROJECT_ENDPOINTS.BASE, data);
-        return flattenPageResponse(response.data.data);
+        return response.data.data;
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["managed-projects"] });
@@ -102,7 +102,7 @@ export const managedProjectApi = {
     return useMutation({
       mutationFn: async ({ id, data }: { id: number; data: ManagedProjectFormData }) => {
         const response = await api.put<ApiResponse<ManagedProject>>(MANAGED_PROJECT_ENDPOINTS.BY_ID(id), data);
-        return flattenPageResponse(response.data.data);
+        return response.data.data;
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["managed-projects"] });
@@ -136,8 +136,8 @@ export const managedProjectApi = {
     sortBy: string;
     sortDirection: string;
     searchTerm?: string;
-  }): Promise<BackendBackendPageResponse<ManagedProject>> => {
-    const response = await api.get<ApiResponse<BackendBackendPageResponse<ManagedProject>>>(
+  }): Promise<FlatPageResponse<ManagedProject>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<ManagedProject>>>(
       params.searchTerm ? MANAGED_PROJECT_ENDPOINTS.SEARCH : MANAGED_PROJECT_ENDPOINTS.BASE,
       { params }
     );
@@ -146,6 +146,6 @@ export const managedProjectApi = {
 
   getList: async (): Promise<ManagedProject[]> => {
     const response = await api.get<ApiResponse<ManagedProject[]>>(MANAGED_PROJECT_ENDPOINTS.LIST);
-    return flattenPageResponse(response.data.data);
+    return response.data.data;
   },
 };

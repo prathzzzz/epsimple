@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { SiteType, SiteTypeFormData } from "./schema";
 
 const SITE_TYPE_ENDPOINTS = {
@@ -21,7 +21,7 @@ interface ApiResponse<T> {
 export const siteTypeApi = {
   create: async (data: SiteTypeFormData): Promise<SiteType> => {
     const response = await api.post<ApiResponse<SiteType>>(SITE_TYPE_ENDPOINTS.BASE, data);
-    return flattenPageResponse(response.data.data); // Unwrap ApiResponse
+    return response.data.data; // Unwrap ApiResponse
   },
 
   getAll: async (params: {
@@ -29,8 +29,8 @@ export const siteTypeApi = {
     size: number;
     sortBy: string;
     sortDirection: string;
-  }): Promise<BackendBackendPageResponse<SiteType>> => {
-    const response = await api.get<ApiResponse<BackendBackendPageResponse<SiteType>>>(SITE_TYPE_ENDPOINTS.BASE, { params });
+  }): Promise<FlatPageResponse<SiteType>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<SiteType>>>(SITE_TYPE_ENDPOINTS.BASE, { params });
     return flattenPageResponse(response.data.data); // Unwrap ApiResponse
   },
 
@@ -40,24 +40,24 @@ export const siteTypeApi = {
     size: number;
     sortBy: string;
     sortDirection: string;
-  }): Promise<BackendBackendPageResponse<SiteType>> => {
-    const response = await api.get<ApiResponse<BackendBackendPageResponse<SiteType>>>(SITE_TYPE_ENDPOINTS.SEARCH, { params });
+  }): Promise<FlatPageResponse<SiteType>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<SiteType>>>(SITE_TYPE_ENDPOINTS.SEARCH, { params });
     return flattenPageResponse(response.data.data); // Unwrap ApiResponse
   },
 
   getList: async (): Promise<SiteType[]> => {
     const response = await api.get<ApiResponse<SiteType[]>>(SITE_TYPE_ENDPOINTS.LIST);
-    return flattenPageResponse(response.data.data); // Unwrap ApiResponse
+    return response.data.data; // Unwrap ApiResponse
   },
 
   getById: async (id: number): Promise<SiteType> => {
     const response = await api.get<ApiResponse<SiteType>>(SITE_TYPE_ENDPOINTS.BY_ID(id));
-    return flattenPageResponse(response.data.data); // Unwrap ApiResponse
+    return response.data.data; // Unwrap ApiResponse
   },
 
   update: async (id: number, data: SiteTypeFormData): Promise<SiteType> => {
     const response = await api.put<ApiResponse<SiteType>>(SITE_TYPE_ENDPOINTS.BY_ID(id), data);
-    return flattenPageResponse(response.data.data); // Unwrap ApiResponse
+    return response.data.data; // Unwrap ApiResponse
   },
 
   delete: async (id: number): Promise<void> => {
