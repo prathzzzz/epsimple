@@ -115,6 +115,10 @@ export const sidebarData: SidebarData = {
                   title: 'Vendor Types',
                   url: '/vendor-types',
                 },
+                {
+                  title: 'Vendors',
+                  url: '/vendors',
+                },
               ],
             },
             {

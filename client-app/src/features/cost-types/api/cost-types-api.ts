@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import { handleServerError } from "@/lib/handle-server-error";
 
 export interface CostType {
@@ -19,13 +20,7 @@ export interface CostTypeFormData {
   costCategoryId: number;
 }
 
-interface PagedResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-}
+
 
 interface ApiResponse<T> {
   data: T;
@@ -51,7 +46,7 @@ export const costTypesApi = {
     return useQuery({
       queryKey: ["cost-types", params],
       queryFn: async () => {
-        const response = await api.get<ApiResponse<PagedResponse<CostType>>>(
+        const response = await api.get<ApiResponse<BackendBackendPageResponse<CostType>>>(
           COST_TYPE_ENDPOINTS.BASE,
           {
             params: {
@@ -63,7 +58,7 @@ export const costTypesApi = {
             },
           }
         );
-        return response.data.data;
+        return flattenPageResponse(response.data.data);
       },
     });
   },
@@ -73,7 +68,7 @@ export const costTypesApi = {
       queryKey: ["cost-types", "list"],
       queryFn: async () => {
         const response = await api.get<ApiResponse<CostType[]>>(COST_TYPE_ENDPOINTS.LIST);
-        return response.data.data;
+        return flattenPageResponse(response.data.data);
       },
     });
   },
@@ -84,7 +79,7 @@ export const costTypesApi = {
       queryFn: async () => {
         if (!id) return null;
         const response = await api.get<ApiResponse<CostType>>(COST_TYPE_ENDPOINTS.BY_ID(id));
-        return response.data.data;
+        return flattenPageResponse(response.data.data);
       },
       enabled: !!id,
     });
@@ -95,7 +90,7 @@ export const costTypesApi = {
     return useMutation({
       mutationFn: async (data: CostTypeFormData) => {
         const response = await api.post<ApiResponse<CostType>>(COST_TYPE_ENDPOINTS.BASE, data);
-        return response.data.data;
+        return flattenPageResponse(response.data.data);
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["cost-types"] });
@@ -112,7 +107,7 @@ export const costTypesApi = {
     return useMutation({
       mutationFn: async ({ id, data }: { id: number; data: CostTypeFormData }) => {
         const response = await api.put<ApiResponse<CostType>>(COST_TYPE_ENDPOINTS.BY_ID(id), data);
-        return response.data.data;
+        return flattenPageResponse(response.data.data);
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["cost-types"] });
@@ -146,16 +141,16 @@ export const costTypesApi = {
     sortBy: string;
     sortDirection: string;
     searchTerm?: string;
-  }): Promise<PagedResponse<CostType>> => {
-    const response = await api.get<ApiResponse<PagedResponse<CostType>>>(
+  }): Promise<BackendBackendPageResponse<CostType>> => {
+    const response = await api.get<ApiResponse<BackendBackendPageResponse<CostType>>>(
       params.searchTerm ? COST_TYPE_ENDPOINTS.SEARCH : COST_TYPE_ENDPOINTS.BASE,
       { params }
     );
-    return response.data.data;
+    return flattenPageResponse(response.data.data);
   },
 
   getList: async (): Promise<CostType[]> => {
     const response = await api.get<ApiResponse<CostType[]>>(COST_TYPE_ENDPOINTS.LIST);
-    return response.data.data;
+    return flattenPageResponse(response.data.data);
   },
 };

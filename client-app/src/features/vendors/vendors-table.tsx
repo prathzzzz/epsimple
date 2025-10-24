@@ -23,17 +23,16 @@ import {
 } from '@/components/ui/table';
 
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table';
-import { locationApi } from '../api/location-api';
-import { useLocation } from '../context/location-provider';
+import { useVendors } from '@/lib/vendors-api';
 
-interface LocationTableProps<TData, TValue> {
+interface VendorsTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
 }
 
-export function LocationTable<TData, TValue>({
+export function VendorsTable<TData, TValue>({
   columns,
-}: LocationTableProps<TData, TValue>) {
-  const { globalFilter, setGlobalFilter } = useLocation();
+}: VendorsTableProps<TData, TValue>) {
+  const [globalFilter, setGlobalFilter] = useState('');
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -43,14 +42,15 @@ export function LocationTable<TData, TValue>({
     pageSize: 10,
   });
 
-  const { data, isLoading } = locationApi.useGetAll({
+  const { data, isLoading } = useVendors({
     page: pagination.pageIndex,
     size: pagination.pageSize,
-    sortBy: sorting.length > 0 ? sorting[0].id : 'locationName',
+    sortBy: sorting.length > 0 ? sorting[0].id : 'id',
     sortDirection: sorting.length > 0 && sorting[0].desc ? 'DESC' : 'ASC',
+    search: globalFilter && globalFilter.trim() !== "" ? globalFilter : undefined,
   });
 
-  const locations = (data?.content || []) as TData[];
+  const vendorsList = (data?.content || []) as TData[];
   const totalPages = data?.totalPages || 0;
 
   // Reset to first page when search query changes
@@ -59,7 +59,7 @@ export function LocationTable<TData, TValue>({
   }, [globalFilter]);
 
   const table = useReactTable({
-    data: locations,
+    data: vendorsList,
     columns,
     pageCount: totalPages,
     state: {
@@ -113,7 +113,7 @@ export function LocationTable<TData, TValue>({
             {isLoading ? (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length + 1}
+                  colSpan={columns.length}
                   className="h-24 text-center"
                 >
                   Loading...
@@ -138,7 +138,7 @@ export function LocationTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length + 1}
+                  colSpan={columns.length}
                   className="h-24 text-center"
                 >
                   No results.

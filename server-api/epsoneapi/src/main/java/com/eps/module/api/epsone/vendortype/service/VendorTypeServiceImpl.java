@@ -1,19 +1,24 @@
 package com.eps.module.api.epsone.vendortype.service;
 
+import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.api.epsone.vendorcategory.repository.VendorCategoryRepository;
 import com.eps.module.api.epsone.vendortype.dto.VendorTypeRequestDto;
 import com.eps.module.api.epsone.vendortype.dto.VendorTypeResponseDto;
 import com.eps.module.api.epsone.vendortype.mapper.VendorTypeMapper;
 import com.eps.module.api.epsone.vendortype.repository.VendorTypeRepository;
+import com.eps.module.person.PersonDetails;
+import com.eps.module.vendor.Vendor;
 import com.eps.module.vendor.VendorCategory;
 import com.eps.module.vendor.VendorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +26,7 @@ public class VendorTypeServiceImpl implements VendorTypeService {
 
     private final VendorTypeRepository vendorTypeRepository;
     private final VendorCategoryRepository vendorCategoryRepository;
+    private final VendorRepository vendorRepository;
     private final VendorTypeMapper vendorTypeMapper;
 
     @Override
@@ -65,9 +71,32 @@ public class VendorTypeServiceImpl implements VendorTypeService {
     @Override
     @Transactional
     public void deleteVendorType(Long id) {
-        if (!vendorTypeRepository.existsById(id)) {
-            throw new IllegalArgumentException("Vendor type not found with id: " + id);
+        VendorType vendorType = vendorTypeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Vendor type not found with id: " + id));
+
+        // Check for dependent vendors
+        long vendorCount = vendorRepository.countByVendorTypeId(id);
+        if (vendorCount > 0) {
+            // Fetch up to 6 vendors (show first 5 + determine if more)
+            Page<Vendor> vendorsPage = vendorRepository.findByVendorTypeId(
+                    id, PageRequest.of(0, 6));
+            List<Vendor> vendors = vendorsPage.getContent();
+
+            // Build list of vendor names (up to 5)
+            String vendorNames = vendors.stream()
+                    .limit(5)
+                    .map(this::buildVendorName)
+                    .collect(Collectors.joining(", "));
+
+            // Add "and X more" if there are more than 5
+            String moreText = vendorCount > 5 ? " and " + (vendorCount - 5) + " more" : "";
+
+            throw new IllegalArgumentException(
+                    "Cannot delete '" + vendorType.getTypeName() + "' vendor type because it is being used by " + 
+                    vendorCount + " vendor(s): " + vendorNames + moreText + ". " +
+                    "Please delete or reassign these vendors first.");
         }
+
         vendorTypeRepository.deleteById(id);
     }
 
@@ -101,5 +130,30 @@ public class VendorTypeServiceImpl implements VendorTypeService {
     public List<VendorTypeResponseDto> getAllVendorTypesList() {
         List<VendorType> vendorTypes = vendorTypeRepository.findAll();
         return vendorTypeMapper.toResponseDtoList(vendorTypes);
+    }
+
+    /**
+     * Build vendor name from person details
+     */
+    private String buildVendorName(Vendor vendor) {
+        PersonDetails details = vendor.getVendorDetails();
+        if (details == null) {
+            return "Unknown Vendor";
+        }
+        
+        StringBuilder fullName = new StringBuilder();
+        if (details.getFirstName() != null && !details.getFirstName().isEmpty()) {
+            fullName.append(details.getFirstName());
+        }
+        if (details.getMiddleName() != null && !details.getMiddleName().isEmpty()) {
+            if (!fullName.isEmpty()) fullName.append(" ");
+            fullName.append(details.getMiddleName());
+        }
+        if (details.getLastName() != null && !details.getLastName().isEmpty()) {
+            if (!fullName.isEmpty()) fullName.append(" ");
+            fullName.append(details.getLastName());
+        }
+        
+        return !fullName.isEmpty() ? fullName.toString() : "Unknown Vendor";
     }
 }

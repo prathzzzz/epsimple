@@ -6,15 +6,6 @@ import type { ActivitiesList } from "../api/schema";
 
 export const activitiesListColumns: ColumnDef<ActivitiesList>[] = [
   {
-    accessorKey: "activityId",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Activity" />
-    ),
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("activityId")}</div>
-    ),
-  },
-  {
     accessorKey: "activityName",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Activity Name" />

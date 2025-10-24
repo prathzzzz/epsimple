@@ -1,5 +1,6 @@
 import api from "@/lib/api";
 
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 export interface CostCategory {
   id: number;
   categoryName: string;
@@ -13,14 +14,6 @@ export interface CostCategory {
 export interface CostCategoryFormData {
   categoryName: string;
   categoryDescription?: string;
-}
-
-export interface PageResponse<T> {
-  content: T[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
 }
 
 export interface ApiResponse<T> {
@@ -42,8 +35,8 @@ export const costCategoriesApi = {
     size = 10,
     sortBy = "id",
     sortDirection: "ASC" | "DESC" = "ASC"
-  ): Promise<ApiResponse<PageResponse<CostCategory>>> => {
-    const response = await api.get<ApiResponse<PageResponse<CostCategory>>>(BASE_URL, {
+  ): Promise<ApiResponse<BackendPageResponse<CostCategory>>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<CostCategory>>>(BASE_URL, {
       params: { page, size, sortBy, sortDirection },
     });
     return response.data;
@@ -55,8 +48,8 @@ export const costCategoriesApi = {
     size = 10,
     sortBy = "id",
     sortDirection: "ASC" | "DESC" = "ASC"
-  ): Promise<ApiResponse<PageResponse<CostCategory>>> => {
-    const response = await api.get<ApiResponse<PageResponse<CostCategory>>>(
+  ): Promise<ApiResponse<BackendPageResponse<CostCategory>>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<CostCategory>>>(
       `${BASE_URL}/search`,
       {
         params: { searchTerm, page, size, sortBy, sortDirection },

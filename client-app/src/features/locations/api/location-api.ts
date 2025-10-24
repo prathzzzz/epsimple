@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import api from '@/lib/api';
+import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { Location, LocationFormData } from './schema';
 
 interface ApiResponse<T> {
@@ -8,14 +9,6 @@ interface ApiResponse<T> {
   message: string;
   status: number;
   timestamp: string;
-}
-
-interface PagedResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
 }
 
 const LOCATION_ENDPOINTS = {
@@ -35,7 +28,7 @@ export const locationApi = {
     return useQuery({
       queryKey: ['locations', params],
       queryFn: async () => {
-        const response = await api.get<ApiResponse<PagedResponse<Location>>>(
+        const response = await api.get<ApiResponse<BackendPageResponse<Location>>>(
           LOCATION_ENDPOINTS.BASE,
           {
             params: {
@@ -46,7 +39,7 @@ export const locationApi = {
             },
           }
         );
-        return response.data.data;
+        return flattenPageResponse(response.data.data);
       },
     });
   },
@@ -61,7 +54,7 @@ export const locationApi = {
     return useQuery({
       queryKey: ['locations', 'search', params],
       queryFn: async () => {
-        const response = await api.get<ApiResponse<PagedResponse<Location>>>(
+        const response = await api.get<ApiResponse<BackendPageResponse<Location>>>(
           LOCATION_ENDPOINTS.SEARCH,
           {
             params: {
@@ -73,7 +66,7 @@ export const locationApi = {
             },
           }
         );
-        return response.data.data;
+        return flattenPageResponse(response.data.data);
       },
       enabled: !!params.searchTerm,
     });
@@ -143,8 +136,8 @@ export const locationApi = {
     size: number;
     sortBy?: string;
     sortDirection?: string;
-  }): Promise<PagedResponse<Location>> => {
-    const response = await api.get<ApiResponse<PagedResponse<Location>>>(
+  }): Promise<FlatPageResponse<Location>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<Location>>>(
       LOCATION_ENDPOINTS.BASE,
       {
         params: {
@@ -155,7 +148,7 @@ export const locationApi = {
         },
       }
     );
-    return response.data.data;
+    return flattenPageResponse(response.data.data);
   },
 
   getList: async (): Promise<Location[]> => {

@@ -1,5 +1,6 @@
 import api from "@/lib/api";
 
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 export interface GenericStatusType {
   id: number;
   statusName: string;
@@ -15,14 +16,6 @@ export interface GenericStatusTypeFormData {
   statusName: string;
   statusCode?: string;
   description?: string;
-}
-
-export interface PageResponse<T> {
-  content: T[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
 }
 
 export interface ApiResponse<T> {
@@ -49,9 +42,9 @@ export const genericStatusTypeApi = {
     size = 10,
     sortBy = "id",
     sortDirection: "ASC" | "DESC" = "ASC"
-  ): Promise<ApiResponse<PageResponse<GenericStatusType>>> => {
+  ): Promise<ApiResponse<BackendPageResponse<GenericStatusType>>> => {
     const response = await api.get<
-      ApiResponse<PageResponse<GenericStatusType>>
+      ApiResponse<BackendPageResponse<GenericStatusType>>
     >(BASE_URL, {
       params: { page, size, sortBy, sortDirection },
     });
@@ -64,9 +57,9 @@ export const genericStatusTypeApi = {
     size = 10,
     sortBy = "id",
     sortDirection: "ASC" | "DESC" = "ASC"
-  ): Promise<ApiResponse<PageResponse<GenericStatusType>>> => {
+  ): Promise<ApiResponse<BackendPageResponse<GenericStatusType>>> => {
     const response = await api.get<
-      ApiResponse<PageResponse<GenericStatusType>>
+      ApiResponse<BackendPageResponse<GenericStatusType>>
     >(`${BASE_URL}/search`, {
       params: { searchTerm, page, size, sortBy, sortDirection },
     });

@@ -22,6 +22,7 @@ import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-pas
 import { Route as authOtpRouteImport } from './routes/(auth)/otp'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
+import { Route as AuthenticatedVendorsIndexRouteImport } from './routes/_authenticated/vendors/index'
 import { Route as AuthenticatedVendorTypesIndexRouteImport } from './routes/_authenticated/vendor-types/index'
 import { Route as AuthenticatedVendorCategoriesIndexRouteImport } from './routes/_authenticated/vendor-categories/index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
@@ -113,6 +114,12 @@ const AuthenticatedSettingsRouteRoute =
   AuthenticatedSettingsRouteRouteImport.update({
     id: '/settings',
     path: '/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedVendorsIndexRoute =
+  AuthenticatedVendorsIndexRouteImport.update({
+    id: '/vendors/',
+    path: '/vendors/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedVendorTypesIndexRoute =
@@ -315,6 +322,7 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersIndexRoute
   '/vendor-categories': typeof AuthenticatedVendorCategoriesIndexRoute
   '/vendor-types': typeof AuthenticatedVendorTypesIndexRoute
+  '/vendors': typeof AuthenticatedVendorsIndexRoute
 }
 export interface FileRoutesByTo {
   '/forgot-password': typeof authForgotPasswordRoute
@@ -355,6 +363,7 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersIndexRoute
   '/vendor-categories': typeof AuthenticatedVendorCategoriesIndexRoute
   '/vendor-types': typeof AuthenticatedVendorTypesIndexRoute
+  '/vendors': typeof AuthenticatedVendorsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -398,6 +407,7 @@ export interface FileRoutesById {
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/vendor-categories/': typeof AuthenticatedVendorCategoriesIndexRoute
   '/_authenticated/vendor-types/': typeof AuthenticatedVendorTypesIndexRoute
+  '/_authenticated/vendors/': typeof AuthenticatedVendorsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -441,6 +451,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/vendor-categories'
     | '/vendor-types'
+    | '/vendors'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/forgot-password'
@@ -481,6 +492,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/vendor-categories'
     | '/vendor-types'
+    | '/vendors'
   id:
     | '__root__'
     | '/_authenticated'
@@ -523,6 +535,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users/'
     | '/_authenticated/vendor-categories/'
     | '/_authenticated/vendor-types/'
+    | '/_authenticated/vendors/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -630,6 +643,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/vendors/': {
+      id: '/_authenticated/vendors/'
+      path: '/vendors'
+      fullPath: '/vendors'
+      preLoaderRoute: typeof AuthenticatedVendorsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/vendor-types/': {
@@ -868,6 +888,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
   AuthenticatedVendorCategoriesIndexRoute: typeof AuthenticatedVendorCategoriesIndexRoute
   AuthenticatedVendorTypesIndexRoute: typeof AuthenticatedVendorTypesIndexRoute
+  AuthenticatedVendorsIndexRoute: typeof AuthenticatedVendorsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -902,6 +923,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedVendorCategoriesIndexRoute:
     AuthenticatedVendorCategoriesIndexRoute,
   AuthenticatedVendorTypesIndexRoute: AuthenticatedVendorTypesIndexRoute,
+  AuthenticatedVendorsIndexRoute: AuthenticatedVendorsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

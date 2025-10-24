@@ -1,5 +1,6 @@
 import api from "@/lib/api";
 
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 export interface PaymentMethod {
   id: number;
   methodName: string;
@@ -13,14 +14,6 @@ export interface PaymentMethod {
 export interface PaymentMethodFormData {
   methodName: string;
   description?: string;
-}
-
-export interface PageResponse<T> {
-  content: T[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
 }
 
 export interface ApiResponse<T> {
@@ -42,8 +35,8 @@ export const paymentMethodsApi = {
     size = 10,
     sortBy = "id",
     sortDirection: "ASC" | "DESC" = "ASC"
-  ): Promise<ApiResponse<PageResponse<PaymentMethod>>> => {
-    const response = await api.get<ApiResponse<PageResponse<PaymentMethod>>>(BASE_URL, {
+  ): Promise<ApiResponse<BackendPageResponse<PaymentMethod>>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<PaymentMethod>>>(BASE_URL, {
       params: { page, size, sortBy, sortDirection },
     });
     return response.data;
@@ -55,8 +48,8 @@ export const paymentMethodsApi = {
     size = 10,
     sortBy = "id",
     sortDirection: "ASC" | "DESC" = "ASC"
-  ): Promise<ApiResponse<PageResponse<PaymentMethod>>> => {
-    const response = await api.get<ApiResponse<PageResponse<PaymentMethod>>>(
+  ): Promise<ApiResponse<BackendPageResponse<PaymentMethod>>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<PaymentMethod>>>(
       `${BASE_URL}/search`,
       {
         params: { searchTerm, page, size, sortBy, sortDirection },

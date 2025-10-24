@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from "@/lib/api-utils";
 import type { PersonDetails, PersonDetailsFormData } from "./schema";
 
 const PERSON_DETAILS_ENDPOINTS = {
@@ -18,14 +19,6 @@ interface ApiResponse<T> {
   timestamp: string;
 }
 
-interface PagedResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-}
-
 export const personDetailsApi = {
   useGetAll: (params: {
     page: number;
@@ -37,7 +30,7 @@ export const personDetailsApi = {
     return useQuery({
       queryKey: ["person-details", params],
       queryFn: async () => {
-        const response = await api.get<ApiResponse<PagedResponse<PersonDetails>>>(
+        const response = await api.get<ApiResponse<BackendPageResponse<PersonDetails>>>(
           PERSON_DETAILS_ENDPOINTS.BASE,
           {
             params: {
@@ -49,7 +42,7 @@ export const personDetailsApi = {
             },
           }
         );
-        return response.data.data;
+        return flattenPageResponse(response.data.data);
       },
     });
   },
@@ -67,7 +60,7 @@ export const personDetailsApi = {
       queryKey: ["person-details", "by-person-type", personTypeId, params],
       queryFn: async () => {
         if (!personTypeId) return null;
-        const response = await api.get<ApiResponse<PagedResponse<PersonDetails>>>(
+        const response = await api.get<ApiResponse<BackendPageResponse<PersonDetails>>>(
           PERSON_DETAILS_ENDPOINTS.BY_PERSON_TYPE(personTypeId),
           {
             params: {
@@ -78,7 +71,7 @@ export const personDetailsApi = {
             },
           }
         );
-        return response.data.data;
+        return flattenPageResponse(response.data.data);
       },
       enabled: !!personTypeId,
     });
@@ -140,12 +133,12 @@ export const personDetailsApi = {
     sortBy: string;
     sortDirection: string;
     searchTerm?: string;
-  }): Promise<PagedResponse<PersonDetails>> => {
-    const response = await api.get<ApiResponse<PagedResponse<PersonDetails>>>(
+  }): Promise<FlatPageResponse<PersonDetails>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<PersonDetails>>>(
       params.searchTerm ? PERSON_DETAILS_ENDPOINTS.SEARCH : PERSON_DETAILS_ENDPOINTS.BASE,
       { params }
     );
-    return response.data.data;
+    return flattenPageResponse(response.data.data);
   },
 
   getList: async (): Promise<PersonDetails[]> => {

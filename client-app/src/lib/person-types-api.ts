@@ -1,4 +1,5 @@
 import api from './api'
+import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from './api-utils'
 
 export interface PersonType {
   id: number
@@ -19,14 +20,6 @@ export interface ApiResponse<T> {
   data: T
 }
 
-export interface PaginatedResponse<T> {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-}
-
 const BASE_URL = '/epsone/api/person-types'
 
 export const personTypesApi = {
@@ -36,7 +29,7 @@ export const personTypesApi = {
     size?: number
     sortBy?: string
     sortDirection?: 'ASC' | 'DESC'
-  }): Promise<ApiResponse<PaginatedResponse<PersonType>>> => {
+  }): Promise<ApiResponse<FlatPageResponse<PersonType>>> => {
     const searchParams = new URLSearchParams({
       page: params.page?.toString() || '0',
       size: params.size?.toString() || '10',
@@ -48,7 +41,11 @@ export const personTypesApi = {
     if (!response.ok) {
       throw new Error('Failed to fetch person types')
     }
-    return response.json()
+    const json: ApiResponse<BackendPageResponse<PersonType>> = await response.json()
+    return {
+      ...json,
+      data: flattenPageResponse(json.data)
+    }
   },
 
   // Search person types
@@ -60,7 +57,7 @@ export const personTypesApi = {
       sortBy?: string
       sortDirection?: 'ASC' | 'DESC'
     }
-  ): Promise<ApiResponse<PaginatedResponse<PersonType>>> => {
+  ): Promise<ApiResponse<FlatPageResponse<PersonType>>> => {
     const searchParams = new URLSearchParams({
       query,
       page: params.page?.toString() || '0',
@@ -73,7 +70,11 @@ export const personTypesApi = {
     if (!response.ok) {
       throw new Error('Failed to search person types')
     }
-    return response.json()
+    const json: ApiResponse<BackendPageResponse<PersonType>> = await response.json()
+    return {
+      ...json,
+      data: flattenPageResponse(json.data)
+    }
   },
 
   // Get all person types as list (no pagination)

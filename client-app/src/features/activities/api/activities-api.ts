@@ -1,5 +1,6 @@
 import api from "@/lib/api";
 
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 export interface Activity {
   id: number;
   activityName: string;
@@ -13,14 +14,6 @@ export interface Activity {
 export interface ActivityFormData {
   activityName: string;
   activityDescription?: string;
-}
-
-export interface PageResponse<T> {
-  content: T[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
 }
 
 export interface ApiResponse<T> {
@@ -42,8 +35,8 @@ export const activitiesApi = {
     size = 10,
     sortBy = "id",
     sortDirection: "ASC" | "DESC" = "ASC"
-  ): Promise<ApiResponse<PageResponse<Activity>>> => {
-    const response = await api.get<ApiResponse<PageResponse<Activity>>>(BASE_URL, {
+  ): Promise<ApiResponse<BackendPageResponse<Activity>>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<Activity>>>(BASE_URL, {
       params: { page, size, sortBy, sortDirection },
     });
     return response.data;
@@ -55,8 +48,8 @@ export const activitiesApi = {
     size = 10,
     sortBy = "id",
     sortDirection: "ASC" | "DESC" = "ASC"
-  ): Promise<ApiResponse<PageResponse<Activity>>> => {
-    const response = await api.get<ApiResponse<PageResponse<Activity>>>(
+  ): Promise<ApiResponse<BackendPageResponse<Activity>>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<Activity>>>(
       `${BASE_URL}/search`,
       {
         params: { searchTerm, page, size, sortBy, sortDirection },

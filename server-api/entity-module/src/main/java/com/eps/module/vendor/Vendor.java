@@ -18,13 +18,13 @@ public class Vendor extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-        @JoinColumn(name = "vendor_type_id")
-        private VendorType vendorType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vendor_type_id", nullable = false)
+    private VendorType vendorType;
 
-        @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-        @JoinColumn(name = "vendor_details_id", nullable = false, unique = true)
-        private PersonDetails vendorDetails;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vendor_details_id", nullable = false, unique = true)
+    private PersonDetails vendorDetails;
 
     @Column(name = "vendor_code_alt", unique = true, length = 10)
     private String vendorCodeAlt;

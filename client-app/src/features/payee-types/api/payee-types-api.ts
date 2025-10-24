@@ -1,5 +1,6 @@
 import api from "@/lib/api";
 
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 export interface PayeeType {
   id: number;
   payeeType: string;
@@ -15,14 +16,6 @@ export interface PayeeTypeFormData {
   payeeType: string;
   payeeCategory?: string;
   description?: string;
-}
-
-export interface PageResponse<T> {
-  content: T[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
 }
 
 export interface ApiResponse<T> {
@@ -44,8 +37,8 @@ export const payeeTypesApi = {
     size = 10,
     sortBy = "id",
     sortDirection: "ASC" | "DESC" = "ASC"
-  ): Promise<ApiResponse<PageResponse<PayeeType>>> => {
-    const response = await api.get<ApiResponse<PageResponse<PayeeType>>>(BASE_URL, {
+  ): Promise<ApiResponse<BackendPageResponse<PayeeType>>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<PayeeType>>>(BASE_URL, {
       params: { page, size, sortBy, sortDirection },
     });
     return response.data;
@@ -57,8 +50,8 @@ export const payeeTypesApi = {
     size = 10,
     sortBy = "id",
     sortDirection: "ASC" | "DESC" = "ASC"
-  ): Promise<ApiResponse<PageResponse<PayeeType>>> => {
-    const response = await api.get<ApiResponse<PageResponse<PayeeType>>>(
+  ): Promise<ApiResponse<BackendPageResponse<PayeeType>>> => {
+    const response = await api.get<ApiResponse<BackendPageResponse<PayeeType>>>(
       `${BASE_URL}/search`,
       {
         params: { searchTerm, page, size, sortBy, sortDirection },

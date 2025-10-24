@@ -1,4 +1,5 @@
 import api from './api'
+import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from './api-utils'
 
 export interface State {
   id: number
@@ -26,17 +27,9 @@ export interface ApiResponse<T> {
   data: T
 }
 
-export interface PaginatedResponse<T> {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-}
-
 export const statesApi = {
   // Get paginated states with optional search
-  getAll: async (params: StateListParams = {}): Promise<ApiResponse<PaginatedResponse<State>>> => {
+  getAll: async (params: StateListParams = {}): Promise<ApiResponse<FlatPageResponse<State>>> => {
     const { page = 0, size = 10, search = '' } = params
     const queryParams = new URLSearchParams({
       page: page.toString(),
@@ -44,10 +37,13 @@ export const statesApi = {
       ...(search && { search }),
     })
     
-    const response = await api.get<ApiResponse<PaginatedResponse<State>>>(
+    const response = await api.get<ApiResponse<BackendPageResponse<State>>>(
       `/api/states?${queryParams}`
     )
-    return response.data
+    return {
+      ...response.data,
+      data: flattenPageResponse(response.data.data)
+    }
   },
 
   // Get all states as list (for dropdowns)

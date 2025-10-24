@@ -1,4 +1,5 @@
 import api from '@/lib/api';
+import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import {
   useMutation,
   useQuery,
@@ -13,15 +14,6 @@ interface ApiResponse<T> {
   message: string;
   status: number;
   timestamp: string;
-}
-
-// Paginated response interface
-interface PagedResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
 }
 
 interface GetAllParams {
@@ -51,23 +43,23 @@ export const payeeDetailsApi = {
     
     // If search is provided, use the search endpoint
     if (search && search.trim()) {
-      const response = await api.get<ApiResponse<PagedResponse<PayeeDetails>>>(
+      const response = await api.get<ApiResponse<BackendPageResponse<PayeeDetails>>>(
         `${PAYEE_DETAILS_BASE_URL}/search`,
         {
           params: { searchTerm: search, page, size, sortBy, sortDirection },
         }
       );
-      return response.data.data;
+      return flattenPageResponse(response.data.data);
     }
     
     // Otherwise use the regular getAll endpoint
-    const response = await api.get<ApiResponse<PagedResponse<PayeeDetails>>>(
+    const response = await api.get<ApiResponse<BackendPageResponse<PayeeDetails>>>(
       PAYEE_DETAILS_BASE_URL,
       {
         params: { page, size, sortBy, sortDirection },
       }
     );
-    return response.data.data;
+    return flattenPageResponse(response.data.data);
   },
 
   search: async (params: SearchParams) => {
@@ -78,13 +70,13 @@ export const payeeDetailsApi = {
       sortBy = 'payeeName',
       sortDirection = 'ASC',
     } = params;
-    const response = await api.get<ApiResponse<PagedResponse<PayeeDetails>>>(
+    const response = await api.get<ApiResponse<BackendPageResponse<PayeeDetails>>>(
       `${PAYEE_DETAILS_BASE_URL}/search`,
       {
         params: { searchTerm, page, size, sortBy, sortDirection },
       }
     );
-    return response.data.data;
+    return flattenPageResponse(response.data.data);
   },
 
   getList: async (): Promise<PayeeDetails[]> => {

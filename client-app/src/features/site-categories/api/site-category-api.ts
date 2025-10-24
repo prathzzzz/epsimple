@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { SiteCategory, SiteCategoryFormData } from "./schema";
 
 const SITE_CATEGORY_ENDPOINTS = {
@@ -10,13 +11,7 @@ const SITE_CATEGORY_ENDPOINTS = {
   BY_ID: (id: number) => `/api/site-categories/${id}`,
 };
 
-interface PagedResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-}
+
 
 interface ApiResponse<T> {
   data: T;
@@ -36,7 +31,7 @@ export const siteCategoryApi = {
     return useQuery({
       queryKey: ["site-categories", params],
       queryFn: async () => {
-        const response = await api.get<ApiResponse<PagedResponse<SiteCategory>>>(
+        const response = await api.get<ApiResponse<BackendBackendPageResponse<SiteCategory>>>(
           SITE_CATEGORY_ENDPOINTS.BASE,
           {
             params: {
@@ -48,7 +43,7 @@ export const siteCategoryApi = {
             },
           }
         );
-        return response.data.data; // Unwrap ApiResponse
+        return flattenPageResponse(response.data.data); // Unwrap ApiResponse
       },
     });
   },
@@ -61,7 +56,7 @@ export const siteCategoryApi = {
           SITE_CATEGORY_ENDPOINTS.BASE,
           data
         );
-        return response.data.data; // Unwrap ApiResponse
+        return flattenPageResponse(response.data.data); // Unwrap ApiResponse
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["site-categories"] });
@@ -87,7 +82,7 @@ export const siteCategoryApi = {
           SITE_CATEGORY_ENDPOINTS.BY_ID(id),
           data
         );
-        return response.data.data; // Unwrap ApiResponse
+        return flattenPageResponse(response.data.data); // Unwrap ApiResponse
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["site-categories"] });
@@ -121,18 +116,18 @@ export const siteCategoryApi = {
     sortBy: string;
     sortDirection: string;
     searchTerm?: string;
-  }): Promise<PagedResponse<SiteCategory>> => {
-    const response = await api.get<ApiResponse<PagedResponse<SiteCategory>>>(
+  }): Promise<BackendBackendPageResponse<SiteCategory>> => {
+    const response = await api.get<ApiResponse<BackendBackendPageResponse<SiteCategory>>>(
       params.searchTerm
         ? SITE_CATEGORY_ENDPOINTS.SEARCH
         : SITE_CATEGORY_ENDPOINTS.BASE,
       { params }
     );
-    return response.data.data; // Unwrap ApiResponse
+    return flattenPageResponse(response.data.data); // Unwrap ApiResponse
   },
 
   getList: async (): Promise<SiteCategory[]> => {
     const response = await api.get<ApiResponse<SiteCategory[]>>(SITE_CATEGORY_ENDPOINTS.LIST);
-    return response.data.data; // Unwrap ApiResponse
+    return flattenPageResponse(response.data.data); // Unwrap ApiResponse
   },
 };

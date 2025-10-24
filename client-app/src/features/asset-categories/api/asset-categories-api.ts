@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { AssetCategory, AssetCategoryFormData } from "./schema";
 
 const ASSET_CATEGORY_ENDPOINTS = {
@@ -10,13 +11,7 @@ const ASSET_CATEGORY_ENDPOINTS = {
   BY_ID: (id: number) => `/api/asset-categories/${id}`,
 };
 
-interface PagedResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-}
+
 
 interface ApiResponse<T> {
   data: T;
@@ -36,7 +31,7 @@ export const assetCategoryApi = {
     return useQuery({
       queryKey: ["asset-categories", params],
       queryFn: async () => {
-        const response = await api.get<ApiResponse<PagedResponse<AssetCategory>>>(
+        const response = await api.get<ApiResponse<BackendBackendPageResponse<AssetCategory>>>(
           ASSET_CATEGORY_ENDPOINTS.BASE,
           {
             params: {
@@ -48,7 +43,7 @@ export const assetCategoryApi = {
             },
           }
         );
-        return response.data.data; // Unwrap the ApiResponse wrapper
+        return flattenPageResponse(response.data.data); // Unwrap the ApiResponse wrapper
       },
     });
   },
@@ -61,7 +56,7 @@ export const assetCategoryApi = {
           ASSET_CATEGORY_ENDPOINTS.BASE,
           data
         );
-        return response.data.data; // Unwrap the ApiResponse wrapper
+        return flattenPageResponse(response.data.data); // Unwrap the ApiResponse wrapper
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["asset-categories"] });
@@ -87,7 +82,7 @@ export const assetCategoryApi = {
           ASSET_CATEGORY_ENDPOINTS.BY_ID(id),
           data
         );
-        return response.data.data; // Unwrap the ApiResponse wrapper
+        return flattenPageResponse(response.data.data); // Unwrap the ApiResponse wrapper
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["asset-categories"] });
@@ -121,18 +116,18 @@ export const assetCategoryApi = {
     sortBy: string;
     sortDirection: string;
     searchTerm?: string;
-  }): Promise<PagedResponse<AssetCategory>> => {
-    const response = await api.get<ApiResponse<PagedResponse<AssetCategory>>>(
+  }): Promise<BackendBackendPageResponse<AssetCategory>> => {
+    const response = await api.get<ApiResponse<BackendBackendPageResponse<AssetCategory>>>(
       params.searchTerm
         ? ASSET_CATEGORY_ENDPOINTS.SEARCH
         : ASSET_CATEGORY_ENDPOINTS.BASE,
       { params }
     );
-    return response.data.data; // Unwrap the ApiResponse wrapper
+    return flattenPageResponse(response.data.data); // Unwrap the ApiResponse wrapper
   },
 
   getList: async (): Promise<AssetCategory[]> => {
     const response = await api.get<ApiResponse<AssetCategory[]>>(ASSET_CATEGORY_ENDPOINTS.LIST);
-    return response.data.data; // Unwrap the ApiResponse wrapper
+    return flattenPageResponse(response.data.data); // Unwrap the ApiResponse wrapper
   },
 };

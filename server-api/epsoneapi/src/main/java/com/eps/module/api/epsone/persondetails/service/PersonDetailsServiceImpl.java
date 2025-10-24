@@ -5,6 +5,7 @@ import com.eps.module.api.epsone.persondetails.dto.PersonDetailsResponseDto;
 import com.eps.module.api.epsone.persondetails.mapper.PersonDetailsMapper;
 import com.eps.module.api.epsone.persondetails.repository.PersonDetailsRepository;
 import com.eps.module.api.epsone.persontype.repository.PersonTypeRepository;
+import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.person.PersonType;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,6 +26,7 @@ public class PersonDetailsServiceImpl implements PersonDetailsService {
 
     private final PersonDetailsRepository personDetailsRepository;
     private final PersonTypeRepository personTypeRepository;
+    private final VendorRepository vendorRepository;
     private final PersonDetailsMapper personDetailsMapper;
 
     @Override
@@ -134,10 +136,31 @@ public class PersonDetailsServiceImpl implements PersonDetailsService {
         PersonDetails personDetails = personDetailsRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Person details not found with ID: " + id));
 
-        // TODO: Add dependency checks when other entities reference this person
-        // Example: Check if person is being used by vendors, etc.
+        // Check if person details is being used by a vendor
+        if (vendorRepository.countByVendorDetailsId(id) > 0) {
+            String personName = buildPersonName(personDetails);
+            throw new IllegalArgumentException(
+                    "Cannot delete person details for '" + personName + 
+                    "' because it is being used by a vendor. Please delete the vendor first.");
+        }
 
         personDetailsRepository.delete(personDetails);
         log.info("Person details deleted successfully with ID: {}", id);
+    }
+
+    private String buildPersonName(PersonDetails personDetails) {
+        StringBuilder name = new StringBuilder();
+        if (personDetails.getFirstName() != null) {
+            name.append(personDetails.getFirstName());
+        }
+        if (personDetails.getMiddleName() != null) {
+            if (name.length() > 0) name.append(" ");
+            name.append(personDetails.getMiddleName());
+        }
+        if (personDetails.getLastName() != null) {
+            if (name.length() > 0) name.append(" ");
+            name.append(personDetails.getLastName());
+        }
+        return name.length() > 0 ? name.toString() : "Unknown";
     }
 }

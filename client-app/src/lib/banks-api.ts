@@ -1,4 +1,5 @@
 import api from './api'
+import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from './api-utils'
 
 export interface Bank {
   id: number
@@ -21,10 +22,12 @@ export interface BankRequest {
 
 export interface PageResponse<T> {
   content: T[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
+  page: {
+    size: number
+    number: number
+    totalElements: number
+    totalPages: number
+  }
   first: boolean
   last: boolean
   empty: boolean
@@ -44,10 +47,14 @@ export const getAllBanks = async (
   sortBy: string = 'id',
   sortDirection: 'ASC' | 'DESC' = 'ASC'
 ) => {
-  const response = await api.get<ApiResponse<PageResponse<Bank>>>('/api/banks', {
+  const response = await api.get<ApiResponse<BackendPageResponse<Bank>>>('/api/banks', {
     params: { page, size, sortBy, sortDirection },
   })
-  return response.data
+  const apiData = response.data
+  return {
+    ...apiData,
+    data: flattenPageResponse(apiData.data)
+  }
 }
 
 // Search banks with pagination
@@ -58,10 +65,14 @@ export const searchBanks = async (
   sortBy: string = 'id',
   sortDirection: 'ASC' | 'DESC' = 'ASC'
 ) => {
-  const response = await api.get<ApiResponse<PageResponse<Bank>>>('/api/banks/search', {
+  const response = await api.get<ApiResponse<BackendPageResponse<Bank>>>('/api/banks/search', {
     params: { search, page, size, sortBy, sortDirection },
   })
-  return response.data
+  const apiData = response.data
+  return {
+    ...apiData,
+    data: flattenPageResponse(apiData.data)
+  }
 }
 
 // Get all banks as list (without pagination)
