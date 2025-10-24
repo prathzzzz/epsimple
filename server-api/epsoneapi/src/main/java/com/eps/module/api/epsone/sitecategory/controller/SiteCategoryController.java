@@ -7,6 +7,7 @@ import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/site-categories")
 @RequiredArgsConstructor
@@ -25,60 +27,67 @@ public class SiteCategoryController {
     private final SiteCategoryService siteCategoryService;
 
     @PostMapping
-    public ResponseEntity<SiteCategoryResponseDto> createSiteCategory(@Valid @RequestBody SiteCategoryRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<SiteCategoryResponseDto>> createSiteCategory(@Valid @RequestBody SiteCategoryRequestDto requestDto) {
+        log.info("POST /api/site-categories - Creating new site category");
         SiteCategoryResponseDto response = siteCategoryService.createSiteCategory(requestDto);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return ResponseBuilder.success(response, "Site category created successfully", HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<Page<SiteCategoryResponseDto>> getAllSiteCategories(
+    public ResponseEntity<ApiResponse<Page<SiteCategoryResponseDto>>> getAllSiteCategories(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
         
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        log.info("GET /api/site-categories - Fetching all site categories with pagination");
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<SiteCategoryResponseDto> siteCategories = siteCategoryService.getAllSiteCategories(pageable);
-        return ResponseEntity.ok(siteCategories);
+        return ResponseBuilder.success(siteCategories, "Site categories retrieved successfully");
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<SiteCategoryResponseDto>> searchSiteCategories(
+    public ResponseEntity<ApiResponse<Page<SiteCategoryResponseDto>>> searchSiteCategories(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
         
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        log.info("GET /api/site-categories/search - Searching site categories with term: {}", searchTerm);
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<SiteCategoryResponseDto> siteCategories = siteCategoryService.searchSiteCategories(searchTerm, pageable);
-        return ResponseEntity.ok(siteCategories);
+        return ResponseBuilder.success(siteCategories, "Site categories search completed successfully");
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<SiteCategoryResponseDto>> getSiteCategoryList() {
+    public ResponseEntity<ApiResponse<List<SiteCategoryResponseDto>>> getSiteCategoryList() {
+        log.info("GET /api/site-categories/list - Fetching all site categories as list");
         List<SiteCategoryResponseDto> siteCategories = siteCategoryService.getSiteCategoryList();
-        return ResponseEntity.ok(siteCategories);
+        return ResponseBuilder.success(siteCategories, "Site categories list retrieved successfully");
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SiteCategoryResponseDto> getSiteCategoryById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<SiteCategoryResponseDto>> getSiteCategoryById(@PathVariable Long id) {
+        log.info("GET /api/site-categories/{} - Fetching site category by ID", id);
         SiteCategoryResponseDto siteCategory = siteCategoryService.getSiteCategoryById(id);
-        return ResponseEntity.ok(siteCategory);
+        return ResponseBuilder.success(siteCategory, "Site category retrieved successfully");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SiteCategoryResponseDto> updateSiteCategory(
+    public ResponseEntity<ApiResponse<SiteCategoryResponseDto>> updateSiteCategory(
             @PathVariable Long id,
             @Valid @RequestBody SiteCategoryRequestDto requestDto) {
+        log.info("PUT /api/site-categories/{} - Updating site category", id);
         SiteCategoryResponseDto updatedSiteCategory = siteCategoryService.updateSiteCategory(id, requestDto);
-        return ResponseEntity.ok(updatedSiteCategory);
+        return ResponseBuilder.success(updatedSiteCategory, "Site category updated successfully");
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteSiteCategory(@PathVariable Long id) {
+        log.info("DELETE /api/site-categories/{} - Deleting site category", id);
         siteCategoryService.deleteSiteCategory(id);
         return ResponseBuilder.success(null, "Site category deleted successfully");
     }

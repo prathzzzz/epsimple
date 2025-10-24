@@ -1,23 +1,30 @@
 package com.eps.module.api.epsone.assettype.service;
 
+import com.eps.module.api.epsone.assetcategory.repository.AssetCategoryRepository;
 import com.eps.module.api.epsone.assettype.dto.AssetTypeRequestDto;
 import com.eps.module.api.epsone.assettype.dto.AssetTypeResponseDto;
 import com.eps.module.api.epsone.assettype.mapper.AssetTypeMapper;
 import com.eps.module.api.epsone.assettype.repository.AssetTypeRepository;
+import com.eps.module.asset.AssetCategory;
 import com.eps.module.asset.AssetType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AssetTypeServiceImpl implements AssetTypeService {
 
     private final AssetTypeRepository assetTypeRepository;
+    private final AssetCategoryRepository assetCategoryRepository;
     private final AssetTypeMapper assetTypeMapper;
 
     @Override
@@ -62,11 +69,36 @@ public class AssetTypeServiceImpl implements AssetTypeService {
     @Override
     @Transactional
     public void deleteAssetType(Long id) {
-        if (!assetTypeRepository.existsById(id)) {
-            throw new IllegalArgumentException("Asset type not found with id: " + id);
+        log.info("Deleting asset type with ID: {}", id);
+
+        AssetType assetType = assetTypeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Asset type not found with id: " + id));
+
+        // Check for dependent asset categories
+        Page<AssetCategory> dependentCategories = assetCategoryRepository.findByAssetTypeId(id, PageRequest.of(0, 6));
+
+        if (!dependentCategories.isEmpty()) {
+            long totalCount = dependentCategories.getTotalElements();
+            List<String> categoryNames = dependentCategories.getContent().stream()
+                    .limit(5)
+                    .map(AssetCategory::getCategoryName)
+                    .collect(Collectors.toList());
+
+            String errorMessage = String.format(
+                    "Cannot delete '%s' asset type because it is being used by %d asset %s: %s%s. Please delete or reassign these asset categories first.",
+                    assetType.getTypeName(),
+                    totalCount,
+                    totalCount == 1 ? "category" : "categories",
+                    String.join(", ", categoryNames),
+                    totalCount > 5 ? " and " + (totalCount - 5) + " more" : ""
+            );
+
+            log.warn("Cannot delete asset type ID {} - has {} dependent asset categories", id, totalCount);
+            throw new IllegalStateException(errorMessage);
         }
-        
+
         assetTypeRepository.deleteById(id);
+        log.info("Asset type deleted successfully with ID: {}", id);
     }
 
     @Override

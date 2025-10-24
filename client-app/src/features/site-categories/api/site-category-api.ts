@@ -18,6 +18,13 @@ interface PagedResponse<T> {
   number: number;
 }
 
+interface ApiResponse<T> {
+  data: T;
+  message: string;
+  status: number;
+  timestamp?: string;
+}
+
 export const siteCategoryApi = {
   useGetAll: (params: {
     page: number;
@@ -29,7 +36,7 @@ export const siteCategoryApi = {
     return useQuery({
       queryKey: ["site-categories", params],
       queryFn: async () => {
-        const response = await api.get<PagedResponse<SiteCategory>>(
+        const response = await api.get<ApiResponse<PagedResponse<SiteCategory>>>(
           SITE_CATEGORY_ENDPOINTS.BASE,
           {
             params: {
@@ -41,7 +48,7 @@ export const siteCategoryApi = {
             },
           }
         );
-        return response.data;
+        return response.data.data; // Unwrap ApiResponse
       },
     });
   },
@@ -50,11 +57,11 @@ export const siteCategoryApi = {
     const queryClient = useQueryClient();
     return useMutation({
       mutationFn: async (data: SiteCategoryFormData) => {
-        const response = await api.post<SiteCategory>(
+        const response = await api.post<ApiResponse<SiteCategory>>(
           SITE_CATEGORY_ENDPOINTS.BASE,
           data
         );
-        return response.data;
+        return response.data.data; // Unwrap ApiResponse
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["site-categories"] });
@@ -76,11 +83,11 @@ export const siteCategoryApi = {
         id: number;
         data: SiteCategoryFormData;
       }) => {
-        const response = await api.put<SiteCategory>(
+        const response = await api.put<ApiResponse<SiteCategory>>(
           SITE_CATEGORY_ENDPOINTS.BY_ID(id),
           data
         );
-        return response.data;
+        return response.data.data; // Unwrap ApiResponse
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["site-categories"] });
@@ -115,17 +122,17 @@ export const siteCategoryApi = {
     sortDirection: string;
     searchTerm?: string;
   }): Promise<PagedResponse<SiteCategory>> => {
-    const response = await api.get<PagedResponse<SiteCategory>>(
+    const response = await api.get<ApiResponse<PagedResponse<SiteCategory>>>(
       params.searchTerm
         ? SITE_CATEGORY_ENDPOINTS.SEARCH
         : SITE_CATEGORY_ENDPOINTS.BASE,
       { params }
     );
-    return response.data;
+    return response.data.data; // Unwrap ApiResponse
   },
 
   getList: async (): Promise<SiteCategory[]> => {
-    const response = await api.get(SITE_CATEGORY_ENDPOINTS.LIST);
-    return response.data;
+    const response = await api.get<ApiResponse<SiteCategory[]>>(SITE_CATEGORY_ENDPOINTS.LIST);
+    return response.data.data; // Unwrap ApiResponse
   },
 };

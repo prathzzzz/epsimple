@@ -23,7 +23,7 @@ public class AssetCategory extends BaseEntity {
     @Column(name = "category_code", nullable = false, unique = true, length = 20)
     private String categoryCode;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "asset_type_id")
     private AssetType assetType;
 

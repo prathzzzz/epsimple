@@ -42,6 +42,7 @@ import { Route as AuthenticatedCostCategoriesIndexRouteImport } from './routes/_
 import { Route as AuthenticatedCitiesIndexRouteImport } from './routes/_authenticated/cities/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
 import { Route as AuthenticatedAssetTypesIndexRouteImport } from './routes/_authenticated/asset-types/index'
+import { Route as AuthenticatedAssetCategoriesIndexRouteImport } from './routes/_authenticated/asset-categories/index'
 import { Route as AuthenticatedActivitiesIndexRouteImport } from './routes/_authenticated/activities/index'
 import { Route as AuthenticatedActivitiesListIndexRouteImport } from './routes/_authenticated/activities-list/index'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
@@ -229,6 +230,12 @@ const AuthenticatedAssetTypesIndexRoute =
     path: '/asset-types/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAssetCategoriesIndexRoute =
+  AuthenticatedAssetCategoriesIndexRouteImport.update({
+    id: '/asset-categories/',
+    path: '/asset-categories/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedActivitiesIndexRoute =
   AuthenticatedActivitiesIndexRouteImport.update({
     id: '/activities/',
@@ -271,6 +278,7 @@ export interface FileRoutesByFullPath {
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/activities-list': typeof AuthenticatedActivitiesListIndexRoute
   '/activities': typeof AuthenticatedActivitiesIndexRoute
+  '/asset-categories': typeof AuthenticatedAssetCategoriesIndexRoute
   '/asset-types': typeof AuthenticatedAssetTypesIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/cities': typeof AuthenticatedCitiesIndexRoute
@@ -308,6 +316,7 @@ export interface FileRoutesByTo {
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/activities-list': typeof AuthenticatedActivitiesListIndexRoute
   '/activities': typeof AuthenticatedActivitiesIndexRoute
+  '/asset-categories': typeof AuthenticatedAssetCategoriesIndexRoute
   '/asset-types': typeof AuthenticatedAssetTypesIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/cities': typeof AuthenticatedCitiesIndexRoute
@@ -348,6 +357,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/activities-list/': typeof AuthenticatedActivitiesListIndexRoute
   '/_authenticated/activities/': typeof AuthenticatedActivitiesIndexRoute
+  '/_authenticated/asset-categories/': typeof AuthenticatedAssetCategoriesIndexRoute
   '/_authenticated/asset-types/': typeof AuthenticatedAssetTypesIndexRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
   '/_authenticated/cities/': typeof AuthenticatedCitiesIndexRoute
@@ -388,6 +398,7 @@ export interface FileRouteTypes {
     | '/settings/account'
     | '/activities-list'
     | '/activities'
+    | '/asset-categories'
     | '/asset-types'
     | '/banks'
     | '/cities'
@@ -425,6 +436,7 @@ export interface FileRouteTypes {
     | '/settings/account'
     | '/activities-list'
     | '/activities'
+    | '/asset-categories'
     | '/asset-types'
     | '/banks'
     | '/cities'
@@ -464,6 +476,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/account'
     | '/_authenticated/activities-list/'
     | '/_authenticated/activities/'
+    | '/_authenticated/asset-categories/'
     | '/_authenticated/asset-types/'
     | '/_authenticated/banks/'
     | '/_authenticated/cities/'
@@ -733,6 +746,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAssetTypesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/asset-categories/': {
+      id: '/_authenticated/asset-categories/'
+      path: '/asset-categories'
+      fullPath: '/asset-categories'
+      preLoaderRoute: typeof AuthenticatedAssetCategoriesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/activities/': {
       id: '/_authenticated/activities/'
       path: '/activities'
@@ -786,6 +806,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedActivitiesListIndexRoute: typeof AuthenticatedActivitiesListIndexRoute
   AuthenticatedActivitiesIndexRoute: typeof AuthenticatedActivitiesIndexRoute
+  AuthenticatedAssetCategoriesIndexRoute: typeof AuthenticatedAssetCategoriesIndexRoute
   AuthenticatedAssetTypesIndexRoute: typeof AuthenticatedAssetTypesIndexRoute
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
   AuthenticatedCitiesIndexRoute: typeof AuthenticatedCitiesIndexRoute
@@ -813,6 +834,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedActivitiesListIndexRoute: AuthenticatedActivitiesListIndexRoute,
   AuthenticatedActivitiesIndexRoute: AuthenticatedActivitiesIndexRoute,
+  AuthenticatedAssetCategoriesIndexRoute:
+    AuthenticatedAssetCategoriesIndexRoute,
   AuthenticatedAssetTypesIndexRoute: AuthenticatedAssetTypesIndexRoute,
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,
   AuthenticatedCitiesIndexRoute: AuthenticatedCitiesIndexRoute,

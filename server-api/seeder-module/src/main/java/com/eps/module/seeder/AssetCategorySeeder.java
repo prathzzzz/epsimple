@@ -1,6 +1,6 @@
 package com.eps.module.seeder;
 
-import com.eps.module.seeder.repository.asset.AssetCategoryRepository;
+import com.eps.module.seeder.repository.asset.AssetCategorySeederRepository;
 import com.eps.module.asset.AssetCategory;
 import com.eps.module.common.seeder.base.AbstractSeeder;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 public class AssetCategorySeeder extends AbstractSeeder {
 
-    private final AssetCategoryRepository assetCategoryRepository;
+    private final AssetCategorySeederRepository assetCategorySeederRepository;
 
     @Override
     public String getSeederName() {
@@ -26,7 +26,7 @@ public class AssetCategorySeeder extends AbstractSeeder {
 
     @Override
     protected boolean shouldSkipSeeding() {
-        return assetCategoryRepository.count() > 0;
+        return assetCategorySeederRepository.count() > 0;
     }
 
     @Override
@@ -117,7 +117,7 @@ public class AssetCategorySeeder extends AbstractSeeder {
                         .build()
         );
 
-        assetCategoryRepository.saveAll(assetCategories);
+        assetCategorySeederRepository.saveAll(assetCategories);
         log.info("Seeded {} asset categories", assetCategories.size());
     }
 }

@@ -118,6 +118,10 @@ export const sidebarData: SidebarData = {
                   url: '/asset-types',
                 },
                 {
+                  title: 'Asset Categories',
+                  url: '/asset-categories',
+                },
+                {
                   title: 'Movement Types',
                   url: '/movement-types',
                 },
