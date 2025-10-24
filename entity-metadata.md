@@ -42,7 +42,7 @@
 
 | Entity | Table | Dependencies | Description |
 |--------|-------|--------------|-------------|
-| **Location** | `location` | City | Detailed locations within cities |
+| **Location** ✅ | `location` | City | Detailed locations within cities |
 | **Vendor** | `vendor` | VendorType, PersonDetails | Vendor with type and details |
 | **Landlord** | `landlord` | PersonDetails | Landlord entity |
 | **CostItem** | `cost_item` | CostType | Specific cost items |
