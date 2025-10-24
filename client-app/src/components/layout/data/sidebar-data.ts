@@ -93,6 +93,10 @@ export const sidebarData: SidebarData = {
                   title: 'Payee Types',
                   url: '/payee-types',
                 },
+                {
+                  title: 'Payee Details',
+                  url: '/payee-details',
+                },
               ],
             },
             {

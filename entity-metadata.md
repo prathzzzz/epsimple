@@ -34,7 +34,7 @@
 | **PayeeDetails** | `payee_details` | Bank | Payee banking details |
 | **Activities** | `activities` | Activity | Specific activity instances |
 | **CostType** ✅ | `cost_type` | CostCategory | Cost types under categories |
-| **AssetCategory** | `asset_category` | AssetType | Asset categories under types |
+| **AssetCategory** ✅ | `asset_category` | AssetType | Asset categories under types |
 
 ---
 

@@ -5,10 +5,12 @@ import com.eps.module.api.epsone.bank.dto.BankResponseDto;
 import com.eps.module.api.epsone.bank.mapper.BankMapper;
 import com.eps.module.api.epsone.bank.repository.BankRepository;
 import com.eps.module.api.epsone.managedproject.repository.ManagedProjectRepository;
+import com.eps.module.api.epsone.payeedetails.repository.PayeeDetailsRepository;
 import com.eps.module.api.epsone.storage.dto.FileUploadResponseDto;
 import com.eps.module.api.epsone.storage.service.FileStorageService;
 import com.eps.module.bank.Bank;
 import com.eps.module.bank.ManagedProject;
+import com.eps.module.payment.PayeeDetails;
 import com.eps.module.common.exception.CustomException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class BankServiceImpl implements BankService {
     private final FileStorageService fileStorageService;
     private final BankHelper bankHelper;
     private final ManagedProjectRepository managedProjectRepository;
+    private final PayeeDetailsRepository payeeDetailsRepository;
 
     @Override
     public BankResponseDto createBank(BankRequestDto bankRequestDto) {
@@ -176,6 +179,32 @@ public class BankServiceImpl implements BankService {
             );
             
             log.warn("Attempted to delete bank '{}' which is referenced by {} managed projects", bank.getBankName(), totalCount);
+            throw new IllegalStateException(errorMessage);
+        }
+
+        // Check if this bank is being used by any payee details
+        log.debug("Checking for dependent payee details for bank ID: {}", id);
+        Page<PayeeDetails> dependentPayeeDetails = payeeDetailsRepository.findByBankId(id, PageRequest.of(0, 6));
+        log.debug("Found {} dependent payee details", dependentPayeeDetails.getTotalElements());
+        
+        if (!dependentPayeeDetails.isEmpty()) {
+            long totalCount = dependentPayeeDetails.getTotalElements();
+            List<String> payeeNames = dependentPayeeDetails.getContent().stream()
+                    .limit(5)
+                    .map(PayeeDetails::getPayeeName)
+                    .collect(Collectors.toList());
+            
+            String payeeNamesList = String.join(", ", payeeNames);
+            String errorMessage = String.format(
+                    "Cannot delete '%s' bank because it is being used by %d payee detail%s: %s%s. Please delete or reassign these payee details first.",
+                    bank.getBankName(),
+                    totalCount,
+                    totalCount > 1 ? "s" : "",
+                    payeeNamesList,
+                    totalCount > 5 ? " and " + (totalCount - 5) + " more" : ""
+            );
+            
+            log.warn("Attempted to delete bank '{}' which is referenced by {} payee details", bank.getBankName(), totalCount);
             throw new IllegalStateException(errorMessage);
         }
 

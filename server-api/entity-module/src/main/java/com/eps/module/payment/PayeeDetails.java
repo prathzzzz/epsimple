@@ -27,7 +27,7 @@ public class PayeeDetails extends BaseEntity {
     @Column(name = "aadhaar_number", length = 255)
     private String aadhaarNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_id")
     private Bank bank;
 

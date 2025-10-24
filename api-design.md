@@ -227,15 +227,30 @@
 - ✅ UI Features: Header/Main layout with navbar, Sheet drawer with proper padding, proper flex layout for form/footer
 - ✅ API Error Handling: Uses handleServerError to display backend error messages instead of generic messages
 
-#### 2.5 Cost Types (depends: CostCategory)
-- `POST /api/cost-types` - Create cost type (requires costCategoryId)
-- `GET /api/cost-types` - List cost types
-- `GET /api/cost-categories/{categoryId}/types` - List types by category
+#### 2.5 Cost Types (depends: CostCategory) ✅ COMPLETED
+- ✅ `POST /api/cost-types` - Create cost type (requires costCategoryId)
+- ✅ `GET /api/cost-types` - List cost types (with pagination and search)
+- ✅ `GET /api/cost-types/search` - Search cost types
+- ✅ `GET /api/cost-types/list` - Get all cost types as list
+- ✅ `GET /api/cost-types/{id}` - Get cost type by ID
+- ✅ `PUT /api/cost-types/{id}` - Update cost type
+- ✅ `DELETE /api/cost-types/{id}` - Delete cost type
+- ✅ Backend: Full CRUD with CostCategory FK validation
+- ✅ Frontend: Full CRUD UI with CostCategory dropdown, data table, real-time search, pagination
+- ✅ Fields: typeCode, typeName, typeDescription, costCategoryId (FK)
 
-#### 2.6 Asset Categories (depends: AssetType)
-- `POST /api/asset-categories` - Create category (requires assetTypeId)
-- `GET /api/asset-categories` - List categories
-- `GET /api/asset-types/{typeId}/categories` - List categories by type
+#### 2.6 Asset Categories (depends: AssetType) ✅ COMPLETED
+- ✅ `POST /api/asset-categories` - Create category (requires assetTypeId)
+- ✅ `GET /api/asset-categories` - List categories (with pagination and search)
+- ✅ `GET /api/asset-categories/search` - Search categories
+- ✅ `GET /api/asset-categories/list` - Get all categories as list
+- ✅ `GET /api/asset-categories/{id}` - Get category by ID
+- ✅ `PUT /api/asset-categories/{id}` - Update category
+- ✅ `DELETE /api/asset-categories/{id}` - Delete category
+- ✅ Backend: Full CRUD with AssetType FK validation, dependency protection
+- ✅ Frontend: Full CRUD UI with AssetType dropdown, data table, real-time search, pagination
+- ✅ Fields: categoryCode, categoryName, categoryDescription, assetTypeId (FK)
+- ✅ Dependency Protection: AssetType cannot be deleted if AssetCategories exist
 
 #### 2.7 Payee Details (depends: Bank)
 - `POST /api/payee-details` - Create payee details (requires bankId)
