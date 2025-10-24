@@ -154,32 +154,29 @@ public class BankServiceImpl implements BankService {
             .orElseThrow(() -> new ResourceNotFoundException("Bank not found with ID: " + id));
 
         // Check if this bank is being used by any managed projects
-        Page<ManagedProject> managedProjectsPage = managedProjectRepository.findByBankId(id, PageRequest.of(0, 6));
+        log.debug("Checking for dependent managed projects for bank ID: {}", id);
+        Page<ManagedProject> dependentProjects = managedProjectRepository.findByBankId(id, PageRequest.of(0, 6));
+        log.debug("Found {} dependent managed projects", dependentProjects.getTotalElements());
         
-        if (managedProjectsPage.hasContent()) {
-            List<ManagedProject> managedProjectsList = managedProjectsPage.getContent();
-            long totalCount = managedProjectsPage.getTotalElements();
+        if (!dependentProjects.isEmpty()) {
+            long totalCount = dependentProjects.getTotalElements();
+            List<String> projectNames = dependentProjects.getContent().stream()
+                    .limit(5)
+                    .map(ManagedProject::getProjectName)
+                    .collect(Collectors.toList());
             
-            // Build project names for the first 5 managed projects
-            List<String> projectNames = managedProjectsList.stream()
-                .limit(5)
-                .map(ManagedProject::getProjectName)
-                .collect(Collectors.toList());
+            String projectNamesList = String.join(", ", projectNames);
+            String errorMessage = String.format(
+                    "Cannot delete '%s' bank because it is being used by %d managed project%s: %s%s. Please delete or reassign these managed projects first.",
+                    bank.getBankName(),
+                    totalCount,
+                    totalCount > 1 ? "s" : "",
+                    projectNamesList,
+                    totalCount > 5 ? " and " + (totalCount - 5) + " more" : ""
+            );
             
-            StringBuilder errorMessage = new StringBuilder();
-            errorMessage.append("Cannot delete '").append(bank.getBankName())
-                       .append("' bank because it is being used by ")
-                       .append(totalCount).append(" managed project")
-                       .append(totalCount > 1 ? "s" : "").append(": ")
-                       .append(String.join(", ", projectNames));
-            
-            if (totalCount > 5) {
-                errorMessage.append(" and ").append(totalCount - 5).append(" more");
-            }
-            
-            errorMessage.append(". Please delete or reassign these managed projects first.");
-            
-            throw new IllegalStateException(errorMessage.toString());
+            log.warn("Attempted to delete bank '{}' which is referenced by {} managed projects", bank.getBankName(), totalCount);
+            throw new IllegalStateException(errorMessage);
         }
 
         // Delete logo file if exists

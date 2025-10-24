@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.managedproject.repository;
 
 import com.eps.module.bank.ManagedProject;
+import com.eps.module.site.Site;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,8 +27,8 @@ public interface ManagedProjectRepository extends JpaRepository<ManagedProject, 
            "OR LOWER(mp.projectType) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<ManagedProject> searchManagedProjects(@Param("searchTerm") String searchTerm, Pageable pageable);
 
-    @Query("SELECT mp FROM ManagedProject mp LEFT JOIN FETCH mp.bank WHERE mp.bank.id = :bankId")
-    Page<ManagedProject> findByBankId(@Param("bankId") Long bankId, Pageable pageable);
+    // Simple query without JOIN FETCH for dependency checking
+    Page<ManagedProject> findByBankId(Long bankId, Pageable pageable);
 
     @Query("SELECT mp FROM ManagedProject mp LEFT JOIN FETCH mp.bank ORDER BY mp.projectName ASC")
     List<ManagedProject> findAllManagedProjectsList();
@@ -37,4 +38,7 @@ public interface ManagedProjectRepository extends JpaRepository<ManagedProject, 
     boolean existsByProjectCode(String projectCode);
 
     boolean existsByProjectCodeAndIdNot(String projectCode, Long id);
+
+    @Query("SELECT s FROM Site s WHERE s.project.id = :projectId")
+    Page<Site> findSitesByProjectId(@Param("projectId") Long projectId, Pageable pageable);
 }

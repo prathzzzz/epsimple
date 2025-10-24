@@ -7,6 +7,7 @@ import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/cities")
 @RequiredArgsConstructor
@@ -25,74 +27,85 @@ public class CityController {
     private final CityService cityService;
 
     @PostMapping
-    public ResponseEntity<CityResponseDto> createCity(@Valid @RequestBody CityRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<CityResponseDto>> createCity(@Valid @RequestBody CityRequestDto requestDto) {
+        log.info("POST /api/cities - Creating new city");
         CityResponseDto response = cityService.createCity(requestDto);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return ResponseBuilder.success(response, "City created successfully", HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<Page<CityResponseDto>> getAllCities(
+    public ResponseEntity<ApiResponse<Page<CityResponseDto>>> getAllCities(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
         
+        log.info("GET /api/cities - Fetching all cities with pagination");
+        
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<CityResponseDto> cities = cityService.getAllCities(pageable);
-        return ResponseEntity.ok(cities);
+        return ResponseBuilder.success(cities, "Cities retrieved successfully");
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<CityResponseDto>> searchCities(
+    public ResponseEntity<ApiResponse<Page<CityResponseDto>>> searchCities(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
         
+        log.info("GET /api/cities/search - Searching cities with term: {}", searchTerm);
+        
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<CityResponseDto> cities = cityService.searchCities(searchTerm, pageable);
-        return ResponseEntity.ok(cities);
+        return ResponseBuilder.success(cities, "Cities search completed successfully");
     }
 
     @GetMapping("/state/{stateId}")
-    public ResponseEntity<Page<CityResponseDto>> getCitiesByState(
+    public ResponseEntity<ApiResponse<Page<CityResponseDto>>> getCitiesByState(
             @PathVariable Long stateId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
         
+        log.info("GET /api/cities/state/{} - Fetching cities by state", stateId);
+        
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<CityResponseDto> cities = cityService.getCitiesByState(stateId, pageable);
-        return ResponseEntity.ok(cities);
+        return ResponseBuilder.success(cities, "Cities retrieved successfully");
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<CityResponseDto>> getCityList() {
+    public ResponseEntity<ApiResponse<List<CityResponseDto>>> getCityList() {
+        log.info("GET /api/cities/list - Fetching all cities as list");
         List<CityResponseDto> cities = cityService.getCityList();
-        return ResponseEntity.ok(cities);
+        return ResponseBuilder.success(cities, "Cities list retrieved successfully");
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CityResponseDto> getCityById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<CityResponseDto>> getCityById(@PathVariable Long id) {
+        log.info("GET /api/cities/{} - Fetching city by ID", id);
         CityResponseDto city = cityService.getCityById(id);
-        return ResponseEntity.ok(city);
+        return ResponseBuilder.success(city, "City retrieved successfully");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CityResponseDto> updateCity(
+    public ResponseEntity<ApiResponse<CityResponseDto>> updateCity(
             @PathVariable Long id,
             @Valid @RequestBody CityRequestDto requestDto) {
+        log.info("PUT /api/cities/{} - Updating city", id);
         CityResponseDto updatedCity = cityService.updateCity(id, requestDto);
-        return ResponseEntity.ok(updatedCity);
+        return ResponseBuilder.success(updatedCity, "City updated successfully");
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteCity(@PathVariable Long id) {
+        log.info("DELETE /api/cities/{} - Deleting city", id);
         cityService.deleteCity(id);
         return ResponseBuilder.success(null, "City deleted successfully");
     }

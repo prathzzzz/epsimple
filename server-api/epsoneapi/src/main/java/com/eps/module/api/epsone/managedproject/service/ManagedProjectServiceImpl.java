@@ -7,14 +7,19 @@ import com.eps.module.api.epsone.managedproject.repository.ManagedProjectReposit
 import com.eps.module.api.epsone.bank.repository.BankRepository;
 import com.eps.module.bank.Bank;
 import com.eps.module.bank.ManagedProject;
+import com.eps.module.site.Site;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ManagedProjectServiceImpl implements ManagedProjectService {
@@ -71,9 +76,35 @@ public class ManagedProjectServiceImpl implements ManagedProjectService {
     @Override
     @Transactional
     public void deleteManagedProject(Long id) {
+        log.info("Deleting managed project with ID: {}", id);
+        
         ManagedProject managedProject = managedProjectRepository.findByIdWithBank(id)
             .orElseThrow(() -> new IllegalArgumentException("Managed project not found with id: " + id));
+        
+        // Check for dependent sites
+        Page<Site> dependentSites = managedProjectRepository.findSitesByProjectId(id, PageRequest.of(0, 6));
+        
+        if (!dependentSites.isEmpty()) {
+            long totalCount = dependentSites.getTotalElements();
+            List<String> siteCodes = dependentSites.getContent().stream()
+                    .limit(5)
+                    .map(Site::getSiteCode)
+                    .collect(Collectors.toList());
+            
+            String siteCodesList = String.join(", ", siteCodes);
+            String errorMessage = String.format(
+                    "Cannot delete '%s' managed project because it is being used by %d site%s: %s. Please delete or reassign these sites first.",
+                    managedProject.getProjectName(),
+                    totalCount,
+                    totalCount > 1 ? "s" : "",
+                    siteCodesList
+            );
+            log.warn("Failed to delete managed project with ID {}: {}", id, errorMessage);
+            throw new IllegalStateException(errorMessage);
+        }
+        
         managedProjectRepository.deleteById(id);
+        log.info("Managed project deleted successfully with ID: {}", id);
     }
 
     @Override
