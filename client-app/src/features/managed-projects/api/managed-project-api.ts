@@ -12,6 +12,13 @@ const MANAGED_PROJECT_ENDPOINTS = {
   BY_ID: (id: number) => `/api/managed-projects/${id}`,
 };
 
+interface ApiResponse<T> {
+  data: T;
+  message: string;
+  status: number;
+  timestamp: string;
+}
+
 interface PagedResponse<T> {
   content: T[];
   totalElements: number;
@@ -31,7 +38,7 @@ export const managedProjectApi = {
     return useQuery({
       queryKey: ["managed-projects", params],
       queryFn: async () => {
-        const response = await api.get<PagedResponse<ManagedProject>>(
+        const response = await api.get<ApiResponse<PagedResponse<ManagedProject>>>(
           MANAGED_PROJECT_ENDPOINTS.BASE,
           {
             params: {
@@ -43,7 +50,7 @@ export const managedProjectApi = {
             },
           }
         );
-        return response.data;
+        return response.data.data;
       },
     });
   },
@@ -61,7 +68,7 @@ export const managedProjectApi = {
       queryKey: ["managed-projects", "by-bank", bankId, params],
       queryFn: async () => {
         if (!bankId) return null;
-        const response = await api.get<PagedResponse<ManagedProject>>(
+        const response = await api.get<ApiResponse<PagedResponse<ManagedProject>>>(
           MANAGED_PROJECT_ENDPOINTS.BY_BANK(bankId),
           {
             params: {
@@ -72,7 +79,7 @@ export const managedProjectApi = {
             },
           }
         );
-        return response.data;
+        return response.data.data;
       },
       enabled: !!bankId,
     });
@@ -82,8 +89,8 @@ export const managedProjectApi = {
     const queryClient = useQueryClient();
     return useMutation({
       mutationFn: async (data: ManagedProjectFormData) => {
-        const response = await api.post<ManagedProject>(MANAGED_PROJECT_ENDPOINTS.BASE, data);
-        return response.data;
+        const response = await api.post<ApiResponse<ManagedProject>>(MANAGED_PROJECT_ENDPOINTS.BASE, data);
+        return response.data.data;
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["managed-projects"] });
@@ -99,8 +106,8 @@ export const managedProjectApi = {
     const queryClient = useQueryClient();
     return useMutation({
       mutationFn: async ({ id, data }: { id: number; data: ManagedProjectFormData }) => {
-        const response = await api.put<ManagedProject>(MANAGED_PROJECT_ENDPOINTS.BY_ID(id), data);
-        return response.data;
+        const response = await api.put<ApiResponse<ManagedProject>>(MANAGED_PROJECT_ENDPOINTS.BY_ID(id), data);
+        return response.data.data;
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["managed-projects"] });
@@ -135,15 +142,15 @@ export const managedProjectApi = {
     sortDirection: string;
     searchTerm?: string;
   }): Promise<PagedResponse<ManagedProject>> => {
-    const response = await api.get<PagedResponse<ManagedProject>>(
+    const response = await api.get<ApiResponse<PagedResponse<ManagedProject>>>(
       params.searchTerm ? MANAGED_PROJECT_ENDPOINTS.SEARCH : MANAGED_PROJECT_ENDPOINTS.BASE,
       { params }
     );
-    return response.data;
+    return response.data.data;
   },
 
   getList: async (): Promise<ManagedProject[]> => {
-    const response = await api.get(MANAGED_PROJECT_ENDPOINTS.LIST);
-    return response.data;
+    const response = await api.get<ApiResponse<ManagedProject[]>>(MANAGED_PROJECT_ENDPOINTS.LIST);
+    return response.data.data;
   },
 };

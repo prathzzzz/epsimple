@@ -63,6 +63,10 @@ export const sidebarData: SidebarData = {
                   title: 'Cities',
                   url: '/cities',
                 },
+                {
+                  title: 'Locations',
+                  url: '/locations',
+                },
               ],
             },
             {

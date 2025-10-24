@@ -31,7 +31,7 @@
 | **VendorType** | `vendor_type` | VendorCategory | Vendor type classifications under categories |
 | **PersonDetails** | `person_details` | PersonType | Person information with type |
 | **ManagedProject** | `managed_project` | Bank | Bank-managed projects |
-| **PayeeDetails** | `payee_details` | Bank | Payee banking details |
+| **PayeeDetails** ✅ | `payee_details` | Bank | Payee banking details |
 | **Activities** | `activities` | Activity | Specific activity instances |
 | **CostType** ✅ | `cost_type` | CostCategory | Cost types under categories |
 | **AssetCategory** ✅ | `asset_category` | AssetType | Asset categories under types |

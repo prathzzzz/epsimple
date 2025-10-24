@@ -11,6 +11,13 @@ const PERSON_DETAILS_ENDPOINTS = {
   BY_ID: (id: number) => `/api/person-details/${id}`,
 };
 
+interface ApiResponse<T> {
+  data: T;
+  message: string;
+  status: number;
+  timestamp: string;
+}
+
 interface PagedResponse<T> {
   content: T[];
   totalElements: number;
@@ -30,7 +37,7 @@ export const personDetailsApi = {
     return useQuery({
       queryKey: ["person-details", params],
       queryFn: async () => {
-        const response = await api.get<PagedResponse<PersonDetails>>(
+        const response = await api.get<ApiResponse<PagedResponse<PersonDetails>>>(
           PERSON_DETAILS_ENDPOINTS.BASE,
           {
             params: {
@@ -42,7 +49,7 @@ export const personDetailsApi = {
             },
           }
         );
-        return response.data;
+        return response.data.data;
       },
     });
   },
@@ -60,7 +67,7 @@ export const personDetailsApi = {
       queryKey: ["person-details", "by-person-type", personTypeId, params],
       queryFn: async () => {
         if (!personTypeId) return null;
-        const response = await api.get<PagedResponse<PersonDetails>>(
+        const response = await api.get<ApiResponse<PagedResponse<PersonDetails>>>(
           PERSON_DETAILS_ENDPOINTS.BY_PERSON_TYPE(personTypeId),
           {
             params: {
@@ -71,7 +78,7 @@ export const personDetailsApi = {
             },
           }
         );
-        return response.data;
+        return response.data.data;
       },
       enabled: !!personTypeId,
     });
@@ -81,8 +88,8 @@ export const personDetailsApi = {
     const queryClient = useQueryClient();
     return useMutation({
       mutationFn: async (data: PersonDetailsFormData) => {
-        const response = await api.post<PersonDetails>(PERSON_DETAILS_ENDPOINTS.BASE, data);
-        return response.data;
+        const response = await api.post<ApiResponse<PersonDetails>>(PERSON_DETAILS_ENDPOINTS.BASE, data);
+        return response.data.data;
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["person-details"] });
@@ -98,8 +105,8 @@ export const personDetailsApi = {
     const queryClient = useQueryClient();
     return useMutation({
       mutationFn: async ({ id, data }: { id: number; data: PersonDetailsFormData }) => {
-        const response = await api.put<PersonDetails>(PERSON_DETAILS_ENDPOINTS.BY_ID(id), data);
-        return response.data;
+        const response = await api.put<ApiResponse<PersonDetails>>(PERSON_DETAILS_ENDPOINTS.BY_ID(id), data);
+        return response.data.data;
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["person-details"] });
@@ -134,15 +141,15 @@ export const personDetailsApi = {
     sortDirection: string;
     searchTerm?: string;
   }): Promise<PagedResponse<PersonDetails>> => {
-    const response = await api.get<PagedResponse<PersonDetails>>(
+    const response = await api.get<ApiResponse<PagedResponse<PersonDetails>>>(
       params.searchTerm ? PERSON_DETAILS_ENDPOINTS.SEARCH : PERSON_DETAILS_ENDPOINTS.BASE,
       { params }
     );
-    return response.data;
+    return response.data.data;
   },
 
   getList: async (): Promise<PersonDetails[]> => {
-    const response = await api.get(PERSON_DETAILS_ENDPOINTS.LIST);
-    return response.data;
+    const response = await api.get<ApiResponse<PersonDetails[]>>(PERSON_DETAILS_ENDPOINTS.LIST);
+    return response.data.data;
   },
 };

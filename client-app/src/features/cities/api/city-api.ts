@@ -11,6 +11,13 @@ const CITY_ENDPOINTS = {
   BY_ID: (id: number) => `/api/cities/${id}`,
 };
 
+interface ApiResponse<T> {
+  data: T;
+  message: string;
+  status: number;
+  timestamp: string;
+}
+
 interface PagedResponse<T> {
   content: T[];
   totalElements: number;
@@ -30,7 +37,7 @@ export const cityApi = {
     return useQuery({
       queryKey: ["cities", params],
       queryFn: async () => {
-        const response = await api.get<PagedResponse<City>>(
+        const response = await api.get<ApiResponse<PagedResponse<City>>>(
           CITY_ENDPOINTS.BASE,
           {
             params: {
@@ -42,7 +49,7 @@ export const cityApi = {
             },
           }
         );
-        return response.data;
+        return response.data.data;
       },
     });
   },
@@ -60,7 +67,7 @@ export const cityApi = {
       queryKey: ["cities", "by-state", stateId, params],
       queryFn: async () => {
         if (!stateId) return null;
-        const response = await api.get<PagedResponse<City>>(
+        const response = await api.get<ApiResponse<PagedResponse<City>>>(
           CITY_ENDPOINTS.BY_STATE(stateId),
           {
             params: {
@@ -71,7 +78,7 @@ export const cityApi = {
             },
           }
         );
-        return response.data;
+        return response.data.data;
       },
       enabled: !!stateId,
     });
@@ -81,8 +88,8 @@ export const cityApi = {
     const queryClient = useQueryClient();
     return useMutation({
       mutationFn: async (data: CityFormData) => {
-        const response = await api.post<City>(CITY_ENDPOINTS.BASE, data);
-        return response.data;
+        const response = await api.post<ApiResponse<City>>(CITY_ENDPOINTS.BASE, data);
+        return response.data.data;
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["cities"] });
@@ -98,8 +105,8 @@ export const cityApi = {
     const queryClient = useQueryClient();
     return useMutation({
       mutationFn: async ({ id, data }: { id: number; data: CityFormData }) => {
-        const response = await api.put<City>(CITY_ENDPOINTS.BY_ID(id), data);
-        return response.data;
+        const response = await api.put<ApiResponse<City>>(CITY_ENDPOINTS.BY_ID(id), data);
+        return response.data.data;
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["cities"] });
@@ -134,15 +141,15 @@ export const cityApi = {
     sortDirection: string;
     searchTerm?: string;
   }): Promise<PagedResponse<City>> => {
-    const response = await api.get<PagedResponse<City>>(
+    const response = await api.get<ApiResponse<PagedResponse<City>>>(
       params.searchTerm ? CITY_ENDPOINTS.SEARCH : CITY_ENDPOINTS.BASE,
       { params }
     );
-    return response.data;
+    return response.data.data;
   },
 
   getList: async (): Promise<City[]> => {
-    const response = await api.get(CITY_ENDPOINTS.LIST);
-    return response.data;
+    const response = await api.get<ApiResponse<City[]>>(CITY_ENDPOINTS.LIST);
+    return response.data.data;
   },
 };
