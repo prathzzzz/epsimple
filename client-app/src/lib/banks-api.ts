@@ -1,5 +1,5 @@
 import api from './api'
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from './api-utils'
+import { BackendPageResponse, flattenPageResponse } from './api-utils'
 
 export interface Bank {
   id: number

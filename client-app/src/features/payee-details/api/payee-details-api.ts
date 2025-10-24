@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import {
   useMutation,
   useQuery,

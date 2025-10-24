@@ -2,7 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { DataTableColumnHeader } from "@/components/data-table";
 import { LongText } from "@/components/long-text";
-import type { CostCategory } from "./schema";
+import type { CostCategory } from "../api/cost-categories-api";
 
 export const costCategoriesColumns: ColumnDef<CostCategory>[] = [
   {

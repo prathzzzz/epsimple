@@ -3,7 +3,6 @@ import { PersonDetailsTable } from "./components/person-details-table";
 import { PersonDetailsDrawer } from "./components/person-details-drawer";
 import { PersonDetailsDeleteDialog } from "./components/person-details-delete-dialog";
 import { CreatePersonDetailsButton } from "./components/create-person-details-button";
-import { personDetailsColumns } from "./components/person-details-columns";
 
 export default function PersonDetailsPage() {
   return (

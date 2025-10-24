@@ -1,6 +1,6 @@
 import api from "@/lib/api";
 
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { BackendPageResponse } from '@/lib/api-utils';
 export interface GenericStatusType {
   id: number;
   statusName: string;

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import type { CostCategory } from "./schema";
+import type { CostCategory } from "../api/cost-categories-api";
 
 interface CostCategoriesContextType {
   selectedCostCategory: CostCategory | null;
