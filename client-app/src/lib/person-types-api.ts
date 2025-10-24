@@ -19,7 +19,7 @@ export interface ApiResponse<T> {
   data: T
 }
 
-const BASE_URL = '/epsone/api/person-types'
+const BASE_URL = '/api/person-types'
 
 export const personTypesApi = {
   // Get all person types with pagination

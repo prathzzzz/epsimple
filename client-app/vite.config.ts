@@ -6,10 +6,10 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/epsone/',
+  base: '/',
   server: {
     proxy: {
-      '/epsone/api': {
+      '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,

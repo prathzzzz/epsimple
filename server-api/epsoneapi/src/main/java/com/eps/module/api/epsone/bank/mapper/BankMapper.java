@@ -7,12 +7,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
 @Mapper(
     componentModel = "spring",
-    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+    unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface BankMapper {
 
@@ -20,9 +22,7 @@ public interface BankMapper {
 
     List<BankResponseDto> toResponseDtoList(List<Bank> banks);
 
-    @Mapping(target = "id", ignore = true)
     Bank toEntity(BankRequestDto bankRequestDto);
 
-    @Mapping(target = "id", ignore = true)
     void updateEntityFromDto(BankRequestDto bankRequestDto, @MappingTarget Bank bank);
 }

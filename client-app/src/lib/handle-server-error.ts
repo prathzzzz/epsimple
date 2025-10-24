@@ -35,7 +35,7 @@ export function handleServerError(error: unknown, options: ErrorHandlerOptions =
         errMsg = 'Unauthorized. Please login again.'
         if (redirectOnError) {
           // Redirect to login or show 401 page
-          window.location.href = '/epsone/sign-in'
+          window.location.href = '/sign-in'
           return
         }
         break
@@ -43,7 +43,7 @@ export function handleServerError(error: unknown, options: ErrorHandlerOptions =
         errMsg = 'Access forbidden. You do not have permission.'
         if (redirectOnError) {
           // Could redirect to 403 page
-          window.location.href = '/epsone/errors/403'
+          window.location.href = '/errors/403'
           return
         }
         break
@@ -54,7 +54,7 @@ export function handleServerError(error: unknown, options: ErrorHandlerOptions =
         errMsg = 'Internal server error. Please try again later.'
         if (redirectOnError) {
           // Could redirect to 500 page
-          window.location.href = '/epsone/errors/500'
+          window.location.href = '/errors/500'
           return
         }
         break

@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/epsone',
+  baseURL: import.meta.env.VITE_API_URL || '',
   withCredentials: true, // Important for JWT cookies
   headers: {
     'Content-Type': 'application/json',
@@ -40,11 +40,11 @@ api.interceptors.response.use(
       
       if (!isAuthPage) {
         // Clear any stored auth data
-        document.cookie = 'jwt-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/epsone;'
+        document.cookie = 'jwt-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
         
         // Redirect to login with current path for redirect after login
         const redirectTo = encodeURIComponent(currentPath)
-        window.location.href = `/epsone/sign-in?redirectTo=${redirectTo}`
+        window.location.href = `/sign-in?redirectTo=${redirectTo}`
       }
     }
     

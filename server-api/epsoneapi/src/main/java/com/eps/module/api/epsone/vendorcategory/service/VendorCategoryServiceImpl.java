@@ -9,7 +9,6 @@ import com.eps.module.common.exception.ForeignKeyConstraintException;
 import com.eps.module.vendor.VendorCategory;
 import com.eps.module.vendor.VendorType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

@@ -175,7 +175,7 @@ public class AuthService {
         Cookie cookie = new Cookie(cookieName, null);
         cookie.setHttpOnly(true);
         cookie.setSecure(false); // Set to true in production with HTTPS
-        cookie.setPath("/epsone");
+        cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
         log.info("User logged out successfully");
@@ -185,7 +185,7 @@ public class AuthService {
         Cookie cookie = new Cookie(cookieName, token);
         cookie.setHttpOnly(true);
         cookie.setSecure(false); // Set to true in production with HTTPS
-        cookie.setPath("/epsone");
+        cookie.setPath("/");
         cookie.setMaxAge(expiration.intValue() / 1000); // Convert to seconds
         response.addCookie(cookie);
     }

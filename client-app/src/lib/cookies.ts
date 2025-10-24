@@ -4,7 +4,7 @@
  */
 
 const DEFAULT_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
-const COOKIE_PATH = '/epsone' // Base path for the application
+const COOKIE_PATH = '/' // Base path for the application
 
 /**
  * Get a cookie value by name

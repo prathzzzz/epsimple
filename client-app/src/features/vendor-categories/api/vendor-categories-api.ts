@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = '/epsone/api/vendor-categories';
+const BASE_URL = '/api/vendor-categories';
 
 export interface VendorCategory {
   id: number;

@@ -17,7 +17,7 @@ export const banksColumns: ColumnDef<Bank>[] = [
       
       // Construct the full logo URL if it's a relative path
       const logoUrl = bankLogo && !bankLogo.startsWith('http') 
-        ? `${import.meta.env.VITE_API_URL || 'http://localhost:8080/epsone'}${bankLogo.startsWith('/') ? '' : '/'}${bankLogo}`
+        ? `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}${bankLogo.startsWith('/') ? '' : '/'}${bankLogo}`
         : bankLogo
       
       return (
