@@ -37,14 +37,12 @@ public class EPSOneApplication {
         String[] activeProfiles = environment.getActiveProfiles();
         String profile = activeProfiles.length > 0 ? activeProfiles[0] : "default";
         String port = environment.getProperty("server.port");
-        String contextPath = environment.getProperty("server.servlet.context-path");
-        
+
         log.info("===========================================");
         log.info("EPSOne Application Started Successfully!");
         log.info("Active Profile: {}", profile);
         log.info("Server Port: {}", port);
-        log.info("Context Path: {}", contextPath);
-        log.info("Application URL: http://localhost:{}{}", port, contextPath);
+        log.info("Application URL: http://localhost:{}", port);
         log.info("===========================================");
     }
 
