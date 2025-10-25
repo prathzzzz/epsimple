@@ -25,6 +25,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Value("${file.upload.base-dir:uploads}")
     private String baseUploadDir;
 
+    @Value("${app.base-url:}")
+    private String appBaseUrl;
+
     private static final List<String> ALLOWED_IMAGE_TYPES = Arrays.asList(
         "image/png", "image/jpeg", "image/jpg", "image/svg+xml", "image/webp"
     );
@@ -50,12 +53,19 @@ public class FileStorageServiceImpl implements FileStorageService {
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
             // Generate file URL
-            String fileUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/api/files/")
-                .path(directory)
-                .path("/")
-                .path(uniqueFilename)
-                .toUriString();
+            String fileUrl;
+            if (appBaseUrl != null && !appBaseUrl.isEmpty()) {
+                // Use configured base URL for production
+                fileUrl = appBaseUrl + "/api/files/" + directory + "/" + uniqueFilename;
+            } else {
+                // Fallback to ServletUriComponentsBuilder for development
+                fileUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/api/files/")
+                    .path(directory)
+                    .path("/")
+                    .path(uniqueFilename)
+                    .toUriString();
+            }
 
             log.info("File uploaded successfully: {}", uniqueFilename);
 
