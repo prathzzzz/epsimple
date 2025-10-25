@@ -28,10 +28,14 @@ logs/
 *.log
 
 # Spring Boot (server-api)
-/server-api/target/
+# Ignore target directory but keep properties files
+target/
 **/target/
-/server-api/logs/
-/server-api/uploads/
+!**/target/classes/*.properties
+logs/
+**/logs/
+uploads/
+**/uploads/
 /server-api/.mvn/
 /server-api/mvnw
 /server-api/mvnw.cmd
@@ -64,3 +68,6 @@ Desktop.ini
 # Postman collections (development only)
 postman-*.json
 *-postman.json
+
+# Documentation (keep api-design.md and entity-metadata.md only)
+# Other .md files can be added here if needed
