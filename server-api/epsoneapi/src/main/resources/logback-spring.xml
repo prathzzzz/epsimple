@@ -94,21 +94,29 @@
     <!-- Async Appenders for better performance -->
     <appender name="ASYNC_APPLICATION" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>false</neverBlock>
         <appender-ref ref="APPLICATION_FILE"/>
     </appender>
     
     <appender name="ASYNC_AUTH" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>false</neverBlock>
         <appender-ref ref="AUTH_FILE"/>
     </appender>
     
     <appender name="ASYNC_DATABASE" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>false</neverBlock>
         <appender-ref ref="DATABASE_FILE"/>
     </appender>
     
     <appender name="ASYNC_ERROR" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>256</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>false</neverBlock>
         <appender-ref ref="ERROR_FILE"/>
     </appender>
     
