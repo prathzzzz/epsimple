@@ -113,6 +113,10 @@ export const sidebarData: SidebarData = {
                   title: 'Payee Details',
                   url: '/payee-details',
                 },
+                {
+                  title: 'Payees',
+                  url: '/payees',
+                },
               ],
             },
             {

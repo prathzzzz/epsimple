@@ -5,6 +5,7 @@ import com.eps.module.api.epsone.landlord.dto.LandlordResponseDto;
 import com.eps.module.api.epsone.landlord.mapper.LandlordMapper;
 import com.eps.module.api.epsone.landlord.repository.LandlordRepository;
 import com.eps.module.api.epsone.persondetails.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.vendor.Landlord;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class LandlordServiceImpl implements LandlordService {
 
     private final LandlordRepository landlordRepository;
     private final PersonDetailsRepository personDetailsRepository;
+    private final PayeeRepository payeeRepository;
     private final LandlordMapper landlordMapper;
 
     @Override
@@ -110,6 +112,13 @@ public class LandlordServiceImpl implements LandlordService {
         if (!landlordRepository.existsById(id)) {
             throw new IllegalArgumentException("Landlord not found with id: " + id);
         }
+
+        // Check for dependencies - payees
+        long payeeCount = payeeRepository.countByLandlordId(id);
+        if (payeeCount > 0) {
+            throw new IllegalStateException("Cannot delete landlord as it has " + payeeCount + " associated payees");
+        }
+
         landlordRepository.deleteById(id);
     }
 }

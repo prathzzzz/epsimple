@@ -4,6 +4,7 @@ import com.eps.module.api.epsone.payeetype.dto.PayeeTypeRequestDto;
 import com.eps.module.api.epsone.payeetype.dto.PayeeTypeResponseDto;
 import com.eps.module.api.epsone.payeetype.mapper.PayeeTypeMapper;
 import com.eps.module.api.epsone.payeetype.repository.PayeeTypeRepository;
+import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.payment.PayeeType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class PayeeTypeServiceImpl implements PayeeTypeService {
 
     private final PayeeTypeRepository payeeTypeRepository;
+    private final PayeeRepository payeeRepository;
     private final PayeeTypeMapper payeeTypeMapper;
 
     @Override
@@ -99,6 +101,12 @@ public class PayeeTypeServiceImpl implements PayeeTypeService {
 
         if (!payeeTypeRepository.existsById(id)) {
             throw new IllegalArgumentException("Payee type not found with ID: " + id);
+        }
+
+        // Check for dependencies - payees
+        long payeeCount = payeeRepository.countByPayeeTypeId(id);
+        if (payeeCount > 0) {
+            throw new IllegalStateException("Cannot delete payee type as it has " + payeeCount + " associated payees");
         }
 
         payeeTypeRepository.deleteById(id);

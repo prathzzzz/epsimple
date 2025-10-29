@@ -4,6 +4,7 @@ import com.eps.module.api.epsone.payeedetails.dto.PayeeDetailsRequestDto;
 import com.eps.module.api.epsone.payeedetails.dto.PayeeDetailsResponseDto;
 import com.eps.module.api.epsone.payeedetails.mapper.PayeeDetailsMapper;
 import com.eps.module.api.epsone.payeedetails.repository.PayeeDetailsRepository;
+import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.bank.Bank;
 import com.eps.module.payment.PayeeDetails;
 import com.eps.module.seeder.repository.bank.BankSeederRepository;
@@ -22,6 +23,7 @@ public class PayeeDetailsServiceImpl implements PayeeDetailsService {
 
     private final PayeeDetailsRepository payeeDetailsRepository;
     private final BankSeederRepository bankRepository;
+    private final PayeeRepository payeeRepository;
     private final PayeeDetailsMapper payeeDetailsMapper;
 
     @Override
@@ -161,8 +163,11 @@ public class PayeeDetailsServiceImpl implements PayeeDetailsService {
             throw new IllegalArgumentException("Payee details with ID " + id + " not found");
         }
 
-        // TODO: Add dependency checks when Payee entity is implemented
-        // Check if payee details is being used by any Payee records
+        // Check for dependencies - payees
+        long payeeCount = payeeRepository.countByPayeeDetailsId(id);
+        if (payeeCount > 0) {
+            throw new IllegalStateException("Cannot delete payee details as it has " + payeeCount + " associated payees");
+        }
         
         payeeDetailsRepository.deleteById(id);
     }

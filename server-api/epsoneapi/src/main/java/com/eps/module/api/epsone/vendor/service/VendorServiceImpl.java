@@ -7,6 +7,7 @@ import com.eps.module.api.epsone.vendor.mapper.VendorMapper;
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.api.epsone.vendortype.repository.VendorTypeRepository;
 import com.eps.module.api.epsone.activitywork.repository.ActivityWorkRepository;
+import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.vendor.Vendor;
 import com.eps.module.vendor.VendorType;
@@ -27,6 +28,7 @@ public class VendorServiceImpl implements VendorService {
     private final VendorTypeRepository vendorTypeRepository;
     private final PersonDetailsRepository personDetailsRepository;
     private final ActivityWorkRepository activityWorkRepository;
+    private final PayeeRepository payeeRepository;
     private final VendorMapper vendorMapper;
 
     @Override
@@ -160,6 +162,12 @@ public class VendorServiceImpl implements VendorService {
         long activityWorkCount = activityWorkRepository.countByVendorId(id);
         if (activityWorkCount > 0) {
             throw new IllegalStateException("Cannot delete vendor as it has " + activityWorkCount + " associated activity work orders");
+        }
+
+        // Check for dependencies - payees
+        long payeeCount = payeeRepository.countByVendorId(id);
+        if (payeeCount > 0) {
+            throw new IllegalStateException("Cannot delete vendor as it has " + payeeCount + " associated payees");
         }
 
         vendorRepository.deleteById(id);
