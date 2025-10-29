@@ -5,12 +5,15 @@ import com.eps.module.api.epsone.location.dto.LocationRequestDto;
 import com.eps.module.api.epsone.location.dto.LocationResponseDto;
 import com.eps.module.api.epsone.location.mapper.LocationMapper;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
+import com.eps.module.api.epsone.warehouse.repository.WarehouseRepository;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.City;
 import com.eps.module.location.Location;
+import com.eps.module.warehouse.Warehouse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +29,7 @@ public class LocationServiceImpl implements LocationService {
 
     private final LocationRepository locationRepository;
     private final CityRepository cityRepository;
+    private final WarehouseRepository warehouseRepository;
     private final LocationMapper locationMapper;
 
     @Override
@@ -100,6 +104,32 @@ public class LocationServiceImpl implements LocationService {
 
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Location not found with ID: " + id));
+
+        // Check if this location is being used by any warehouses
+        log.debug("Checking for dependent warehouses for location ID: {}", id);
+        Page<Warehouse> dependentWarehouses = warehouseRepository.findByLocationId(id, PageRequest.of(0, 6));
+        log.debug("Found {} dependent warehouses", dependentWarehouses.getTotalElements());
+        
+        if (!dependentWarehouses.isEmpty()) {
+            long totalCount = dependentWarehouses.getTotalElements();
+            List<String> warehouseNames = dependentWarehouses.getContent().stream()
+                    .limit(5)
+                    .map(Warehouse::getWarehouseName)
+                    .collect(Collectors.toList());
+            
+            String warehouseNamesList = String.join(", ", warehouseNames);
+            String errorMessage = String.format(
+                    "Cannot delete '%s' location because it is being used by %d warehouse%s: %s%s. Please delete or reassign these warehouses first.",
+                    location.getLocationName(),
+                    totalCount,
+                    totalCount > 1 ? "s" : "",
+                    warehouseNamesList,
+                    totalCount > 5 ? " and " + (totalCount - 5) + " more" : ""
+            );
+            
+            log.warn("Attempted to delete location '{}' which is referenced by {} warehouses", location.getLocationName(), totalCount);
+            throw new IllegalStateException(errorMessage);
+        }
 
         locationRepository.delete(location);
         log.info("Location deleted successfully with ID: {}", id);

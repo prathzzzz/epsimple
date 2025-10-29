@@ -67,6 +67,10 @@ export const sidebarData: SidebarData = {
                   title: 'Locations',
                   url: '/locations',
                 },
+                {
+                  title: 'Warehouses',
+                  url: '/warehouses',
+                },
               ],
             },
             {
