@@ -4,6 +4,7 @@ import com.eps.module.api.epsone.genericstatustype.dto.GenericStatusTypeRequestD
 import com.eps.module.api.epsone.genericstatustype.dto.GenericStatusTypeResponseDto;
 import com.eps.module.api.epsone.genericstatustype.mapper.GenericStatusTypeMapper;
 import com.eps.module.api.epsone.genericstatustype.repository.GenericStatusTypeRepository;
+import com.eps.module.api.epsone.activitywork.repository.ActivityWorkRepository;
 import com.eps.module.status.GenericStatusType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class GenericStatusTypeServiceImpl implements GenericStatusTypeService {
 
     private final GenericStatusTypeRepository genericStatusTypeRepository;
+    private final ActivityWorkRepository activityWorkRepository;
     private final GenericStatusTypeMapper genericStatusTypeMapper;
 
     @Override
@@ -111,8 +113,11 @@ public class GenericStatusTypeServiceImpl implements GenericStatusTypeService {
         GenericStatusType genericStatusType = genericStatusTypeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Generic status type not found with ID: " + id));
 
-        // TODO: Add dependency checks when other entities reference this status type
-        // Example: Check if status type is being used by sites, assets, etc.
+        // Check for dependencies - activity work orders
+        long activityWorkCount = activityWorkRepository.countByStatusTypeId(id);
+        if (activityWorkCount > 0) {
+            throw new IllegalStateException("Cannot delete status type as it has " + activityWorkCount + " associated activity work orders");
+        }
 
         genericStatusTypeRepository.deleteById(id);
         log.info("Generic status type deleted successfully with ID: {}", id);

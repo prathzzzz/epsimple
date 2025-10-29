@@ -7,6 +7,7 @@ import com.eps.module.api.epsone.activities.dto.ActivitiesResponseDto;
 import com.eps.module.api.epsone.activities.mapper.ActivitiesMapper;
 import com.eps.module.api.epsone.activities.repository.ActivitiesRepository;
 import com.eps.module.api.epsone.activity.repository.ActivityRepository;
+import com.eps.module.api.epsone.activitywork.repository.ActivityWorkRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ public class ActivitiesServiceImpl implements ActivitiesService {
 
     private final ActivitiesRepository activitiesRepository;
     private final ActivityRepository activityRepository;
+    private final ActivityWorkRepository activityWorkRepository;
     private final ActivitiesMapper activitiesMapper;
 
     @Override
@@ -110,6 +112,12 @@ public class ActivitiesServiceImpl implements ActivitiesService {
 
         if (!activitiesRepository.existsById(id)) {
             throw new IllegalArgumentException("Activities not found with ID: " + id);
+        }
+
+        // Check for dependencies - activity work orders
+        long activityWorkCount = activityWorkRepository.countByActivitiesId(id);
+        if (activityWorkCount > 0) {
+            throw new IllegalStateException("Cannot delete activities as it has " + activityWorkCount + " associated activity work orders");
         }
 
         activitiesRepository.deleteById(id);

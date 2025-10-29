@@ -4,6 +4,7 @@ import com.eps.module.common.entity.BaseEntity;
 import com.eps.module.status.GenericStatusType;
 import com.eps.module.vendor.Vendor;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -21,14 +22,17 @@ public class ActivityWork extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "activities_id", nullable = false)
-        private Activities activities;
+    @NotNull(message = "Activity is required")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "activities_id", nullable = false)
+    private Activities activities;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "vendor_id", nullable = false)
-        private Vendor vendor;
+    @NotNull(message = "Vendor is required")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vendor_id", nullable = false)
+    private Vendor vendor;
 
+    @Size(max = 100, message = "Vendor order number cannot exceed 100 characters")
     @Column(name = "vendor_order_number", length = 100)
     private String vendorOrderNumber;
 
@@ -41,7 +45,8 @@ public class ActivityWork extends BaseEntity {
     @Column(name = "work_completion_date")
     private LocalDate workCompletionDate;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "status_type_id", nullable = false)
-        private GenericStatusType statusType;
+    @NotNull(message = "Status type is required")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "status_type_id", nullable = false)
+    private GenericStatusType statusType;
 }

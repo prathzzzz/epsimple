@@ -173,6 +173,10 @@ export const sidebarData: SidebarData = {
                   title: 'Activities',
                   url: '/activities-list',
                 },
+                {
+                  title: 'Activity Works',
+                  url: '/activity-works',
+                },
               ],
             },
             {
