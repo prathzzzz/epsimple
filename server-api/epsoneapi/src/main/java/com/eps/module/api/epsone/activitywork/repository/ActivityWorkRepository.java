@@ -16,6 +16,7 @@ public interface ActivityWorkRepository extends JpaRepository<ActivityWork, Long
     @Query("SELECT aw FROM ActivityWork aw " +
             "LEFT JOIN FETCH aw.activities a " +
             "LEFT JOIN FETCH aw.vendor v " +
+            "LEFT JOIN FETCH v.vendorDetails " +
             "LEFT JOIN FETCH aw.statusType st " +
             "WHERE aw.id = :id")
     Optional<ActivityWork> findByIdWithDetails(@Param("id") Long id);
@@ -23,17 +24,20 @@ public interface ActivityWorkRepository extends JpaRepository<ActivityWork, Long
     @Query("SELECT aw FROM ActivityWork aw " +
             "LEFT JOIN FETCH aw.activities a " +
             "LEFT JOIN FETCH aw.vendor v " +
+            "LEFT JOIN FETCH v.vendorDetails " +
             "LEFT JOIN FETCH aw.statusType st")
     Page<ActivityWork> findAllWithDetails(Pageable pageable);
 
     @Query("SELECT aw FROM ActivityWork aw " +
             "LEFT JOIN FETCH aw.activities a " +
             "LEFT JOIN FETCH aw.vendor v " +
+            "LEFT JOIN FETCH v.vendorDetails vd " +
             "LEFT JOIN FETCH aw.statusType st " +
-            "WHERE LOWER(a.activitiesName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-            "OR LOWER(v.vendorName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "WHERE LOWER(a.activityName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(vd.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(vd.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(aw.vendorOrderNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-            "OR LOWER(st.statusTypeName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+            "OR LOWER(st.statusName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<ActivityWork> searchActivityWorks(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     long countByActivitiesId(Long activitiesId);

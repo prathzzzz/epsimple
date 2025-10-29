@@ -37,17 +37,36 @@ public class ActivityWorkMapper {
         return ActivityWorkResponseDto.builder()
                 .id(activityWork.getId())
                 .activitiesId(activityWork.getActivities().getId())
-                .activitiesName(activityWork.getActivities().getActivitiesName())
+                .activitiesName(activityWork.getActivities().getActivityName())
                 .vendorId(activityWork.getVendor().getId())
-                .vendorName(activityWork.getVendor().getVendorName())
+                .vendorName(buildVendorName(activityWork.getVendor()))
                 .vendorOrderNumber(activityWork.getVendorOrderNumber())
                 .workOrderDate(activityWork.getWorkOrderDate())
                 .workStartDate(activityWork.getWorkStartDate())
                 .workCompletionDate(activityWork.getWorkCompletionDate())
                 .statusTypeId(activityWork.getStatusType().getId())
-                .statusTypeName(activityWork.getStatusType().getStatusTypeName())
+                .statusTypeName(activityWork.getStatusType().getStatusName())
                 .createdAt(activityWork.getCreatedAt())
                 .updatedAt(activityWork.getUpdatedAt())
                 .build();
+    }
+
+    private String buildVendorName(Vendor vendor) {
+        if (vendor.getVendorDetails() == null) {
+            return null;
+        }
+        StringBuilder fullName = new StringBuilder();
+        if (vendor.getVendorDetails().getFirstName() != null && !vendor.getVendorDetails().getFirstName().isEmpty()) {
+            fullName.append(vendor.getVendorDetails().getFirstName());
+        }
+        if (vendor.getVendorDetails().getMiddleName() != null && !vendor.getVendorDetails().getMiddleName().isEmpty()) {
+            if (fullName.length() > 0) fullName.append(" ");
+            fullName.append(vendor.getVendorDetails().getMiddleName());
+        }
+        if (vendor.getVendorDetails().getLastName() != null && !vendor.getVendorDetails().getLastName().isEmpty()) {
+            if (fullName.length() > 0) fullName.append(" ");
+            fullName.append(vendor.getVendorDetails().getLastName());
+        }
+        return fullName.length() > 0 ? fullName.toString() : null;
     }
 }
