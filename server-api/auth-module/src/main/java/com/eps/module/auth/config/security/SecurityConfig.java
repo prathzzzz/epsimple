@@ -67,10 +67,11 @@ public class SecurityConfig {
         
         // Allow localhost and server IP for both dev and prod
         configuration.setAllowedOrigins(List.of(
-            "http://localhost:3000",     // Dev frontend
-            "http://localhost:5173",     // Dev frontend (Vite)
-            "http://localhost:9090",     // Prod frontend (localhost)
-            "http://192.168.83.23:9090"  // Prod frontend (server IP)
+            "http://localhost:3000",                  // Dev frontend
+            "http://localhost:5173",                  // Dev frontend (Vite)
+            "http://localhost:9090",                  // Prod frontend (localhost)
+            "http://192.168.83.23:9090",             // Prod frontend (server IP)
+            "http://epsone.electronicpay.in:9090"    // Prod frontend (domain)
         ));
         
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
