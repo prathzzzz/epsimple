@@ -8,7 +8,7 @@ export const siteSchema = z.object({
     .string()
     .min(5, "Site code must be at least 5 characters")
     .max(50, "Site code cannot exceed 50 characters")
-    .regex(/^[A-Z0-9_-]+$/, "Site code must be uppercase alphanumeric with hyphens/underscores"),
+    .regex(/^[A-Z0-9]+$/, "Site code must be uppercase alphanumeric"),
   locationId: z.number().min(1, "Location is required"),
 
   // Optional foreign keys

@@ -199,6 +199,10 @@ export const sidebarData: SidebarData = {
                   title: 'Site Categories',
                   url: '/site-categories',
                 },
+                {
+                  title: 'Site Code Generators',
+                  url: '/site-code-generators',
+                },
               ],
             },
             {

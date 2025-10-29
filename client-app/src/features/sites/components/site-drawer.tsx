@@ -24,6 +24,8 @@ import { managedProjectApi } from "@/features/managed-projects/api/managed-proje
 import { siteCategoryApi } from "@/features/site-categories/api/site-category-api";
 import { siteTypeApi } from "@/features/site-types/api/site-type-api";
 import { genericStatusTypeApi } from "@/features/generic-status-types/api/generic-status-type-api";
+import { personDetailsApi } from "@/features/person-details/api/person-details-api";
+import { stateApi } from "@/features/states/api/state-api";
 import {
   BasicTab,
   DatesTab,
@@ -65,11 +67,23 @@ export function SiteDrawer() {
     queryFn: () => genericStatusTypeApi.getList(),
   });
 
+  const { data: personDetailsResponse } = useQuery({
+    queryKey: ["person-details", "list"],
+    queryFn: () => personDetailsApi.getList(),
+  });
+
+  const { data: statesResponse } = useQuery({
+    queryKey: ["states", "list"],
+    queryFn: () => stateApi.getList(),
+  });
+
   const locations = locationsResponse || [];
   const projects = projectsResponse || [];
   const categories = categoriesResponse || [];
   const types = typesResponse || [];
   const statuses = statusResponse?.data || [];
+  const personDetails = personDetailsResponse || [];
+  const states = statesResponse || [];
 
   const form = useForm<SiteFormData>({
     resolver: zodResolver(siteSchema),
@@ -252,6 +266,8 @@ export function SiteDrawer() {
                 categories={categories}
                 types={types}
                 statuses={statuses}
+                personDetails={personDetails}
+                states={states}
               />
               <DatesTab form={form} />
               <InfrastructureTab form={form} />

@@ -10,7 +10,7 @@ import lombok.*;
 @Table(
     name = "site_code_generator",
     uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"project_id", "site_category_id", "state_id"})
+        @UniqueConstraint(columnNames = {"project_id", "state_id"})
     }
 )
 @Getter
@@ -27,10 +27,6 @@ public class SiteCodeGenerator extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     private ManagedProject project;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "site_category_id", nullable = false)
-    private SiteCategory siteCategory;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "state_id", nullable = false)

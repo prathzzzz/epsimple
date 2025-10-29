@@ -35,7 +35,7 @@ public class Site extends BaseEntity {
 
     @NotBlank(message = "Site code is required")
     @Size(min = 5, max = 50, message = "Site code must be between 5 and 50 characters")
-    @Pattern(regexp = "^[A-Z0-9_-]+$", message = "Site code must be uppercase alphanumeric with hyphens/underscores")
+    @Pattern(regexp = "^[A-Z0-9]+$", message = "Site code must be uppercase alphanumeric")
     @Column(name = "site_code", nullable = false, unique = true, length = 50)
     private String siteCode;
 

@@ -79,6 +79,13 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
 
     boolean existsBySiteCodeAndIdNot(String siteCode, Long id);
 
+    // Find max sequence from site codes for a specific project and state
+    @Query("SELECT s.siteCode FROM Site s " +
+           "WHERE s.project.id = :projectId " +
+           "AND s.location.city.state.id = :stateId " +
+           "ORDER BY s.siteCode DESC")
+    List<String> findSiteCodesByProjectAndState(@Param("projectId") Long projectId, @Param("stateId") Long stateId);
+
     // Dependency checks
     Page<Site> findByProjectId(Long projectId, Pageable pageable);
 
