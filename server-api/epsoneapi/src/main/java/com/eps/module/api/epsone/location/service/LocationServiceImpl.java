@@ -7,11 +7,13 @@ import com.eps.module.api.epsone.location.mapper.LocationMapper;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.warehouse.repository.WarehouseRepository;
 import com.eps.module.api.epsone.datacenter.repository.DatacenterRepository;
+import com.eps.module.api.epsone.site.repository.SiteRepository;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.City;
 import com.eps.module.location.Location;
 import com.eps.module.warehouse.Warehouse;
 import com.eps.module.warehouse.Datacenter;
+import com.eps.module.site.Site;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,6 +35,7 @@ public class LocationServiceImpl implements LocationService {
     private final CityRepository cityRepository;
     private final WarehouseRepository warehouseRepository;
     private final DatacenterRepository datacenterRepository;
+    private final SiteRepository siteRepository;
     private final LocationMapper locationMapper;
 
     @Override
@@ -107,6 +110,32 @@ public class LocationServiceImpl implements LocationService {
 
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Location not found with ID: " + id));
+
+        // Check if this location is being used by any sites
+        log.debug("Checking for dependent sites for location ID: {}", id);
+        Page<Site> dependentSites = siteRepository.findByLocationId(id, PageRequest.of(0, 6));
+        log.debug("Found {} dependent sites", dependentSites.getTotalElements());
+        
+        if (!dependentSites.isEmpty()) {
+            long totalCount = dependentSites.getTotalElements();
+            List<String> siteNames = dependentSites.getContent().stream()
+                    .limit(5)
+                    .map(Site::getSiteCode)
+                    .collect(Collectors.toList());
+            
+            String siteNamesList = String.join(", ", siteNames);
+            String errorMessage = String.format(
+                    "Cannot delete '%s' location because it is being used by %d site%s: %s%s. Please delete or reassign these sites first.",
+                    location.getLocationName(),
+                    totalCount,
+                    totalCount > 1 ? "s" : "",
+                    siteNamesList,
+                    totalCount > 5 ? " and " + (totalCount - 5) + " more" : ""
+            );
+            
+            log.warn("Attempted to delete location '{}' which is referenced by {} sites", location.getLocationName(), totalCount);
+            throw new IllegalStateException(errorMessage);
+        }
 
         // Check if this location is being used by any warehouses
         log.debug("Checking for dependent warehouses for location ID: {}", id);

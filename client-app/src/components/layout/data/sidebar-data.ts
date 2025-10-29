@@ -188,6 +188,10 @@ export const sidebarData: SidebarData = {
               icon: MapPinned,
               items: [
                 {
+                  title: 'Sites',
+                  url: '/sites',
+                },
+                {
                   title: 'Site Types',
                   url: '/site-types',
                 },
