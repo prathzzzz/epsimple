@@ -55,14 +55,14 @@ public class PayeeMapper {
             fullName.append(vendor.getVendorDetails().getFirstName());
         }
         if (vendor.getVendorDetails().getMiddleName() != null && !vendor.getVendorDetails().getMiddleName().isEmpty()) {
-            if (fullName.length() > 0) fullName.append(" ");
+            if (!fullName.isEmpty()) fullName.append(" ");
             fullName.append(vendor.getVendorDetails().getMiddleName());
         }
         if (vendor.getVendorDetails().getLastName() != null && !vendor.getVendorDetails().getLastName().isEmpty()) {
-            if (fullName.length() > 0) fullName.append(" ");
+            if (!fullName.isEmpty()) fullName.append(" ");
             fullName.append(vendor.getVendorDetails().getLastName());
         }
-        return fullName.length() > 0 ? fullName.toString() : null;
+        return !fullName.isEmpty() ? fullName.toString() : null;
     }
 
     private String buildLandlordName(Landlord landlord) {
@@ -74,13 +74,13 @@ public class PayeeMapper {
             fullName.append(landlord.getLandlordDetails().getFirstName());
         }
         if (landlord.getLandlordDetails().getMiddleName() != null && !landlord.getLandlordDetails().getMiddleName().isEmpty()) {
-            if (fullName.length() > 0) fullName.append(" ");
+            if (!fullName.isEmpty()) fullName.append(" ");
             fullName.append(landlord.getLandlordDetails().getMiddleName());
         }
         if (landlord.getLandlordDetails().getLastName() != null && !landlord.getLandlordDetails().getLastName().isEmpty()) {
-            if (fullName.length() > 0) fullName.append(" ");
+            if (!fullName.isEmpty()) fullName.append(" ");
             fullName.append(landlord.getLandlordDetails().getLastName());
         }
-        return fullName.length() > 0 ? fullName.toString() : null;
+        return !fullName.isEmpty() ? fullName.toString() : null;
     }
 }
