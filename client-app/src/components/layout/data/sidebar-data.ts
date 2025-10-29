@@ -71,6 +71,10 @@ export const sidebarData: SidebarData = {
                   title: 'Warehouses',
                   url: '/warehouses',
                 },
+                {
+                  title: 'Datacenters',
+                  url: '/datacenters',
+                },
               ],
             },
             {

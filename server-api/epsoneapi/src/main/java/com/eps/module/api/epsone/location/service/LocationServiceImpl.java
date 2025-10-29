@@ -6,10 +6,12 @@ import com.eps.module.api.epsone.location.dto.LocationResponseDto;
 import com.eps.module.api.epsone.location.mapper.LocationMapper;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.warehouse.repository.WarehouseRepository;
+import com.eps.module.api.epsone.datacenter.repository.DatacenterRepository;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.City;
 import com.eps.module.location.Location;
 import com.eps.module.warehouse.Warehouse;
+import com.eps.module.warehouse.Datacenter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,6 +32,7 @@ public class LocationServiceImpl implements LocationService {
     private final LocationRepository locationRepository;
     private final CityRepository cityRepository;
     private final WarehouseRepository warehouseRepository;
+    private final DatacenterRepository datacenterRepository;
     private final LocationMapper locationMapper;
 
     @Override
@@ -128,6 +131,32 @@ public class LocationServiceImpl implements LocationService {
             );
             
             log.warn("Attempted to delete location '{}' which is referenced by {} warehouses", location.getLocationName(), totalCount);
+            throw new IllegalStateException(errorMessage);
+        }
+
+        // Check if this location is being used by any datacenters
+        log.debug("Checking for dependent datacenters for location ID: {}", id);
+        Page<Datacenter> dependentDatacenters = datacenterRepository.findByLocationId(id, PageRequest.of(0, 6));
+        log.debug("Found {} dependent datacenters", dependentDatacenters.getTotalElements());
+        
+        if (!dependentDatacenters.isEmpty()) {
+            long totalCount = dependentDatacenters.getTotalElements();
+            List<String> datacenterNames = dependentDatacenters.getContent().stream()
+                    .limit(5)
+                    .map(Datacenter::getDatacenterName)
+                    .collect(Collectors.toList());
+            
+            String datacenterNamesList = String.join(", ", datacenterNames);
+            String errorMessage = String.format(
+                    "Cannot delete '%s' location because it is being used by %d datacenter%s: %s%s. Please delete or reassign these datacenters first.",
+                    location.getLocationName(),
+                    totalCount,
+                    totalCount > 1 ? "s" : "",
+                    datacenterNamesList,
+                    totalCount > 5 ? " and " + (totalCount - 5) + " more" : ""
+            );
+            
+            log.warn("Attempted to delete location '{}' which is referenced by {} datacenters", location.getLocationName(), totalCount);
             throw new IllegalStateException(errorMessage);
         }
 
