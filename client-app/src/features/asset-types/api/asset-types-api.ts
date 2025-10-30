@@ -29,7 +29,7 @@ export const assetTypesApi = {
   // Get asset types list (no pagination)
   getList: async () => {
     const response = await api.get(`${BASE_URL}/list`);
-    return response.data;
+    return response.data.data; // Unwrap the ApiResponse wrapper
   },
 
   // Get asset type by ID

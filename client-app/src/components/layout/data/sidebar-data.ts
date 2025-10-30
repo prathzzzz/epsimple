@@ -152,12 +152,20 @@ export const sidebarData: SidebarData = {
               icon: Package,
               items: [
                 {
+                  title: 'Assets',
+                  url: '/assets',
+                },
+                {
                   title: 'Asset Types',
                   url: '/asset-types',
                 },
                 {
                   title: 'Asset Categories',
                   url: '/asset-categories',
+                },
+                {
+                  title: 'Asset Tag Generators',
+                  url: '/asset-tag-generators',
                 },
                 {
                   title: 'Movement Types',

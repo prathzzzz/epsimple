@@ -6,6 +6,7 @@ import com.eps.module.status.GenericStatusType;
 import com.eps.module.status.OwnershipStatus;
 import com.eps.module.vendor.Vendor;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -23,6 +24,10 @@ public class Asset extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "Asset tag ID is required")
+    @Size(min = 5, max = 50, message = "Asset tag ID must be between 5 and 50 characters")
+    @Pattern(regexp = "^[A-Z0-9]+$", message = "Asset tag ID must be uppercase alphanumeric")
     @Column(name = "asset_tag_id", nullable = false, unique = true, length = 50)
     private String assetTagId;
 
