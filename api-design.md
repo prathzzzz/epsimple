@@ -649,12 +649,27 @@
 - **Table Columns**: invoiceNumber, invoiceDate, payeeName, vendorName, totalInvoiceValue, paymentStatus, paymentDueDate, actions
 - **Date Handling**: Uses modernized DatePicker component with date-fns formatting
 
-#### 5.6 Voucher Management (depends: Payee, PaymentDetails)
-- `POST /api/vouchers` - Create voucher (requires payeeId)
-- `GET /api/vouchers` - List vouchers
-- `GET /api/vouchers/{id}` - Get voucher details
-- `PUT /api/vouchers/{id}` - Update voucher
-- `GET /api/payees/{payeeId}/vouchers` - List vouchers by payee
+#### 5.6 Voucher Management (depends: Payee, PaymentDetails) ✅ COMPLETED
+- ✅ `POST /api/vouchers` - Create voucher (requires payeeId)
+- ✅ `GET /api/vouchers` - List vouchers (with pagination and search, filter by payee, status, dates)
+- ✅ `GET /api/vouchers/search` - Search vouchers by voucher number, order number, payee name, payment status, transaction number
+- ✅ `GET /api/vouchers/list` - Get all vouchers as list
+- ✅ `GET /api/vouchers/payee/{payeeId}` - List vouchers by payee
+- ✅ `GET /api/vouchers/{id}` - Get voucher details
+- ✅ `PUT /api/vouchers/{id}` - Update voucher
+- ✅ `PUT /api/vouchers/{id}/payment-status` - Update payment status
+- ✅ `DELETE /api/vouchers/{id}` - Delete voucher
+- ✅ Backend: Entity, Repository, DTOs, Mapper, Service, Controller all implemented
+- ✅ Frontend: Full CRUD UI with tabbed drawer (Basic, Financial, Other), table, pagination, real-time search
+- ✅ Postman: Complete collection with all 9 endpoints (Voucher-API.postman_collection.json)
+- ✅ Navigation: Added to sidebar under Financial section after Invoices
+- **Fields**: voucherNumber (unique, required), voucherDate (required), orderNumber, payeeId (FK, required), paymentDetailsId (FK, optional), paymentDueDate, paymentStatus, quantity, unit, unitPrice, taxCgst, taxSgst, taxIgst, amount1, amount2, discountPercentage, discountAmount, finalAmount, remarks
+- **Validation**: Payee exists, unique voucher number, optional payment details validation
+- **Search**: Backend searches across voucherNumber, orderNumber, payeeName, paymentStatus, transactionNumber
+- **Response**: Includes payeeName, payeeTypeName, transactionNumber for display
+- **UI Features**: Tabbed form with Basic (voucher details, payee, dates), Financial (quantity, unit, pricing, taxes, amounts, discount), Other (remarks), formatted currency display
+- **Table Columns**: voucherNumber, voucherDate, payeeName, orderNumber, finalAmount, paymentStatus, paymentDueDate, actions
+- **Date Handling**: Uses modernized DatePicker component with date-fns formatting
 
 ---
 

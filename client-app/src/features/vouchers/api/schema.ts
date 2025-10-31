@@ -1,0 +1,56 @@
+import { z } from "zod";
+
+export const voucherSchema = z.object({
+  id: z.number(),
+  voucherNumber: z.string(),
+  voucherDate: z.string(),
+  orderNumber: z.string().nullable(),
+  payeeId: z.number(),
+  payeeName: z.string().nullable(),
+  payeeTypeName: z.string().nullable(),
+  paymentDetailsId: z.number().nullable(),
+  transactionNumber: z.string().nullable(),
+  paymentDueDate: z.string().nullable(),
+  paymentStatus: z.string().nullable(),
+  quantity: z.number().nullable(),
+  unit: z.string().nullable(),
+  unitPrice: z.number().nullable(),
+  taxCgst: z.number().nullable(),
+  taxSgst: z.number().nullable(),
+  taxIgst: z.number().nullable(),
+  amount1: z.number().nullable(),
+  amount2: z.number().nullable(),
+  discountPercentage: z.number().nullable(),
+  discountAmount: z.number().nullable(),
+  finalAmount: z.number().nullable(),
+  remarks: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  createdBy: z.string(),
+  updatedBy: z.string(),
+});
+
+export const voucherFormSchema = z.object({
+  voucherNumber: z.string().min(1, "Voucher number is required").max(100),
+  voucherDate: z.string().min(1, "Voucher date is required"),
+  orderNumber: z.string().max(100).optional().or(z.literal("")),
+  payeeId: z.number().min(1, "Payee is required"),
+  paymentDetailsId: z.number().optional().or(z.literal(0)),
+  paymentDueDate: z.string().optional().or(z.literal("")),
+  paymentStatus: z.string().max(20).optional().or(z.literal("")),
+  quantity: z.number().optional().or(z.literal(0)),
+  unit: z.string().max(50).optional().or(z.literal("")),
+  unitPrice: z.number().optional().or(z.literal(0)),
+  taxCgst: z.number().optional().or(z.literal(0)),
+  taxSgst: z.number().optional().or(z.literal(0)),
+  taxIgst: z.number().optional().or(z.literal(0)),
+  amount1: z.number().optional().or(z.literal(0)),
+  amount2: z.number().optional().or(z.literal(0)),
+  discountPercentage: z.number().optional().or(z.literal(0)),
+  discountAmount: z.number().optional().or(z.literal(0)),
+  finalAmount: z.number().optional().or(z.literal(0)),
+  remarks: z.string().optional().or(z.literal("")),
+});
+
+export type Voucher = z.infer<typeof voucherSchema>;
+export type VoucherFormData = z.infer<typeof voucherFormSchema>;

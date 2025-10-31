@@ -125,6 +125,10 @@ export const sidebarData: SidebarData = {
                   title: 'Invoices',
                   url: '/invoices',
                 },
+                {
+                  title: 'Vouchers',
+                  url: '/vouchers',
+                },
               ],
             },
             {
