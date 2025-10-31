@@ -49,7 +49,7 @@ export function AssetCategoryDrawer() {
     queryFn: () => assetTypesApi.getList(),
   });
 
-  const assetTypes: AssetType[] = assetTypesResponse?.data || [];
+  const assetTypes: AssetType[] = assetTypesResponse || [];
 
   const form = useForm<AssetCategoryFormData>({
     resolver: zodResolver(assetCategoryFormSchema),
