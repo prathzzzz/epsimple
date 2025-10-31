@@ -627,13 +627,27 @@
 - **Table Columns**: transactionNumber, paymentMethodName, bankName, transactionDate, transactionAmount, payerName, beneficiaryName, actions
 - **Date Handling**: Uses modernized DatePicker component with date-fns formatting
 
-#### 5.5 Invoice Management (depends: Payee, PaymentDetails)
-- `POST /api/invoices` - Create invoice (requires payeeId)
-- `GET /api/invoices` - List invoices (filter by payee, status, dates)
-- `GET /api/invoices/{id}` - Get invoice details
-- `PUT /api/invoices/{id}` - Update invoice
-- `PUT /api/invoices/{id}/payment` - Update payment status
-- `GET /api/payees/{payeeId}/invoices` - List invoices by payee
+#### 5.5 Invoice Management (depends: Payee, PaymentDetails) ✅ COMPLETED
+- ✅ `POST /api/invoices` - Create invoice (requires payeeId)
+- ✅ `GET /api/invoices` - List invoices (with pagination and search, filter by payee, status, dates)
+- ✅ `GET /api/invoices/search` - Search invoices by invoice number, vendor name, order number, payee name, payment status, transaction number
+- ✅ `GET /api/invoices/list` - Get all invoices as list
+- ✅ `GET /api/invoices/payee/{payeeId}` - List invoices by payee
+- ✅ `GET /api/invoices/{id}` - Get invoice details
+- ✅ `PUT /api/invoices/{id}` - Update invoice
+- ✅ `PUT /api/invoices/{id}/payment-status` - Update payment status
+- ✅ `DELETE /api/invoices/{id}` - Delete invoice
+- ✅ Backend: Entity (exists), Repository, DTOs, Mapper, Service, Controller all implemented
+- ✅ Frontend: Full CRUD UI with tabbed drawer (Basic, Financial, Other), table, pagination, real-time search
+- ✅ Postman: Complete collection with all 9 endpoints (Invoice-API.postman_collection.json)
+- ✅ Navigation: Added to sidebar under Financial section
+- **Fields**: invoiceNumber (unique, required), invoiceDate (required), invoiceReceivedDate, orderNumber, vendorName, payeeId (FK, required), paymentDetailsId (FK, optional), paymentDueDate, paymentStatus, quantity, unit, unitPrice, taxCgstPercentage, taxSgstPercentage, taxIgstPercentage, basicAmount, cgst, sgst, igst, amount1, amount2, discountPercentage, discountAmount, tds, advanceAmount, totalAmount, totalInvoiceValue, netPayable, paidDate, machineSerialNumber, masterPoNumber, masterPoDate, dispatchOrderNumber, dispatchOrderDate, utrDetail, billedByVendorGst, billedToEpsGst, remarks
+- **Validation**: Payee exists, unique invoice number, optional payment details validation
+- **Search**: Backend searches across invoiceNumber, vendorName, orderNumber, payeeName, paymentStatus, transactionNumber
+- **Response**: Includes payeeName, payeeTypeName, transactionNumber for display
+- **UI Features**: Tabbed form with Basic (invoice details, payee, dates), Financial (pricing, taxes, amounts), Other (remarks), formatted currency display
+- **Table Columns**: invoiceNumber, invoiceDate, payeeName, vendorName, totalInvoiceValue, paymentStatus, paymentDueDate, actions
+- **Date Handling**: Uses modernized DatePicker component with date-fns formatting
 
 #### 5.6 Voucher Management (depends: Payee, PaymentDetails)
 - `POST /api/vouchers` - Create voucher (requires payeeId)

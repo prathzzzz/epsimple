@@ -35,10 +35,12 @@ import { useAssetContext } from '../context/asset-provider'
 import { assetsApi } from '../api/assets-api'
 import { assetSchema, type AssetFormData } from '../api/schema'
 import { assetCategoryApi } from '@/features/asset-categories/api/asset-categories-api'
+import type { AssetCategory } from '@/features/asset-categories/api/schema'
 import { assetTypesApi } from '@/features/asset-types/api/asset-types-api'
+import type { AssetType } from '@/features/asset-types/api/schema'
 import { useVendorsList } from '@/lib/vendors-api'
-import { getAllBanksList } from '@/lib/banks-api'
-import { genericStatusTypeApi } from '@/features/generic-status-types/api/generic-status-type-api'
+import { getAllBanksList, type Bank } from '@/lib/banks-api'
+import { genericStatusTypeApi, type GenericStatusType } from '@/features/generic-status-types/api/generic-status-type-api'
 import { assetTagCodeGeneratorApi } from '@/features/asset-tag-generators/api/asset-tag-generator-api'
 import { toast } from 'sonner'
 
@@ -271,7 +273,7 @@ export function AssetDrawer() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {assetCategories.map((category: any) => (
+                        {assetCategories.map((category: AssetCategory) => (
                           <SelectItem key={category.id} value={category.id.toString()}>
                             {category.categoryName}
                           </SelectItem>
@@ -299,7 +301,7 @@ export function AssetDrawer() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {assetTypes.map((type: any) => (
+                        {assetTypes.map((type: AssetType) => (
                           <SelectItem key={type.id} value={type.id.toString()}>
                             {type.typeName}
                           </SelectItem>
@@ -357,7 +359,7 @@ export function AssetDrawer() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {banks.map((bank: any) => (
+                        {banks.map((bank: Bank) => (
                           <SelectItem key={bank.id} value={bank.id.toString()}>
                             {bank.bankName}
                           </SelectItem>
@@ -387,7 +389,7 @@ export function AssetDrawer() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {statusTypes.map((status: any) => (
+                        {statusTypes.map((status: GenericStatusType) => (
                           <SelectItem key={status.id} value={status.id.toString()}>
                             {status.statusName}
                           </SelectItem>

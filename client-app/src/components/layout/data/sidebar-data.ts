@@ -121,6 +121,10 @@ export const sidebarData: SidebarData = {
                   title: 'Payees',
                   url: '/payees',
                 },
+                {
+                  title: 'Invoices',
+                  url: '/invoices',
+                },
               ],
             },
             {
