@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { Sparkles, Loader2 } from 'lucide-react'
+import { format } from 'date-fns'
 import {
   Sheet,
   SheetContent,
@@ -22,6 +23,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { DatePicker } from '@/components/date-picker'
 import {
   Select,
   SelectContent,
@@ -163,7 +165,7 @@ export function AssetDrawer() {
       
       form.setValue('assetTagId', result.assetTag)
       toast.success(`Generated tag: ${result.assetTag}`)
-    } catch (error) {
+    } catch (_error) {
       // Error toast is already handled by the mutation
     }
   }
@@ -403,11 +405,15 @@ export function AssetDrawer() {
                 control={form.control}
                 name="purchaseDate"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col">
                     <FormLabel>Purchase Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
+                    <DatePicker
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date: Date | undefined) =>
+                        field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                      }
+                      placeholder="Select purchase date"
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -440,11 +446,15 @@ export function AssetDrawer() {
               control={form.control}
               name="warrantyExpiryDate"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Warranty Expiry Date</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
+                  <DatePicker
+                    selected={field.value ? new Date(field.value) : undefined}
+                    onSelect={(date: Date | undefined) =>
+                      field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                    }
+                    placeholder="Select warranty expiry date"
+                  />
                   <FormMessage />
                 </FormItem>
               )}

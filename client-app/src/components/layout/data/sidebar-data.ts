@@ -106,6 +106,10 @@ export const sidebarData: SidebarData = {
                   url: '/payment-methods',
                 },
                 {
+                  title: 'Payment Details',
+                  url: '/payment-details',
+                },
+                {
                   title: 'Payee Types',
                   url: '/payee-types',
                 },

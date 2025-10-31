@@ -69,6 +69,8 @@ Desktop.ini
 postman-*.json
 *-postman.json
 
+postman/
+
 # Markdown documentation
 *.md
 plans-md/

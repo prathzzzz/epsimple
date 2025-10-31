@@ -1,4 +1,5 @@
-import { UseFormReturn } from "react-hook-form";
+import type { UseFormReturn } from "react-hook-form";
+import { format } from 'date-fns';
 import {
   FormControl,
   FormField,
@@ -6,7 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { DatePicker } from '@/components/date-picker';
 import { TabsContent } from "@/components/ui/tabs";
 import type { SiteFormData } from "../../api/schema";
 
@@ -22,15 +23,14 @@ export function DatesTab({ form }: DatesTabProps) {
           control={form.control}
           name="techLiveDate"
           render={({ field }) => (
-            <FormItem className="flex-1">
+            <FormItem className="flex flex-col flex-1">
               <FormLabel>Tech Live Date</FormLabel>
               <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value || null)}
-                  className="dark:[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                <DatePicker
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => {
+                    field.onChange(date ? format(date, 'yyyy-MM-dd') : null);
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -42,15 +42,14 @@ export function DatesTab({ form }: DatesTabProps) {
           control={form.control}
           name="cashLiveDate"
           render={({ field }) => (
-            <FormItem className="flex-1">
+            <FormItem className="flex flex-col flex-1">
               <FormLabel>Cash Live Date</FormLabel>
               <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value || null)}
-                  className="dark:[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                <DatePicker
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => {
+                    field.onChange(date ? format(date, 'yyyy-MM-dd') : null);
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -64,15 +63,14 @@ export function DatesTab({ form }: DatesTabProps) {
           control={form.control}
           name="siteCloseDate"
           render={({ field }) => (
-            <FormItem className="flex-1">
+            <FormItem className="flex flex-col flex-1">
               <FormLabel>Site Close Date</FormLabel>
               <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value || null)}
-                  className="dark:[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                <DatePicker
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => {
+                    field.onChange(date ? format(date, 'yyyy-MM-dd') : null);
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -84,15 +82,14 @@ export function DatesTab({ form }: DatesTabProps) {
           control={form.control}
           name="possessionDate"
           render={({ field }) => (
-            <FormItem className="flex-1">
+            <FormItem className="flex flex-col flex-1">
               <FormLabel>Possession Date</FormLabel>
               <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value || null)}
-                  className="dark:[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                <DatePicker
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => {
+                    field.onChange(date ? format(date, 'yyyy-MM-dd') : null);
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -106,15 +103,14 @@ export function DatesTab({ form }: DatesTabProps) {
           control={form.control}
           name="actualPossessionDate"
           render={({ field }) => (
-            <FormItem className="flex-1">
+            <FormItem className="flex flex-col flex-1">
               <FormLabel>Actual Possession Date</FormLabel>
               <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value || null)}
-                  className="dark:[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                <DatePicker
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => {
+                    field.onChange(date ? format(date, 'yyyy-MM-dd') : null);
+                  }}
                 />
               </FormControl>
               <FormMessage />

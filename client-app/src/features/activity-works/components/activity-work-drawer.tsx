@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,6 +15,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { DatePicker } from '@/components/date-picker';
 import {
   Select,
   SelectContent,
@@ -228,12 +230,14 @@ export function ActivityWorkDrawer() {
               control={form.control}
               name="workOrderDate"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Work Order Date</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
+                    <DatePicker
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date) => {
+                        field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -245,12 +249,14 @@ export function ActivityWorkDrawer() {
               control={form.control}
               name="workStartDate"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Work Start Date</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
+                    <DatePicker
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date) => {
+                        field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -262,12 +268,14 @@ export function ActivityWorkDrawer() {
               control={form.control}
               name="workCompletionDate"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Work Completion Date</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
+                    <DatePicker
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date) => {
+                        field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
