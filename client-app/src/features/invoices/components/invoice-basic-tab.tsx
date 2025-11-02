@@ -19,14 +19,16 @@ import { DatePicker } from "@/components/date-picker";
 import type { InvoiceFormData } from "../api/schema";
 import type { Payee } from "@/features/payees/api/schema";
 import type { GenericStatusType } from "@/features/generic-status-types/api/generic-status-type-api";
+import type { PaymentDetails } from "@/features/payment-details/api/schema";
 
 interface InvoiceBasicTabProps {
-  form: UseFormReturn<InvoiceFormData>;
-  payees: Payee[];
-  paymentStatuses: GenericStatusType[];
+  readonly form: UseFormReturn<InvoiceFormData>;
+  readonly payees: Payee[];
+  readonly paymentStatuses: GenericStatusType[];
+  readonly paymentDetails: PaymentDetails[];
 }
 
-export function InvoiceBasicTab({ form, payees, paymentStatuses }: InvoiceBasicTabProps) {
+export function InvoiceBasicTab({ form, payees, paymentStatuses, paymentDetails }: InvoiceBasicTabProps) {
   return (
     <div className="space-y-4 mt-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -91,6 +93,37 @@ export function InvoiceBasicTab({ form, payees, paymentStatuses }: InvoiceBasicT
         />
         <FormField
           control={form.control}
+          name="paymentDetailsId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Payment Details</FormLabel>
+              <Select
+                onValueChange={(value) => field.onChange(value === "none" ? undefined : Number(value))}
+                value={field.value ? String(field.value) : "none"}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select payment details (optional)" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {paymentDetails.map((payment) => (
+                    <SelectItem key={payment.id} value={String(payment.id)}>
+                      {payment.transactionNumber || `Payment ${payment.id}`} - {payment.paymentMethodName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField
+          control={form.control}
           name="vendorName"
           render={({ field }) => (
             <FormItem>
@@ -102,9 +135,6 @@ export function InvoiceBasicTab({ form, payees, paymentStatuses }: InvoiceBasicT
             </FormItem>
           )}
         />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField
           control={form.control}
           name="orderNumber"
@@ -118,6 +148,9 @@ export function InvoiceBasicTab({ form, payees, paymentStatuses }: InvoiceBasicT
             </FormItem>
           )}
         />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField
           control={form.control}
           name="paymentStatus"

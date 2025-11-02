@@ -35,7 +35,7 @@ export const voucherFormSchema = z.object({
   voucherDate: z.string().min(1, "Voucher date is required"),
   orderNumber: z.string().max(100).optional().or(z.literal("")),
   payeeId: z.number().min(1, "Payee is required"),
-  paymentDetailsId: z.number().optional().or(z.literal(0)),
+  paymentDetailsId: z.number().optional(),
   paymentDueDate: z.string().optional().or(z.literal("")),
   paymentStatus: z.string().max(20).optional().or(z.literal("")),
   quantity: z.number().optional().or(z.literal(0)),

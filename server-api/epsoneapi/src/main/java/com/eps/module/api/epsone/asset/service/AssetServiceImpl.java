@@ -4,6 +4,9 @@ import com.eps.module.api.epsone.asset.context.AssetRequestDto;
 import com.eps.module.api.epsone.asset.context.AssetResponseDto;
 import com.eps.module.api.epsone.asset.mapper.AssetMapper;
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
+import com.eps.module.api.epsone.assetplacement.repository.AssetsOnSiteRepository;
+import com.eps.module.api.epsone.assetplacement.repository.AssetsOnWarehouseRepository;
+import com.eps.module.api.epsone.assetplacement.repository.AssetsOnDatacenterRepository;
 import com.eps.module.asset.Asset;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +22,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AssetServiceImpl implements AssetService {
 
+    private static final String ASSET_NOT_FOUND_WITH_ID_MSG = "Asset not found with id: ";
+
     private final AssetRepository assetRepository;
     private final AssetMapper assetMapper;
+    private final AssetsOnSiteRepository assetsOnSiteRepository;
+    private final AssetsOnWarehouseRepository assetsOnWarehouseRepository;
+    private final AssetsOnDatacenterRepository assetsOnDatacenterRepository;
 
     @Override
     @Transactional
@@ -73,7 +81,7 @@ public class AssetServiceImpl implements AssetService {
     @Transactional(readOnly = true)
     public AssetResponseDto getAssetById(Long id) {
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ASSET_NOT_FOUND_WITH_ID_MSG + id));
         return assetMapper.toDto(asset);
     }
 
@@ -81,7 +89,7 @@ public class AssetServiceImpl implements AssetService {
     @Transactional
     public AssetResponseDto updateAsset(Long id, AssetRequestDto requestDto) {
         Asset existingAsset = assetRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ASSET_NOT_FOUND_WITH_ID_MSG + id));
 
         // Validate asset tag uniqueness (if changed)
         if (requestDto.getAssetTagId() != null && 
@@ -113,16 +121,34 @@ public class AssetServiceImpl implements AssetService {
     @Transactional
     public void deleteAsset(Long id) {
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ASSET_NOT_FOUND_WITH_ID_MSG + id));
         
-        // TODO: Add dependency protection when placement repositories are implemented
-        // Check AssetsOnSite, AssetsOnWarehouse, AssetsOnDatacenter
-        // Example error message:
-        // "Cannot delete asset 'ATMHDbob00001' because it is placed on 2 site(s): Site-001, Site-002. 
-        //  Please remove the asset from these locations first."
+        // Check for placements on sites
+        long siteCount = assetsOnSiteRepository.countByAssetId(id);
+        if (siteCount > 0) {
+            throw new IllegalStateException(String.format(
+                "Cannot delete asset '%s' because it is placed on %d site%s. Please remove the asset from these sites first.",
+                asset.getAssetTagId(), siteCount, siteCount > 1 ? "s" : ""
+            ));
+        }
         
-        // TODO: Check AssetMovementTracker for movement history
-        // TODO: Check AssetExpenditureAndActivityWork for expenditure records
+        // Check for placements in warehouses
+        long warehouseCount = assetsOnWarehouseRepository.countByAssetId(id);
+        if (warehouseCount > 0) {
+            throw new IllegalStateException(String.format(
+                "Cannot delete asset '%s' because it is placed in %d warehouse%s. Please remove the asset from these warehouses first.",
+                asset.getAssetTagId(), warehouseCount, warehouseCount > 1 ? "s" : ""
+            ));
+        }
+        
+        // Check for placements in datacenters
+        long datacenterCount = assetsOnDatacenterRepository.countByAssetId(id);
+        if (datacenterCount > 0) {
+            throw new IllegalStateException(String.format(
+                "Cannot delete asset '%s' because it is placed in %d datacenter%s. Please remove the asset from these datacenters first.",
+                asset.getAssetTagId(), datacenterCount, datacenterCount > 1 ? "s" : ""
+            ));
+        }
         
         assetRepository.deleteById(id);
     }

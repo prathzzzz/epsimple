@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { vouchersApi } from "../api/vouchers-api";
 import { payeeApi } from "@/features/payees/api/payee-api";
 import { genericStatusTypeApi } from "@/features/generic-status-types/api/generic-status-type-api";
+import { paymentDetailsApi } from "@/features/payment-details/api/payment-details-api";
 import {
   voucherFormSchema,
   type VoucherFormData,
@@ -31,9 +32,9 @@ import { VoucherFinancialTab } from "./voucher-financial-tab";
 import { VoucherOtherTab } from "./voucher-other-tab";
 
 interface VoucherMutateDrawerProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  currentRow: Voucher | null;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly currentRow: Voucher | null;
 }
 
 export function VoucherMutateDrawer({
@@ -56,8 +57,15 @@ export function VoucherMutateDrawer({
     queryFn: () => genericStatusTypeApi.getList(),
   });
 
+  // Fetch payment details for dropdown
+  const { data: paymentDetailsData } = useQuery({
+    queryKey: ["payment-details", "list"],
+    queryFn: () => paymentDetailsApi.getList(),
+  });
+
   const payees = payeesData?.data || [];
   const paymentStatuses = statusesData?.data || [];
+  const paymentDetails = paymentDetailsData?.data || [];
 
   const form = useForm<VoucherFormData>({
     resolver: zodResolver(voucherFormSchema),
@@ -66,7 +74,7 @@ export function VoucherMutateDrawer({
       voucherDate: "",
       orderNumber: "",
       payeeId: 0,
-      paymentDetailsId: 0,
+      paymentDetailsId: undefined,
       paymentDueDate: "",
       paymentStatus: "",
       quantity: 0,
@@ -92,7 +100,7 @@ export function VoucherMutateDrawer({
         voucherDate: currentRow.voucherDate,
         orderNumber: currentRow.orderNumber || "",
         payeeId: currentRow.payeeId,
-        paymentDetailsId: currentRow.paymentDetailsId || 0,
+        paymentDetailsId: currentRow.paymentDetailsId || undefined,
         paymentDueDate: currentRow.paymentDueDate || "",
         paymentStatus: currentRow.paymentStatus || "",
         quantity: currentRow.quantity || 0,
@@ -114,7 +122,7 @@ export function VoucherMutateDrawer({
         voucherDate: "",
         orderNumber: "",
         payeeId: 0,
-        paymentDetailsId: 0,
+        paymentDetailsId: undefined,
         paymentDueDate: "",
         paymentStatus: "",
         quantity: 0,
@@ -192,6 +200,7 @@ export function VoucherMutateDrawer({
                   form={form}
                   payees={payees}
                   paymentStatuses={paymentStatuses}
+                  paymentDetails={paymentDetails}
                 />
               </TabsContent>
 
@@ -220,16 +229,17 @@ export function VoucherMutateDrawer({
             form="voucher-form"
             disabled={createMutation.isPending || updateMutation.isPending}
           >
-            {createMutation.isPending || updateMutation.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : isUpdate ? (
-              "Update"
-            ) : (
-              "Create"
-            )}
+            {(() => {
+              if (createMutation.isPending || updateMutation.isPending) {
+                return (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                );
+              }
+              return isUpdate ? "Update" : "Create";
+            })()}
           </Button>
         </SheetFooter>
       </SheetContent>

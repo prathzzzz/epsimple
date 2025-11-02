@@ -5,6 +5,7 @@ import com.eps.module.api.epsone.datacenter.dto.DatacenterResponseDto;
 import com.eps.module.api.epsone.datacenter.mapper.DatacenterMapper;
 import com.eps.module.api.epsone.datacenter.repository.DatacenterRepository;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
+import com.eps.module.api.epsone.assetplacement.repository.AssetsOnDatacenterRepository;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.Location;
 import com.eps.module.warehouse.Datacenter;
@@ -25,9 +26,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DatacenterServiceImpl implements DatacenterService {
 
+    private static final String DATACENTER_NOT_FOUND_WITH_ID_MSG = "Datacenter not found with id: ";
+
     private final DatacenterRepository datacenterRepository;
     private final LocationRepository locationRepository;
     private final DatacenterMapper datacenterMapper;
+    private final AssetsOnDatacenterRepository assetsOnDatacenterRepository;
 
     @Override
     @Transactional
@@ -40,11 +44,10 @@ public class DatacenterServiceImpl implements DatacenterService {
                         "Location not found with id: " + requestDto.getLocationId()));
 
         // Validate unique datacenter code if provided
-        if (requestDto.getDatacenterCode() != null && !requestDto.getDatacenterCode().isEmpty()) {
-            if (datacenterRepository.existsByDatacenterCode(requestDto.getDatacenterCode())) {
-                throw new IllegalArgumentException(
-                        "Datacenter code '" + requestDto.getDatacenterCode() + "' already exists");
-            }
+        if (requestDto.getDatacenterCode() != null && !requestDto.getDatacenterCode().isEmpty() &&
+            datacenterRepository.existsByDatacenterCode(requestDto.getDatacenterCode())) {
+            throw new IllegalArgumentException(
+                    "Datacenter code '" + requestDto.getDatacenterCode() + "' already exists");
         }
 
         Datacenter datacenter = datacenterMapper.toEntity(requestDto, location);
@@ -99,7 +102,7 @@ public class DatacenterServiceImpl implements DatacenterService {
     public DatacenterResponseDto getDatacenterById(Long id) {
         log.info("Fetching datacenter with ID: {}", id);
         Datacenter datacenter = datacenterRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Datacenter not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(DATACENTER_NOT_FOUND_WITH_ID_MSG + id));
         return datacenterMapper.toDto(datacenter);
     }
 
@@ -109,7 +112,7 @@ public class DatacenterServiceImpl implements DatacenterService {
         log.info("Updating datacenter with ID: {}", id);
         
         Datacenter datacenter = datacenterRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Datacenter not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(DATACENTER_NOT_FOUND_WITH_ID_MSG + id));
 
         // Validate location exists
         Location location = locationRepository.findById(requestDto.getLocationId())
@@ -117,11 +120,10 @@ public class DatacenterServiceImpl implements DatacenterService {
                         "Location not found with id: " + requestDto.getLocationId()));
 
         // Validate unique datacenter code if provided and changed
-        if (requestDto.getDatacenterCode() != null && !requestDto.getDatacenterCode().isEmpty()) {
-            if (datacenterRepository.existsByDatacenterCodeAndIdNot(requestDto.getDatacenterCode(), id)) {
-                throw new IllegalArgumentException(
-                        "Datacenter code '" + requestDto.getDatacenterCode() + "' already exists");
-            }
+        if (requestDto.getDatacenterCode() != null && !requestDto.getDatacenterCode().isEmpty() &&
+            datacenterRepository.existsByDatacenterCodeAndIdNot(requestDto.getDatacenterCode(), id)) {
+            throw new IllegalArgumentException(
+                    "Datacenter code '" + requestDto.getDatacenterCode() + "' already exists");
         }
 
         datacenterMapper.updateEntity(datacenter, requestDto, location);
@@ -141,10 +143,16 @@ public class DatacenterServiceImpl implements DatacenterService {
         log.info("Deleting datacenter with ID: {}", id);
         
         Datacenter datacenter = datacenterRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Datacenter not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(DATACENTER_NOT_FOUND_WITH_ID_MSG + id));
 
-        // TODO: Add dependency checks when assets module is implemented
-        // Check if datacenter is being used by assets
+        // Check if datacenter has assets
+        long assetCount = assetsOnDatacenterRepository.countByDatacenterId(id);
+        if (assetCount > 0) {
+            throw new IllegalStateException(String.format(
+                "Cannot delete datacenter '%s' because it has %d asset%s. Please remove the assets from this datacenter first.",
+                datacenter.getDatacenterName(), assetCount, assetCount > 1 ? "s" : ""
+            ));
+        }
 
         datacenterRepository.delete(datacenter);
         log.info("Datacenter deleted successfully with ID: {}", id);

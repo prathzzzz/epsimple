@@ -5,6 +5,7 @@ import com.eps.module.api.epsone.warehouse.dto.WarehouseRequestDto;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseResponseDto;
 import com.eps.module.api.epsone.warehouse.mapper.WarehouseMapper;
 import com.eps.module.api.epsone.warehouse.repository.WarehouseRepository;
+import com.eps.module.api.epsone.assetplacement.repository.AssetsOnWarehouseRepository;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.Location;
 import com.eps.module.warehouse.Warehouse;
@@ -25,9 +26,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WarehouseServiceImpl implements WarehouseService {
 
+    private static final String WAREHOUSE_NOT_FOUND_WITH_ID_MSG = "Warehouse not found with id: ";
+
     private final WarehouseRepository warehouseRepository;
     private final LocationRepository locationRepository;
     private final WarehouseMapper warehouseMapper;
+    private final AssetsOnWarehouseRepository assetsOnWarehouseRepository;
 
     @Override
     @Transactional
@@ -40,11 +44,10 @@ public class WarehouseServiceImpl implements WarehouseService {
                         "Location not found with id: " + requestDto.getLocationId()));
 
         // Validate unique warehouse code if provided
-        if (requestDto.getWarehouseCode() != null && !requestDto.getWarehouseCode().isEmpty()) {
-            if (warehouseRepository.existsByWarehouseCode(requestDto.getWarehouseCode())) {
-                throw new IllegalArgumentException(
-                        "Warehouse code '" + requestDto.getWarehouseCode() + "' already exists");
-            }
+        if (requestDto.getWarehouseCode() != null && !requestDto.getWarehouseCode().isEmpty() &&
+            warehouseRepository.existsByWarehouseCode(requestDto.getWarehouseCode())) {
+            throw new IllegalArgumentException(
+                    "Warehouse code '" + requestDto.getWarehouseCode() + "' already exists");
         }
 
         Warehouse warehouse = warehouseMapper.toEntity(requestDto, location);
@@ -99,7 +102,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     public WarehouseResponseDto getWarehouseById(Long id) {
         log.info("Fetching warehouse with ID: {}", id);
         Warehouse warehouse = warehouseRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(WAREHOUSE_NOT_FOUND_WITH_ID_MSG + id));
         return warehouseMapper.toDto(warehouse);
     }
 
@@ -109,7 +112,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         log.info("Updating warehouse with ID: {}", id);
         
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(WAREHOUSE_NOT_FOUND_WITH_ID_MSG + id));
 
         // Validate location exists
         Location location = locationRepository.findById(requestDto.getLocationId())
@@ -117,11 +120,10 @@ public class WarehouseServiceImpl implements WarehouseService {
                         "Location not found with id: " + requestDto.getLocationId()));
 
         // Validate unique warehouse code if provided and changed
-        if (requestDto.getWarehouseCode() != null && !requestDto.getWarehouseCode().isEmpty()) {
-            if (warehouseRepository.existsByWarehouseCodeAndIdNot(requestDto.getWarehouseCode(), id)) {
-                throw new IllegalArgumentException(
-                        "Warehouse code '" + requestDto.getWarehouseCode() + "' already exists");
-            }
+        if (requestDto.getWarehouseCode() != null && !requestDto.getWarehouseCode().isEmpty() &&
+            warehouseRepository.existsByWarehouseCodeAndIdNot(requestDto.getWarehouseCode(), id)) {
+            throw new IllegalArgumentException(
+                    "Warehouse code '" + requestDto.getWarehouseCode() + "' already exists");
         }
 
         warehouseMapper.updateEntity(warehouse, requestDto, location);
@@ -141,10 +143,16 @@ public class WarehouseServiceImpl implements WarehouseService {
         log.info("Deleting warehouse with ID: {}", id);
         
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(WAREHOUSE_NOT_FOUND_WITH_ID_MSG + id));
 
-        // TODO: Add dependency checks when assets module is implemented
-        // Check if warehouse is being used by assets
+        // Check if warehouse has assets
+        long assetCount = assetsOnWarehouseRepository.countByWarehouseId(id);
+        if (assetCount > 0) {
+            throw new IllegalStateException(String.format(
+                "Cannot delete warehouse '%s' because it has %d asset%s. Please remove the assets from this warehouse first.",
+                warehouse.getWarehouseName(), assetCount, assetCount > 1 ? "s" : ""
+            ));
+        }
 
         warehouseRepository.delete(warehouse);
         log.info("Warehouse deleted successfully with ID: {}", id);

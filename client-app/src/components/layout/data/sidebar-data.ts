@@ -183,6 +183,18 @@ export const sidebarData: SidebarData = {
                   title: 'Movement Types',
                   url: '/movement-types',
                 },
+                {
+                  title: 'Assets on Site',
+                  url: '/assets-on-site',
+                },
+                {
+                  title: 'Assets on Warehouse',
+                  url: '/assets-on-warehouse',
+                },
+                {
+                  title: 'Assets on Datacenter',
+                  url: '/assets-on-datacenter',
+                },
               ],
             },
             {
