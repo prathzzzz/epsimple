@@ -39,8 +39,9 @@ public class PayeeController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
         log.info("Received request to get all payees");
+        String sanitizedSortBy = sanitizeSortBy(sortBy);
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sanitizedSortBy));
         Page<PayeeResponseDto> response = payeeService.getAllPayees(pageable);
         return ResponseBuilder.success(response, "Payees retrieved successfully", HttpStatus.OK);
     }
@@ -53,10 +54,32 @@ public class PayeeController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
         log.info("Received request to search payees with term: {}", searchTerm);
+        String sanitizedSortBy = sanitizeSortBy(sortBy);
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sanitizedSortBy));
         Page<PayeeResponseDto> response = payeeService.searchPayees(searchTerm, pageable);
         return ResponseBuilder.success(response, "Payees search completed successfully", HttpStatus.OK);
+    }
+
+    /**
+     * Map client-facing sortBy values to real entity properties to avoid invalid paths in JPQL.
+     * Extend this mapping if the frontend sends other friendly names.
+     */
+    private String sanitizeSortBy(String sortBy) {
+        if (sortBy == null) return "id";
+        switch (sortBy) {
+            // frontend uses "payeeName" as a friendly column name — map it to the nested property
+            case "payeeName":
+                return "payeeDetails.payeeName";
+            case "accountNumber":
+                return "payeeDetails.accountNumber";
+            case "bankName":
+                return "payeeDetails.bank.bankName";
+            case "payeeType":
+                return "payeeType.payeeType";
+            default:
+                return sortBy;
+        }
     }
 
     @GetMapping("/list")

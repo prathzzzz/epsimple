@@ -77,6 +77,32 @@ export const personDetailsApi = {
     });
   },
 
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ["person-details", "search", searchTerm],
+      queryFn: async () => {
+        const endpoint = searchTerm?.trim() ? PERSON_DETAILS_ENDPOINTS.SEARCH : PERSON_DETAILS_ENDPOINTS.BASE;
+        const params: Record<string, unknown> = {
+          page: 0,
+          size: 20,
+          sortBy: "firstName",
+          sortDirection: "ASC",
+        };
+        
+        if (searchTerm?.trim()) {
+          params.searchTerm = searchTerm.trim();
+        }
+        
+        const response = await api.get<ApiResponse<BackendPageResponse<PersonDetails>>>(
+          endpoint,
+          { params }
+        );
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
+  },
+
   useCreate: () => {
     const queryClient = useQueryClient();
     return useMutation({

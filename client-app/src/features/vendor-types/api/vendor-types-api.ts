@@ -1,11 +1,17 @@
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 
 const BASE_URL = '/api/vendor-types';
 
 export interface VendorType {
   id: number;
   typeName: string;
-  vendorCategory: string;
+  vendorCategory: {
+    id: number;
+    categoryName: string;
+  } | null;
   description: string;
   createdAt: string;
   updatedAt: string;
@@ -13,7 +19,7 @@ export interface VendorType {
 
 export interface VendorTypeFormData {
   typeName: string;
-  vendorCategory?: string;
+  vendorCategoryId?: number;
   description?: string;
 }
 
@@ -32,6 +38,31 @@ export interface ApiResponse<T> {
 }
 
 export const vendorTypesApi = {
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['vendor-types', 'search', searchTerm],
+      queryFn: async () => {
+        const endpoint = searchTerm?.trim() ? `${BASE_URL}/search` : BASE_URL;
+        const params: Record<string, unknown> = {
+          page: 0,
+          size: 20,
+          sortBy: 'typeName',
+          sortDirection: 'ASC',
+        };
+        
+        if (searchTerm?.trim()) {
+          params.query = searchTerm.trim();
+        }
+        
+        const response = await api.get<ApiResponse<BackendPageResponse<VendorType>>>(endpoint, {
+          params,
+        });
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
+  },
+
   getAll: async (
     page: number = 0,
     size: number = 10,

@@ -1,8 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery } from '@tanstack/react-query'
-import { Sparkles, Loader2 } from 'lucide-react'
+import { Check, ChevronsUpDown, Sparkles, Loader2 } from 'lucide-react'
 import { format } from 'date-fns'
 import {
   Sheet,
@@ -25,55 +24,107 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { DatePicker } from '@/components/date-picker'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import { cn } from '@/lib/utils'
 import { useAssetContext } from '../context/asset-provider'
 import { assetsApi } from '../api/assets-api'
 import { assetSchema, type AssetFormData } from '../api/schema'
 import { assetCategoryApi } from '@/features/asset-categories/api/asset-categories-api'
-import type { AssetCategory } from '@/features/asset-categories/api/schema'
 import { assetTypesApi } from '@/features/asset-types/api/asset-types-api'
-import type { AssetType } from '@/features/asset-types/api/schema'
-import { useVendorsList } from '@/lib/vendors-api'
-import { getAllBanksList, type Bank } from '@/lib/banks-api'
-import { genericStatusTypeApi, type GenericStatusType } from '@/features/generic-status-types/api/generic-status-type-api'
+import { useSearchVendors } from '@/lib/vendors-api'
+import { useSearchBanks } from '@/lib/banks-api'
+import { genericStatusTypeApi } from '@/features/generic-status-types/api/generic-status-type-api'
 import { assetTagCodeGeneratorApi } from '@/features/asset-tag-generators/api/asset-tag-generator-api'
 import { toast } from 'sonner'
 
 export function AssetDrawer() {
   const { isDrawerOpen, setIsDrawerOpen, editingAsset, setEditingAsset } =
     useAssetContext()
+
+  const [categorySearch, setCategorySearch] = useState('')
+  const [categoryOpen, setCategoryOpen] = useState(false)
+  const [typeSearch, setTypeSearch] = useState('')
+  const [typeOpen, setTypeOpen] = useState(false)
+  const [vendorSearch, setVendorSearch] = useState('')
+  const [vendorOpen, setVendorOpen] = useState(false)
+  const [bankSearch, setBankSearch] = useState('')
+  const [bankOpen, setBankOpen] = useState(false)
+  const [statusSearch, setStatusSearch] = useState('')
+  const [statusOpen, setStatusOpen] = useState(false)
+
   const createAsset = assetsApi.useCreate()
   const updateAsset = assetsApi.useUpdate()
   const generateTag = assetTagCodeGeneratorApi.useGenerateTag()
 
-  const { data: assetCategories = [] } = useQuery({
-    queryKey: ['asset-categories', 'list'],
-    queryFn: () => assetCategoryApi.getList(),
-  })
+  const { data: assetCategories = [], isLoading: isLoadingCategories } = 
+    assetCategoryApi.useSearch(categorySearch)
+  const { data: assetTypes = [], isLoading: isLoadingTypes } = 
+    assetTypesApi.useSearch(typeSearch)
+  const { data: vendors = [], isLoading: isLoadingVendors } = 
+    useSearchVendors(vendorSearch)
+  const { data: banks = [], isLoading: isLoadingBanks } = 
+    useSearchBanks(bankSearch)
+  const { data: statusTypes = [], isLoading: isLoadingStatuses } = 
+    genericStatusTypeApi.useSearch(statusSearch)
 
-  const { data: assetTypes = [] } = useQuery({
-    queryKey: ['asset-types', 'list'],
-    queryFn: () => assetTypesApi.getList(),
-  })
+  // Fetch initial items for display
+  const { data: allAssetCategories = [] } = assetCategoryApi.useSearch("")
+  const { data: allAssetTypes = [] } = assetTypesApi.useSearch("")
+  const { data: allVendors = [] } = useSearchVendors("")
+  const { data: allBanks = [] } = useSearchBanks("")
+  const { data: allStatusTypes = [] } = genericStatusTypeApi.useSearch("")
 
-  const { data: vendors = [] } = useVendorsList()
+  // Combine search results with selected items
+  const displayAssetCategories = (() => {
+    if (!editingAsset?.assetCategoryId) return assetCategories;
+    const selected = allAssetCategories.find(c => c.id === editingAsset.assetCategoryId);
+    if (!selected) return assetCategories;
+    if (assetCategories.some(c => c.id === selected.id)) return assetCategories;
+    return [selected, ...assetCategories];
+  })();
 
-  const { data: banksResponse } = useQuery({
-    queryKey: ['banks', 'list'],
-    queryFn: () => getAllBanksList(),
-  })
-  const banks = banksResponse?.data || []
+  const displayAssetTypes = (() => {
+    if (!editingAsset?.assetTypeId) return assetTypes;
+    const selected = allAssetTypes.find(t => t.id === editingAsset.assetTypeId);
+    if (!selected) return assetTypes;
+    if (assetTypes.some(t => t.id === selected.id)) return assetTypes;
+    return [selected, ...assetTypes];
+  })();
 
-  const { data: statusTypesResponse } = useQuery({
-    queryKey: ['generic-status-types', 'list'],
-    queryFn: () => genericStatusTypeApi.getList(),
-  })
-  const statusTypes = statusTypesResponse?.data || []
+  const displayVendors = (() => {
+    if (!editingAsset?.vendorId) return vendors;
+    const selected = allVendors.find(v => v.id === editingAsset.vendorId);
+    if (!selected) return vendors;
+    if (vendors.some(v => v.id === selected.id)) return vendors;
+    return [selected, ...vendors];
+  })();
+
+  const displayBanks = (() => {
+    if (!editingAsset?.lenderBankId) return banks;
+    const selected = allBanks.find(b => b.id === editingAsset.lenderBankId);
+    if (!selected) return banks;
+    if (banks.some(b => b.id === selected.id)) return banks;
+    return [selected, ...banks];
+  })();
+
+  const displayStatusTypes = (() => {
+    if (!editingAsset?.statusTypeId) return statusTypes;
+    const selected = allStatusTypes.find(s => s.id === editingAsset.statusTypeId);
+    if (!selected) return statusTypes;
+    if (statusTypes.some(s => s.id === selected.id)) return statusTypes;
+    return [selected, ...statusTypes];
+  })();
 
   const form = useForm<AssetFormData>({
     resolver: zodResolver(assetSchema),
@@ -167,8 +218,8 @@ export function AssetDrawer() {
       
       form.setValue('assetTagId', result.assetTag)
       toast.success(`Generated tag: ${result.assetTag}`)
-    } catch (_error) {
-      // Error toast is already handled by the mutation
+    } catch (error) {
+      console.error('Failed to generate asset tag:', error);
     }
   }
 
@@ -213,9 +264,9 @@ export function AssetDrawer() {
                       variant="outline"
                       size="icon"
                       onClick={handleGenerateTag}
-                      disabled={!canGenerateTag() || generateTag.isPending}
+                      disabled={canGenerateTag() === false || generateTag.isPending}
                       title={
-                        !canGenerateTag()
+                        canGenerateTag() === false
                           ? 'Select Category, Vendor, and Bank first'
                           : 'Generate Asset Tag'
                       }
@@ -263,23 +314,71 @@ export function AssetDrawer() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Asset Category *</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? String(field.value) : ''}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {assetCategories.map((category: AssetCategory) => (
-                          <SelectItem key={category.id} value={category.id.toString()}>
-                            {category.categoryName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              'w-full justify-between',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value
+                              ? displayAssetCategories.find((c) => c.id === field.value)?.categoryName
+                              : 'Select category'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search categories..."
+                            value={categorySearch}
+                            onValueChange={setCategorySearch}
+                          />
+                          <CommandList>
+                            {(() => {
+                              if (isLoadingCategories) {
+                                return (
+                                  <div className="flex items-center justify-center py-6">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  </div>
+                                );
+                              }
+                              if (displayAssetCategories.length === 0) {
+                                return <CommandEmpty>No categories found.</CommandEmpty>;
+                              }
+                              return (
+                                <CommandGroup>
+                                  {displayAssetCategories.map((category) => (
+                                    <CommandItem
+                                      key={category.id}
+                                      value={String(category.id)}
+                                      onSelect={() => {
+                                        field.onChange(category.id)
+                                        setCategoryOpen(false)
+                                        setCategorySearch('')
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          'mr-2 h-4 w-4',
+                                          category.id === field.value ? 'opacity-100' : 'opacity-0'
+                                        )}
+                                      />
+                                      {category.categoryName}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              );
+                            })()}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -291,23 +390,71 @@ export function AssetDrawer() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Asset Type *</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? String(field.value) : ''}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {assetTypes.map((type: AssetType) => (
-                          <SelectItem key={type.id} value={type.id.toString()}>
-                            {type.typeName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={typeOpen} onOpenChange={setTypeOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              'w-full justify-between',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value
+                              ? displayAssetTypes.find((t) => t.id === field.value)?.typeName
+                              : 'Select type'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search types..."
+                            value={typeSearch}
+                            onValueChange={setTypeSearch}
+                          />
+                          <CommandList>
+                            {(() => {
+                              if (isLoadingTypes) {
+                                return (
+                                  <div className="flex items-center justify-center py-6">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  </div>
+                                );
+                              }
+                              if (displayAssetTypes.length === 0) {
+                                return <CommandEmpty>No types found.</CommandEmpty>;
+                              }
+                              return (
+                                <CommandGroup>
+                                  {displayAssetTypes.map((type) => (
+                                    <CommandItem
+                                      key={type.id}
+                                      value={String(type.id)}
+                                      onSelect={() => {
+                                        field.onChange(type.id)
+                                        setTypeOpen(false)
+                                        setTypeSearch('')
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          'mr-2 h-4 w-4',
+                                          type.id === field.value ? 'opacity-100' : 'opacity-0'
+                                        )}
+                                      />
+                                      {type.typeName}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              );
+                            })()}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -321,23 +468,71 @@ export function AssetDrawer() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Vendor *</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? String(field.value) : ''}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select vendor" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {vendors?.map((vendor) => (
-                          <SelectItem key={vendor.id} value={vendor.id.toString()}>
-                            {vendor.vendorName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={vendorOpen} onOpenChange={setVendorOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              'w-full justify-between',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value
+                              ? vendors.find((v) => v.id === field.value)?.vendorName
+                              : 'Select vendor'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search vendors..."
+                            value={vendorSearch}
+                            onValueChange={setVendorSearch}
+                          />
+                          <CommandList>
+                            {(() => {
+                              if (isLoadingVendors) {
+                                return (
+                                  <div className="flex items-center justify-center py-6">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  </div>
+                                );
+                              }
+                              if (vendors.length === 0) {
+                                return <CommandEmpty>No vendors found.</CommandEmpty>;
+                              }
+                              return (
+                                <CommandGroup>
+                                  {vendors.map((vendor) => (
+                                    <CommandItem
+                                      key={vendor.id}
+                                      value={String(vendor.id)}
+                                      onSelect={() => {
+                                        field.onChange(vendor.id)
+                                        setVendorOpen(false)
+                                        setVendorSearch('')
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          'mr-2 h-4 w-4',
+                                          vendor.id === field.value ? 'opacity-100' : 'opacity-0'
+                                        )}
+                                      />
+                                      {vendor.vendorName}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              );
+                            })()}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -349,23 +544,71 @@ export function AssetDrawer() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Bank *</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? String(field.value) : ''}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select bank" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {banks.map((bank: Bank) => (
-                          <SelectItem key={bank.id} value={bank.id.toString()}>
-                            {bank.bankName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={bankOpen} onOpenChange={setBankOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              'w-full justify-between',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value
+                              ? banks.find((b) => b.id === field.value)?.bankName
+                              : 'Select bank'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search banks..."
+                            value={bankSearch}
+                            onValueChange={setBankSearch}
+                          />
+                          <CommandList>
+                            {(() => {
+                              if (isLoadingBanks) {
+                                return (
+                                  <div className="flex items-center justify-center py-6">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  </div>
+                                );
+                              }
+                              if (banks.length === 0) {
+                                return <CommandEmpty>No banks found.</CommandEmpty>;
+                              }
+                              return (
+                                <CommandGroup>
+                                  {banks.map((bank) => (
+                                    <CommandItem
+                                      key={bank.id}
+                                      value={String(bank.id)}
+                                      onSelect={() => {
+                                        field.onChange(bank.id)
+                                        setBankOpen(false)
+                                        setBankSearch('')
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          'mr-2 h-4 w-4',
+                                          bank.id === field.value ? 'opacity-100' : 'opacity-0'
+                                        )}
+                                      />
+                                      {bank.bankName}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              );
+                            })()}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -379,23 +622,71 @@ export function AssetDrawer() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status *</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? String(field.value) : ''}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {statusTypes.map((status: GenericStatusType) => (
-                          <SelectItem key={status.id} value={status.id.toString()}>
-                            {status.statusName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={statusOpen} onOpenChange={setStatusOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              'w-full justify-between',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value
+                              ? statusTypes.find((s) => s.id === field.value)?.statusName
+                              : 'Select status'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search statuses..."
+                            value={statusSearch}
+                            onValueChange={setStatusSearch}
+                          />
+                          <CommandList>
+                            {(() => {
+                              if (isLoadingStatuses) {
+                                return (
+                                  <div className="flex items-center justify-center py-6">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  </div>
+                                );
+                              }
+                              if (statusTypes.length === 0) {
+                                return <CommandEmpty>No statuses found.</CommandEmpty>;
+                              }
+                              return (
+                                <CommandGroup>
+                                  {statusTypes.map((status) => (
+                                    <CommandItem
+                                      key={status.id}
+                                      value={String(status.id)}
+                                      onSelect={() => {
+                                        field.onChange(status.id)
+                                        setStatusOpen(false)
+                                        setStatusSearch('')
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          'mr-2 h-4 w-4',
+                                          status.id === field.value ? 'opacity-100' : 'opacity-0'
+                                        )}
+                                      />
+                                      {status.statusName}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              );
+                            })()}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -434,7 +725,7 @@ export function AssetDrawer() {
                         placeholder="0.00"
                         {...field}
                         onChange={(e) =>
-                          field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)
+                          field.onChange(e.target.value ? Number.parseFloat(e.target.value) : undefined)
                         }
                       />
                     </FormControl>

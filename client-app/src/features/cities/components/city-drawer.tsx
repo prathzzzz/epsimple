@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -20,31 +20,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandItem } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { useCityContext } from "../context/city-provider";
 import { cityApi } from "../api/city-api";
 import { cityFormSchema, type CityFormData } from "../api/schema";
-import { useQuery } from "@tanstack/react-query";
-import api from "@/lib/api";
-
-interface State {
-  id: number;
-  stateName: string;
-  stateCode?: string;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
+import { stateApi } from "@/features/states/api/state-api";
 
 export function CityDrawer() {
   const {
@@ -53,6 +36,8 @@ export function CityDrawer() {
     editingCity,
     setEditingCity,
   } = useCityContext();
+  const [stateSearch, setStateSearch] = useState("");
+  const [stateOpen, setStateOpen] = useState(false);
 
   const form = useForm<CityFormData>({
     resolver: zodResolver(cityFormSchema),
@@ -63,14 +48,22 @@ export function CityDrawer() {
     },
   });
 
-  // Fetch states list for dropdown
-  const { data: states } = useQuery<State[]>({
-    queryKey: ["states", "list"],
-    queryFn: async () => {
-      const response = await api.get<ApiResponse<State[]>>("/api/states/list");
-      return response.data.data;
-    },
-  });
+  // Fetch states using search hook
+  const { data: states = [], isLoading: isLoadingStates } = stateApi.useSearch(stateSearch);
+  
+  // Fetch all states to get the selected state when editing
+  const { data: allStatesData = [] } = stateApi.useSearch("");
+  
+  // Combine search results with selected state to ensure it's always visible
+  const displayStates = (() => {
+    if (!editingCity?.stateId) return states;
+    const selectedState = allStatesData.find(s => s.id === editingCity.stateId);
+    if (!selectedState) return states;
+    // Check if selected state is already in the states list
+    if (states.some(s => s.id === selectedState.id)) return states;
+    // Add selected state to the top of the list
+    return [selectedState, ...states];
+  })();
 
   const createMutation = cityApi.useCreate();
   const updateMutation = cityApi.useUpdate();
@@ -177,23 +170,65 @@ export function CityDrawer() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>State *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(parseInt(value))}
-                    value={field.value ? field.value.toString() : ""}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a state" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {states?.map((state) => (
-                        <SelectItem key={state.id} value={state.id.toString()}>
-                          {state.stateName} {state.stateCode ? `(${state.stateCode})` : ""}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={stateOpen} onOpenChange={setStateOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={stateOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? displayStates.find((s) => s.id === field.value)?.stateName || "Select state"
+                            : "Select a state"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search states..."
+                          value={stateSearch}
+                          onValueChange={setStateSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            {isLoadingStates ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : (
+                              "No state found."
+                            )}
+                          </CommandEmpty>
+                          {displayStates.map((state) => (
+                            <CommandItem
+                              key={state.id}
+                              value={String(state.id)}
+                              onSelect={() => {
+                                field.onChange(state.id);
+                                setStateOpen(false);
+                                setStateSearch("");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === state.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {state.stateName} {state.stateCode ? `(${state.stateCode})` : ""}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

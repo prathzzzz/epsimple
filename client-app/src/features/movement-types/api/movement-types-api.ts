@@ -1,7 +1,23 @@
 import api from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { MovementTypeFormData } from '@/features/movement-types/api/schema';
 
 const BASE_URL = '/api/movement-types';
+
+interface ApiResponse<T> {
+  data: T;
+  message: string;
+  status: number;
+}
+
+export interface MovementType {
+  id: number;
+  typeName: string;
+  typeDescription: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export const movementTypesApi = {
   // Create movement type
@@ -48,5 +64,26 @@ export const movementTypesApi = {
   delete: async (id: number) => {
     const response = await api.delete(`${BASE_URL}/${id}`);
     return response.data;
+  },
+
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['movement-types', 'search', searchTerm],
+      queryFn: async () => {
+        if (!searchTerm || searchTerm.trim().length === 0) return [];
+        const response = await api.get<ApiResponse<BackendPageResponse<MovementType>>>(`${BASE_URL}/search`, {
+          params: {
+            searchTerm: searchTerm.trim(),
+            page: 0,
+            size: 50,
+            sortBy: 'typeName',
+            sortDirection: 'ASC',
+          },
+        });
+        return flattenPageResponse(response.data.data).content;
+      },
+      enabled: searchTerm.trim().length > 0,
+      staleTime: 30000,
+    });
   },
 };

@@ -1,8 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,13 +14,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandItem } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetClose,
@@ -34,21 +29,32 @@ import {
 import { useManagedProjectContext } from "../context/managed-project-provider";
 import { managedProjectApi } from "../api/managed-project-api";
 import { managedProjectSchema, type ManagedProjectFormData } from "../api/schema";
-import { getAllBanksList } from "@/lib/banks-api";
+import { useSearchBanks } from "@/lib/banks-api";
 
 export function ManagedProjectDrawer() {
   const { isDrawerOpen, setIsDrawerOpen, editingManagedProject, setEditingManagedProject } =
     useManagedProjectContext();
+  const [bankSearch, setBankSearch] = useState("");
+  const [bankOpen, setBankOpen] = useState(false);
 
   const createMutation = managedProjectApi.useCreate();
   const updateMutation = managedProjectApi.useUpdate();
 
-  const { data: banksResponse } = useQuery({
-    queryKey: ["banks", "list"],
-    queryFn: getAllBanksList,
-  });
-
-  const banks = banksResponse?.data || [];
+  const { data: banks = [], isLoading: isLoadingBanks } = useSearchBanks(bankSearch);
+  
+  // Fetch initial banks to ensure selected bank is displayed when editing
+  const { data: allBanks = [] } = useSearchBanks("");
+  
+  // Combine search results with selected bank
+  const displayBanks = (() => {
+    if (!editingManagedProject?.bankId) return banks;
+    const selectedBank = allBanks.find(b => b.id === editingManagedProject.bankId);
+    if (!selectedBank) return banks;
+    // Check if selected bank is already in the banks list
+    if (banks.some(b => b.id === selectedBank.id)) return banks;
+    // Add selected bank to the top of the list
+    return [selectedBank, ...banks];
+  })();
 
   const form = useForm<ManagedProjectFormData>({
     resolver: zodResolver(managedProjectSchema),
@@ -82,11 +88,18 @@ export function ManagedProjectDrawer() {
   }, [editingManagedProject, form]);
 
   const onSubmit = async (data: ManagedProjectFormData) => {
+    // Convert empty strings to undefined for optional fields only
+    const payload = {
+      ...data,
+      projectType: data.projectType || undefined,
+      projectDescription: data.projectDescription || undefined,
+    };
+
     if (editingManagedProject) {
       updateMutation.mutate(
         {
           id: editingManagedProject.id,
-          data,
+          data: payload,
         },
         {
           onSuccess: () => {
@@ -97,7 +110,7 @@ export function ManagedProjectDrawer() {
         }
       );
     } else {
-      createMutation.mutate(data, {
+      createMutation.mutate(payload, {
         onSuccess: () => {
           setIsDrawerOpen(false);
           form.reset();
@@ -141,23 +154,65 @@ export function ManagedProjectDrawer() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bank *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ""}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a bank" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {banks.map((bank) => (
-                        <SelectItem key={bank.id} value={String(bank.id)}>
-                          {bank.bankName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={bankOpen} onOpenChange={setBankOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={bankOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? displayBanks.find((b) => b.id === field.value)?.bankName || "Select bank"
+                            : "Select a bank"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search banks..."
+                          value={bankSearch}
+                          onValueChange={setBankSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            {isLoadingBanks ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : (
+                              "No bank found."
+                            )}
+                          </CommandEmpty>
+                          {displayBanks.map((bank) => (
+                            <CommandItem
+                              key={bank.id}
+                              value={String(bank.id)}
+                              onSelect={() => {
+                                field.onChange(bank.id);
+                                setBankOpen(false);
+                                setBankSearch("");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === bank.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {bank.bankName}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
@@ -177,35 +232,37 @@ export function ManagedProjectDrawer() {
               )}
             />
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="projectCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Project Code</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter project code" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="projectCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Code *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="e.g., PROJ-001 (letters, numbers, - and _ only)" 
+                      className="font-mono"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="projectType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Project Type</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter project type" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="projectType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Type</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Infrastructure, Development, etc." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -215,8 +272,9 @@ export function ManagedProjectDrawer() {
                   <FormLabel>Project Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Enter project description"
-                      className="min-h-[80px]"
+                      placeholder="Enter project description (optional)"
+                      className="min-h-[80px] resize-none"
+                      rows={3}
                       {...field}
                     />
                   </FormControl>

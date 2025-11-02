@@ -19,12 +19,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSiteContext } from "../context/site-provider";
 import { siteApi } from "../api/site-api";
 import { siteSchema, type SiteFormData } from "../api/schema";
-import { locationApi } from "@/features/locations/api/location-api";
-import { managedProjectApi } from "@/features/managed-projects/api/managed-project-api";
-import { siteCategoryApi } from "@/features/site-categories/api/site-category-api";
-import { siteTypeApi } from "@/features/site-types/api/site-type-api";
-import { genericStatusTypeApi } from "@/features/generic-status-types/api/generic-status-type-api";
-import { personDetailsApi } from "@/features/person-details/api/person-details-api";
 import { stateApi } from "@/features/states/api/state-api";
 import {
   BasicTab,
@@ -42,47 +36,11 @@ export function SiteDrawer() {
   const createMutation = siteApi.useCreate();
   const updateMutation = siteApi.useUpdate();
 
-  const { data: locationsResponse } = useQuery({
-    queryKey: ["locations", "list"],
-    queryFn: () => locationApi.getList(),
-  });
-
-  const { data: projectsResponse } = useQuery({
-    queryKey: ["managed-projects", "list"],
-    queryFn: () => managedProjectApi.getList(),
-  });
-
-  const { data: categoriesResponse } = useQuery({
-    queryKey: ["site-categories", "list"],
-    queryFn: () => siteCategoryApi.getList(),
-  });
-
-  const { data: typesResponse } = useQuery({
-    queryKey: ["site-types", "list"],
-    queryFn: () => siteTypeApi.getList(),
-  });
-
-  const { data: statusResponse } = useQuery({
-    queryKey: ["generic-status-types", "list"],
-    queryFn: () => genericStatusTypeApi.getList(),
-  });
-
-  const { data: personDetailsResponse } = useQuery({
-    queryKey: ["person-details", "list"],
-    queryFn: () => personDetailsApi.getList(),
-  });
-
   const { data: statesResponse } = useQuery({
     queryKey: ["states", "list"],
     queryFn: () => stateApi.getList(),
   });
 
-  const locations = locationsResponse || [];
-  const projects = projectsResponse || [];
-  const categories = categoriesResponse || [];
-  const types = typesResponse || [];
-  const statuses = statusResponse?.data || [];
-  const personDetails = personDetailsResponse || [];
   const states = statesResponse || [];
 
   const form = useForm<SiteFormData>({
@@ -261,12 +219,6 @@ export function SiteDrawer() {
 
               <BasicTab
                 form={form}
-                locations={locations}
-                projects={projects}
-                categories={categories}
-                types={types}
-                statuses={statuses}
-                personDetails={personDetails}
                 states={states}
               />
               <DatesTab form={form} />

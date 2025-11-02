@@ -1,6 +1,7 @@
 import api from "@/lib/api";
-
+import { useQuery } from '@tanstack/react-query';
 import type { BackendPageResponse } from '@/lib/api-utils';
+import { flattenPageResponse as flatten } from '@/lib/api-utils';
 export interface GenericStatusType {
   id: number;
   statusName: string;
@@ -27,6 +28,32 @@ export interface ApiResponse<T> {
 const BASE_URL = "/api/generic-status-types";
 
 export const genericStatusTypeApi = {
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['generic-status-types', 'search', searchTerm],
+      queryFn: async () => {
+        const endpoint = searchTerm?.trim() ? `${BASE_URL}/search` : BASE_URL;
+        const params: Record<string, unknown> = {
+          page: 0,
+          size: 20,
+          sortBy: 'statusName',
+          sortDirection: 'ASC',
+        };
+        
+        if (searchTerm?.trim()) {
+          params.searchTerm = searchTerm.trim();
+        }
+        
+        const response = await api.get<ApiResponse<BackendPageResponse<GenericStatusType>>>(
+          endpoint,
+          { params }
+        );
+        return flatten(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
+  },
+
   create: async (
     data: GenericStatusTypeFormData
   ): Promise<ApiResponse<GenericStatusType>> => {

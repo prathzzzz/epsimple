@@ -42,7 +42,8 @@ public class SiteController {
 
         log.info("GET /api/sites - Fetching all sites with pagination");
         Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        String sanitizedSortBy = sanitizeSortBy(sortBy);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sanitizedSortBy));
         Page<SiteResponseDto> sites = siteService.getAllSites(pageable);
         return ResponseBuilder.success(sites, "Sites retrieved successfully");
     }
@@ -57,9 +58,28 @@ public class SiteController {
 
         log.info("GET /api/sites/search - Searching sites with term: {}", searchTerm);
         Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        String sanitizedSortBy = sanitizeSortBy(sortBy);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sanitizedSortBy));
         Page<SiteResponseDto> sites = siteService.searchSites(searchTerm, pageable);
         return ResponseBuilder.success(sites, "Sites search completed successfully");
+    }
+
+    /**
+     * Map client-facing sortBy values to real entity properties to avoid invalid paths in JPQL.
+     * Extend this mapping if the frontend sends other friendly names.
+     */
+    private String sanitizeSortBy(String sortBy) {
+        if (sortBy == null) return "id";
+        switch (sortBy) {
+            // frontend uses "siteName" as a friendly column name — map it to an actual field
+            case "siteName":
+                return "siteCode";
+            // allow sorting by project name through nested property
+            case "projectName":
+                return "project.projectName";
+            default:
+                return sortBy;
+        }
     }
 
     @GetMapping("/list")

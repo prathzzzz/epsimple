@@ -1,4 +1,7 @@
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 
 const BASE_URL = '/api/vendor-categories';
 
@@ -78,5 +81,30 @@ export const vendorCategoriesApi = {
   delete: async (id: number): Promise<ApiResponse<void>> => {
     const response = await axios.delete(`${BASE_URL}/${id}`);
     return response.data;
+  },
+
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['vendor-categories', 'search', searchTerm],
+      queryFn: async () => {
+        const endpoint = searchTerm?.trim() ? `${BASE_URL}/search` : BASE_URL;
+        const params: Record<string, unknown> = {
+          page: 0,
+          size: 20,
+          sortBy: 'categoryName',
+          sortDirection: 'ASC',
+        };
+        
+        if (searchTerm?.trim()) {
+          params.query = searchTerm.trim();
+        }
+        
+        const response = await api.get<ApiResponse<BackendPageResponse<VendorCategory>>>(endpoint, {
+          params,
+        });
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
   },
 };

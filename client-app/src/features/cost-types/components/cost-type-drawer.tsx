@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,15 +13,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Sheet,
   SheetClose,
@@ -34,21 +39,34 @@ import {
 import { useCostTypes } from "../context/cost-types-provider";
 import { costTypesApi } from "../api/cost-types-api";
 import { costTypeSchema, type CostTypeFormData } from "../api/schema";
-import { getAllCostCategoriesList } from "@/features/cost-categories/api/cost-categories-api";
+import { costCategoriesApi } from "@/features/cost-categories/api/cost-categories-api";
 
 export function CostTypeDrawer() {
   const { isDrawerOpen, setIsDrawerOpen, selectedCostType, setSelectedCostType, isEditMode, setIsEditMode } =
     useCostTypes();
 
+  const [costCategorySearch, setCostCategorySearch] = useState("");
+  const [costCategoryOpen, setCostCategoryOpen] = useState(false);
+
   const createMutation = costTypesApi.useCreate();
   const updateMutation = costTypesApi.useUpdate();
 
-  const { data: costCategoriesResponse } = useQuery({
-    queryKey: ["cost-categories", "list"],
-    queryFn: getAllCostCategoriesList,
-  });
-
-  const costCategories = costCategoriesResponse?.data || [];
+  const { data: costCategories = [], isLoading: isCostCategoriesLoading } =
+    costCategoriesApi.useSearch(costCategorySearch);
+  
+  // Fetch initial cost categories to ensure selected category is displayed when editing
+  const { data: allCostCategories = [] } = costCategoriesApi.useSearch("");
+  
+  // Combine search results with selected cost category
+  const displayCostCategories = (() => {
+    if (!selectedCostType?.costCategoryId) return costCategories;
+    const selectedCategory = allCostCategories.find(c => c.id === selectedCostType.costCategoryId);
+    if (!selectedCategory) return costCategories;
+    // Check if selected category is already in the list
+    if (costCategories.some(c => c.id === selectedCategory.id)) return costCategories;
+    // Add selected category to the top of the list
+    return [selectedCategory, ...costCategories];
+  })();
 
   const form = useForm<CostTypeFormData>({
     resolver: zodResolver(costTypeSchema),
@@ -131,25 +149,68 @@ export function CostTypeDrawer() {
               control={form.control}
               name="costCategoryId"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Cost Category *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ""}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a cost category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {costCategories.map((category) => (
-                        <SelectItem key={category.id} value={String(category.id)}>
-                          {category.categoryName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={costCategoryOpen} onOpenChange={setCostCategoryOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={costCategoryOpen}
+                          className={cn(
+                            "justify-between font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? displayCostCategories.find((c) => c.id === field.value)
+                                ?.categoryName || "Select cost category"
+                            : "Select cost category"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search cost categories..."
+                          value={costCategorySearch}
+                          onValueChange={setCostCategorySearch}
+                        />
+                        <CommandList>
+                          {isCostCategoriesLoading ? (
+                            <div className="flex items-center justify-center py-6">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                          ) : displayCostCategories.length === 0 ? (
+                            <CommandEmpty>No cost category found.</CommandEmpty>
+                          ) : (
+                            displayCostCategories.map((category) => (
+                              <CommandItem
+                                key={category.id}
+                                value={String(category.id)}
+                                onSelect={() => {
+                                  field.onChange(category.id);
+                                  setCostCategoryOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    category.id === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {category.categoryName}
+                              </CommandItem>
+                            ))
+                          )}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

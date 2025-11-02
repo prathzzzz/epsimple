@@ -1,4 +1,6 @@
+import { useQuery } from '@tanstack/react-query'
 import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from './api-utils'
+import api from './api'
 
 export interface PersonType {
   id: number
@@ -139,5 +141,27 @@ export const personTypesApi = {
       throw new Error(error.message || 'Failed to delete person type')
     }
     return response.json()
+  },
+
+  // Search person types using TanStack Query
+  useSearch: (searchTerm: string) => {
+    const endpoint = searchTerm?.trim() ? `${BASE_URL}/search` : BASE_URL;
+    return useQuery({
+      queryKey: ['person-types', 'search', searchTerm],
+      queryFn: async () => {
+        const params: any = {
+          page: 0,
+          size: 20,
+          sortBy: 'typeName',
+          sortDirection: 'ASC',
+        };
+        if (searchTerm?.trim()) {
+          params.searchTerm = searchTerm.trim();
+        }
+        const response = await api.get<ApiResponse<BackendPageResponse<PersonType>>>(endpoint, { params });
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
   },
 }

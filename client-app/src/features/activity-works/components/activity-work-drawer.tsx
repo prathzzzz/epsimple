@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
@@ -17,12 +16,19 @@ import {
 import { Input } from '@/components/ui/input';
 import { DatePicker } from '@/components/date-picker';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 import {
   Sheet,
   SheetContent,
@@ -34,31 +40,40 @@ import {
 import { useActivityWork } from '../context/activity-work-provider';
 import { activityWorkApi } from '../api/activity-work-api';
 import { activityWorkSchema, type ActivityWorkFormData } from '../api/schema';
-import { activitiesApi, type Activity } from '@/features/activities/api/activities-api';
-import { useVendorsList, type Vendor } from '@/lib/vendors-api';
-import { genericStatusTypeApi, type GenericStatusType } from '@/features/generic-status-types/api/generic-status-type-api';
+import { activitiesApi } from '@/features/activities/api/activities-api';
+import { useSearchVendors } from '@/lib/vendors-api';
+import { genericStatusTypeApi } from '@/features/generic-status-types/api/generic-status-type-api';
 
 export function ActivityWorkDrawer() {
   const { isDrawerOpen, closeDrawer, selectedActivityWork } = useActivityWork();
 
+  const [activitySearch, setActivitySearch] = useState('');
+  const [activityOpen, setActivityOpen] = useState(false);
+  const [vendorSearch, setVendorSearch] = useState('');
+  const [vendorOpen, setVendorOpen] = useState(false);
+  const [statusTypeSearch, setStatusTypeSearch] = useState('');
+  const [statusTypeOpen, setStatusTypeOpen] = useState(false);
+
   const createMutation = activityWorkApi.useCreate();
   const updateMutation = activityWorkApi.useUpdate();
 
-  const { data: activitiesResponse } = useQuery({
-    queryKey: ['activities', 'list'],
-    queryFn: () => activitiesApi.getList(),
-  });
+  const { data: activities = [], isLoading: isLoadingActivities } = 
+    activitiesApi.useSearch(activitySearch);
+  const { data: allActivities = [] } = activitiesApi.useSearch('');
+  const { data: vendors = [], isLoading: isLoadingVendors } = 
+    useSearchVendors(vendorSearch);
+  const { data: statusTypes = [], isLoading: isLoadingStatusTypes } = 
+    genericStatusTypeApi.useSearch(statusTypeSearch);
 
-  const { data: vendorsData } = useVendorsList();
-
-  const { data: statusTypesResponse } = useQuery({
-    queryKey: ['generic-status-types', 'list'],
-    queryFn: () => genericStatusTypeApi.getList(),
-  });
-
-  const activities: Activity[] = activitiesResponse?.data || [];
-  const vendors: Vendor[] = vendorsData || [];
-  const statusTypes: GenericStatusType[] = statusTypesResponse?.data || [];
+  // Display logic for activities dropdown
+  const displayActivities = (() => {
+    if (!selectedActivityWork?.activitiesId) return activities;
+    const selectedActivity = allActivities.find((a) => a.id === selectedActivityWork.activitiesId);
+    if (!selectedActivity || activities.some((a) => a.id === selectedActivity.id)) {
+      return activities;
+    }
+    return [selectedActivity, ...activities];
+  })();
 
   const form = useForm<ActivityWorkFormData>({
     resolver: zodResolver(activityWorkSchema),
@@ -159,23 +174,65 @@ export function ActivityWorkDrawer() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Activity *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an activity" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {activities.map((activity) => (
-                        <SelectItem key={activity.id} value={String(activity.id)}>
-                          {activity.activityName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={activityOpen} onOpenChange={setActivityOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            'w-full justify-between',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {field.value
+                            ? displayActivities.find((a) => a.id === field.value)?.activityName
+                            : 'Select an activity'}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search activities..."
+                          value={activitySearch}
+                          onValueChange={setActivitySearch}
+                        />
+                        <CommandList>
+                          {isLoadingActivities ? (
+                            <div className="flex items-center justify-center py-6">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                          ) : displayActivities.length === 0 ? (
+                            <CommandEmpty>No activities found.</CommandEmpty>
+                          ) : (
+                            <CommandGroup>
+                              {displayActivities.map((activity) => (
+                                <CommandItem
+                                  key={activity.id}
+                                  value={String(activity.id)}
+                                  onSelect={() => {
+                                    field.onChange(activity.id);
+                                    setActivityOpen(false);
+                                    setActivitySearch('');
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      'mr-2 h-4 w-4',
+                                      activity.id === field.value ? 'opacity-100' : 'opacity-0'
+                                    )}
+                                  />
+                                  {activity.activityName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          )}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
@@ -187,23 +244,65 @@ export function ActivityWorkDrawer() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Vendor *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a vendor" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {vendors.map((vendor) => (
-                        <SelectItem key={vendor.id} value={String(vendor.id)}>
-                          {vendor.vendorName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={vendorOpen} onOpenChange={setVendorOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            'w-full justify-between',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {field.value
+                            ? vendors.find((v) => v.id === field.value)?.vendorName
+                            : 'Select a vendor'}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search vendors..."
+                          value={vendorSearch}
+                          onValueChange={setVendorSearch}
+                        />
+                        <CommandList>
+                          {isLoadingVendors ? (
+                            <div className="flex items-center justify-center py-6">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                          ) : vendors.length === 0 ? (
+                            <CommandEmpty>No vendors found.</CommandEmpty>
+                          ) : (
+                            <CommandGroup>
+                              {vendors.map((vendor) => (
+                                <CommandItem
+                                  key={vendor.id}
+                                  value={String(vendor.id)}
+                                  onSelect={() => {
+                                    field.onChange(vendor.id);
+                                    setVendorOpen(false);
+                                    setVendorSearch('');
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      'mr-2 h-4 w-4',
+                                      vendor.id === field.value ? 'opacity-100' : 'opacity-0'
+                                    )}
+                                  />
+                                  {vendor.vendorName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          )}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
@@ -289,23 +388,65 @@ export function ActivityWorkDrawer() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status Type *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a status type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {statusTypes.map((statusType) => (
-                        <SelectItem key={statusType.id} value={String(statusType.id)}>
-                          {statusType.statusName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={statusTypeOpen} onOpenChange={setStatusTypeOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            'w-full justify-between',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {field.value
+                            ? statusTypes.find((s) => s.id === field.value)?.statusName
+                            : 'Select a status type'}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search status types..."
+                          value={statusTypeSearch}
+                          onValueChange={setStatusTypeSearch}
+                        />
+                        <CommandList>
+                          {isLoadingStatusTypes ? (
+                            <div className="flex items-center justify-center py-6">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                          ) : statusTypes.length === 0 ? (
+                            <CommandEmpty>No status types found.</CommandEmpty>
+                          ) : (
+                            <CommandGroup>
+                              {statusTypes.map((statusType) => (
+                                <CommandItem
+                                  key={statusType.id}
+                                  value={String(statusType.id)}
+                                  onSelect={() => {
+                                    field.onChange(statusType.id);
+                                    setStatusTypeOpen(false);
+                                    setStatusTypeSearch('');
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      'mr-2 h-4 w-4',
+                                      statusType.id === field.value ? 'opacity-100' : 'opacity-0'
+                                    )}
+                                  />
+                                  {statusType.statusName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          )}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

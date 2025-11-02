@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import { useCostItemContext } from './cost-item-provider';
 import { costItemSchema, type CostItemFormValues } from './schema';
 import { useCreateCostItem, useUpdateCostItem } from '@/lib/cost-items-api';
 import { costTypesApi } from '@/features/cost-types/api/cost-types-api';
+import { cn } from '@/lib/utils';
 import {
   Sheet,
   SheetContent,
@@ -23,19 +24,42 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 export const CostItemDrawer = () => {
   const { isDrawerOpen, closeDrawer, editingCostItem } = useCostItemContext();
-  const { data: costTypes, isLoading: costTypesLoading } = costTypesApi.useGetList();
+  const [costTypeSearch, setCostTypeSearch] = useState('');
+  const [costTypeOpen, setCostTypeOpen] = useState(false);
+
+  const { data: costTypes = [], isLoading: costTypesLoading } = costTypesApi.useSearch(costTypeSearch);
+  
+  // Fetch initial cost types to ensure selected type is displayed when editing
+  const { data: allCostTypes = [] } = costTypesApi.useSearch('');
+  
+  // Combine search results with selected cost type
+  const displayCostTypes = (() => {
+    if (!editingCostItem?.costTypeId) return costTypes;
+    const selectedType = allCostTypes.find(t => t.id === editingCostItem.costTypeId);
+    if (!selectedType) return costTypes;
+    // Check if selected type is already in the list
+    if (costTypes.some(t => t.id === selectedType.id)) return costTypes;
+    // Add selected type to the top of the list
+    return [selectedType, ...costTypes];
+  })();
+  
   const createMutation = useCreateCostItem();
   const updateMutation = useUpdateCostItem();
 
@@ -77,7 +101,7 @@ export const CostItemDrawer = () => {
       closeDrawer();
       form.reset();
     } catch (error) {
-      // Error is handled by the mutation
+      console.error('Failed to save cost item:', error);
     }
   };
 
@@ -105,26 +129,65 @@ export const CostItemDrawer = () => {
               control={form.control}
               name="costTypeId"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Cost Type *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ''}
-                    disabled={costTypesLoading}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select cost type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {costTypes?.map((type) => (
-                        <SelectItem key={type.id} value={String(type.id)}>
-                          {type.typeName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={costTypeOpen} onOpenChange={setCostTypeOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={costTypeOpen}
+                          className={cn(
+                            "justify-between font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? displayCostTypes.find((t) => t.id === field.value)?.typeName || "Select cost type"
+                            : "Select cost type"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search cost types..."
+                          value={costTypeSearch}
+                          onValueChange={setCostTypeSearch}
+                        />
+                        <CommandList>
+                          {costTypesLoading ? (
+                            <div className="flex items-center justify-center py-6">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                          ) : displayCostTypes.length === 0 ? (
+                            <CommandEmpty>No cost type found.</CommandEmpty>
+                          ) : (
+                            displayCostTypes.map((type) => (
+                              <CommandItem
+                                key={type.id}
+                                value={String(type.id)}
+                                onSelect={() => {
+                                  field.onChange(type.id);
+                                  setCostTypeOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    type.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {type.typeName}
+                              </CommandItem>
+                            ))
+                          )}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

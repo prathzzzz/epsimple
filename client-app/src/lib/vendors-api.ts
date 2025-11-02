@@ -174,3 +174,28 @@ export const useDeleteVendor = () => {
     },
   });
 };
+
+export const useSearchVendors = (searchTerm: string) => {
+  return useQuery({
+    queryKey: ['vendors', 'search', searchTerm],
+    queryFn: async () => {
+      const endpoint = searchTerm?.trim() ? '/api/vendors/search' : '/api/vendors';
+      const params: Record<string, unknown> = {
+        page: 0,
+        size: 20,
+        sortBy: 'id',
+        sortDirection: 'ASC',
+      };
+      
+      if (searchTerm?.trim()) {
+        params.searchTerm = searchTerm.trim();
+      }
+      
+      const response = await api.get<ApiResponse<BackendPageResponse<Vendor>>>(endpoint, {
+        params,
+      });
+      return flattenPageResponse(response.data.data).content;
+    },
+    staleTime: 30000,
+  });
+};

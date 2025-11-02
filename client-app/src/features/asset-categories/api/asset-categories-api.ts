@@ -133,4 +133,30 @@ export const assetCategoryApi = {
     const response = await api.get<ApiResponse<AssetCategory[]>>(ASSET_CATEGORY_ENDPOINTS.LIST);
     return response.data.data; // Unwrap the ApiResponse wrapper
   },
+
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['asset-categories', 'search', searchTerm],
+      queryFn: async () => {
+        const endpoint = searchTerm?.trim() ? ASSET_CATEGORY_ENDPOINTS.SEARCH : ASSET_CATEGORY_ENDPOINTS.BASE;
+        const params: Record<string, unknown> = {
+          page: 0,
+          size: 20,
+          sortBy: 'categoryName',
+          sortDirection: 'ASC',
+        };
+        
+        if (searchTerm?.trim()) {
+          params.searchTerm = searchTerm.trim();
+        }
+        
+        const response = await api.get<ApiResponse<BackendPageResponse<AssetCategory>>>(
+          endpoint,
+          { params }
+        );
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
+  },
 };

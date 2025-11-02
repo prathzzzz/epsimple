@@ -1,6 +1,7 @@
 import api from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 
-import { BackendPageResponse } from '@/lib/api-utils';
 export interface Activity {
   id: number;
   activityName: string;
@@ -76,5 +77,26 @@ export const activitiesApi = {
   delete: async (id: number): Promise<ApiResponse<void>> => {
     const response = await api.delete<ApiResponse<void>>(`${BASE_URL}/${id}`);
     return response.data;
+  },
+
+  useSearch: (searchTerm: string) => {
+    const endpoint = searchTerm?.trim() ? `${BASE_URL}/search` : BASE_URL;
+    return useQuery({
+      queryKey: ['activities', 'search', searchTerm],
+      queryFn: async () => {
+        const params: any = {
+          page: 0,
+          size: 20,
+          sortBy: 'activityName',
+          sortDirection: 'ASC',
+        };
+        if (searchTerm?.trim()) {
+          params.searchTerm = searchTerm.trim();
+        }
+        const response = await api.get<ApiResponse<BackendPageResponse<Activity>>>(endpoint, { params });
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
   },
 };

@@ -1,7 +1,25 @@
 import api from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { AssetTypeFormData } from '@/features/asset-types/api/schema';
 
 const BASE_URL = '/api/asset-types';
+
+interface ApiResponse<T> {
+  data: T;
+  message: string;
+  status: number;
+}
+
+export interface AssetType {
+  id: number;
+  typeName: string;
+  typeDescription: string | null;
+  assetCategoryId: number;
+  assetCategoryName: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export const assetTypesApi = {
   // Create asset type
@@ -48,5 +66,30 @@ export const assetTypesApi = {
   delete: async (id: number) => {
     const response = await api.delete(`${BASE_URL}/${id}`);
     return response.data;
+  },
+
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['asset-types', 'search', searchTerm],
+      queryFn: async () => {
+        const endpoint = searchTerm?.trim() ? `${BASE_URL}/search` : BASE_URL;
+        const params: Record<string, unknown> = {
+          page: 0,
+          size: 20,
+          sortBy: 'typeName',
+          sortDirection: 'ASC',
+        };
+        
+        if (searchTerm?.trim()) {
+          params.searchTerm = searchTerm.trim();
+        }
+        
+        const response = await api.get<ApiResponse<BackendPageResponse<AssetType>>>(endpoint, {
+          params,
+        });
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
   },
 };

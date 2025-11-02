@@ -1,8 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,12 +15,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetClose,
@@ -35,21 +41,19 @@ import { useAssetCategoryContext } from "../context/asset-category-provider";
 import { assetCategoryApi } from "../api/asset-categories-api";
 import { assetCategoryFormSchema, type AssetCategoryFormData } from "../api/schema";
 import { assetTypesApi } from "@/features/asset-types/api/asset-types-api";
-import type { AssetType } from "@/features/asset-types/api/schema";
 
 export function AssetCategoryDrawer() {
   const { isDrawerOpen, setIsDrawerOpen, editingAssetCategory, setEditingAssetCategory } =
     useAssetCategoryContext();
 
+  const [assetTypeSearch, setAssetTypeSearch] = useState("");
+  const [assetTypeOpen, setAssetTypeOpen] = useState(false);
+
   const createMutation = assetCategoryApi.useCreate();
   const updateMutation = assetCategoryApi.useUpdate();
 
-  const { data: assetTypesResponse } = useQuery({
-    queryKey: ["asset-types", "list"],
-    queryFn: () => assetTypesApi.getList(),
-  });
-
-  const assetTypes: AssetType[] = assetTypesResponse || [];
+  const { data: assetTypes = [], isLoading: isLoadingAssetTypes } = 
+    assetTypesApi.useSearch(assetTypeSearch);
 
   const form = useForm<AssetCategoryFormData>({
     resolver: zodResolver(assetCategoryFormSchema),
@@ -142,23 +146,65 @@ export function AssetCategoryDrawer() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Asset Type *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ""}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an asset type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {assetTypes.map((type: AssetType) => (
-                        <SelectItem key={type.id} value={String(type.id)}>
-                          {type.typeName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={assetTypeOpen} onOpenChange={setAssetTypeOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? assetTypes.find((type) => type.id === field.value)?.typeName
+                            : "Select an asset type"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search asset types..."
+                          value={assetTypeSearch}
+                          onValueChange={setAssetTypeSearch}
+                        />
+                        <CommandList>
+                          {isLoadingAssetTypes ? (
+                            <div className="flex items-center justify-center py-6">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                          ) : assetTypes.length === 0 ? (
+                            <CommandEmpty>No asset types found.</CommandEmpty>
+                          ) : (
+                            <CommandGroup>
+                              {assetTypes.map((type) => (
+                                <CommandItem
+                                  key={type.id}
+                                  value={String(type.id)}
+                                  onSelect={() => {
+                                    field.onChange(type.id);
+                                    setAssetTypeOpen(false);
+                                    setAssetTypeSearch("");
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      type.id === field.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {type.typeName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          )}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

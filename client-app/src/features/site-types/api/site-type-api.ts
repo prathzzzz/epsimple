@@ -1,4 +1,5 @@
 import api from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { SiteType, SiteTypeFormData } from "./schema";
 
@@ -62,5 +63,26 @@ export const siteTypeApi = {
 
   delete: async (id: number): Promise<void> => {
     await api.delete(SITE_TYPE_ENDPOINTS.BY_ID(id));
+  },
+
+  useSearch: (searchTerm: string) => {
+    const endpoint = searchTerm?.trim() ? SITE_TYPE_ENDPOINTS.SEARCH : SITE_TYPE_ENDPOINTS.BASE;
+    return useQuery({
+      queryKey: ['site-types', 'search', searchTerm],
+      queryFn: async () => {
+        const params: any = {
+          page: 0,
+          size: 20,
+          sortBy: 'typeName',
+          sortDirection: 'ASC',
+        };
+        if (searchTerm?.trim()) {
+          params.searchTerm = searchTerm.trim();
+        }
+        const response = await api.get<ApiResponse<BackendPageResponse<SiteType>>>(endpoint, { params });
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
   },
 };

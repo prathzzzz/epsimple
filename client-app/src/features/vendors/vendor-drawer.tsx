@@ -1,9 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { Loader2, Check, ChevronsUpDown } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +23,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { SelectDropdown } from '@/components/select-dropdown';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandInput, CommandList, CommandEmpty, CommandItem } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 
 import { useVendorContext } from './vendor-provider';
 import { vendorFormSchema, type VendorFormValues } from './schema';
@@ -36,19 +37,20 @@ import { useErrorHandler } from '@/hooks/use-error-handler';
 export const VendorDrawer = () => {
   const { isDrawerOpen, closeDrawer, drawerMode, selectedVendor } = useVendorContext();
   
-  // Fetch vendor types list
-  const { data: vendorTypesResponse, isLoading: loadingVendorTypes } = useQuery({
-    queryKey: ['vendor-types', 'list'],
-    queryFn: () => vendorTypesApi.getList(),
-  });
-  const vendorTypes = vendorTypesResponse?.data || [];
+  const [vendorTypeSearch, setVendorTypeSearch] = useState("");
+  const [vendorTypeOpen, setVendorTypeOpen] = useState(false);
+  const [personDetailsSearch, setPersonDetailsSearch] = useState("");
+  const [personDetailsOpen, setPersonDetailsOpen] = useState(false);
+  
+  // Fetch vendor types with search
+  const { data: vendorTypes = [], isLoading: loadingVendorTypes } = vendorTypesApi.useSearch(vendorTypeSearch);
+  
+  // Fetch person details with search
+  const { data: personDetailsList = [], isLoading: loadingPersonDetails } = personDetailsApi.useSearch(personDetailsSearch);
 
-  // Fetch person details list
-  const { data: personDetailsResponse, isLoading: loadingPersonDetails } = useQuery({
-    queryKey: ['person-details', 'list'],
-    queryFn: () => personDetailsApi.getList(),
-  });
-  const personDetailsList = personDetailsResponse || [];
+  // Fetch initial items for display
+  const { data: allVendorTypes = [] } = vendorTypesApi.useSearch("");
+  const { data: allPersonDetails = [] } = personDetailsApi.useSearch("");
 
   const createVendor = useCreateVendor();
   const updateVendor = useUpdateVendor();
@@ -62,6 +64,23 @@ export const VendorDrawer = () => {
       vendorCodeAlt: '',
     },
   });
+
+  // Combine search results with selected items
+  const displayVendorTypes = (() => {
+    if (!selectedVendor?.vendorTypeId) return vendorTypes;
+    const selected = allVendorTypes.find(t => t.id === selectedVendor.vendorTypeId);
+    if (!selected) return vendorTypes;
+    if (vendorTypes.some(t => t.id === selected.id)) return vendorTypes;
+    return [selected, ...vendorTypes];
+  })();
+
+  const displayPersonDetails = (() => {
+    if (!selectedVendor?.vendorDetailsId) return personDetailsList;
+    const selected = allPersonDetails.find(p => p.id === selectedVendor.vendorDetailsId);
+    if (!selected) return personDetailsList;
+    if (personDetailsList.some(p => p.id === selected.id)) return personDetailsList;
+    return [selected, ...personDetailsList];
+  })();
 
   useEffect(() => {
     if (drawerMode === 'edit' && selectedVendor) {
@@ -138,19 +157,70 @@ export const VendorDrawer = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Vendor Type *</FormLabel>
-                  <FormControl>
-                    <SelectDropdown
-                      defaultValue={field.value === 0 ? '' : field.value.toString()}
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      placeholder="Select vendor type"
-                      items={vendorTypes.map((type: any) => ({
-                        label: `${type.typeName}${type.vendorCategory?.categoryName ? ` (${type.vendorCategory.categoryName})` : ''}`,
-                        value: type.id.toString(),
-                      }))}
-                      disabled={loadingVendorTypes || isLoading}
-                      isControlled
-                    />
-                  </FormControl>
+                  <Popover open={vendorTypeOpen} onOpenChange={setVendorTypeOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={vendorTypeOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? displayVendorTypes.find((t) => t.id === field.value)?.typeName || "Select vendor type"
+                            : "Select vendor type"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search vendor types..."
+                          value={vendorTypeSearch}
+                          onValueChange={setVendorTypeSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            {loadingVendorTypes ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : (
+                              "No vendor type found."
+                            )}
+                          </CommandEmpty>
+                          {displayVendorTypes.map((type) => (
+                            <CommandItem
+                              key={type.id}
+                              value={String(type.id)}
+                              onSelect={() => {
+                                field.onChange(type.id);
+                                setVendorTypeOpen(false);
+                                setVendorTypeSearch("");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === type.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {type.typeName}
+                              {type.vendorCategory?.categoryName && (
+                                <span className="ml-2 text-muted-foreground">
+                                  ({type.vendorCategory.categoryName})
+                                </span>
+                              )}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormDescription>
                     Select the type of vendor (e.g., Supplier, Contractor)
                   </FormDescription>
@@ -165,28 +235,90 @@ export const VendorDrawer = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Vendor Details *</FormLabel>
-                  <FormControl>
-                    <SelectDropdown
-                      defaultValue={field.value === 0 ? '' : field.value.toString()}
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      placeholder="Select person details"
-                      items={personDetailsList.map((person: any) => {
-                        const fullName = person.fullName || [
-                          person.firstName,
-                          person.middleName,
-                          person.lastName,
-                        ]
-                          .filter(Boolean)
-                          .join(' ') || 'Unknown';
-                        return {
-                          label: `${fullName}${person.email ? ` (${person.email})` : ''}`,
-                          value: person.id.toString(),
-                        };
-                      })}
-                      disabled={loadingPersonDetails || isLoading}
-                      isControlled
-                    />
-                  </FormControl>
+                  <Popover open={personDetailsOpen} onOpenChange={setPersonDetailsOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={personDetailsOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? (() => {
+                                const person = displayPersonDetails.find((p) => p.id === field.value);
+                                if (!person) return "Select person details";
+                                const fullName = person.fullName || [
+                                  person.firstName,
+                                  person.middleName,
+                                  person.lastName,
+                                ]
+                                  .filter(Boolean)
+                                  .join(' ') || 'Unknown';
+                                return `${fullName}${person.email ? ` (${person.email})` : ''}`;
+                              })()
+                            : "Select person details"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search person details..."
+                          value={personDetailsSearch}
+                          onValueChange={setPersonDetailsSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            {loadingPersonDetails ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : (
+                              "No person details found."
+                            )}
+                          </CommandEmpty>
+                          {displayPersonDetails.map((person) => {
+                            const fullName = person.fullName || [
+                              person.firstName,
+                              person.middleName,
+                              person.lastName,
+                            ]
+                              .filter(Boolean)
+                              .join(' ') || 'Unknown';
+                            return (
+                              <CommandItem
+                                key={person.id}
+                                value={String(person.id)}
+                                onSelect={() => {
+                                  field.onChange(person.id);
+                                  setPersonDetailsOpen(false);
+                                  setPersonDetailsSearch("");
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === person.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {fullName}
+                                {person.email && (
+                                  <span className="ml-2 text-muted-foreground">
+                                    ({person.email})
+                                  </span>
+                                )}
+                              </CommandItem>
+                            );
+                          })}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormDescription>
                     Select the person details for this vendor
                   </FormDescription>

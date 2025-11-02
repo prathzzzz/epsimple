@@ -1,11 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -25,12 +26,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/date-picker";
@@ -57,13 +63,26 @@ export function PaymentDetailsMutateDrawer({
   const queryClient = useQueryClient();
   const isUpdate = !!currentRow;
 
-  // Fetch payment methods for dropdown
-  const { data: paymentMethodsData } = useQuery({
-    queryKey: ["payment-methods", "list"],
-    queryFn: () => paymentMethodsApi.getList(),
-  });
+  const [paymentMethodSearch, setPaymentMethodSearch] = useState("");
+  const [paymentMethodOpen, setPaymentMethodOpen] = useState(false);
 
-  const paymentMethods = paymentMethodsData?.data || [];
+  // Fetch payment methods with search
+  const { data: paymentMethods = [], isLoading: isPaymentMethodsLoading } =
+    paymentMethodsApi.useSearch(paymentMethodSearch);
+  
+  // Fetch initial payment methods to ensure selected method is displayed when editing
+  const { data: allPaymentMethods = [] } = paymentMethodsApi.useSearch("");
+  
+  // Combine search results with selected payment method
+  const displayPaymentMethods = (() => {
+    if (!currentRow?.paymentMethodId) return paymentMethods;
+    const selectedMethod = allPaymentMethods.find(m => m.id === currentRow.paymentMethodId);
+    if (!selectedMethod) return paymentMethods;
+    // Check if selected method is already in the list
+    if (paymentMethods.some(m => m.id === selectedMethod.id)) return paymentMethods;
+    // Add selected method to the top of the list
+    return [selectedMethod, ...paymentMethods];
+  })();
 
   const form = useForm<PaymentDetailsFormData>({
     resolver: zodResolver(paymentDetailsFormSchema),
@@ -160,25 +179,65 @@ export function PaymentDetailsMutateDrawer({
                 control={form.control}
                 name="paymentMethodId"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col">
                     <FormLabel>Payment Method *</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value > 0 ? String(field.value) : ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select payment method" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {paymentMethods.map((method) => (
-                          <SelectItem key={method.id} value={String(method.id)}>
-                            {method.methodName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={paymentMethodOpen} onOpenChange={setPaymentMethodOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={paymentMethodOpen}
+                            className={cn(
+                              "justify-between font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? displayPaymentMethods.find((m) => m.id === field.value)?.methodName || "Select payment method"
+                              : "Select payment method"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search payment methods..."
+                            value={paymentMethodSearch}
+                            onValueChange={setPaymentMethodSearch}
+                          />
+                          <CommandList>
+                            {isPaymentMethodsLoading ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : displayPaymentMethods.length === 0 ? (
+                              <CommandEmpty>No payment method found.</CommandEmpty>
+                            ) : (
+                              displayPaymentMethods.map((method) => (
+                                <CommandItem
+                                  key={method.id}
+                                  value={String(method.id)}
+                                  onSelect={() => {
+                                    field.onChange(method.id);
+                                    setPaymentMethodOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      method.id === field.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {method.methodName}
+                                </CommandItem>
+                              ))
+                            )}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}

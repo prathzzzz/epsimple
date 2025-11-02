@@ -148,4 +148,26 @@ export const cityApi = {
     const response = await api.get<ApiResponse<City[]>>(CITY_ENDPOINTS.LIST);
     return response.data.data;
   },
+
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['cities', 'search', searchTerm],
+      queryFn: async () => {
+        const response = await api.get<ApiResponse<BackendPageResponse<City>>>(
+          searchTerm?.trim() ? CITY_ENDPOINTS.SEARCH : CITY_ENDPOINTS.BASE,
+          {
+            params: {
+              ...(searchTerm?.trim() && { searchTerm: searchTerm.trim() }),
+              page: 0,
+              size: 20,
+              sortBy: 'cityName',
+              sortDirection: 'ASC',
+            },
+          }
+        );
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
+  },
 };

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from './api';
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from './api-utils';
+import { BackendPageResponse, flattenPageResponse, type FlatPageResponse } from './api-utils';
 
 export interface Landlord {
   id: number;
@@ -33,15 +33,12 @@ interface ApiResponse<T> {
   timestamp: string;
 }
 
-// Use the shared FlatPageResponse from api-utils
-export type { FlatPageResponse };
-
 const landlordsApi = {
   getAll: async (params: GetAllLandlordsParams = {}): Promise<FlatPageResponse<Landlord>> => {
     const { page = 0, size = 10, sortBy = 'id', sortDirection = 'ASC', search } = params;
     
     // Use search endpoint if search term is provided
-    if (search && search.trim()) {
+    if (search?.trim()) {
       const response = await api.get<ApiResponse<BackendPageResponse<Landlord>>>('/api/landlords/search', {
         params: { searchTerm: search, page, size, sortBy, sortDirection },
       });
@@ -134,5 +131,30 @@ export const useDeleteLandlord = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['landlords'] });
     },
+  });
+};
+
+export const useSearchLandlords = (searchTerm: string) => {
+  return useQuery({
+    queryKey: ['landlords', 'search', searchTerm],
+    queryFn: async () => {
+      const endpoint = searchTerm?.trim() ? '/api/landlords/search' : '/api/landlords';
+      const params: Record<string, unknown> = {
+        page: 0,
+        size: 20,
+        sortBy: 'id',
+        sortDirection: 'ASC',
+      };
+      
+      if (searchTerm?.trim()) {
+        params.searchTerm = searchTerm.trim();
+      }
+      
+      const response = await api.get<ApiResponse<BackendPageResponse<Landlord>>>(endpoint, {
+        params,
+      });
+      return flattenPageResponse(response.data.data).content;
+    },
+    staleTime: 30000,
   });
 };

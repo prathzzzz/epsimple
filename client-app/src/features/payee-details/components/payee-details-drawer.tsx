@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -13,13 +13,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandItem } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
@@ -37,22 +33,18 @@ import {
   payeeDetailsSchema,
   type PayeeDetailsFormData,
 } from '../api/schema';
-import { useQuery } from '@tanstack/react-query';
-import { getAllBanksList } from '@/lib/banks-api';
+import { useSearchBanks } from '@/lib/banks-api';
 
 export function PayeeDetailsDrawer() {
   const { isDrawerOpen, selectedPayeeDetails, closeDrawer } =
     usePayeeDetails();
+  const [bankSearch, setBankSearch] = useState("");
+  const [bankOpen, setBankOpen] = useState(false);
 
   const createMutation = useCreatePayeeDetails();
   const updateMutation = useUpdatePayeeDetails();
 
-  const { data: banksResponse } = useQuery({
-    queryKey: ['banks', 'list'],
-    queryFn: getAllBanksList,
-  });
-
-  const banks = banksResponse?.data || [];
+  const { data: banks = [], isLoading: isLoadingBanks } = useSearchBanks(bankSearch);
 
   const form = useForm<PayeeDetailsFormData>({
     resolver: zodResolver(payeeDetailsSchema),
@@ -227,23 +219,65 @@ export function PayeeDetailsDrawer() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bank</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value?.toString() || ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a bank" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {banks.map((bank) => (
-                        <SelectItem key={bank.id} value={bank.id.toString()}>
-                          {bank.bankName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={bankOpen} onOpenChange={setBankOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={bankOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? banks.find((b) => b.id === field.value)?.bankName || "Select bank"
+                            : "Select a bank"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search banks..."
+                          value={bankSearch}
+                          onValueChange={setBankSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            {isLoadingBanks ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : (
+                              "No bank found."
+                            )}
+                          </CommandEmpty>
+                          {banks.map((bank) => (
+                            <CommandItem
+                              key={bank.id}
+                              value={String(bank.id)}
+                              onSelect={() => {
+                                field.onChange(bank.id);
+                                setBankOpen(false);
+                                setBankSearch("");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === bank.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {bank.bankName}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

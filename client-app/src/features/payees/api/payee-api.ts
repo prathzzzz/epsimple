@@ -81,8 +81,25 @@ export const payeeApi = {
   }) => {
     return useQuery({
       queryKey: ['payees', 'search', params],
-      queryFn: () => payeeApi.getAll({ ...params, search: params.searchTerm }),
-      enabled: !!params.searchTerm,
+      queryFn: async () => {
+        const endpoint = params.searchTerm?.trim() ? `${BASE_URL}/search` : BASE_URL;
+        const queryParams: Record<string, unknown> = {
+          page: params.page ?? 0,
+          size: params.size ?? 20,
+          sortBy: params.sortBy ?? 'id',
+          sortDirection: params.sortDirection ?? 'asc',
+        };
+        
+        if (params.searchTerm?.trim()) {
+          queryParams.searchTerm = params.searchTerm.trim();
+        }
+        
+        const response = await api.get<ApiResponse<BackendPageResponse<Payee>>>(endpoint, {
+          params: queryParams,
+        });
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
     });
   },
 

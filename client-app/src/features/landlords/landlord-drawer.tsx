@@ -1,9 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { Loader2, Check, ChevronsUpDown } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +23,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { SelectDropdown } from '@/components/select-dropdown';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandInput, CommandList, CommandEmpty, CommandItem } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 
 import { useLandlordContext } from './landlord-provider';
 import { landlordFormSchema, type LandlordFormValues } from './schema';
@@ -35,12 +36,14 @@ import { useErrorHandler } from '@/hooks/use-error-handler';
 export const LandlordDrawer = () => {
   const { isDrawerOpen, closeDrawer, drawerMode, selectedLandlord } = useLandlordContext();
 
-  // Fetch person details list
-  const { data: personDetailsResponse, isLoading: loadingPersonDetails } = useQuery({
-    queryKey: ['person-details', 'list'],
-    queryFn: () => personDetailsApi.getList(),
-  });
-  const personDetailsList = personDetailsResponse || [];
+  const [personDetailsSearch, setPersonDetailsSearch] = useState("");
+  const [personDetailsOpen, setPersonDetailsOpen] = useState(false);
+
+  // Fetch person details with search
+  const { data: personDetailsList = [], isLoading: loadingPersonDetails } = personDetailsApi.useSearch(personDetailsSearch);
+
+  // Fetch initial items for display
+  const { data: allPersonDetails = [] } = personDetailsApi.useSearch("");
 
   const createLandlord = useCreateLandlord();
   const updateLandlord = useUpdateLandlord();
@@ -53,6 +56,15 @@ export const LandlordDrawer = () => {
       rentSharePercentage: undefined,
     },
   });
+
+  // Combine search results with selected items
+  const displayPersonDetails = (() => {
+    if (!selectedLandlord?.landlordDetailsId) return personDetailsList;
+    const selected = allPersonDetails.find(p => p.id === selectedLandlord.landlordDetailsId);
+    if (!selected) return personDetailsList;
+    if (personDetailsList.some(p => p.id === selected.id)) return personDetailsList;
+    return [selected, ...personDetailsList];
+  })();
 
   useEffect(() => {
     if (drawerMode === 'edit' && selectedLandlord) {
@@ -121,28 +133,90 @@ export const LandlordDrawer = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Landlord Details *</FormLabel>
-                  <FormControl>
-                    <SelectDropdown
-                      defaultValue={field.value === 0 ? '' : field.value.toString()}
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      placeholder="Select person details"
-                      items={personDetailsList.map((person: any) => {
-                        const fullName = person.fullName || [
-                          person.firstName,
-                          person.middleName,
-                          person.lastName,
-                        ]
-                          .filter(Boolean)
-                          .join(' ') || 'Unknown';
-                        return {
-                          label: `${fullName}${person.email ? ` (${person.email})` : ''}`,
-                          value: person.id.toString(),
-                        };
-                      })}
-                      disabled={loadingPersonDetails || isLoading}
-                      isControlled
-                    />
-                  </FormControl>
+                  <Popover open={personDetailsOpen} onOpenChange={setPersonDetailsOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={personDetailsOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? (() => {
+                                const person = displayPersonDetails.find((p) => p.id === field.value);
+                                if (!person) return "Select person details";
+                                const fullName = person.fullName || [
+                                  person.firstName,
+                                  person.middleName,
+                                  person.lastName,
+                                ]
+                                  .filter(Boolean)
+                                  .join(' ') || 'Unknown';
+                                return `${fullName}${person.email ? ` (${person.email})` : ''}`;
+                              })()
+                            : "Select person details"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search person details..."
+                          value={personDetailsSearch}
+                          onValueChange={setPersonDetailsSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            {loadingPersonDetails ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : (
+                              "No person details found."
+                            )}
+                          </CommandEmpty>
+                          {displayPersonDetails.map((person) => {
+                            const fullName = person.fullName || [
+                              person.firstName,
+                              person.middleName,
+                              person.lastName,
+                            ]
+                              .filter(Boolean)
+                              .join(' ') || 'Unknown';
+                            return (
+                              <CommandItem
+                                key={person.id}
+                                value={String(person.id)}
+                                onSelect={() => {
+                                  field.onChange(person.id);
+                                  setPersonDetailsOpen(false);
+                                  setPersonDetailsSearch("");
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === person.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {fullName}
+                                {person.email && (
+                                  <span className="ml-2 text-muted-foreground">
+                                    ({person.email})
+                                  </span>
+                                )}
+                              </CommandItem>
+                            );
+                          })}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormDescription>
                     Select the person details for this landlord
                   </FormDescription>

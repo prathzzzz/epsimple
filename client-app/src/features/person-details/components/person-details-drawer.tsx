@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -21,30 +21,25 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { usePersonDetailsContext } from "../context/person-details-provider";
 import { personDetailsApi } from "../api/person-details-api";
 import { personDetailsFormSchema, type PersonDetailsFormData } from "../api/schema";
-import { useQuery } from "@tanstack/react-query";
-import api from "@/lib/api";
-
-interface PersonType {
-  id: number;
-  typeName: string;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
+import { personTypesApi } from "@/lib/person-types-api";
 
 export function PersonDetailsDrawer() {
   const {
@@ -53,6 +48,9 @@ export function PersonDetailsDrawer() {
     editingPersonDetails,
     setEditingPersonDetails,
   } = usePersonDetailsContext();
+
+  const [personTypeSearch, setPersonTypeSearch] = useState("");
+  const [personTypeOpen, setPersonTypeOpen] = useState(false);
 
   const form = useForm<PersonDetailsFormData>({
     resolver: zodResolver(personDetailsFormSchema),
@@ -68,17 +66,22 @@ export function PersonDetailsDrawer() {
     },
   });
 
-  // Fetch person types list for dropdown
-  const { data: personTypes } = useQuery<PersonType[]>({
-    queryKey: ["person-types", "list"],
-    queryFn: async () => {
-      const response = await api.get<ApiResponse<PersonType[]>>("/api/person-types/list");
-      return response.data.data;
-    },
-  });
+  const { data: personTypes = [], isLoading: isLoadingPersonTypes } = 
+    personTypesApi.useSearch(personTypeSearch);
+  const { data: allPersonTypes = [] } = personTypesApi.useSearch('');
 
   const createMutation = personDetailsApi.useCreate();
   const updateMutation = personDetailsApi.useUpdate();
+
+  // Display logic for person types dropdown
+  const displayPersonTypes = (() => {
+    if (!editingPersonDetails?.personTypeId) return personTypes;
+    const selectedType = allPersonTypes.find((t) => t.id === editingPersonDetails.personTypeId);
+    if (!selectedType || personTypes.some((t) => t.id === selectedType.id)) {
+      return personTypes;
+    }
+    return [selectedType, ...personTypes];
+  })();
 
   useEffect(() => {
     if (editingPersonDetails) {
@@ -162,23 +165,65 @@ export function PersonDetailsDrawer() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Person Type *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(parseInt(value))}
-                    value={field.value ? field.value.toString() : ""}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a person type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {personTypes?.map((type) => (
-                        <SelectItem key={type.id} value={type.id.toString()}>
-                          {type.typeName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={personTypeOpen} onOpenChange={setPersonTypeOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? displayPersonTypes.find((type) => type.id === field.value)?.typeName
+                            : "Select a person type"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search person types..."
+                          value={personTypeSearch}
+                          onValueChange={setPersonTypeSearch}
+                        />
+                        <CommandList>
+                          {isLoadingPersonTypes ? (
+                            <div className="flex items-center justify-center py-6">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                          ) : displayPersonTypes.length === 0 ? (
+                            <CommandEmpty>No person types found.</CommandEmpty>
+                          ) : (
+                            <CommandGroup>
+                              {displayPersonTypes.map((type) => (
+                                <CommandItem
+                                  key={type.id}
+                                  value={String(type.id)}
+                                  onSelect={() => {
+                                    field.onChange(type.id);
+                                    setPersonTypeOpen(false);
+                                    setPersonTypeSearch("");
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      type.id === field.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {type.typeName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          )}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

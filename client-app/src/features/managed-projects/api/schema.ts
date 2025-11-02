@@ -6,10 +6,9 @@ export const managedProjectSchema = z.object({
   projectName: z.string().min(1, "Project name is required").max(255, "Project name cannot exceed 255 characters"),
   projectCode: z
     .string()
+    .min(1, "Project code is required")
     .max(50, "Project code cannot exceed 50 characters")
-    .regex(/^[A-Za-z0-9_-]*$/, "Project code can only contain letters, numbers, hyphens and underscores")
-    .optional()
-    .or(z.literal("")),
+    .regex(/^[A-Za-z0-9_-]+$/, "Project code can only contain letters, numbers, hyphens and underscores"),
   projectDescription: z.string().max(5000, "Project description cannot exceed 5000 characters").optional().or(z.literal("")),
 });
 

@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { Loader2 } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import {
   Form,
   FormControl,
@@ -25,13 +25,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandItem } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 import { vendorTypesApi } from '../api/vendor-types-api';
 import { vendorTypeFormSchema, type VendorTypeFormData, type VendorType } from '../api/schema';
@@ -50,6 +46,8 @@ export function VendorTypesMutateDrawer({
 }: VendorTypesMutateDrawerProps) {
   const queryClient = useQueryClient();
   const isUpdate = !!currentRow;
+  const [categorySearch, setCategorySearch] = useState("");
+  const [categoryOpen, setCategoryOpen] = useState(false);
 
   const form = useForm<VendorTypeFormData>({
     resolver: zodResolver(vendorTypeFormSchema),
@@ -60,13 +58,20 @@ export function VendorTypesMutateDrawer({
     },
   });
 
-  // Fetch vendor categories list
-  const { data: categoriesData } = useQuery({
-    queryKey: ['vendor-categories-list'],
-    queryFn: vendorCategoriesApi.getList,
-  });
+  // Fetch vendor categories using search hook
+  const { data: categories = [], isLoading: isLoadingCategories } = vendorCategoriesApi.useSearch(categorySearch);
 
-  const categories = categoriesData?.data || [];
+  // Fetch initial categories for display
+  const { data: allCategories = [] } = vendorCategoriesApi.useSearch("");
+
+  // Combine search results with selected category
+  const displayCategories = (() => {
+    if (!currentRow?.vendorCategory?.id) return categories;
+    const selected = allCategories.find(c => c.id === currentRow.vendorCategory.id);
+    if (!selected) return categories;
+    if (categories.some(c => c.id === selected.id)) return categories;
+    return [selected, ...categories];
+  })();
 
   // Reset form when currentRow changes
   useEffect(() => {
@@ -151,23 +156,65 @@ export function VendorTypesMutateDrawer({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Vendor Category *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a vendor category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categories.map((category: any) => (
-                        <SelectItem key={category.id} value={String(category.id)}>
-                          {category.categoryName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={categoryOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? categories.find((c) => c.id === field.value)?.categoryName || "Select category"
+                            : "Select a vendor category"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search vendor categories..."
+                          value={categorySearch}
+                          onValueChange={setCategorySearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            {isLoadingCategories ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : (
+                              "No vendor category found."
+                            )}
+                          </CommandEmpty>
+                          {categories.map((category) => (
+                            <CommandItem
+                              key={category.id}
+                              value={String(category.id)}
+                              onSelect={() => {
+                                field.onChange(category.id);
+                                setCategoryOpen(false);
+                                setCategorySearch("");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === category.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {category.categoryName}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

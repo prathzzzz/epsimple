@@ -1,19 +1,25 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetClose,
@@ -32,21 +38,18 @@ import { stateApi } from "@/features/states/api/state-api";
 export function SiteCodeGeneratorDrawer() {
   const { isDrawerOpen, setIsDrawerOpen, editingGenerator, setEditingGenerator } = useSiteCodeGeneratorContext();
 
+  const [projectSearch, setProjectSearch] = useState("");
+  const [projectOpen, setProjectOpen] = useState(false);
+  const [stateSearch, setStateSearch] = useState("");
+  const [stateOpen, setStateOpen] = useState(false);
+
   const createMutation = siteCodeGeneratorApi.useCreate();
   const updateMutation = siteCodeGeneratorApi.useUpdate();
 
-  const { data: projectsResponse } = useQuery({
-    queryKey: ["managed-projects", "list"],
-    queryFn: () => managedProjectApi.getList(),
-  });
-
-  const { data: statesResponse } = useQuery({
-    queryKey: ["states", "list"],
-    queryFn: () => stateApi.getList(),
-  });
-
-  const projects = projectsResponse || [];
-  const states = statesResponse || [];
+  const { data: projects = [], isLoading: isLoadingProjects } = 
+    managedProjectApi.useSearch(projectSearch);
+  const { data: states = [], isLoading: isLoadingStates } = 
+    stateApi.useSearch(stateSearch);
 
   const form = useForm<SiteCodeGeneratorFormData>({
     resolver: zodResolver(siteCodeGeneratorFormSchema),
@@ -85,7 +88,7 @@ export function SiteCodeGeneratorDrawer() {
       }
       handleClose();
     } catch (error) {
-      // Error is handled by the mutation
+      console.error('Failed to save site code generator:', error);
     }
   };
 
@@ -118,24 +121,69 @@ export function SiteCodeGeneratorDrawer() {
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormLabel>Project *</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? String(field.value) : ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select project" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {projects.map((project) => (
-                          <SelectItem key={project.id} value={String(project.id)}>
-                            {project.projectName}
-                            {project.projectCode && ` (${project.projectCode})`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={projectOpen} onOpenChange={setProjectOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? projects.find((p) => p.id === field.value)?.projectName +
+                                (projects.find((p) => p.id === field.value)?.projectCode
+                                  ? ` (${projects.find((p) => p.id === field.value)?.projectCode})`
+                                  : "")
+                              : "Select project"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search projects..."
+                            value={projectSearch}
+                            onValueChange={setProjectSearch}
+                          />
+                          <CommandList>
+                            {isLoadingProjects ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : projects.length === 0 ? (
+                              <CommandEmpty>No projects found.</CommandEmpty>
+                            ) : (
+                              <CommandGroup>
+                                {projects.map((project) => (
+                                  <CommandItem
+                                    key={project.id}
+                                    value={String(project.id)}
+                                    onSelect={() => {
+                                      field.onChange(project.id);
+                                      setProjectOpen(false);
+                                      setProjectSearch("");
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        project.id === field.value ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {project.projectName}
+                                    {project.projectCode && ` (${project.projectCode})`}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            )}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -147,23 +195,65 @@ export function SiteCodeGeneratorDrawer() {
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormLabel>State *</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? String(field.value) : ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select state" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {states.map((state) => (
-                          <SelectItem key={state.id} value={String(state.id)}>
-                            {state.stateName} ({state.stateCode})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={stateOpen} onOpenChange={setStateOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? `${states.find((s) => s.id === field.value)?.stateName} (${states.find((s) => s.id === field.value)?.stateCode})`
+                              : "Select state"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search states..."
+                            value={stateSearch}
+                            onValueChange={setStateSearch}
+                          />
+                          <CommandList>
+                            {isLoadingStates ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : states.length === 0 ? (
+                              <CommandEmpty>No states found.</CommandEmpty>
+                            ) : (
+                              <CommandGroup>
+                                {states.map((state) => (
+                                  <CommandItem
+                                    key={state.id}
+                                    value={String(state.id)}
+                                    onSelect={() => {
+                                      field.onChange(state.id);
+                                      setStateOpen(false);
+                                      setStateSearch("");
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        state.id === field.value ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {state.stateName} ({state.stateCode})
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            )}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -171,34 +261,6 @@ export function SiteCodeGeneratorDrawer() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="stateId"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>State *</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? String(field.value) : ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select state" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {states.map((state) => (
-                          <SelectItem key={state.id} value={String(state.id)}>
-                            {state.stateName} ({state.stateCode})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <FormField
                 control={form.control}
                 name="maxSeqDigit"
@@ -217,26 +279,26 @@ export function SiteCodeGeneratorDrawer() {
                   </FormItem>
                 )}
               />
-            </div>
 
-            <FormField
-              control={form.control}
-              name="runningSeq"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Running Sequence</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Enter running sequence"
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : 1)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="runningSeq"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Running Sequence</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Enter running sequence"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : 1)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <SheetFooter className="px-4">
               <SheetClose asChild>

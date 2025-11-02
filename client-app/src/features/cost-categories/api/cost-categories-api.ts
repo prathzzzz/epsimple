@@ -1,6 +1,7 @@
 import api from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 
-import { BackendPageResponse } from '@/lib/api-utils';
 export interface CostCategory {
   id: number;
   categoryName: string;
@@ -76,6 +77,28 @@ export const costCategoriesApi = {
   delete: async (id: number): Promise<ApiResponse<void>> => {
     const response = await api.delete<ApiResponse<void>>(`${BASE_URL}/${id}`);
     return response.data;
+  },
+
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['cost-categories', 'search', searchTerm],
+      queryFn: async () => {
+        const response = await api.get<ApiResponse<BackendPageResponse<CostCategory>>>(
+          searchTerm?.trim() ? `${BASE_URL}/search` : BASE_URL,
+          {
+            params: {
+              ...(searchTerm?.trim() && { searchTerm: searchTerm.trim() }),
+              page: 0,
+              size: 20,
+              sortBy: 'categoryName',
+              sortDirection: 'ASC',
+            },
+          }
+        );
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
   },
 };
 

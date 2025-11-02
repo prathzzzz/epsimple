@@ -20,6 +20,30 @@ interface ApiResponse<T> {
 }
 
 export const siteApi = {
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['sites', 'search', searchTerm],
+      queryFn: async () => {
+        if (!searchTerm || searchTerm.trim().length === 0) return [];
+        const response = await api.get<ApiResponse<BackendPageResponse<Site>>>(
+          SITE_ENDPOINTS.SEARCH,
+          {
+            params: {
+              searchTerm: searchTerm.trim(),
+              page: 0,
+              size: 50,
+              sortBy: 'siteName',
+              sortDirection: 'asc',
+            },
+          }
+        );
+        return flattenPageResponse(response.data.data).content;
+      },
+      enabled: searchTerm.trim().length > 0,
+      staleTime: 30000,
+    });
+  },
+
   useGetAll: (params: {
     page: number;
     size: number;

@@ -33,9 +33,10 @@ public class ManagedProject extends BaseEntity {
     @Column(name = "project_name", nullable = false, length = 255)
     private String projectName;
 
+    @NotBlank(message = "Project code is required")
     @Size(max = 50, message = "Project code cannot exceed 50 characters")
     @Pattern(regexp = "^[A-Za-z0-9_-]+$", message = "Project code can only contain letters, numbers, hyphens and underscores")
-    @Column(name = "project_code", unique = true, length = 50)
+    @Column(name = "project_code", nullable = false, unique = true, length = 50)
     private String projectCode;
 
     @Size(max = 5000, message = "Project description cannot exceed 5000 characters")

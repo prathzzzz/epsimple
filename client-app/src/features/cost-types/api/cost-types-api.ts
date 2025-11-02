@@ -135,6 +135,28 @@ export const costTypesApi = {
     });
   },
 
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['cost-types', 'search', searchTerm],
+      queryFn: async () => {
+        const response = await api.get<ApiResponse<BackendPageResponse<CostType>>>(
+          searchTerm?.trim() ? COST_TYPE_ENDPOINTS.SEARCH : COST_TYPE_ENDPOINTS.BASE,
+          {
+            params: {
+              ...(searchTerm?.trim() && { searchTerm: searchTerm.trim() }),
+              page: 0,
+              size: 20,
+              sortBy: 'typeName',
+              sortDirection: 'ASC',
+            },
+          }
+        );
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
+  },
+
   getAll: async (params: {
     page: number;
     size: number;

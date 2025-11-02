@@ -1,6 +1,7 @@
 import api from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 
-import { BackendPageResponse } from '@/lib/api-utils';
 export interface PayeeType {
   id: number;
   payeeType: string;
@@ -78,5 +79,30 @@ export const payeeTypesApi = {
   delete: async (id: number): Promise<ApiResponse<void>> => {
     const response = await api.delete<ApiResponse<void>>(`${BASE_URL}/${id}`);
     return response.data;
+  },
+
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['payee-types', 'search', searchTerm],
+      queryFn: async () => {
+        const endpoint = searchTerm?.trim() ? `${BASE_URL}/search` : BASE_URL;
+        const params: Record<string, unknown> = {
+          page: 0,
+          size: 20,
+          sortBy: 'payeeType',
+          sortDirection: 'ASC',
+        };
+        
+        if (searchTerm?.trim()) {
+          params.searchTerm = searchTerm.trim();
+        }
+        
+        const response = await api.get<ApiResponse<BackendPageResponse<PayeeType>>>(endpoint, {
+          params,
+        });
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
   },
 };

@@ -148,4 +148,25 @@ export const managedProjectApi = {
     const response = await api.get<ApiResponse<ManagedProject[]>>(MANAGED_PROJECT_ENDPOINTS.LIST);
     return response.data.data;
   },
+
+  useSearch: (searchTerm: string) => {
+    const endpoint = searchTerm?.trim() ? MANAGED_PROJECT_ENDPOINTS.SEARCH : MANAGED_PROJECT_ENDPOINTS.BASE;
+    return useQuery({
+      queryKey: ['managed-projects', 'search', searchTerm],
+      queryFn: async () => {
+        const params: any = {
+          page: 0,
+          size: 20,
+          sortBy: 'projectName',
+          sortDirection: 'ASC',
+        };
+        if (searchTerm?.trim()) {
+          params.searchTerm = searchTerm.trim();
+        }
+        const response = await api.get<ApiResponse<BackendPageResponse<ManagedProject>>>(endpoint, { params });
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
+  },
 };

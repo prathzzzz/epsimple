@@ -55,10 +55,10 @@ export const locationApi = {
       queryKey: ['locations', 'search', params],
       queryFn: async () => {
         const response = await api.get<ApiResponse<BackendPageResponse<Location>>>(
-          LOCATION_ENDPOINTS.SEARCH,
+          params.searchTerm?.trim() ? LOCATION_ENDPOINTS.SEARCH : LOCATION_ENDPOINTS.BASE,
           {
             params: {
-              searchTerm: params.searchTerm,
+              ...(params.searchTerm?.trim() && { searchTerm: params.searchTerm }),
               page: params.page,
               size: params.size,
               sortBy: params.sortBy || 'locationName',
@@ -66,9 +66,9 @@ export const locationApi = {
             },
           }
         );
-        return flattenPageResponse(response.data.data);
+        return flattenPageResponse(response.data.data).content;
       },
-      enabled: !!params.searchTerm,
+      staleTime: 30000,
     });
   },
 

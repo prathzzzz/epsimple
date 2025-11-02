@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,13 +13,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandItem } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
@@ -36,16 +31,19 @@ import { locationApi } from '@/features/locations/api/location-api';
 
 export function DatacenterDrawer() {
   const { isDrawerOpen, closeDrawer, selectedDatacenter } = useDatacenter();
+  const [locationSearch, setLocationSearch] = useState("");
+  const [locationOpen, setLocationOpen] = useState(false);
 
   const createMutation = datacenterApi.useCreate();
   const updateMutation = datacenterApi.useUpdate();
 
-  const { data: locationsResponse } = useQuery({
-    queryKey: ['locations', 'list'],
-    queryFn: () => locationApi.getList(),
+  const { data: locationsData, isLoading: isLoadingLocations } = locationApi.useSearch({
+    searchTerm: locationSearch,
+    page: 0,
+    size: 50,
   });
-
-  const locations = locationsResponse || [];
+  
+  const locations = locationsData || [];
 
   const form = useForm<DatacenterFormData>({
     resolver: zodResolver(datacenterSchema),
@@ -135,23 +133,65 @@ export function DatacenterDrawer() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Location *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a location" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {locations.map((location) => (
-                        <SelectItem key={location.id} value={String(location.id)}>
-                          {location.locationName} ({location.cityName}, {location.stateName})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={locationOpen} onOpenChange={setLocationOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={locationOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? locations.find((l) => l.id === field.value)?.locationName || "Select location"
+                            : "Select a location"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search locations..."
+                          value={locationSearch}
+                          onValueChange={setLocationSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            {isLoadingLocations ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : (
+                              "No location found."
+                            )}
+                          </CommandEmpty>
+                          {locations.map((location) => (
+                            <CommandItem
+                              key={location.id}
+                              value={String(location.id)}
+                              onSelect={() => {
+                                field.onChange(location.id);
+                                setLocationOpen(false);
+                                setLocationSearch("");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === location.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {location.locationName} ({location.cityName}, {location.stateName})
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

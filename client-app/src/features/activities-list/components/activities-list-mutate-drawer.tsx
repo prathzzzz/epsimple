@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -25,7 +25,20 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { SelectDropdown } from "@/components/select-dropdown";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 import { activitiesListApi } from "../api/activities-list-api";
 import {
@@ -49,6 +62,9 @@ export function ActivitiesListMutateDrawer({
   const queryClient = useQueryClient();
   const isUpdate = !!currentRow;
 
+  const [activitySearch, setActivitySearch] = useState("");
+  const [activityOpen, setActivityOpen] = useState(false);
+
   const form = useForm<ActivitiesListFormData>({
     resolver: zodResolver(activitiesListFormSchema),
     defaultValues: {
@@ -59,13 +75,20 @@ export function ActivitiesListMutateDrawer({
     },
   });
 
-  // Fetch activity list for dropdown
-  const { data: activitiesData } = useQuery({
-    queryKey: ["activity-dropdown"],
-    queryFn: () => activitiesApi.getList(),
-  });
+  // Fetch activities with search
+  const { data: activities = [], isLoading: isLoadingActivities } =
+    activitiesApi.useSearch(activitySearch);
+  const { data: allActivities = [] } = activitiesApi.useSearch("");
 
-  const activities = activitiesData?.data || [];
+  // Display logic for activities dropdown
+  const displayActivities = (() => {
+    if (!currentRow?.activityId) return activities;
+    const selectedActivity = allActivities.find((a) => a.id === currentRow.activityId);
+    if (!selectedActivity || activities.some((a) => a.id === selectedActivity.id)) {
+      return activities;
+    }
+    return [selectedActivity, ...activities];
+  })();
 
   // Reset form when currentRow changes
   useEffect(() => {
@@ -139,18 +162,65 @@ export function ActivitiesListMutateDrawer({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Activity *</FormLabel>
-                  <FormControl>
-                    <SelectDropdown
-                      defaultValue={field.value?.toString()}
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      placeholder="Select an activity"
-                      isControlled={true}
-                      items={activities.map((activity) => ({
-                        value: activity.id.toString(),
-                        label: activity.activityName,
-                      }))}
-                    />
-                  </FormControl>
+                  <Popover open={activityOpen} onOpenChange={setActivityOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? displayActivities.find((a) => a.id === field.value)?.activityName
+                            : "Select an activity"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search activities..."
+                          value={activitySearch}
+                          onValueChange={setActivitySearch}
+                        />
+                        <CommandList>
+                          {isLoadingActivities ? (
+                            <div className="flex items-center justify-center py-6">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                          ) : displayActivities.length === 0 ? (
+                            <CommandEmpty>No activities found.</CommandEmpty>
+                          ) : (
+                            <CommandGroup>
+                              {displayActivities.map((activity) => (
+                                <CommandItem
+                                  key={activity.id}
+                                  value={String(activity.id)}
+                                  onSelect={() => {
+                                    field.onChange(activity.id);
+                                    setActivityOpen(false);
+                                    setActivitySearch("");
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      activity.id === field.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {activity.activityName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          )}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

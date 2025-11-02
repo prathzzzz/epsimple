@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -13,15 +13,20 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Sheet,
   SheetContent,
@@ -38,15 +43,31 @@ import { cityApi } from '@/features/cities/api/city-api';
 export function LocationDrawer() {
   const { isDrawerOpen, closeDrawer, selectedLocation } = useLocation();
 
+  const [citySearch, setCitySearch] = useState('');
+  const [cityOpen, setCityOpen] = useState(false);
+
   const createMutation = locationApi.useCreate();
   const updateMutation = locationApi.useUpdate();
 
-  const { data: citiesResponse } = useQuery({
-    queryKey: ['cities', 'list'],
-    queryFn: () => cityApi.getList(),
+  const { data: cities = [], isLoading: isCitiesLoading } = cityApi.useSearch(citySearch);
+  
+  // Fetch the selected city when editing
+  const { data: selectedCityData } = cityApi.useGetAll({
+    page: 0,
+    size: 1,
+    search: selectedLocation?.cityId ? String(selectedLocation.cityId) : undefined,
   });
-
-  const cities = citiesResponse || [];
+  
+  // Combine search results with selected city
+  const allCities = (() => {
+    if (!selectedLocation?.cityId) return cities;
+    const selectedCity = selectedCityData?.content.find(c => c.id === selectedLocation.cityId);
+    if (!selectedCity) return cities;
+    // Check if selected city is already in the cities list
+    if (cities.some(c => c.id === selectedCity.id)) return cities;
+    // Add selected city to the list
+    return [selectedCity, ...cities];
+  })();
 
   const form = useForm<LocationFormData>({
     resolver: zodResolver(locationFormSchema),
@@ -154,25 +175,73 @@ export function LocationDrawer() {
               control={form.control}
               name="cityId"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>City *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a city" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {cities.map((city) => (
-                        <SelectItem key={city.id} value={String(city.id)}>
-                          {city.cityName} ({city.stateName})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={cityOpen} onOpenChange={setCityOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={cityOpen}
+                          className={cn(
+                            "justify-between font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {(() => {
+                            if (!field.value) return "Select city";
+                            const selectedCity = allCities.find((c) => c.id === field.value);
+                            return selectedCity 
+                              ? `${selectedCity.cityName} (${selectedCity.stateName})`
+                              : "Select city";
+                          })()}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Search cities..."
+                          value={citySearch}
+                          onValueChange={setCitySearch}
+                        />
+                        <CommandList>
+                          {(() => {
+                            if (isCitiesLoading) {
+                              return (
+                                <div className="flex items-center justify-center py-6">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                </div>
+                              );
+                            }
+                            if (allCities.length === 0) {
+                              return <CommandEmpty>No city found.</CommandEmpty>;
+                            }
+                            return allCities.map((city) => (
+                              <CommandItem
+                                key={city.id}
+                                value={String(city.id)}
+                                onSelect={() => {
+                                  field.onChange(city.id);
+                                  setCityOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    city.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {city.cityName} ({city.stateName})
+                              </CommandItem>
+                            ));
+                          })()}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
@@ -292,7 +361,7 @@ export function LocationDrawer() {
                         value={field.value ?? ''}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ? parseFloat(e.target.value) : null
+                            e.target.value ? Number.parseFloat(e.target.value) : null
                           )
                         }
                       />
@@ -317,7 +386,7 @@ export function LocationDrawer() {
                         value={field.value ?? ''}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ? parseFloat(e.target.value) : null
+                            e.target.value ? Number.parseFloat(e.target.value) : null
                           )
                         }
                       />

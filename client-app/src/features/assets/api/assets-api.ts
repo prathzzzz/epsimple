@@ -119,4 +119,30 @@ export const assetsApi = {
     const response = await api.get<ApiResponse<Asset[]>>(ASSET_ENDPOINTS.LIST)
     return response.data.data
   },
+
+  // Search assets with query
+  useSearch: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['assets', 'search', searchTerm],
+      queryFn: async () => {
+        if (!searchTerm || searchTerm.trim().length === 0) {
+          // If no search term, return empty array
+          return []
+        }
+        const response = await api.get<ApiResponse<BackendPageResponse<Asset>>>(
+          ASSET_ENDPOINTS.SEARCH,
+          {
+            params: {
+              searchTerm: searchTerm.trim(),
+              page: 0,
+              size: 50, // Limit to 50 results
+            },
+          }
+        )
+        return flattenPageResponse(response.data.data).content
+      },
+      enabled: searchTerm.trim().length > 0,
+      staleTime: 30000, // Cache for 30 seconds
+    })
+  },
 }

@@ -1,4 +1,5 @@
 import api from './api'
+import { useQuery } from '@tanstack/react-query'
 import { BackendPageResponse, flattenPageResponse } from './api-utils'
 
 export interface Bank {
@@ -139,4 +140,27 @@ export const updateBank = async (id: number, bankData: BankRequest, logo?: File)
 export const deleteBank = async (id: number) => {
   const response = await api.delete<ApiResponse<void>>(`/api/banks/${id}`)
   return response.data
+}
+
+// React Query hook for searching banks
+export const useSearchBanks = (searchTerm: string) => {
+  return useQuery({
+    queryKey: ['banks', 'search', searchTerm],
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<BackendPageResponse<Bank>>>(
+        searchTerm?.trim() ? '/api/banks/search' : '/api/banks',
+        {
+          params: {
+            ...(searchTerm?.trim() && { search: searchTerm.trim() }),
+            page: 0,
+            size: 20,
+            sortBy: 'bankName',
+            sortDirection: 'ASC',
+          },
+        }
+      );
+      return flattenPageResponse(response.data.data).content;
+    },
+    staleTime: 30000,
+  });
 }

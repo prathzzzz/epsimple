@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check, ChevronsUpDown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 
@@ -15,12 +15,18 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   Sheet,
   SheetContent,
@@ -31,6 +37,7 @@ import {
 } from '@/components/ui/sheet';
 import { DatePicker } from '@/components/date-picker';
 import { AssetPlacementConfirmDialog } from '@/components/asset-placement-confirm-dialog';
+import { cn } from '@/lib/utils';
 import { useAssetsOnSite } from '../context/assets-on-site-provider';
 import { assetsOnSiteApi } from '../api/assets-on-site-api';
 import { assetsOnSiteFormSchema, type AssetsOnSiteFormData } from '../api/schema';
@@ -45,33 +52,67 @@ export function AssetsOnSiteDrawer() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [existingLocation, setExistingLocation] = useState<AssetLocationCheck | null>(null);
   const [pendingData, setPendingData] = useState<AssetsOnSiteFormData | null>(null);
+  const [assetComboOpen, setAssetComboOpen] = useState(false);
+  const [assetSearchTerm, setAssetSearchTerm] = useState('');
+  const [siteComboOpen, setSiteComboOpen] = useState(false);
+  const [siteSearchTerm, setSiteSearchTerm] = useState('');
+  const [statusComboOpen, setStatusComboOpen] = useState(false);
+  const [statusSearchTerm, setStatusSearchTerm] = useState('');
+  const [activityWorkComboOpen, setActivityWorkComboOpen] = useState(false);
+  const [activityWorkSearchTerm, setActivityWorkSearchTerm] = useState('');
 
   const createMutation = assetsOnSiteApi.useCreate();
   const updateMutation = assetsOnSiteApi.useUpdate();
 
+  // Get initial asset list (for display when no search)
   const { data: assetsResponse } = useQuery({
     queryKey: ['assets', 'list'],
     queryFn: () => assetsApi.getList(),
   });
-  const assets = assetsResponse || [];
+  const initialAssets = assetsResponse || [];
 
+  // Server-side search for assets
+  const { data: searchResults, isLoading: isSearching } = assetsApi.useSearch(assetSearchTerm);
+  
+  // Use search results if searching, otherwise use initial list
+  const assets = assetSearchTerm.trim().length > 0 ? (searchResults || []) : initialAssets;
+
+  // Sites with server-side search
   const { data: sitesResponse } = useQuery({
     queryKey: ['sites', 'list'],
     queryFn: () => siteApi.getList(),
   });
-  const sites = sitesResponse || [];
+  const initialSites = sitesResponse || [];
 
+  const { data: siteSearchResults, isLoading: isSiteSearching } = siteApi.useSearch(siteSearchTerm);
+  const sites = siteSearchTerm.trim().length > 0 ? (siteSearchResults || []) : initialSites;
+
+  // Status types with server-side search
   const { data: statusTypesResponse } = useQuery({
     queryKey: ['generic-status-types', 'list'],
     queryFn: () => genericStatusTypeApi.getList(),
   });
-  const statusTypes = statusTypesResponse?.data || [];
+  const initialStatusTypes = statusTypesResponse?.data || [];
 
+  const { data: statusSearchResults, isLoading: isStatusSearching } = genericStatusTypeApi.useSearch(statusSearchTerm);
+  const statusTypes = statusSearchTerm.trim().length > 0 ? (statusSearchResults || []) : initialStatusTypes;
+
+  // Activity works with server-side search
   const { data: activityWorksResponse } = useQuery({
     queryKey: ['activity-works', 'list'],
     queryFn: () => activityWorkApi.getList(),
   });
-  const activityWorks = activityWorksResponse || [];
+  const initialActivityWorks = activityWorksResponse || [];
+
+  const { data: activityWorkSearchResults, isLoading: isActivityWorkSearching } = activityWorkApi.useSearch({
+    searchTerm: activityWorkSearchTerm,
+    page: 0,
+    size: 50,
+  });
+
+  const activityWorks = activityWorkSearchTerm.trim().length > 0
+    ? (activityWorkSearchResults?.content || [])
+    : initialActivityWorks;
 
   const form = useForm<AssetsOnSiteFormData>({
     resolver: zodResolver(assetsOnSiteFormSchema),
@@ -88,6 +129,10 @@ export function AssetsOnSiteDrawer() {
       vacatedOn: '',
     },
   });
+
+  // Get selected asset details
+  const selectedAssetId = form.watch('assetId');
+  const selectedAsset = assets.find(asset => asset.id === selectedAssetId);
 
   useEffect(() => {
     if (selectedPlacement) {
@@ -234,53 +279,193 @@ export function AssetsOnSiteDrawer() {
               control={form.control}
               name="assetId"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Asset *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an asset" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {assets.map((asset) => (
-                        <SelectItem key={asset.id} value={String(asset.id)}>
-                          [{asset.assetTagId}] - {asset.assetName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={assetComboOpen} onOpenChange={setAssetComboOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={assetComboOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? (() => {
+                                const asset = assets.find((a) => a.id === field.value);
+                                return asset ? `[${asset.assetTagId}] - ${asset.assetName}` : "Select an asset";
+                              })()
+                            : "Select an asset"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[500px] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput 
+                          placeholder="Search asset by tag or name..." 
+                          value={assetSearchTerm}
+                          onValueChange={setAssetSearchTerm}
+                        />
+                        <CommandList>
+                          {isSearching ? (
+                            <CommandEmpty>
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                Searching...
+                              </div>
+                            </CommandEmpty>
+                          ) : (
+                            <CommandEmpty>No asset found.</CommandEmpty>
+                          )}
+                          <CommandGroup>
+                            {assets.map((asset) => (
+                              <CommandItem
+                                key={asset.id}
+                                value={String(asset.id)}
+                                onSelect={() => {
+                                  field.onChange(asset.id);
+                                  setAssetComboOpen(false);
+                                  setAssetSearchTerm('');
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === asset.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                [{asset.assetTagId}] - {asset.assetName}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Display selected asset details */}
+            {selectedAsset && (
+              <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
+                <p className="text-sm font-semibold">Asset Details</p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Tag ID:</span>
+                    <p className="font-medium">{selectedAsset.assetTagId}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Name:</span>
+                    <p className="font-medium">{selectedAsset.assetName}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Type:</span>
+                    <p className="font-medium">{selectedAsset.assetTypeName}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Category:</span>
+                    <p className="font-medium">{selectedAsset.assetCategoryName}</p>
+                  </div>
+                  {selectedAsset.serialNumber && (
+                    <div>
+                      <span className="text-muted-foreground">Serial No:</span>
+                      <p className="font-medium">{selectedAsset.serialNumber}</p>
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>
+                    <p className="font-medium">{selectedAsset.statusTypeName}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Vendor:</span>
+                    <p className="font-medium">{selectedAsset.vendorName}</p>
+                  </div>
+                  {selectedAsset.purchaseDate && (
+                    <div>
+                      <span className="text-muted-foreground">Purchase Date:</span>
+                      <p className="font-medium">
+                        {format(new Date(selectedAsset.purchaseDate), 'MMM dd, yyyy')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <FormField
               control={form.control}
               name="siteId"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Site *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a site" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {sites.map((site) => (
-                        <SelectItem key={site.id} value={String(site.id)}>
-                          [{site.siteCode}] - {site.locationName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={siteComboOpen} onOpenChange={setSiteComboOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={siteComboOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? (() => {
+                                const site = sites.find((s) => s.id === field.value);
+                                return site ? `[${site.siteCode}] - ${site.locationName}` : "Select a site";
+                              })()
+                            : "Select a site"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput 
+                          placeholder="Search sites..." 
+                          value={siteSearchTerm}
+                          onValueChange={setSiteSearchTerm}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            {isSiteSearching ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : (
+                              "No site found."
+                            )}
+                          </CommandEmpty>
+                          {sites.map((site) => (
+                            <CommandItem
+                              key={site.id}
+                              value={String(site.id)}
+                              onSelect={() => {
+                                field.onChange(site.id);
+                                setSiteComboOpen(false);
+                                setSiteSearchTerm('');
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === site.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              [{site.siteCode}] - {site.locationName}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
@@ -290,25 +475,67 @@ export function AssetsOnSiteDrawer() {
               control={form.control}
               name="assetStatusId"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Status *</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {statusTypes.map((status) => (
-                        <SelectItem key={status.id} value={String(status.id)}>
-                          {status.statusName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={statusComboOpen} onOpenChange={setStatusComboOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={statusComboOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? statusTypes.find((status) => status.id === field.value)?.statusName || "Select a status"
+                            : "Select a status"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput 
+                          placeholder="Search status..." 
+                          value={statusSearchTerm}
+                          onValueChange={setStatusSearchTerm}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            {isStatusSearching ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : (
+                              "No status found."
+                            )}
+                          </CommandEmpty>
+                          {statusTypes.map((status) => (
+                            <CommandItem
+                              key={status.id}
+                              value={String(status.id)}
+                              onSelect={() => {
+                                field.onChange(status.id);
+                                setStatusComboOpen(false);
+                                setStatusSearchTerm('');
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === status.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {status.statusName}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
@@ -318,26 +545,86 @@ export function AssetsOnSiteDrawer() {
               control={form.control}
               name="activityWorkId"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Activity Work (Optional)</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(value === 'none' ? null : Number(value))}
-                    value={field.value ? String(field.value) : 'none'}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select activity work" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      {activityWorks.map((work: any) => (
-                        <SelectItem key={work.id} value={String(work.id)}>
-                          {work.activitiesName} - {work.vendorName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={activityWorkComboOpen} onOpenChange={setActivityWorkComboOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={activityWorkComboOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? (() => {
+                                const work = activityWorks.find((w: any) => w.id === field.value);
+                                return work ? `${work.activitiesName} - ${work.vendorName}` : "Select activity work";
+                              })()
+                            : "Select activity work"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput 
+                          placeholder="Search activity work..." 
+                          value={activityWorkSearchTerm}
+                          onValueChange={setActivityWorkSearchTerm}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            {isActivityWorkSearching ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : (
+                              "No activity work found."
+                            )}
+                          </CommandEmpty>
+                          <CommandItem
+                            value="none"
+                            onSelect={() => {
+                              field.onChange(null);
+                              setActivityWorkComboOpen(false);
+                              setActivityWorkSearchTerm('');
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                field.value === null ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            None
+                          </CommandItem>
+                          {activityWorks.map((work: any) => (
+                            <CommandItem
+                              key={work.id}
+                              value={String(work.id)}
+                              onSelect={() => {
+                                field.onChange(work.id);
+                                setActivityWorkComboOpen(false);
+                                setActivityWorkSearchTerm('');
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === work.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {work.activitiesName} - {work.vendorName}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

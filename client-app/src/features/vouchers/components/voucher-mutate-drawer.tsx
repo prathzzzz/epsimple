@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -19,9 +19,6 @@ import { Form } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { vouchersApi } from "../api/vouchers-api";
-import { payeeApi } from "@/features/payees/api/payee-api";
-import { genericStatusTypeApi } from "@/features/generic-status-types/api/generic-status-type-api";
-import { paymentDetailsApi } from "@/features/payment-details/api/payment-details-api";
 import {
   voucherFormSchema,
   type VoucherFormData,
@@ -44,28 +41,6 @@ export function VoucherMutateDrawer({
 }: VoucherMutateDrawerProps) {
   const queryClient = useQueryClient();
   const isUpdate = !!currentRow;
-
-  // Fetch payees for dropdown
-  const { data: payeesData } = useQuery({
-    queryKey: ["payees", "list"],
-    queryFn: () => payeeApi.getList(),
-  });
-
-  // Fetch payment statuses from generic status types
-  const { data: statusesData } = useQuery({
-    queryKey: ["generic-status-types", "list"],
-    queryFn: () => genericStatusTypeApi.getList(),
-  });
-
-  // Fetch payment details for dropdown
-  const { data: paymentDetailsData } = useQuery({
-    queryKey: ["payment-details", "list"],
-    queryFn: () => paymentDetailsApi.getList(),
-  });
-
-  const payees = payeesData?.data || [];
-  const paymentStatuses = statusesData?.data || [];
-  const paymentDetails = paymentDetailsData?.data || [];
 
   const form = useForm<VoucherFormData>({
     resolver: zodResolver(voucherFormSchema),
@@ -198,9 +173,6 @@ export function VoucherMutateDrawer({
               <TabsContent value="basic">
                 <VoucherBasicTab
                   form={form}
-                  payees={payees}
-                  paymentStatuses={paymentStatuses}
-                  paymentDetails={paymentDetails}
                 />
               </TabsContent>
 

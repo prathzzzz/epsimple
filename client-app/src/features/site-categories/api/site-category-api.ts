@@ -133,4 +133,25 @@ export const siteCategoryApi = {
     const response = await api.get<ApiResponse<SiteCategory[]>>(SITE_CATEGORY_ENDPOINTS.LIST);
     return response.data.data; // Unwrap ApiResponse
   },
+
+  useSearch: (searchTerm: string) => {
+    const endpoint = searchTerm?.trim() ? SITE_CATEGORY_ENDPOINTS.SEARCH : SITE_CATEGORY_ENDPOINTS.BASE;
+    return useQuery({
+      queryKey: ['site-categories', 'search', searchTerm],
+      queryFn: async () => {
+        const params: any = {
+          page: 0,
+          size: 20,
+          sortBy: 'categoryName',
+          sortDirection: 'ASC',
+        };
+        if (searchTerm?.trim()) {
+          params.searchTerm = searchTerm.trim();
+        }
+        const response = await api.get<ApiResponse<BackendPageResponse<SiteCategory>>>(endpoint, { params });
+        return flattenPageResponse(response.data.data).content;
+      },
+      staleTime: 30000,
+    });
+  },
 };

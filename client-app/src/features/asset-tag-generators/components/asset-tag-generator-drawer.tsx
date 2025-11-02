@@ -1,19 +1,25 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetClose,
@@ -27,30 +33,28 @@ import { useAssetTagCodeGeneratorContext } from "../context/asset-tag-generator-
 import { assetTagCodeGeneratorApi } from "../api/asset-tag-generator-api";
 import { assetTagCodeGeneratorFormSchema, type AssetTagCodeGeneratorFormData } from "../api/schema";
 import { assetCategoryApi } from "@/features/asset-categories/api/asset-categories-api";
-import { useVendorsList } from "@/lib/vendors-api";
-import { getAllBanksList } from "@/lib/banks-api";
+import { useSearchVendors } from "@/lib/vendors-api";
+import { useSearchBanks } from "@/lib/banks-api";
 
 export function AssetTagCodeGeneratorDrawer() {
   const { isDrawerOpen, setIsDrawerOpen, editingGenerator, setEditingGenerator } = useAssetTagCodeGeneratorContext();
 
+  const [assetCategorySearch, setAssetCategorySearch] = useState("");
+  const [assetCategoryOpen, setAssetCategoryOpen] = useState(false);
+  const [vendorSearch, setVendorSearch] = useState("");
+  const [vendorOpen, setVendorOpen] = useState(false);
+  const [bankSearch, setBankSearch] = useState("");
+  const [bankOpen, setBankOpen] = useState(false);
+
   const createMutation = assetTagCodeGeneratorApi.useCreate();
   const updateMutation = assetTagCodeGeneratorApi.useUpdate();
 
-  const { data: assetCategoriesResponse } = useQuery({
-    queryKey: ["asset-categories", "list"],
-    queryFn: () => assetCategoryApi.getList(),
-  });
-
-  const { data: vendorsData } = useVendorsList();
-  
-  const { data: banksData } = useQuery({
-    queryKey: ["banks", "list"],
-    queryFn: () => getAllBanksList(),
-  });
-
-  const assetCategories = assetCategoriesResponse || [];
-  const vendors = vendorsData || [];
-  const banks = banksData?.data || [];
+  const { data: assetCategories = [], isLoading: isLoadingAssetCategories } = 
+    assetCategoryApi.useSearch(assetCategorySearch);
+  const { data: vendors = [], isLoading: isLoadingVendors } = 
+    useSearchVendors(vendorSearch);
+  const { data: banks = [], isLoading: isLoadingBanks } = 
+    useSearchBanks(bankSearch);
 
   const form = useForm<AssetTagCodeGeneratorFormData>({
     resolver: zodResolver(assetTagCodeGeneratorFormSchema),
@@ -125,24 +129,69 @@ export function AssetTagCodeGeneratorDrawer() {
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormLabel>Asset Category *</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? String(field.value) : ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select asset category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {assetCategories.map((category) => (
-                          <SelectItem key={category.id} value={String(category.id)}>
-                            {category.categoryName}
-                            {category.categoryCode && ` (${category.categoryCode})`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={assetCategoryOpen} onOpenChange={setAssetCategoryOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? assetCategories.find((c) => c.id === field.value)?.categoryName +
+                                (assetCategories.find((c) => c.id === field.value)?.categoryCode
+                                  ? ` (${assetCategories.find((c) => c.id === field.value)?.categoryCode})`
+                                  : "")
+                              : "Select asset category"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search asset categories..."
+                            value={assetCategorySearch}
+                            onValueChange={setAssetCategorySearch}
+                          />
+                          <CommandList>
+                            {isLoadingAssetCategories ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : assetCategories.length === 0 ? (
+                              <CommandEmpty>No asset categories found.</CommandEmpty>
+                            ) : (
+                              <CommandGroup>
+                                {assetCategories.map((category) => (
+                                  <CommandItem
+                                    key={category.id}
+                                    value={String(category.id)}
+                                    onSelect={() => {
+                                      field.onChange(category.id);
+                                      setAssetCategoryOpen(false);
+                                      setAssetCategorySearch("");
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        category.id === field.value ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {category.categoryName}
+                                    {category.categoryCode && ` (${category.categoryCode})`}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            )}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -154,24 +203,69 @@ export function AssetTagCodeGeneratorDrawer() {
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormLabel>Vendor *</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? String(field.value) : ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select vendor" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {vendors.map((vendor) => (
-                          <SelectItem key={vendor.id} value={String(vendor.id)}>
-                            {vendor.vendorName}
-                            {vendor.vendorCodeAlt && ` (${vendor.vendorCodeAlt})`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={vendorOpen} onOpenChange={setVendorOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? vendors.find((v) => v.id === field.value)?.vendorName +
+                                (vendors.find((v) => v.id === field.value)?.vendorCodeAlt
+                                  ? ` (${vendors.find((v) => v.id === field.value)?.vendorCodeAlt})`
+                                  : "")
+                              : "Select vendor"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search vendors..."
+                            value={vendorSearch}
+                            onValueChange={setVendorSearch}
+                          />
+                          <CommandList>
+                            {isLoadingVendors ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : vendors.length === 0 ? (
+                              <CommandEmpty>No vendors found.</CommandEmpty>
+                            ) : (
+                              <CommandGroup>
+                                {vendors.map((vendor) => (
+                                  <CommandItem
+                                    key={vendor.id}
+                                    value={String(vendor.id)}
+                                    onSelect={() => {
+                                      field.onChange(vendor.id);
+                                      setVendorOpen(false);
+                                      setVendorSearch("");
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        vendor.id === field.value ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {vendor.vendorName}
+                                    {vendor.vendorCodeAlt && ` (${vendor.vendorCodeAlt})`}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            )}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -185,23 +279,65 @@ export function AssetTagCodeGeneratorDrawer() {
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormLabel>Bank *</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? String(field.value) : ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select bank" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {banks.map((bank) => (
-                          <SelectItem key={bank.id} value={String(bank.id)}>
-                            {bank.bankName} ({bank.bankCodeAlt})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={bankOpen} onOpenChange={setBankOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? `${banks.find((b) => b.id === field.value)?.bankName} (${banks.find((b) => b.id === field.value)?.bankCodeAlt})`
+                              : "Select bank"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search banks..."
+                            value={bankSearch}
+                            onValueChange={setBankSearch}
+                          />
+                          <CommandList>
+                            {isLoadingBanks ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : banks.length === 0 ? (
+                              <CommandEmpty>No banks found.</CommandEmpty>
+                            ) : (
+                              <CommandGroup>
+                                {banks.map((bank) => (
+                                  <CommandItem
+                                    key={bank.id}
+                                    value={String(bank.id)}
+                                    onSelect={() => {
+                                      field.onChange(bank.id);
+                                      setBankOpen(false);
+                                      setBankSearch("");
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        bank.id === field.value ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {bank.bankName} ({bank.bankCodeAlt})
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            )}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
