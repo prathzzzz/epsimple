@@ -39,8 +39,8 @@ import { payeeApi } from '../api/payee-api';
 import { payeeSchema, type PayeeFormData } from '../api/schema';
 import { payeeTypesApi } from '@/features/payee-types/api/payee-types-api';
 import { useSearchPayeeDetails } from '@/features/payee-details/api/payee-details-api';
-import { useSearchVendors } from '@/lib/vendors-api';
-import { useSearchLandlords } from '@/lib/landlords-api';
+import { useSearchVendors, type Vendor } from '@/features/vendors/api/vendors-api';
+import { useSearchLandlords, type Landlord } from '@/features/landlords/api/landlords-api';
 
 export function PayeeDrawer() {
   const { isDrawerOpen, closeDrawer, selectedPayee } = usePayee();
@@ -90,17 +90,17 @@ export function PayeeDrawer() {
 
   const displayVendors = (() => {
     if (!selectedPayee?.vendorId) return vendors;
-    const selected = allVendors.find(v => v.id === selectedPayee.vendorId);
+    const selected = allVendors.find((v: Vendor) => v.id === selectedPayee.vendorId);
     if (!selected) return vendors;
-    if (vendors.some(v => v.id === selected.id)) return vendors;
+    if (vendors.some((v: Vendor) => v.id === selected.id)) return vendors;
     return [selected, ...vendors];
   })();
 
   const displayLandlords = (() => {
     if (!selectedPayee?.landlordId) return landlords;
-    const selected = allLandlords.find(l => l.id === selectedPayee.landlordId);
+    const selected = allLandlords.find((l: Landlord) => l.id === selectedPayee.landlordId);
     if (!selected) return landlords;
-    if (landlords.some(l => l.id === selected.id)) return landlords;
+    if (landlords.some((l: Landlord) => l.id === selected.id)) return landlords;
     return [selected, ...landlords];
   })();
 
@@ -342,7 +342,7 @@ export function PayeeDrawer() {
                           )}
                         >
                           {field.value
-                            ? displayVendors.find((v) => v.id === field.value)?.vendorName || "Select vendor"
+                            ? displayVendors.find((v: Vendor) => v.id === field.value)?.vendorName || "Select vendor"
                             : "None"}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -363,7 +363,7 @@ export function PayeeDrawer() {
                           ) : displayVendors.length === 0 && vendorSearch.trim().length > 0 ? (
                             <CommandEmpty>No vendor found.</CommandEmpty>
                           ) : (
-                            displayVendors.map((vendor) => (
+                            displayVendors.map((vendor: Vendor) => (
                               <CommandItem
                                 key={vendor.id}
                                 value={String(vendor.id)}
@@ -413,7 +413,7 @@ export function PayeeDrawer() {
                           )}
                         >
                           {field.value
-                            ? displayLandlords.find((l) => l.id === field.value)?.landlordName || "Select landlord"
+                            ? displayLandlords.find((l: Landlord) => l.id === field.value)?.landlordName || "Select landlord"
                             : "None"}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -434,7 +434,7 @@ export function PayeeDrawer() {
                           ) : displayLandlords.length === 0 && landlordSearch.trim().length > 0 ? (
                             <CommandEmpty>No landlord found.</CommandEmpty>
                           ) : (
-                            displayLandlords.map((landlord) => (
+                            displayLandlords.map((landlord: Landlord) => (
                               <CommandItem
                                 key={landlord.id}
                                 value={String(landlord.id)}

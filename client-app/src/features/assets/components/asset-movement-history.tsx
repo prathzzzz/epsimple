@@ -2,14 +2,9 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import {
   ArrowRight,
-  Building2,
   Calendar,
-  Factory,
   Loader2,
-  MapPin,
-  Package,
   PackageOpen,
-  Server,
   TrendingUp,
 } from 'lucide-react';
 import { assetMovementApi, type AssetMovementHistory } from '../api/asset-movement-api';
@@ -18,41 +13,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { getLocationIcon, getLocationBadgeColor } from '../lib/location-utils';
 
 interface AssetMovementHistoryProps {
   assetId: number;
   assetTagId?: string;
 }
-
-const getLocationIcon = (locationType: string) => {
-  switch (locationType.toLowerCase()) {
-    case 'site':
-      return <Building2 className="h-4 w-4" />;
-    case 'warehouse':
-      return <Package className="h-4 w-4" />;
-    case 'datacenter':
-      return <Server className="h-4 w-4" />;
-    case 'factory':
-      return <Factory className="h-4 w-4" />;
-    default:
-      return <MapPin className="h-4 w-4" />;
-  }
-};
-
-const getLocationBadgeColor = (locationType: string) => {
-  switch (locationType.toLowerCase()) {
-    case 'site':
-      return 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20';
-    case 'warehouse':
-      return 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20';
-    case 'datacenter':
-      return 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20';
-    case 'factory':
-      return 'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20';
-    default:
-      return 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20';
-  }
-};
 
 const parseLocationFromMovement = (movement: AssetMovementHistory, direction: 'from' | 'to') => {
   if (direction === 'from') {

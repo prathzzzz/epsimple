@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useCostItems } from '@/lib/cost-items-api';
+import { useCostItems } from '@/features/cost-items/api/cost-items-api';
 import { CostItemRowActions } from './cost-item-row-actions';
 import {
   ColumnDef,
@@ -21,7 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } from 'lucide-react';
-import type { CostItem } from '@/lib/cost-items-api';
+import type { CostItem } from '@/features/cost-items/api/cost-items-api';
 
 interface CostItemsTableProps {
   columns: ColumnDef<CostItem>[];

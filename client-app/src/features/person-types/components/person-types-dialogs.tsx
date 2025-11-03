@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/confirm-dialog'
-import { personTypesApi } from '@/lib/person-types-api'
+import { personTypesApi } from '@/features/person-types/api/person-types-api'
 import { usePersonTypes } from './person-types-provider'
 import { PersonTypesMutateDrawer } from './person-types-mutate-drawer'
 

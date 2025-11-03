@@ -3,7 +3,9 @@ package com.eps.module.api.epsone.assetplacement.service;
 import com.eps.module.activity.ActivityWork;
 import com.eps.module.api.epsone.activitywork.repository.ActivityWorkRepository;
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
+import com.eps.module.api.epsone.assetmovement.constants.LocationType;
 import com.eps.module.api.epsone.assetmovement.service.AssetMovementService;
+import com.eps.module.api.epsone.assetplacement.constants.ErrorMessages;
 import com.eps.module.api.epsone.assetplacement.dto.AssetsOnWarehouseRequestDto;
 import com.eps.module.api.epsone.assetplacement.dto.AssetsOnWarehouseResponseDto;
 import com.eps.module.api.epsone.assetplacement.mapper.AssetsOnWarehouseMapper;
@@ -51,27 +53,27 @@ public class AssetsOnWarehouseServiceImpl implements AssetsOnWarehouseService {
         // Validate asset exists
         Asset asset = assetRepository.findById(requestDto.getAssetId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Asset not found with id: " + requestDto.getAssetId()));
+                        ErrorMessages.ASSET_NOT_FOUND + requestDto.getAssetId()));
 
         // Validate warehouse exists
         Warehouse warehouse = warehouseRepository.findById(requestDto.getWarehouseId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Warehouse not found with id: " + requestDto.getWarehouseId()));
+                        ErrorMessages.WAREHOUSE_NOT_FOUND + requestDto.getWarehouseId()));
 
         // Validate asset status exists
         GenericStatusType assetStatus = genericStatusTypeRepository.findById(requestDto.getAssetStatusId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Asset status not found with id: " + requestDto.getAssetStatusId()));
+                        ErrorMessages.ASSET_STATUS_NOT_FOUND + requestDto.getAssetStatusId()));
 
         // Check for active placements and handle movement tracking
         Object fromPlacement = null;
-        String fromType = "Factory";
+        String fromType = LocationType.FACTORY_DISPLAY;
         
         // Check if asset has active placement on site
         Optional<AssetsOnSite> activeSite = assetsOnSiteRepository.findActiveByAssetId(requestDto.getAssetId());
         if (activeSite.isPresent()) {
             fromPlacement = activeSite.get();
-            fromType = "Site";
+            fromType = LocationType.SITE_DISPLAY;
             // Mark old placement as vacated
             activeSite.get().setVacatedOn(LocalDate.now());
             assetsOnSiteRepository.save(activeSite.get());
@@ -81,7 +83,7 @@ public class AssetsOnWarehouseServiceImpl implements AssetsOnWarehouseService {
         Optional<AssetsOnWarehouse> activeWarehouse = assetsOnWarehouseRepository.findActiveByAssetId(requestDto.getAssetId());
         if (activeWarehouse.isPresent()) {
             fromPlacement = activeWarehouse.get();
-            fromType = "Warehouse";
+            fromType = LocationType.WAREHOUSE_DISPLAY;
             // Mark old placement as vacated
             activeWarehouse.get().setVacatedOn(LocalDate.now());
             assetsOnWarehouseRepository.save(activeWarehouse.get());
@@ -91,7 +93,7 @@ public class AssetsOnWarehouseServiceImpl implements AssetsOnWarehouseService {
         Optional<AssetsOnDatacenter> activeDatacenter = assetsOnDatacenterRepository.findActiveByAssetId(requestDto.getAssetId());
         if (activeDatacenter.isPresent()) {
             fromPlacement = activeDatacenter.get();
-            fromType = "Datacenter";
+            fromType = LocationType.DATACENTER_DISPLAY;
             // Mark old placement as vacated
             activeDatacenter.get().setVacatedOn(LocalDate.now());
             assetsOnDatacenterRepository.save(activeDatacenter.get());
@@ -102,7 +104,7 @@ public class AssetsOnWarehouseServiceImpl implements AssetsOnWarehouseService {
         if (requestDto.getActivityWorkId() != null) {
             activityWork = activityWorkRepository.findById(requestDto.getActivityWorkId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Activity work not found with id: " + requestDto.getActivityWorkId()));
+                            ErrorMessages.ACTIVITY_WORK_NOT_FOUND + requestDto.getActivityWorkId()));
         }
 
         // Create new placement
@@ -111,9 +113,9 @@ public class AssetsOnWarehouseServiceImpl implements AssetsOnWarehouseService {
         AssetsOnWarehouse saved = assetsOnWarehouseRepository.save(assetsOnWarehouse);
 
         // Track movement and link to placement
-        AssetMovementType movementType = assetMovementService.determineMovementType(fromType, "Warehouse");
+        AssetMovementType movementType = assetMovementService.determineMovementType(fromType, LocationType.WAREHOUSE_DISPLAY);
         AssetMovementTracker tracker = assetMovementService.trackMovement(
-                asset, movementType, fromType.equals("Factory") ? "Factory" : null, fromPlacement, saved);
+                asset, movementType, fromType.equals(LocationType.FACTORY_DISPLAY) ? LocationType.FACTORY_DISPLAY : null, fromPlacement, saved);
         
         // Update placement with tracker
         saved.setAssetMovementTracker(tracker);
@@ -121,7 +123,7 @@ public class AssetsOnWarehouseServiceImpl implements AssetsOnWarehouseService {
 
         // Fetch with details for response
         AssetsOnWarehouse savedWithDetails = assetsOnWarehouseRepository.findByIdWithDetails(saved.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Asset placement not found after save"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ASSET_PLACEMENT_NOT_FOUND_AFTER_SAVE));
 
         log.info("Asset placed in warehouse successfully with ID: {}", saved.getId());
         return assetsOnWarehouseMapper.toDto(savedWithDetails);
@@ -160,7 +162,7 @@ public class AssetsOnWarehouseServiceImpl implements AssetsOnWarehouseService {
         
         // Validate warehouse exists
         if (!warehouseRepository.existsById(warehouseId)) {
-            throw new ResourceNotFoundException("Warehouse not found with id: " + warehouseId);
+            throw new ResourceNotFoundException(ErrorMessages.WAREHOUSE_NOT_FOUND + warehouseId);
         }
 
         Sort sort = sortOrder.equalsIgnoreCase("desc")
@@ -178,7 +180,7 @@ public class AssetsOnWarehouseServiceImpl implements AssetsOnWarehouseService {
         log.info("Fetching asset in warehouse with ID: {}", id);
         AssetsOnWarehouse assetsOnWarehouse = assetsOnWarehouseRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Asset placement not found with id: " + id));
+                        ErrorMessages.ASSET_PLACEMENT_NOT_FOUND + id));
         return assetsOnWarehouseMapper.toDto(assetsOnWarehouse);
     }
 
@@ -189,29 +191,29 @@ public class AssetsOnWarehouseServiceImpl implements AssetsOnWarehouseService {
 
         AssetsOnWarehouse assetsOnWarehouse = assetsOnWarehouseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Asset placement not found with id: " + id));
+                        ErrorMessages.ASSET_PLACEMENT_NOT_FOUND + id));
 
         // Validate asset exists
         Asset asset = assetRepository.findById(requestDto.getAssetId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Asset not found with id: " + requestDto.getAssetId()));
+                        ErrorMessages.ASSET_NOT_FOUND + requestDto.getAssetId()));
 
         // Validate warehouse exists
         Warehouse warehouse = warehouseRepository.findById(requestDto.getWarehouseId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Warehouse not found with id: " + requestDto.getWarehouseId()));
+                        ErrorMessages.WAREHOUSE_NOT_FOUND + requestDto.getWarehouseId()));
 
         // Validate asset status exists
         GenericStatusType assetStatus = genericStatusTypeRepository.findById(requestDto.getAssetStatusId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Asset status not found with id: " + requestDto.getAssetStatusId()));
+                        ErrorMessages.ASSET_STATUS_NOT_FOUND + requestDto.getAssetStatusId()));
 
         // Validate optional activity work if provided
         ActivityWork activityWork = null;
         if (requestDto.getActivityWorkId() != null) {
             activityWork = activityWorkRepository.findById(requestDto.getActivityWorkId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Activity work not found with id: " + requestDto.getActivityWorkId()));
+                            ErrorMessages.ACTIVITY_WORK_NOT_FOUND + requestDto.getActivityWorkId()));
         }
 
         AssetMovementTracker assetMovementTracker = null;
@@ -221,7 +223,7 @@ public class AssetsOnWarehouseServiceImpl implements AssetsOnWarehouseService {
 
         // Fetch with details for response
         AssetsOnWarehouse updatedWithDetails = assetsOnWarehouseRepository.findByIdWithDetails(updated.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Asset placement not found after update"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ASSET_PLACEMENT_NOT_FOUND_AFTER_UPDATE));
 
         log.info("Asset in warehouse updated successfully");
         return assetsOnWarehouseMapper.toDto(updatedWithDetails);
@@ -233,7 +235,7 @@ public class AssetsOnWarehouseServiceImpl implements AssetsOnWarehouseService {
         log.info("Removing asset from warehouse with ID: {}", id);
 
         if (!assetsOnWarehouseRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Asset placement not found with id: " + id);
+            throw new ResourceNotFoundException(ErrorMessages.ASSET_PLACEMENT_NOT_FOUND + id);
         }
 
         assetsOnWarehouseRepository.deleteById(id);

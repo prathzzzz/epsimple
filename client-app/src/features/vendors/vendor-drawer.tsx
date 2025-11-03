@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 
 import { useVendorContext } from './vendor-provider';
 import { vendorFormSchema, type VendorFormValues } from './schema';
-import { useCreateVendor, useUpdateVendor } from '@/lib/vendors-api';
+import { useCreateVendor, useUpdateVendor } from '@/features/vendors/api/vendors-api';
 import { vendorTypesApi } from '@/features/vendor-types/api/vendor-types-api';
 import { personDetailsApi } from '@/features/person-details/api/person-details-api';
 import { useErrorHandler } from '@/hooks/use-error-handler';

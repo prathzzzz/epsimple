@@ -1,13 +1,10 @@
 import { format } from 'date-fns';
 import {
-  Building2,
   Calendar,
   CheckCircle2,
   Loader2,
   MapPin,
   MapPinOff,
-  Package,
-  Server,
   FileText,
 } from 'lucide-react';
 import { assetMovementApi } from '../api/asset-movement-api';
@@ -15,50 +12,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { getLocationIcon, getLocationBadgeColor, getLocationLabel } from '../lib/location-utils';
 
 interface AssetCurrentLocationProps {
   assetId: number;
   assetTagId?: string;
 }
-
-const getLocationIcon = (locationType?: string) => {
-  switch (locationType) {
-    case 'site':
-      return <Building2 className="h-5 w-5" />;
-    case 'warehouse':
-      return <Package className="h-5 w-5" />;
-    case 'datacenter':
-      return <Server className="h-5 w-5" />;
-    default:
-      return <MapPin className="h-5 w-5" />;
-  }
-};
-
-const getLocationBadgeColor = (locationType?: string) => {
-  switch (locationType) {
-    case 'site':
-      return 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20';
-    case 'warehouse':
-      return 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20';
-    case 'datacenter':
-      return 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20';
-    default:
-      return 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20';
-  }
-};
-
-const getLocationLabel = (locationType?: string) => {
-  switch (locationType) {
-    case 'site':
-      return 'Site';
-    case 'warehouse':
-      return 'Warehouse';
-    case 'datacenter':
-      return 'Datacenter';
-    default:
-      return 'Unknown';
-  }
-};
 
 export function AssetCurrentLocation({ assetId, assetTagId }: AssetCurrentLocationProps) {
   const { data, isLoading, error } = assetMovementApi.useCurrentLocation(assetId);
@@ -138,7 +97,9 @@ export function AssetCurrentLocation({ assetId, assetTagId }: AssetCurrentLocati
                   getLocationBadgeColor(data?.locationType)
                 )}
               >
-                {getLocationIcon(data?.locationType)}
+                <span className="h-5 w-5 flex items-center justify-center">
+                  {getLocationIcon(data?.locationType)}
+                </span>
                 <span className="font-semibold">{getLocationLabel(data?.locationType)}</span>
               </Badge>
             </div>

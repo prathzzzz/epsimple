@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { CostItem } from '@/lib/cost-items-api';
-import { useDeleteCostItem } from '@/lib/cost-items-api';
+import type { CostItem } from '@/features/cost-items/api/cost-items-api';
+import { useDeleteCostItem } from '@/features/cost-items/api/cost-items-api';
 import { useCostItemContext } from './cost-item-provider';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import type { Landlord } from '@/lib/landlords-api';
+import type { Landlord } from '@/features/landlords/api/landlords-api';
 
 interface LandlordContextType {
   selectedLandlord: Landlord | null;

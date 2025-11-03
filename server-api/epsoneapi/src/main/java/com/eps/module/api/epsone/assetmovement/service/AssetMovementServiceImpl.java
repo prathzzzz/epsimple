@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.assetmovement.service;
 
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
+import com.eps.module.api.epsone.assetmovement.constants.LocationType;
 import com.eps.module.api.epsone.assetmovement.dto.AssetCurrentLocationDto;
 import com.eps.module.api.epsone.assetmovement.dto.AssetMovementHistoryDto;
 import com.eps.module.api.epsone.assetmovement.mapper.AssetMovementMapper;
@@ -147,19 +148,19 @@ public class AssetMovementServiceImpl implements AssetMovementService {
         // Check site
         Optional<AssetsOnSite> siteOpt = assetsOnSiteRepository.findActiveByAssetId(assetId);
         if (siteOpt.isPresent()) {
-            return movementMapper.toCurrentLocationDto(asset, siteOpt.get(), "site");
+            return movementMapper.toCurrentLocationDto(asset, siteOpt.get(), LocationType.SITE);
         }
 
         // Check warehouse
         Optional<AssetsOnWarehouse> warehouseOpt = assetsOnWarehouseRepository.findActiveByAssetId(assetId);
         if (warehouseOpt.isPresent()) {
-            return movementMapper.toCurrentLocationDto(asset, warehouseOpt.get(), "warehouse");
+            return movementMapper.toCurrentLocationDto(asset, warehouseOpt.get(), LocationType.WAREHOUSE);
         }
 
         // Check datacenter
         Optional<AssetsOnDatacenter> datacenterOpt = assetsOnDatacenterRepository.findActiveByAssetId(assetId);
         if (datacenterOpt.isPresent()) {
-            return movementMapper.toCurrentLocationDto(asset, datacenterOpt.get(), "datacenter");
+            return movementMapper.toCurrentLocationDto(asset, datacenterOpt.get(), LocationType.DATACENTER);
         }
 
         // Not placed anywhere

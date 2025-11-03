@@ -9,8 +9,11 @@ interface ErrorHandlerOptions {
 export function handleServerError(error: unknown, options: ErrorHandlerOptions = {}) {
   const { showToast = true, redirectOnError = false } = options
   
-  // eslint-disable-next-line no-console
-  console.log('Server error:', error)
+  // Log error for debugging in development only
+  if (import.meta.env.DEV) {
+    // eslint-disable-next-line no-console
+    console.log('Server error:', error)
+  }
 
   let errMsg = 'Something went wrong!'
   let statusCode: number | undefined

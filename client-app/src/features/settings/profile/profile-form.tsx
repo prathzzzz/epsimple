@@ -43,7 +43,10 @@ export function ProfileForm() {
         onSubmit={form.handleSubmit((data) => {
           // TODO: Implement profile update API
           toast.success('Profile updated successfully!')
-          console.log('Profile data:', data)
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console
+            console.log('Profile data:', data)
+          }
         })}
         className='space-y-8'
       >

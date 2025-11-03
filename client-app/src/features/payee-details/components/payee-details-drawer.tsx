@@ -33,7 +33,7 @@ import {
   payeeDetailsSchema,
   type PayeeDetailsFormData,
 } from '../api/schema';
-import { useSearchBanks } from '@/lib/banks-api';
+import { useSearchBanks, type Bank } from '@/features/banks/api/banks-api';
 
 export function PayeeDetailsDrawer() {
   const { isDrawerOpen, selectedPayeeDetails, closeDrawer } =
@@ -232,7 +232,7 @@ export function PayeeDetailsDrawer() {
                           )}
                         >
                           {field.value
-                            ? banks.find((b) => b.id === field.value)?.bankName || "Select bank"
+                            ? banks.find((b: Bank) => b.id === field.value)?.bankName || "Select bank"
                             : "Select a bank"}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -255,7 +255,7 @@ export function PayeeDetailsDrawer() {
                               "No bank found."
                             )}
                           </CommandEmpty>
-                          {banks.map((bank) => (
+                          {banks.map((bank: Bank) => (
                             <CommandItem
                               key={bank.id}
                               value={String(bank.id)}

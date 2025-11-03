@@ -39,7 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { usePersonDetailsContext } from "../context/person-details-provider";
 import { personDetailsApi } from "../api/person-details-api";
 import { personDetailsFormSchema, type PersonDetailsFormData } from "../api/schema";
-import { personTypesApi } from "@/lib/person-types-api";
+import { personTypesApi, type PersonType } from "@/features/person-types/api/person-types-api";
 
 export function PersonDetailsDrawer() {
   const {
@@ -76,8 +76,8 @@ export function PersonDetailsDrawer() {
   // Display logic for person types dropdown
   const displayPersonTypes = (() => {
     if (!editingPersonDetails?.personTypeId) return personTypes;
-    const selectedType = allPersonTypes.find((t) => t.id === editingPersonDetails.personTypeId);
-    if (!selectedType || personTypes.some((t) => t.id === selectedType.id)) {
+    const selectedType = allPersonTypes.find((t: PersonType) => t.id === editingPersonDetails.personTypeId);
+    if (!selectedType || personTypes.some((t: PersonType) => t.id === selectedType.id)) {
       return personTypes;
     }
     return [selectedType, ...personTypes];
@@ -177,7 +177,7 @@ export function PersonDetailsDrawer() {
                           )}
                         >
                           {field.value
-                            ? displayPersonTypes.find((type) => type.id === field.value)?.typeName
+                            ? displayPersonTypes.find((type: PersonType) => type.id === field.value)?.typeName
                             : "Select a person type"}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -199,7 +199,7 @@ export function PersonDetailsDrawer() {
                             <CommandEmpty>No person types found.</CommandEmpty>
                           ) : (
                             <CommandGroup>
-                              {displayPersonTypes.map((type) => (
+                              {displayPersonTypes.map((type: PersonType) => (
                                 <CommandItem
                                   key={type.id}
                                   value={String(type.id)}

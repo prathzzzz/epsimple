@@ -41,7 +41,7 @@ import { useActivityWork } from '../context/activity-work-provider';
 import { activityWorkApi } from '../api/activity-work-api';
 import { activityWorkSchema, type ActivityWorkFormData } from '../api/schema';
 import { activitiesApi } from '@/features/activities/api/activities-api';
-import { useSearchVendors } from '@/lib/vendors-api';
+import { useSearchVendors, type Vendor } from '@/features/vendors/api/vendors-api';
 import { genericStatusTypeApi } from '@/features/generic-status-types/api/generic-status-type-api';
 
 export function ActivityWorkDrawer() {
@@ -256,7 +256,7 @@ export function ActivityWorkDrawer() {
                           )}
                         >
                           {field.value
-                            ? vendors.find((v) => v.id === field.value)?.vendorName
+                            ? vendors.find((v: Vendor) => v.id === field.value)?.vendorName
                             : 'Select a vendor'}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -278,7 +278,7 @@ export function ActivityWorkDrawer() {
                             <CommandEmpty>No vendors found.</CommandEmpty>
                           ) : (
                             <CommandGroup>
-                              {vendors.map((vendor) => (
+                              {vendors.map((vendor: Vendor) => (
                                 <CommandItem
                                   key={vendor.id}
                                   value={String(vendor.id)}

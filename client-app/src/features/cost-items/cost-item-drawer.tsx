@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import { useCostItemContext } from './cost-item-provider';
 import { costItemSchema, type CostItemFormValues } from './schema';
-import { useCreateCostItem, useUpdateCostItem } from '@/lib/cost-items-api';
+import { useCreateCostItem, useUpdateCostItem } from '@/features/cost-items/api/cost-items-api';
 import { costTypesApi } from '@/features/cost-types/api/cost-types-api';
 import { cn } from '@/lib/utils';
 import {

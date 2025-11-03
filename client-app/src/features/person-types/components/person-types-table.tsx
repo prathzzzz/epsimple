@@ -22,7 +22,7 @@ import {
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 import { type PersonType } from '../data/schema'
 import { personTypesColumns } from './person-types-columns'
-import { personTypesApi } from '@/lib/person-types-api'
+import { personTypesApi } from '@/features/person-types/api/person-types-api'
 import { Loader2 } from 'lucide-react'
 
 type PersonTypesTableProps = {

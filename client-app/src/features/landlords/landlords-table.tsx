@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/table';
 
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table';
-import { useLandlords } from '@/lib/landlords-api';
+import { useLandlords } from '@/features/landlords/api/landlords-api';
 
 interface LandlordsTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

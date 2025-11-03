@@ -33,8 +33,8 @@ import { useAssetTagCodeGeneratorContext } from "../context/asset-tag-generator-
 import { assetTagCodeGeneratorApi } from "../api/asset-tag-generator-api";
 import { assetTagCodeGeneratorFormSchema, type AssetTagCodeGeneratorFormData } from "../api/schema";
 import { assetCategoryApi } from "@/features/asset-categories/api/asset-categories-api";
-import { useSearchVendors } from "@/lib/vendors-api";
-import { useSearchBanks } from "@/lib/banks-api";
+import { useSearchVendors, type Vendor } from "@/features/vendors/api/vendors-api";
+import { useSearchBanks, type Bank } from "@/features/banks/api/banks-api";
 
 export function AssetTagCodeGeneratorDrawer() {
   const { isDrawerOpen, setIsDrawerOpen, editingGenerator, setEditingGenerator } = useAssetTagCodeGeneratorContext();
@@ -215,9 +215,9 @@ export function AssetTagCodeGeneratorDrawer() {
                             )}
                           >
                             {field.value
-                              ? vendors.find((v) => v.id === field.value)?.vendorName +
-                                (vendors.find((v) => v.id === field.value)?.vendorCodeAlt
-                                  ? ` (${vendors.find((v) => v.id === field.value)?.vendorCodeAlt})`
+                              ? vendors.find((v: Vendor) => v.id === field.value)?.vendorName +
+                                (vendors.find((v: Vendor) => v.id === field.value)?.vendorCodeAlt
+                                  ? ` (${vendors.find((v: Vendor) => v.id === field.value)?.vendorCodeAlt})`
                                   : "")
                               : "Select vendor"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -240,7 +240,7 @@ export function AssetTagCodeGeneratorDrawer() {
                               <CommandEmpty>No vendors found.</CommandEmpty>
                             ) : (
                               <CommandGroup>
-                                {vendors.map((vendor) => (
+                                {vendors.map((vendor: Vendor) => (
                                   <CommandItem
                                     key={vendor.id}
                                     value={String(vendor.id)}
@@ -291,7 +291,7 @@ export function AssetTagCodeGeneratorDrawer() {
                             )}
                           >
                             {field.value
-                              ? `${banks.find((b) => b.id === field.value)?.bankName} (${banks.find((b) => b.id === field.value)?.bankCodeAlt})`
+                              ? `${banks.find((b: Bank) => b.id === field.value)?.bankName} (${banks.find((b: Bank) => b.id === field.value)?.bankCodeAlt})`
                               : "Select bank"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -313,7 +313,7 @@ export function AssetTagCodeGeneratorDrawer() {
                               <CommandEmpty>No banks found.</CommandEmpty>
                             ) : (
                               <CommandGroup>
-                                {banks.map((bank) => (
+                                {banks.map((bank: Bank) => (
                                   <CommandItem
                                     key={bank.id}
                                     value={String(bank.id)}

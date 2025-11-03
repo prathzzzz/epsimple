@@ -48,8 +48,8 @@ export const useAuthStore = create<AuthStore>()(
         set({ isInitializing: true, error: null })
         try {
           await get().getCurrentUser()
-        } catch (error) {
-          console.log('No authenticated user found during initialization')
+        } catch {
+          // No authenticated user found during initialization
           set({ user: null })
         } finally {
           set({ isInitializing: false })

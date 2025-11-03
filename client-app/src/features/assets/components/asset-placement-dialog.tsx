@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { ChevronsUpDown, Check, Loader2, MapPin } from 'lucide-react';
+import { LOCATION_TYPES } from '../lib/location-utils';
 import {
   Dialog,
   DialogContent,
@@ -55,7 +56,7 @@ import { assetLocationApi, type AssetLocationCheck } from '../api/asset-location
 import { AssetPlacementConfirmDialog } from '@/components/asset-placement-confirm-dialog';
 
 const placementFormSchema = z.object({
-  locationType: z.enum(['site', 'warehouse', 'datacenter']),
+  locationType: z.enum([LOCATION_TYPES.SITE, LOCATION_TYPES.WAREHOUSE, LOCATION_TYPES.DATACENTER] as const),
   locationId: z.number().min(1, 'Location is required'),
   assetStatusId: z.number().min(1, 'Status is required'),
   activityWorkId: z.number().optional().nullable(),
@@ -87,7 +88,7 @@ export function AssetPlacementDialog({
   assetName,
 }: AssetPlacementDialogProps) {
   const queryClient = useQueryClient();
-  const [locationType, setLocationType] = useState<'site' | 'warehouse' | 'datacenter'>('site');
+  const [locationType, setLocationType] = useState<typeof LOCATION_TYPES[keyof typeof LOCATION_TYPES]>(LOCATION_TYPES.SITE);
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationSearch, setLocationSearch] = useState('');
   const [statusOpen, setStatusOpen] = useState(false);
@@ -155,9 +156,9 @@ export function AssetPlacementDialog({
     : (initialDatacentersResponse?.content || []);
 
   // Get locations based on selected type
-  const locations: any[] = locationType === 'site' 
+  const locations: any[] = locationType === LOCATION_TYPES.SITE
     ? sites 
-    : locationType === 'warehouse' 
+    : locationType === LOCATION_TYPES.WAREHOUSE
     ? warehouses 
     : datacenters;
 
@@ -170,7 +171,7 @@ export function AssetPlacementDialog({
   const form = useForm<PlacementFormData>({
     resolver: zodResolver(placementFormSchema),
     defaultValues: {
-      locationType: 'site',
+      locationType: LOCATION_TYPES.SITE,
       locationId: 0,
       assetStatusId: 0,
       activityWorkId: null,
@@ -188,15 +189,15 @@ export function AssetPlacementDialog({
   const placementMutation = useMutation({
     mutationFn: async (data: PlacementFormData) => {
       const endpoint = 
-        data.locationType === 'site' ? '/api/assets-on-site' :
-        data.locationType === 'warehouse' ? '/api/assets-on-warehouse' :
+        data.locationType === LOCATION_TYPES.SITE ? '/api/assets-on-site' :
+        data.locationType === LOCATION_TYPES.WAREHOUSE ? '/api/assets-on-warehouse' :
         '/api/assets-on-datacenter';
 
       const payload = {
         assetId,
-        ...(data.locationType === 'site' && { siteId: data.locationId }),
-        ...(data.locationType === 'warehouse' && { warehouseId: data.locationId }),
-        ...(data.locationType === 'datacenter' && { datacenterId: data.locationId }),
+        ...(data.locationType === LOCATION_TYPES.SITE && { siteId: data.locationId }),
+        ...(data.locationType === LOCATION_TYPES.WAREHOUSE && { warehouseId: data.locationId }),
+        ...(data.locationType === LOCATION_TYPES.DATACENTER && { datacenterId: data.locationId }),
         assetStatusId: data.assetStatusId,
         activityWorkId: data.activityWorkId || undefined,
         assignedOn: data.assignedOn || undefined,
@@ -246,8 +247,8 @@ export function AssetPlacementDialog({
         // Not placed, proceed directly
         handleActualSubmit(data);
       }
-    } catch (error) {
-      console.error('Failed to check asset location:', error);
+    } catch {
+      // If location check fails, proceed with placement
       handleActualSubmit(data);
     }
   };
@@ -304,9 +305,9 @@ export function AssetPlacementDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="site">Site</SelectItem>
-                        <SelectItem value="warehouse">Warehouse</SelectItem>
-                        <SelectItem value="datacenter">Datacenter</SelectItem>
+                        <SelectItem value={LOCATION_TYPES.SITE}>Site</SelectItem>
+                        <SelectItem value={LOCATION_TYPES.WAREHOUSE}>Warehouse</SelectItem>
+                        <SelectItem value={LOCATION_TYPES.DATACENTER}>Datacenter</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -321,7 +322,7 @@ export function AssetPlacementDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>
-                      {locationType === 'site' ? 'Site' : locationType === 'warehouse' ? 'Warehouse' : 'Datacenter'} *
+                      {locationType === LOCATION_TYPES.SITE ? 'Site' : locationType === LOCATION_TYPES.WAREHOUSE ? 'Warehouse' : 'Datacenter'} *
                     </FormLabel>
                     <Popover open={locationOpen} onOpenChange={setLocationOpen}>
                       <PopoverTrigger asChild>
@@ -336,8 +337,8 @@ export function AssetPlacementDialog({
                           >
                             {field.value
                               ? locations.find((l: any) => l.id === field.value)?.[
-                                  locationType === 'site' ? 'siteCode' : 
-                                  locationType === 'warehouse' ? 'warehouseName' : 
+                                  locationType === LOCATION_TYPES.SITE ? 'siteCode' : 
+                                  locationType === LOCATION_TYPES.WAREHOUSE ? 'warehouseName' : 
                                   'datacenterName'
                                 ] || 'Select location'
                               : 'Select location'}
@@ -370,9 +371,9 @@ export function AssetPlacementDialog({
                                       location.id === field.value ? 'opacity-100' : 'opacity-0'
                                     )}
                                   />
-                                  {locationType === 'site' 
+                                  {locationType === LOCATION_TYPES.SITE
                                     ? `${(location as any).siteCode}` 
-                                    : locationType === 'warehouse'
+                                    : locationType === LOCATION_TYPES.WAREHOUSE
                                     ? (location as any).warehouseName
                                     : (location as any).datacenterName}
                                 </CommandItem>
@@ -553,7 +554,7 @@ export function AssetPlacementDialog({
               </div>
 
               {/* Site-specific dates */}
-              {locationType === 'site' && (
+              {locationType === LOCATION_TYPES.SITE && (
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -594,7 +595,7 @@ export function AssetPlacementDialog({
               )}
 
               {/* Warehouse/Datacenter-specific dates */}
-              {(locationType === 'warehouse' || locationType === 'datacenter') && (
+              {(locationType === LOCATION_TYPES.WAREHOUSE || locationType === LOCATION_TYPES.DATACENTER) && (
                 <FormField
                   control={form.control}
                   name="commissionedOn"

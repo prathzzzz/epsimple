@@ -23,7 +23,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { type PersonType, personTypeFormSchema, type PersonTypeFormValues } from '../data/schema'
-import { personTypesApi } from '@/lib/person-types-api'
+import { personTypesApi } from '@/features/person-types/api/person-types-api'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 

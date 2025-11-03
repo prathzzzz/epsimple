@@ -14,7 +14,7 @@ import {
 import { ConfirmDialog } from '@/components/confirm-dialog';
 
 import { useLandlordContext } from './landlord-provider';
-import { type Landlord, useDeleteLandlord } from '@/lib/landlords-api';
+import { type Landlord, useDeleteLandlord } from '@/features/landlords/api/landlords-api';
 import { useErrorHandler } from '@/hooks/use-error-handler';
 
 interface LandlordRowActionsProps {

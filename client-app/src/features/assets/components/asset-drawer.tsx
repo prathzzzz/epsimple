@@ -43,8 +43,10 @@ import { assetsApi } from '../api/assets-api'
 import { assetSchema, type AssetFormData } from '../api/schema'
 import { assetCategoryApi } from '@/features/asset-categories/api/asset-categories-api'
 import { assetTypesApi } from '@/features/asset-types/api/asset-types-api'
-import { useSearchVendors } from '@/lib/vendors-api'
-import { useSearchBanks } from '@/lib/banks-api'
+import { useSearchVendors } from '@/features/vendors/api/vendors-api'
+import { useSearchBanks } from '@/features/banks/api/banks-api'
+import type { Vendor } from '@/features/vendors/api/vendors-api'
+import type { Bank } from '@/features/banks/api/banks-api'
 import { genericStatusTypeApi } from '@/features/generic-status-types/api/generic-status-type-api'
 import { assetTagCodeGeneratorApi } from '@/features/asset-tag-generators/api/asset-tag-generator-api'
 import { toast } from 'sonner'
@@ -89,9 +91,6 @@ export function AssetDrawer() {
   // Fetch initial items for display
   const { data: allAssetCategories = [] } = assetCategoryApi.useSearch("")
   const { data: allAssetTypes = [] } = assetTypesApi.useSearch("")
-  const { data: allVendors = [] } = useSearchVendors("")
-  const { data: allBanks = [] } = useSearchBanks("")
-  const { data: allStatusTypes = [] } = genericStatusTypeApi.useSearch("")
 
   // Combine search results with selected items
   const displayAssetCategories = (() => {
@@ -108,30 +107,6 @@ export function AssetDrawer() {
     if (!selected) return assetTypes;
     if (assetTypes.some(t => t.id === selected.id)) return assetTypes;
     return [selected, ...assetTypes];
-  })();
-
-  const displayVendors = (() => {
-    if (!editingAsset?.vendorId) return vendors;
-    const selected = allVendors.find(v => v.id === editingAsset.vendorId);
-    if (!selected) return vendors;
-    if (vendors.some(v => v.id === selected.id)) return vendors;
-    return [selected, ...vendors];
-  })();
-
-  const displayBanks = (() => {
-    if (!editingAsset?.lenderBankId) return banks;
-    const selected = allBanks.find(b => b.id === editingAsset.lenderBankId);
-    if (!selected) return banks;
-    if (banks.some(b => b.id === selected.id)) return banks;
-    return [selected, ...banks];
-  })();
-
-  const displayStatusTypes = (() => {
-    if (!editingAsset?.statusTypeId) return statusTypes;
-    const selected = allStatusTypes.find(s => s.id === editingAsset.statusTypeId);
-    if (!selected) return statusTypes;
-    if (statusTypes.some(s => s.id === selected.id)) return statusTypes;
-    return [selected, ...statusTypes];
   })();
 
   const form = useForm<AssetFormData>({
@@ -495,7 +470,7 @@ export function AssetDrawer() {
                             )}
                           >
                             {field.value
-                              ? vendors.find((v) => v.id === field.value)?.vendorName
+                              ? vendors.find((v: Vendor) => v.id === field.value)?.vendorName
                               : 'Select vendor'}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -522,7 +497,7 @@ export function AssetDrawer() {
                               }
                               return (
                                 <CommandGroup>
-                                  {vendors.map((vendor) => (
+                                  {vendors.map((vendor: Vendor) => (
                                     <CommandItem
                                       key={vendor.id}
                                       value={String(vendor.id)}
@@ -571,7 +546,7 @@ export function AssetDrawer() {
                             )}
                           >
                             {field.value
-                              ? banks.find((b) => b.id === field.value)?.bankName
+                              ? banks.find((b: Bank) => b.id === field.value)?.bankName
                               : 'Select bank'}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -598,7 +573,7 @@ export function AssetDrawer() {
                               }
                               return (
                                 <CommandGroup>
-                                  {banks.map((bank) => (
+                                  {banks.map((bank: Bank) => (
                                     <CommandItem
                                       key={bank.id}
                                       value={String(bank.id)}

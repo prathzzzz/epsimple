@@ -21,7 +21,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { type State, stateFormSchema, type StateFormData } from '../data/schema'
-import { statesApi } from '@/lib/states-api'
+import { statesApi } from '@/features/states/api/states-api'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 

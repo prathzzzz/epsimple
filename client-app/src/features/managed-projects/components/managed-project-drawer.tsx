@@ -29,7 +29,7 @@ import {
 import { useManagedProjectContext } from "../context/managed-project-provider";
 import { managedProjectApi } from "../api/managed-project-api";
 import { managedProjectSchema, type ManagedProjectFormData } from "../api/schema";
-import { useSearchBanks } from "@/lib/banks-api";
+import { useSearchBanks, type Bank } from "@/features/banks/api/banks-api";
 
 export function ManagedProjectDrawer() {
   const { isDrawerOpen, setIsDrawerOpen, editingManagedProject, setEditingManagedProject } =
@@ -48,10 +48,10 @@ export function ManagedProjectDrawer() {
   // Combine search results with selected bank
   const displayBanks = (() => {
     if (!editingManagedProject?.bankId) return banks;
-    const selectedBank = allBanks.find(b => b.id === editingManagedProject.bankId);
+    const selectedBank = allBanks.find((b: Bank) => b.id === editingManagedProject.bankId);
     if (!selectedBank) return banks;
     // Check if selected bank is already in the banks list
-    if (banks.some(b => b.id === selectedBank.id)) return banks;
+    if (banks.some((b: Bank) => b.id === selectedBank.id)) return banks;
     // Add selected bank to the top of the list
     return [selectedBank, ...banks];
   })();
@@ -167,7 +167,7 @@ export function ManagedProjectDrawer() {
                           )}
                         >
                           {field.value
-                            ? displayBanks.find((b) => b.id === field.value)?.bankName || "Select bank"
+                            ? displayBanks.find((b: Bank) => b.id === field.value)?.bankName || "Select bank"
                             : "Select a bank"}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -190,7 +190,7 @@ export function ManagedProjectDrawer() {
                               "No bank found."
                             )}
                           </CommandEmpty>
-                          {displayBanks.map((bank) => (
+                          {displayBanks.map((bank: Bank) => (
                             <CommandItem
                               key={bank.id}
                               value={String(bank.id)}

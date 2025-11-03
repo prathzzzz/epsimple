@@ -22,7 +22,7 @@ import {
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 import { type State } from '../data/schema'
 import { columns } from './states-columns'
-import { statesApi } from '@/lib/states-api'
+import { statesApi } from '@/features/states/api/states-api'
 import { Loader2 } from 'lucide-react'
 
 type StatesTableProps = {

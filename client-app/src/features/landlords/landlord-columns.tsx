@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Landlord } from '@/lib/landlords-api';
+import { Landlord } from '@/features/landlords/api/landlords-api';
 import { LandlordRowActions } from './landlord-row-actions';
 
 export const landlordColumns: ColumnDef<Landlord>[] = [

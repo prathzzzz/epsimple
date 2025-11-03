@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/table';
 
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table';
-import { useVendors } from '@/lib/vendors-api';
+import { useVendors } from '@/features/vendors/api/vendors-api';
 
 interface VendorsTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import type { CostItem } from '@/lib/cost-items-api';
+import type { CostItem } from '@/features/cost-items/api/cost-items-api';
 
 interface CostItemContextType {
   isDrawerOpen: boolean;

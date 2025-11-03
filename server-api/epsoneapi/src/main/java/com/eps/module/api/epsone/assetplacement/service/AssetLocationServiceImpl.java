@@ -1,10 +1,12 @@
 package com.eps.module.api.epsone.assetplacement.service;
 
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
+import com.eps.module.api.epsone.assetplacement.constants.ErrorMessages;
 import com.eps.module.api.epsone.assetplacement.dto.AssetLocationCheckDto;
 import com.eps.module.api.epsone.assetplacement.repository.AssetsOnDatacenterRepository;
 import com.eps.module.api.epsone.assetplacement.repository.AssetsOnSiteRepository;
 import com.eps.module.api.epsone.assetplacement.repository.AssetsOnWarehouseRepository;
+import com.eps.module.api.epsone.assetmovement.constants.LocationType;
 import com.eps.module.asset.Asset;
 import com.eps.module.asset.AssetsOnDatacenter;
 import com.eps.module.asset.AssetsOnSite;
@@ -23,8 +25,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AssetLocationServiceImpl implements AssetLocationService {
 
-    private static final String ASSET_NOT_FOUND_MSG = "Asset not found with id: ";
-
     private final AssetsOnSiteRepository assetsOnSiteRepository;
     private final AssetsOnWarehouseRepository assetsOnWarehouseRepository;
     private final AssetsOnDatacenterRepository assetsOnDatacenterRepository;
@@ -38,7 +38,7 @@ public class AssetLocationServiceImpl implements AssetLocationService {
         // Validate asset exists
         Asset asset = assetRepository.findById(assetId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ASSET_NOT_FOUND_MSG + assetId));
+                        ErrorMessages.ASSET_NOT_FOUND + assetId));
 
         // Check if asset is on a site (active placement only)
         Optional<AssetsOnSite> siteLocation = assetsOnSiteRepository.findActiveByAssetId(assetId);
@@ -46,7 +46,7 @@ public class AssetLocationServiceImpl implements AssetLocationService {
             AssetsOnSite placement = siteLocation.get();
             return AssetLocationCheckDto.builder()
                     .isPlaced(true)
-                    .locationType("site")
+                    .locationType(LocationType.SITE)
                     .locationId(placement.getSite().getId())
                     .locationName(placement.getSite().getSiteCode())
                     .locationCode(placement.getSite().getSiteCode())
@@ -60,7 +60,7 @@ public class AssetLocationServiceImpl implements AssetLocationService {
             AssetsOnWarehouse placement = warehouseLocation.get();
             return AssetLocationCheckDto.builder()
                     .isPlaced(true)
-                    .locationType("warehouse")
+                    .locationType(LocationType.WAREHOUSE)
                     .locationId(placement.getWarehouse().getId())
                     .locationName(placement.getWarehouse().getWarehouseName())
                     .locationCode(placement.getWarehouse().getWarehouseCode())
@@ -74,7 +74,7 @@ public class AssetLocationServiceImpl implements AssetLocationService {
             AssetsOnDatacenter placement = datacenterLocation.get();
             return AssetLocationCheckDto.builder()
                     .isPlaced(true)
-                    .locationType("datacenter")
+                    .locationType(LocationType.DATACENTER)
                     .locationId(placement.getDatacenter().getId())
                     .locationName(placement.getDatacenter().getDatacenterName())
                     .locationCode(placement.getDatacenter().getDatacenterCode())
@@ -97,7 +97,7 @@ public class AssetLocationServiceImpl implements AssetLocationService {
         // Validate asset exists
         assetRepository.findById(assetId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ASSET_NOT_FOUND_MSG + assetId));
+                        ErrorMessages.ASSET_NOT_FOUND + assetId));
 
         LocalDate vacatedDate = LocalDate.now();
 

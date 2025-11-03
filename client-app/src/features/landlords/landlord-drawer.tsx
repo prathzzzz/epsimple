@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 
 import { useLandlordContext } from './landlord-provider';
 import { landlordFormSchema, type LandlordFormValues } from './schema';
-import { useCreateLandlord, useUpdateLandlord } from '@/lib/landlords-api';
+import { useCreateLandlord, useUpdateLandlord } from '@/features/landlords/api/landlords-api';
 import { personDetailsApi } from '@/features/person-details/api/person-details-api';
 import { useErrorHandler } from '@/hooks/use-error-handler';
 

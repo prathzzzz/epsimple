@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { StatesMutateDrawer } from './states-mutate-drawer'
 import { useStates } from './states-provider'
-import { statesApi } from '@/lib/states-api'
+import { statesApi } from '@/features/states/api/states-api'
 import { toast } from 'sonner'
 
 export function StatesDialogs() {

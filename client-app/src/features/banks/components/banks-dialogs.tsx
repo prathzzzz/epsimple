@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { BanksMutateDrawer } from './banks-mutate-drawer'
 import { useBanks } from './banks-provider'
-import { deleteBank } from '@/lib/banks-api'
+import { deleteBank } from '@/features/banks/api/banks-api'
 import { toast } from 'sonner'
 
 export function BanksDialogs() {

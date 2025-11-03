@@ -21,7 +21,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { type Bank, bankFormSchema, type BankFormData } from '../data/schema'
-import { createBank, updateBank } from '@/lib/banks-api'
+import { createBank, updateBank } from '@/features/banks/api/banks-api'
 import { toast } from 'sonner'
 import { Loader2, Upload, X } from 'lucide-react'
 import { useState } from 'react'

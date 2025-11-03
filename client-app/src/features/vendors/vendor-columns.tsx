@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Vendor } from '@/lib/vendors-api';
+import { Vendor } from '@/features/vendors/api/vendors-api';
 import { VendorRowActions } from './vendor-row-actions';
 
 export const vendorColumns: ColumnDef<Vendor>[] = [

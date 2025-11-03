@@ -22,7 +22,7 @@ import {
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 import { type Bank } from '../data/schema'
 import { banksColumns as columns } from './banks-columns'
-import { getAllBanks, searchBanks } from '@/lib/banks-api'
+import { getAllBanks, searchBanks } from '@/features/banks/api/banks-api'
 import { Loader2 } from 'lucide-react'
 
 type BanksTableProps = {

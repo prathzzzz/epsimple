@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import type { Vendor } from '@/lib/vendors-api';
+import type { Vendor } from '@/features/vendors/api/vendors-api';
 
 interface VendorContextType {
   selectedVendor: Vendor | null;

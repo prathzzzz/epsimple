@@ -14,7 +14,7 @@ import {
 import { ConfirmDialog } from '@/components/confirm-dialog';
 
 import { useVendorContext } from './vendor-provider';
-import { type Vendor, useDeleteVendor } from '@/lib/vendors-api';
+import { type Vendor, useDeleteVendor } from '@/features/vendors/api/vendors-api';
 import { useErrorHandler } from '@/hooks/use-error-handler';
 
 interface VendorRowActionsProps {

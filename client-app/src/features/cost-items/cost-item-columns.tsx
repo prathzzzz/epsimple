@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import type { CostItem } from '@/lib/cost-items-api';
+import type { CostItem } from '@/features/cost-items/api/cost-items-api';
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown } from 'lucide-react';
 

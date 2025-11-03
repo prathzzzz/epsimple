@@ -130,9 +130,8 @@ export function BasicTab({ form, states }: Readonly<BasicTabProps>) {
       });
       form.setValue("siteCode", result.siteCode);
       toast.success(`Generated code: ${result.siteCode}`);
-    } catch (error: unknown) {
+    } catch {
       // Error toast is already shown by the mutation's onError handler
-      console.error("Failed to generate site code:", error);
     } finally {
       setIsGenerating(false);
     }
