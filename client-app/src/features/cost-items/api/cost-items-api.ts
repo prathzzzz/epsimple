@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import api from './api';
-import { BackendPageResponse, flattenPageResponse } from './api-utils';
+import api from '@/lib/api';
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 
 export interface CostItem {
   id: number;

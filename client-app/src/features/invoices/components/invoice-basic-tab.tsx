@@ -33,11 +33,7 @@ export function InvoiceBasicTab({ form, currentRow }: InvoiceBasicTabProps) {
   const [statusSearch, setStatusSearch] = useState("");
   const [statusOpen, setStatusOpen] = useState(false);
 
-  const { data: payees = [], isLoading: isLoadingPayees } = payeeApi.useSearch({
-    searchTerm: payeeSearch,
-    page: 0,
-    size: 50,
-  });
+  const { data: payees = [], isLoading: isLoadingPayees } = payeeApi.useSearchList(payeeSearch);
   
   const { data: paymentDetailsList = [], isLoading: isLoadingPaymentDetails } = paymentDetailsApi.useSearch(paymentDetailsSearch);
   
@@ -45,11 +41,7 @@ export function InvoiceBasicTab({ form, currentRow }: InvoiceBasicTabProps) {
     genericStatusTypeApi.useSearch(statusSearch);
 
   // Fetch initial items for display
-  const { data: allPayees = [] } = payeeApi.useSearch({
-    searchTerm: "",
-    page: 0,
-    size: 20,
-  });
+  const { data: allPayees = [] } = payeeApi.useSearchList("");
   const { data: allPaymentDetails = [] } = paymentDetailsApi.useSearch("");
   const { data: allPaymentStatuses = [] } = genericStatusTypeApi.useSearch("");
 

@@ -1,5 +1,5 @@
-import api from './api'
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from './api-utils'
+import api from '@/lib/api'
+import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils'
 
 export interface State {
   id: number

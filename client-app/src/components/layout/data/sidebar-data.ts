@@ -129,6 +129,14 @@ export const sidebarData: SidebarData = {
                   title: 'Vouchers',
                   url: '/vouchers',
                 },
+                {
+                  title: 'Invoice Expenditures',
+                  url: '/expenditures/invoices',
+                },
+                {
+                  title: 'Voucher Expenditures',
+                  url: '/expenditures/vouchers',
+                },
               ],
             },
             {

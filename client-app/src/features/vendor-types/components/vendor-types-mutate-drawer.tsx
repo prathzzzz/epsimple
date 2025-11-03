@@ -61,18 +61,6 @@ export function VendorTypesMutateDrawer({
   // Fetch vendor categories using search hook
   const { data: categories = [], isLoading: isLoadingCategories } = vendorCategoriesApi.useSearch(categorySearch);
 
-  // Fetch initial categories for display
-  const { data: allCategories = [] } = vendorCategoriesApi.useSearch("");
-
-  // Combine search results with selected category
-  const displayCategories = (() => {
-    if (!currentRow?.vendorCategory?.id) return categories;
-    const selected = allCategories.find(c => c.id === currentRow.vendorCategory.id);
-    if (!selected) return categories;
-    if (categories.some(c => c.id === selected.id)) return categories;
-    return [selected, ...categories];
-  })();
-
   // Reset form when currentRow changes
   useEffect(() => {
     if (currentRow) {

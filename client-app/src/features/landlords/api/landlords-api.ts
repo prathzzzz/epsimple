@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import api from './api';
-import { BackendPageResponse, flattenPageResponse, type FlatPageResponse } from './api-utils';
+import api from '@/lib/api';
+import { BackendPageResponse, flattenPageResponse, type FlatPageResponse } from '@/lib/api-utils';
 
 export interface Landlord {
   id: number;

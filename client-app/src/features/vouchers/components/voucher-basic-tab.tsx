@@ -34,11 +34,7 @@ export function VoucherBasicTab({
   const [statusSearch, setStatusSearch] = useState("");
   const [statusOpen, setStatusOpen] = useState(false);
 
-  const { data: payees = [], isLoading: isLoadingPayees } = payeeApi.useSearch({
-    searchTerm: payeeSearch,
-    page: 0,
-    size: 50,
-  });
+  const { data: payees = [], isLoading: isLoadingPayees } = payeeApi.useSearchList(payeeSearch);
   
   const { data: paymentDetailsList = [], isLoading: isLoadingPaymentDetails } = paymentDetailsApi.useSearch(paymentDetailsSearch);
   

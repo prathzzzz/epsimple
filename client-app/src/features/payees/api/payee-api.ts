@@ -97,6 +97,32 @@ export const payeeApi = {
         const response = await api.get<ApiResponse<BackendPageResponse<Payee>>>(endpoint, {
           params: queryParams,
         });
+        return flattenPageResponse(response.data.data);
+      },
+      staleTime: 30000,
+    });
+  },
+
+  // Hook for dropdown/select usage - returns array only
+  useSearchList: (searchTerm: string) => {
+    return useQuery({
+      queryKey: ['payees', 'search-list', searchTerm],
+      queryFn: async () => {
+        const endpoint = searchTerm?.trim() ? `${BASE_URL}/search` : BASE_URL;
+        const queryParams: Record<string, unknown> = {
+          page: 0,
+          size: 50,
+          sortBy: 'id',
+          sortDirection: 'ASC',
+        };
+        
+        if (searchTerm?.trim()) {
+          queryParams.searchTerm = searchTerm.trim();
+        }
+        
+        const response = await api.get<ApiResponse<BackendPageResponse<Payee>>>(endpoint, {
+          params: queryParams,
+        });
         return flattenPageResponse(response.data.data).content;
       },
       staleTime: 30000,

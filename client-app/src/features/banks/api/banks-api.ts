@@ -1,6 +1,6 @@
-import api from './api'
+import api from '@/lib/api'
 import { useQuery } from '@tanstack/react-query'
-import { BackendPageResponse, flattenPageResponse } from './api-utils'
+import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils'
 
 export interface Bank {
   id: number
