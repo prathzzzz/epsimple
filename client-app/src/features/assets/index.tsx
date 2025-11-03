@@ -4,14 +4,25 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { ConfigDrawer } from '@/components/config-drawer'
-import { AssetProvider } from './context/asset-provider'
+import { AssetProvider, useAssetContext } from './context/asset-provider'
 import { AssetTable } from './components/asset-table'
 import { assetColumns } from './components/asset-columns'
 import { CreateAssetButton } from './components/create-asset-button'
 import { AssetDrawer } from './components/asset-drawer'
 import { AssetDeleteDialog } from './components/asset-delete-dialog'
+import { AssetMovementDialog } from './components/asset-movement-dialog'
+import { AssetPlacementDialog } from './components/asset-placement-dialog'
 
 function AssetsContent() {
+  const { 
+    isMovementDialogOpen, 
+    setIsMovementDialogOpen, 
+    assetForMovement,
+    isPlacementDialogOpen,
+    setIsPlacementDialogOpen,
+    assetForPlacement,
+  } = useAssetContext();
+
   return (
     <>
       <Header fixed>
@@ -40,6 +51,24 @@ function AssetsContent() {
       </Main>
       <AssetDrawer />
       <AssetDeleteDialog />
+      {assetForMovement && (
+        <AssetMovementDialog
+          open={isMovementDialogOpen}
+          onOpenChange={setIsMovementDialogOpen}
+          assetId={assetForMovement.id}
+          assetTagId={assetForMovement.assetTagId}
+          assetName={assetForMovement.assetName}
+        />
+      )}
+      {assetForPlacement && (
+        <AssetPlacementDialog
+          open={isPlacementDialogOpen}
+          onOpenChange={setIsPlacementDialogOpen}
+          assetId={assetForPlacement.id}
+          assetTagId={assetForPlacement.assetTagId}
+          assetName={assetForPlacement.assetName}
+        />
+      )}
     </>
   )
 }

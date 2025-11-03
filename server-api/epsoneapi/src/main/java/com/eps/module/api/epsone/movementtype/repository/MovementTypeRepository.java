@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface MovementTypeRepository extends JpaRepository<AssetMovementType, Long> {
     
@@ -21,4 +23,7 @@ public interface MovementTypeRepository extends JpaRepository<AssetMovementType,
     @Query("SELECT CASE WHEN COUNT(mt) > 0 THEN true ELSE false END FROM AssetMovementType mt WHERE " +
            "LOWER(mt.movementType) = LOWER(:movementType) AND mt.id <> :id")
     boolean existsByMovementTypeAndIdNot(@Param("movementType") String movementType, @Param("id") Long id);
+    
+    // Find movement type by exact name
+    Optional<AssetMovementType> findByMovementType(String movementType);
 }

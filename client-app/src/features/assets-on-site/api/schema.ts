@@ -10,7 +10,7 @@ export const assetsOnSiteFormSchema = z.object({
   deployedOn: z.string().optional().or(z.literal('')),
   activatedOn: z.string().optional().or(z.literal('')),
   decommissionedOn: z.string().optional().or(z.literal('')),
-  vacatedOn: z.string().optional().or(z.literal('')),
+  // vacatedOn removed - now automatically managed by backend
 });
 
 export type AssetsOnSiteFormData = z.infer<typeof assetsOnSiteFormSchema>;

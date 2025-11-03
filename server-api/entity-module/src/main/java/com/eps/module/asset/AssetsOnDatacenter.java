@@ -10,12 +10,7 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(
-    name = "assets_on_datacenter",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"asset_id", "datacenter_id"})
-    }
-)
+@Table(name = "assets_on_datacenter")
 @Getter
 @Setter
 @NoArgsConstructor

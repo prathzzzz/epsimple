@@ -132,7 +132,6 @@ export function AssetsOnWarehouseDrawer() {
       assignedOn: '',
       deliveredOn: '',
       commissionedOn: '',
-      vacatedOn: '',
       disposedOn: '',
       scrappedOn: '',
     },
@@ -152,7 +151,6 @@ export function AssetsOnWarehouseDrawer() {
         assignedOn: selectedPlacement.assignedOn || '',
         deliveredOn: selectedPlacement.deliveredOn || '',
         commissionedOn: selectedPlacement.commissionedOn || '',
-        vacatedOn: selectedPlacement.vacatedOn || '',
         disposedOn: selectedPlacement.disposedOn || '',
         scrappedOn: selectedPlacement.scrappedOn || '',
       });
@@ -651,24 +649,6 @@ export function AssetsOnWarehouseDrawer() {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Commissioned On</FormLabel>
-                    <DatePicker
-                      selected={field.value ? new Date(field.value) : undefined}
-                      onSelect={(date: Date | undefined) =>
-                        field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
-                      }
-                      placeholder="Select date"
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="vacatedOn"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Vacated On</FormLabel>
                     <DatePicker
                       selected={field.value ? new Date(field.value) : undefined}
                       onSelect={(date: Date | undefined) =>

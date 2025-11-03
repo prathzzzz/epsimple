@@ -8,7 +8,7 @@ export const assetsOnWarehouseFormSchema = z.object({
   assignedOn: z.string().optional().or(z.literal('')),
   deliveredOn: z.string().optional().or(z.literal('')),
   commissionedOn: z.string().optional().or(z.literal('')),
-  vacatedOn: z.string().optional().or(z.literal('')),
+  // vacatedOn removed - now automatically managed by backend
   disposedOn: z.string().optional().or(z.literal('')),
   scrappedOn: z.string().optional().or(z.literal('')),
 });

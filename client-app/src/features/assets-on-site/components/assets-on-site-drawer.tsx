@@ -126,7 +126,6 @@ export function AssetsOnSiteDrawer() {
       deployedOn: '',
       activatedOn: '',
       decommissionedOn: '',
-      vacatedOn: '',
     },
   });
 
@@ -146,7 +145,6 @@ export function AssetsOnSiteDrawer() {
         deployedOn: selectedPlacement.deployedOn || '',
         activatedOn: selectedPlacement.activatedOn || '',
         decommissionedOn: selectedPlacement.decommissionedOn || '',
-        vacatedOn: selectedPlacement.vacatedOn || '',
       });
     } else {
       form.reset({
@@ -159,7 +157,6 @@ export function AssetsOnSiteDrawer() {
         deployedOn: '',
         activatedOn: '',
         decommissionedOn: '',
-        vacatedOn: '',
       });
     }
   }, [selectedPlacement, form]);
@@ -713,24 +710,6 @@ export function AssetsOnSiteDrawer() {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Decommissioned On</FormLabel>
-                    <DatePicker
-                      selected={field.value ? new Date(field.value) : undefined}
-                      onSelect={(date: Date | undefined) =>
-                        field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
-                      }
-                      placeholder="Select date"
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="vacatedOn"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Vacated On</FormLabel>
                     <DatePicker
                       selected={field.value ? new Date(field.value) : undefined}
                       onSelect={(date: Date | undefined) =>

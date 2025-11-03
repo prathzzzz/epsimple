@@ -22,6 +22,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/date-picker'
 import {
   Popover,
@@ -49,8 +50,14 @@ import { assetTagCodeGeneratorApi } from '@/features/asset-tag-generators/api/as
 import { toast } from 'sonner'
 
 export function AssetDrawer() {
-  const { isDrawerOpen, setIsDrawerOpen, editingAsset, setEditingAsset } =
-    useAssetContext()
+  const { 
+    isDrawerOpen, 
+    setIsDrawerOpen, 
+    editingAsset, 
+    setEditingAsset,
+    setIsPlacementDialogOpen,
+    setAssetForPlacement 
+  } = useAssetContext()
 
   const [categorySearch, setCategorySearch] = useState('')
   const [categoryOpen, setCategoryOpen] = useState(false)
@@ -62,6 +69,7 @@ export function AssetDrawer() {
   const [bankOpen, setBankOpen] = useState(false)
   const [statusSearch, setStatusSearch] = useState('')
   const [statusOpen, setStatusOpen] = useState(false)
+  const [placeAfterCreation, setPlaceAfterCreation] = useState(false)
 
   const createAsset = assetsApi.useCreate()
   const updateAsset = assetsApi.useUpdate()
@@ -186,8 +194,14 @@ export function AssetDrawer() {
       )
     } else {
       createAsset.mutate(payload, {
-        onSuccess: () => {
+        onSuccess: (createdAsset) => {
           handleClose()
+          
+          // Open placement dialog if checkbox was checked
+          if (placeAfterCreation && createdAsset) {
+            setAssetForPlacement(createdAsset)
+            setIsPlacementDialogOpen(true)
+          }
         },
       })
     }
@@ -196,6 +210,7 @@ export function AssetDrawer() {
   const handleClose = () => {
     setIsDrawerOpen(false)
     setEditingAsset(null)
+    setPlaceAfterCreation(false)
     form.reset()
   }
 
@@ -752,6 +767,22 @@ export function AssetDrawer() {
                 </FormItem>
               )}
             />
+
+            {!editingAsset && (
+              <div className="flex items-center space-x-2 p-4 border rounded-lg bg-muted/50">
+                <Checkbox
+                  id="placeAfterCreation"
+                  checked={placeAfterCreation}
+                  onCheckedChange={(checked) => setPlaceAfterCreation(checked === true)}
+                />
+                <label
+                  htmlFor="placeAfterCreation"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                >
+                  Place asset at a location after creation
+                </label>
+              </div>
+            )}
 
             <FormField
               control={form.control}

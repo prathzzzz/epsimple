@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Slf4j
@@ -39,8 +40,8 @@ public class AssetLocationServiceImpl implements AssetLocationService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         ASSET_NOT_FOUND_MSG + assetId));
 
-        // Check if asset is on a site
-        Optional<AssetsOnSite> siteLocation = assetsOnSiteRepository.findByAssetId(assetId);
+        // Check if asset is on a site (active placement only)
+        Optional<AssetsOnSite> siteLocation = assetsOnSiteRepository.findActiveByAssetId(assetId);
         if (siteLocation.isPresent()) {
             AssetsOnSite placement = siteLocation.get();
             return AssetLocationCheckDto.builder()
@@ -53,8 +54,8 @@ public class AssetLocationServiceImpl implements AssetLocationService {
                     .build();
         }
 
-        // Check if asset is in a warehouse
-        Optional<AssetsOnWarehouse> warehouseLocation = assetsOnWarehouseRepository.findByAssetId(assetId);
+        // Check if asset is in a warehouse (active placement only)
+        Optional<AssetsOnWarehouse> warehouseLocation = assetsOnWarehouseRepository.findActiveByAssetId(assetId);
         if (warehouseLocation.isPresent()) {
             AssetsOnWarehouse placement = warehouseLocation.get();
             return AssetLocationCheckDto.builder()
@@ -67,8 +68,8 @@ public class AssetLocationServiceImpl implements AssetLocationService {
                     .build();
         }
 
-        // Check if asset is in a datacenter
-        Optional<AssetsOnDatacenter> datacenterLocation = assetsOnDatacenterRepository.findByAssetId(assetId);
+        // Check if asset is in a datacenter (active placement only)
+        Optional<AssetsOnDatacenter> datacenterLocation = assetsOnDatacenterRepository.findActiveByAssetId(assetId);
         if (datacenterLocation.isPresent()) {
             AssetsOnDatacenter placement = datacenterLocation.get();
             return AssetLocationCheckDto.builder()
@@ -91,31 +92,39 @@ public class AssetLocationServiceImpl implements AssetLocationService {
     @Override
     @Transactional
     public void removeAssetFromCurrentLocation(Long assetId) {
-        log.info("Removing asset {} from current location", assetId);
+        log.info("Marking asset {} as vacated from current location", assetId);
 
         // Validate asset exists
         assetRepository.findById(assetId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         ASSET_NOT_FOUND_MSG + assetId));
 
-        // Check and remove from site
-        assetsOnSiteRepository.findByAssetId(assetId).ifPresent(placement -> {
-            log.info("Removing asset {} from site {}", assetId, placement.getSite().getSiteCode());
-            assetsOnSiteRepository.delete(placement);
+        LocalDate vacatedDate = LocalDate.now();
+
+        // Check and mark as vacated from site
+        assetsOnSiteRepository.findActiveByAssetId(assetId).ifPresent(placement -> {
+            log.info("Marking asset {} as vacated from site {} on {}", 
+                    assetId, placement.getSite().getSiteCode(), vacatedDate);
+            placement.setVacatedOn(vacatedDate);
+            assetsOnSiteRepository.save(placement);
         });
 
-        // Check and remove from warehouse
-        assetsOnWarehouseRepository.findByAssetId(assetId).ifPresent(placement -> {
-            log.info("Removing asset {} from warehouse {}", assetId, placement.getWarehouse().getWarehouseCode());
-            assetsOnWarehouseRepository.delete(placement);
+        // Check and mark as vacated from warehouse
+        assetsOnWarehouseRepository.findActiveByAssetId(assetId).ifPresent(placement -> {
+            log.info("Marking asset {} as vacated from warehouse {} on {}", 
+                    assetId, placement.getWarehouse().getWarehouseCode(), vacatedDate);
+            placement.setVacatedOn(vacatedDate);
+            assetsOnWarehouseRepository.save(placement);
         });
 
-        // Check and remove from datacenter
-        assetsOnDatacenterRepository.findByAssetId(assetId).ifPresent(placement -> {
-            log.info("Removing asset {} from datacenter {}", assetId, placement.getDatacenter().getDatacenterCode());
-            assetsOnDatacenterRepository.delete(placement);
+        // Check and mark as vacated from datacenter
+        assetsOnDatacenterRepository.findActiveByAssetId(assetId).ifPresent(placement -> {
+            log.info("Marking asset {} as vacated from datacenter {} on {}", 
+                    assetId, placement.getDatacenter().getDatacenterCode(), vacatedDate);
+            placement.setVacatedOn(vacatedDate);
+            assetsOnDatacenterRepository.save(placement);
         });
 
-        log.info("Asset {} removed from current location successfully", assetId);
+        log.info("Asset {} marked as vacated from current location successfully", assetId);
     }
 }

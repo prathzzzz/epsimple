@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.assetplacement.service;
 import com.eps.module.activity.ActivityWork;
 import com.eps.module.api.epsone.activitywork.repository.ActivityWorkRepository;
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
+import com.eps.module.api.epsone.assetmovement.service.AssetMovementService;
 import com.eps.module.api.epsone.assetplacement.dto.AssetsOnSiteRequestDto;
 import com.eps.module.api.epsone.assetplacement.dto.AssetsOnSiteResponseDto;
 import com.eps.module.api.epsone.assetplacement.mapper.AssetsOnSiteMapper;
@@ -11,9 +12,7 @@ import com.eps.module.api.epsone.assetplacement.repository.AssetsOnWarehouseRepo
 import com.eps.module.api.epsone.assetplacement.repository.AssetsOnDatacenterRepository;
 import com.eps.module.api.epsone.genericstatustype.repository.GenericStatusTypeRepository;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
-import com.eps.module.asset.Asset;
-import com.eps.module.asset.AssetMovementTracker;
-import com.eps.module.asset.AssetsOnSite;
+import com.eps.module.asset.*;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.site.Site;
 import com.eps.module.status.GenericStatusType;
@@ -25,6 +24,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -39,6 +41,7 @@ public class AssetsOnSiteServiceImpl implements AssetsOnSiteService {
     private final GenericStatusTypeRepository genericStatusTypeRepository;
     private final ActivityWorkRepository activityWorkRepository;
     private final AssetsOnSiteMapper assetsOnSiteMapper;
+    private final AssetMovementService assetMovementService;
 
     @Override
     @Transactional
@@ -60,18 +63,38 @@ public class AssetsOnSiteServiceImpl implements AssetsOnSiteService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Asset status not found with id: " + requestDto.getAssetStatusId()));
 
-        // Check if asset is already placed anywhere (site, warehouse, or datacenter)
-        if (assetsOnSiteRepository.existsByAssetId(requestDto.getAssetId())) {
-            throw new IllegalArgumentException(
-                    "Asset '" + asset.getAssetTagId() + "' is already placed on a site. Remove it from the current location first.");
+        // Check for active placements and handle movement tracking
+        Object fromPlacement = null;
+        String fromType = "Factory";
+        
+        // Check if asset has active placement on site
+        Optional<AssetsOnSite> activeSite = assetsOnSiteRepository.findActiveByAssetId(requestDto.getAssetId());
+        if (activeSite.isPresent()) {
+            fromPlacement = activeSite.get();
+            fromType = "Site";
+            // Mark old placement as vacated
+            activeSite.get().setVacatedOn(LocalDate.now());
+            assetsOnSiteRepository.save(activeSite.get());
         }
-        if (assetsOnWarehouseRepository.existsByAssetId(requestDto.getAssetId())) {
-            throw new IllegalArgumentException(
-                    "Asset '" + asset.getAssetTagId() + "' is already placed in a warehouse. Remove it from the current location first.");
+        
+        // Check if asset has active placement in warehouse
+        Optional<AssetsOnWarehouse> activeWarehouse = assetsOnWarehouseRepository.findActiveByAssetId(requestDto.getAssetId());
+        if (activeWarehouse.isPresent()) {
+            fromPlacement = activeWarehouse.get();
+            fromType = "Warehouse";
+            // Mark old placement as vacated
+            activeWarehouse.get().setVacatedOn(LocalDate.now());
+            assetsOnWarehouseRepository.save(activeWarehouse.get());
         }
-        if (assetsOnDatacenterRepository.existsByAssetId(requestDto.getAssetId())) {
-            throw new IllegalArgumentException(
-                    "Asset '" + asset.getAssetTagId() + "' is already placed in a datacenter. Remove it from the current location first.");
+        
+        // Check if asset has active placement in datacenter
+        Optional<AssetsOnDatacenter> activeDatacenter = assetsOnDatacenterRepository.findActiveByAssetId(requestDto.getAssetId());
+        if (activeDatacenter.isPresent()) {
+            fromPlacement = activeDatacenter.get();
+            fromType = "Datacenter";
+            // Mark old placement as vacated
+            activeDatacenter.get().setVacatedOn(LocalDate.now());
+            assetsOnDatacenterRepository.save(activeDatacenter.get());
         }
 
         // Validate optional activity work if provided
@@ -82,12 +105,19 @@ public class AssetsOnSiteServiceImpl implements AssetsOnSiteService {
                             "Activity work not found with id: " + requestDto.getActivityWorkId()));
         }
 
-        // For now, assetMovementTracker is null (movement tracking is separate)
-        AssetMovementTracker assetMovementTracker = null;
-
+        // Create new placement
         AssetsOnSite assetsOnSite = assetsOnSiteMapper.toEntity(
-                requestDto, asset, site, assetStatus, activityWork, assetMovementTracker);
+                requestDto, asset, site, assetStatus, activityWork, null);
         AssetsOnSite saved = assetsOnSiteRepository.save(assetsOnSite);
+
+        // Track movement and link to placement
+        AssetMovementType movementType = assetMovementService.determineMovementType(fromType, "Site");
+        AssetMovementTracker tracker = assetMovementService.trackMovement(
+                asset, movementType, fromType.equals("Factory") ? "Factory" : null, fromPlacement, saved);
+        
+        // Update placement with tracker
+        saved.setAssetMovementTracker(tracker);
+        saved = assetsOnSiteRepository.save(saved);
 
         // Fetch with details for response
         AssetsOnSite savedWithDetails = assetsOnSiteRepository.findByIdWithDetails(saved.getId())

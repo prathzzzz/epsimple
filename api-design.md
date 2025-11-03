@@ -675,18 +675,81 @@
 
 ### Phase 6: Complex Transaction Entities
 
-#### 6.1 Asset Placement Operations
-- `POST /api/assets/{assetId}/place-on-site` - Place asset on site (requires siteId, statusId)
-- `POST /api/assets/{assetId}/place-on-warehouse` - Place asset in warehouse
-- `POST /api/assets/{assetId}/place-on-datacenter` - Place asset in datacenter
-- `GET /api/sites/{siteId}/assets` - List assets on site
-- `GET /api/warehouses/{warehouseId}/assets` - List assets in warehouse
-- `GET /api/datacenters/{datacenterId}/assets` - List assets in datacenter
+#### 6.1 Asset Placement Operations ✅ COMPLETED
+- ✅ `POST /api/assets-on-site` - Place asset on site (requires assetId, siteId, statusId, optional assignedOn, deliveredOn, activityWorkId)
+- ✅ `GET /api/assets-on-site` - List all assets on sites (with pagination)
+- ✅ `GET /api/assets-on-site/search` - Search assets on sites (by asset tag, site code, status)
+- ✅ `GET /api/assets-on-site/site/{siteId}` - List assets on specific site
+- ✅ `GET /api/assets-on-site/{id}` - Get asset placement details
+- ✅ `PUT /api/assets-on-site/{id}` - Update asset placement
+- ✅ `DELETE /api/assets-on-site/{id}` - Remove asset from site (vacates placement)
+- ✅ `POST /api/assets-on-warehouse` - Place asset in warehouse (requires assetId, warehouseId, statusId)
+- ✅ `GET /api/assets-on-warehouse` - List all assets in warehouses (with pagination)
+- ✅ `GET /api/assets-on-warehouse/search` - Search assets in warehouses
+- ✅ `GET /api/assets-on-warehouse/warehouse/{warehouseId}` - List assets in specific warehouse
+- ✅ `GET /api/assets-on-warehouse/{id}` - Get warehouse placement details
+- ✅ `PUT /api/assets-on-warehouse/{id}` - Update warehouse placement
+- ✅ `DELETE /api/assets-on-warehouse/{id}` - Remove asset from warehouse (vacates placement)
+- ✅ `POST /api/assets-on-datacenter` - Place asset in datacenter (requires assetId, datacenterId, statusId)
+- ✅ `GET /api/assets-on-datacenter` - List all assets in datacenters (with pagination)
+- ✅ `GET /api/assets-on-datacenter/search` - Search assets in datacenters
+- ✅ `GET /api/assets-on-datacenter/datacenter/{datacenterId}` - List assets in specific datacenter
+- ✅ `GET /api/assets-on-datacenter/{id}` - Get datacenter placement details
+- ✅ `PUT /api/assets-on-datacenter/{id}` - Update datacenter placement
+- ✅ `DELETE /api/assets-on-datacenter/{id}` - Remove asset from datacenter (vacates placement)
+- ✅ Backend: Full CRUD for all 3 placement types with soft-delete pattern (vacatedOn field)
+- ✅ Frontend: Unified asset placement dialog accessible from Assets page
+- ✅ **Movement Tracking Integration**: All placements automatically track movements via AssetMovementTracker
+- ✅ **Automatic History**: Moving asset between locations sets vacatedOn on old placement, creates new placement record
+- ✅ **Features**:
+  - Single unified placement dialog with location type selector (Site/Warehouse/Datacenter)
+  - Dynamic location dropdown based on selected type
+  - Real-time validation ensuring asset not already placed (checks all 3 placement types)
+  - Automatic movement type determination (Factory to X, Site to Warehouse, etc.)
+  - Links placement with activity work if provided
+  - Checkbox in asset creation: "Place asset after creation" - opens placement dialog
+  - Removed redundant "Assets on Site/Warehouse/Datacenter" pages from navigation
+- ✅ **Placement Workflow**:
+  1. Check existing active placements across all location types
+  2. If found, mark old placement with vacatedOn = today
+  3. Create new placement record
+  4. Determine movement type based on from/to location types
+  5. Create AssetMovementTracker record linking old and new placements
+  6. Link placement back to movement tracker
+- ✅ **Repository Queries**:
+  - `findActiveByAssetId()` - Returns placement where vacatedOn IS NULL
+  - `findHistoryByAssetId()` - Returns all placements including vacated ones
+- ✅ **Validation**: Asset exists, Location exists, Asset Status exists, optional Activity Work validation
+- ✅ **Response**: Includes assetTagId, assetName, locationName/Code, assetStatusName, activityWorkNumber
 
-#### 6.2 Asset Movement Tracking
-- `POST /api/asset-movements` - Track asset movement
-- `GET /api/assets/{assetId}/movements` - Get asset movement history
-- `GET /api/asset-movements/{id}` - Get movement details
+#### 6.2 Asset Movement Tracking ✅ COMPLETED
+- ✅ `GET /api/assets/{assetId}/movement-history` - Get asset movement history (paginated timeline)
+- ✅ `GET /api/assets/{assetId}/current-location` - Get asset's current placement location
+- ✅ Backend: AssetMovementService with automatic tracking on placement operations
+- ✅ Frontend: Beautiful timeline component showing movement history with icons, dates, locations
+- ✅ **Movement Tracker Entity**: Stores complete movement history
+  - assetId (FK to Asset)
+  - assetMovementTypeId (FK to AssetMovementType)
+  - fromFactory (String, nullable)
+  - fromSiteId, toSiteId (FK to Site, nullable)
+  - fromWarehouseId, toWarehouseId (FK to Warehouse, nullable)
+  - fromDatacenterId, toDatacenterId (FK to Datacenter, nullable)
+  - movedAt (timestamp)
+- ✅ **Movement Types**: Factory to Site, Site to Warehouse, Warehouse to Datacenter, Datacenter to Site, etc.
+- ✅ **Automatic Tracking**: AssetMovementService.trackMovement() called during placement operations
+- ✅ **History Display Features**:
+  - Timeline view with dots and connecting lines
+  - Location type badges with colors (Site=blue, Warehouse=purple, Datacenter=green)
+  - From/To arrows showing movement direction
+  - Formatted dates and movement type descriptions
+  - Pagination support for long histories
+- ✅ **Current Location Card**:
+  - Shows current placement with location type badge
+  - Displays location code, name, assigned date, delivered date
+  - Shows asset status and linked activity work number
+  - "Not Currently Placed" state when asset has no active placement
+- ✅ **Movement Dialog**: Tabbed interface with "Current Location" and "History" tabs
+- ✅ **Integration**: "Movement History" action in asset row actions menu
 
 #### 6.3 Expenditure Management - Invoice Based
 - `POST /api/expenditures/invoices` - Create expenditure invoice (requires costItemId, invoiceId, projectId)

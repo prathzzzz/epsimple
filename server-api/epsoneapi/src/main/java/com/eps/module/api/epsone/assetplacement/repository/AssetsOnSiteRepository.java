@@ -33,7 +33,8 @@ public interface AssetsOnSiteRepository extends JpaRepository<AssetsOnSite, Long
             "LEFT JOIN FETCH s.location l " +
             "LEFT JOIN FETCH aos.assetStatus ast " +
             "LEFT JOIN FETCH aos.activityWork aw " +
-            "LEFT JOIN FETCH aos.assetMovementTracker amt")
+            "LEFT JOIN FETCH aos.assetMovementTracker amt " +
+            "WHERE aos.vacatedOn IS NULL")
     Page<AssetsOnSite> findAllWithDetails(Pageable pageable);
 
     @Query("SELECT aos FROM AssetsOnSite aos " +
@@ -43,7 +44,7 @@ public interface AssetsOnSiteRepository extends JpaRepository<AssetsOnSite, Long
             "LEFT JOIN FETCH aos.site s " +
             "LEFT JOIN FETCH s.location l " +
             "LEFT JOIN FETCH aos.assetStatus ast " +
-            "WHERE aos.site.id = :siteId")
+            "WHERE aos.site.id = :siteId AND aos.vacatedOn IS NULL")
     Page<AssetsOnSite> findBySiteIdWithDetails(@Param("siteId") Long siteId, Pageable pageable);
 
     @Query("SELECT aos FROM AssetsOnSite aos " +
@@ -64,10 +65,11 @@ public interface AssetsOnSiteRepository extends JpaRepository<AssetsOnSite, Long
             "LEFT JOIN FETCH s.location l " +
             "LEFT JOIN FETCH aos.assetStatus ast " +
             "LEFT JOIN FETCH aos.activityWork aw " +
-            "WHERE LOWER(a.assetTagId) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "WHERE aos.vacatedOn IS NULL AND (" +
+            "LOWER(a.assetTagId) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(a.assetName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(s.siteCode) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-            "OR LOWER(ast.statusName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+            "OR LOWER(ast.statusName) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
     Page<AssetsOnSite> searchAssetsOnSite(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     // Check if asset is already placed on a site
@@ -82,6 +84,25 @@ public interface AssetsOnSiteRepository extends JpaRepository<AssetsOnSite, Long
             "LEFT JOIN FETCH aos.site s " +
             "WHERE aos.asset.id = :assetId")
     Optional<AssetsOnSite> findByAssetId(@Param("assetId") Long assetId);
+
+    // Find active placement (vacatedOn is null) by asset ID
+    @Query("SELECT aos FROM AssetsOnSite aos " +
+            "LEFT JOIN FETCH aos.asset a " +
+            "LEFT JOIN FETCH aos.site s " +
+            "LEFT JOIN FETCH aos.assetStatus ast " +
+            "LEFT JOIN FETCH aos.activityWork aw " +
+            "LEFT JOIN FETCH aos.assetMovementTracker amt " +
+            "WHERE aos.asset.id = :assetId AND aos.vacatedOn IS NULL")
+    Optional<AssetsOnSite> findActiveByAssetId(@Param("assetId") Long assetId);
+
+    // Find placement history (vacatedOn is not null) by asset ID
+    @Query("SELECT aos FROM AssetsOnSite aos " +
+            "LEFT JOIN FETCH aos.asset a " +
+            "LEFT JOIN FETCH aos.site s " +
+            "LEFT JOIN FETCH aos.assetStatus ast " +
+            "WHERE aos.asset.id = :assetId AND aos.vacatedOn IS NOT NULL " +
+            "ORDER BY aos.vacatedOn DESC")
+    Page<AssetsOnSite> findHistoryByAssetId(@Param("assetId") Long assetId, Pageable pageable);
 
     // Count assets on site
     long countBySiteId(Long siteId);

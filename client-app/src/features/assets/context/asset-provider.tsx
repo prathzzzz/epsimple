@@ -10,6 +10,14 @@ interface AssetContextType {
   setIsDeleteDialogOpen: (open: boolean) => void
   assetToDelete: Asset | null
   setAssetToDelete: (asset: Asset | null) => void
+  isMovementDialogOpen: boolean
+  setIsMovementDialogOpen: (open: boolean) => void
+  assetForMovement: Asset | null
+  setAssetForMovement: (asset: Asset | null) => void
+  isPlacementDialogOpen: boolean
+  setIsPlacementDialogOpen: (open: boolean) => void
+  assetForPlacement: Asset | null
+  setAssetForPlacement: (asset: Asset | null) => void
 }
 
 const AssetContext = createContext<AssetContextType | undefined>(undefined)
@@ -19,6 +27,10 @@ export function AssetProvider({ children }: { children: ReactNode }) {
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [assetToDelete, setAssetToDelete] = useState<Asset | null>(null)
+  const [isMovementDialogOpen, setIsMovementDialogOpen] = useState(false)
+  const [assetForMovement, setAssetForMovement] = useState<Asset | null>(null)
+  const [isPlacementDialogOpen, setIsPlacementDialogOpen] = useState(false)
+  const [assetForPlacement, setAssetForPlacement] = useState<Asset | null>(null)
 
   return (
     <AssetContext.Provider
@@ -31,6 +43,14 @@ export function AssetProvider({ children }: { children: ReactNode }) {
         setIsDeleteDialogOpen,
         assetToDelete,
         setAssetToDelete,
+        isMovementDialogOpen,
+        setIsMovementDialogOpen,
+        assetForMovement,
+        setAssetForMovement,
+        isPlacementDialogOpen,
+        setIsPlacementDialogOpen,
+        assetForPlacement,
+        setAssetForPlacement,
       }}
     >
       {children}
