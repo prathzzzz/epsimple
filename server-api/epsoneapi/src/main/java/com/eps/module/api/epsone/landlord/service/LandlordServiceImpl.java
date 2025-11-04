@@ -4,7 +4,7 @@ import com.eps.module.api.epsone.landlord.dto.LandlordRequestDto;
 import com.eps.module.api.epsone.landlord.dto.LandlordResponseDto;
 import com.eps.module.api.epsone.landlord.mapper.LandlordMapper;
 import com.eps.module.api.epsone.landlord.repository.LandlordRepository;
-import com.eps.module.api.epsone.persondetails.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
 import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.vendor.Landlord;

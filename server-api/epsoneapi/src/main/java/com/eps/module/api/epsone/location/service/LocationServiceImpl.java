@@ -6,7 +6,7 @@ import com.eps.module.api.epsone.location.dto.LocationResponseDto;
 import com.eps.module.api.epsone.location.mapper.LocationMapper;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.warehouse.repository.WarehouseRepository;
-import com.eps.module.api.epsone.datacenter.repository.DatacenterRepository;
+import com.eps.module.api.epsone.data_center.repository.DatacenterRepository;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.City;

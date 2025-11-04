@@ -1,12 +1,12 @@
 package com.eps.module.api.epsone.vendor.service;
 
-import com.eps.module.api.epsone.persondetails.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
 import com.eps.module.api.epsone.vendor.dto.VendorRequestDto;
 import com.eps.module.api.epsone.vendor.dto.VendorResponseDto;
 import com.eps.module.api.epsone.vendor.mapper.VendorMapper;
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
-import com.eps.module.api.epsone.vendortype.repository.VendorTypeRepository;
-import com.eps.module.api.epsone.activitywork.repository.ActivityWorkRepository;
+import com.eps.module.api.epsone.vendor_type.repository.VendorTypeRepository;
+import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
 import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.vendor.Vendor;

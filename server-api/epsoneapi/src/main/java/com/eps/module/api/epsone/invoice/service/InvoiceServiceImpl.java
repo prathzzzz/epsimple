@@ -5,7 +5,7 @@ import com.eps.module.api.epsone.invoice.dto.InvoiceResponseDto;
 import com.eps.module.api.epsone.invoice.mapper.InvoiceMapper;
 import com.eps.module.api.epsone.invoice.repository.InvoiceRepository;
 import com.eps.module.api.epsone.payee.repository.PayeeRepository;
-import com.eps.module.api.epsone.paymentdetails.repository.PaymentDetailsRepository;
+import com.eps.module.api.epsone.payment_details.repository.PaymentDetailsRepository;
 import com.eps.module.payment.Invoice;
 import com.eps.module.payment.Payee;
 import com.eps.module.payment.PaymentDetails;

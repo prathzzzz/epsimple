@@ -1,15 +1,15 @@
 package com.eps.module.api.epsone.site.service;
 
-import com.eps.module.api.epsone.genericstatustype.repository.GenericStatusTypeRepository;
+import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTypeRepository;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
-import com.eps.module.api.epsone.managedproject.repository.ManagedProjectRepository;
-import com.eps.module.api.epsone.persondetails.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
+import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
 import com.eps.module.api.epsone.site.dto.SiteRequestDto;
 import com.eps.module.api.epsone.site.dto.SiteResponseDto;
 import com.eps.module.api.epsone.site.mapper.SiteMapper;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
-import com.eps.module.api.epsone.sitecategory.repository.SiteCategoryRepository;
-import com.eps.module.api.epsone.sitetype.repository.SiteTypeRepository;
+import com.eps.module.api.epsone.site_category.repository.SiteCategoryRepository;
+import com.eps.module.api.epsone.site_type.repository.SiteTypeRepository;
 import com.eps.module.bank.ManagedProject;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.Location;

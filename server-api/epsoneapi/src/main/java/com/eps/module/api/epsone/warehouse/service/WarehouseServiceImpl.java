@@ -5,7 +5,7 @@ import com.eps.module.api.epsone.warehouse.dto.WarehouseRequestDto;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseResponseDto;
 import com.eps.module.api.epsone.warehouse.mapper.WarehouseMapper;
 import com.eps.module.api.epsone.warehouse.repository.WarehouseRepository;
-import com.eps.module.api.epsone.assetplacement.repository.AssetsOnWarehouseRepository;
+import com.eps.module.api.epsone.asset_placement.repository.AssetsOnWarehouseRepository;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.Location;
 import com.eps.module.warehouse.Warehouse;

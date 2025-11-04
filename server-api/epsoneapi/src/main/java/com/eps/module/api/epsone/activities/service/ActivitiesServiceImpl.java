@@ -7,7 +7,7 @@ import com.eps.module.api.epsone.activities.dto.ActivitiesResponseDto;
 import com.eps.module.api.epsone.activities.mapper.ActivitiesMapper;
 import com.eps.module.api.epsone.activities.repository.ActivitiesRepository;
 import com.eps.module.api.epsone.activity.repository.ActivityRepository;
-import com.eps.module.api.epsone.activitywork.repository.ActivityWorkRepository;
+import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

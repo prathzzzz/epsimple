@@ -1,7 +1,7 @@
 package com.eps.module.api.epsone.voucher.service;
 
 import com.eps.module.api.epsone.payee.repository.PayeeRepository;
-import com.eps.module.api.epsone.paymentdetails.repository.PaymentDetailsRepository;
+import com.eps.module.api.epsone.payment_details.repository.PaymentDetailsRepository;
 import com.eps.module.api.epsone.voucher.dto.VoucherRequestDto;
 import com.eps.module.api.epsone.voucher.dto.VoucherResponseDto;
 import com.eps.module.api.epsone.voucher.mapper.VoucherMapper;
