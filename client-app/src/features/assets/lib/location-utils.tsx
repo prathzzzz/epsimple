@@ -1,4 +1,4 @@
-import { Building2, Factory, MapPin, Package, Server } from 'lucide-react';
+import { Building2, Factory, MapPin, Package, Server, PackagePlus } from 'lucide-react';
 
 export const LOCATION_TYPES = {
   SITE: 'site',
@@ -13,6 +13,8 @@ export const LOCATION_TYPE_LABELS: Record<string, string> = {
   [LOCATION_TYPES.WAREHOUSE]: 'Warehouse',
   [LOCATION_TYPES.DATACENTER]: 'Datacenter',
   factory: 'Factory',
+  'newly placed': 'Newly Placed',
+  'newly-placed': 'Newly Placed',
 };
 
 export const getLocationIcon = (locationType?: string) => {
@@ -25,6 +27,9 @@ export const getLocationIcon = (locationType?: string) => {
       return <Server className="h-4 w-4" />;
     case 'factory':
       return <Factory className="h-4 w-4" />;
+    case 'newly placed':
+    case 'newly-placed':
+      return <PackagePlus className="h-4 w-4" />;
     default:
       return <MapPin className="h-4 w-4" />;
   }
@@ -40,6 +45,9 @@ export const getLocationBadgeColor = (locationType?: string) => {
       return 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20';
     case 'factory':
       return 'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20';
+    case 'newly placed':
+    case 'newly-placed':
+      return 'bg-sky-500/10 text-sky-700 dark:text-sky-400 border-sky-500/20';
     default:
       return 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20';
   }

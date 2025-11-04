@@ -67,7 +67,7 @@ public class AssetsOnSiteServiceImpl implements AssetsOnSiteService {
 
         // Check for active placements and handle movement tracking
         Object fromPlacement = null;
-        String fromType = LocationType.FACTORY_DISPLAY;
+        String fromType = LocationType.NEWLY_PLACED_DISPLAY;
         
         // Check if asset has active placement on site
         Optional<AssetsOnSite> activeSite = assetsOnSiteRepository.findActiveByAssetId(requestDto.getAssetId());
@@ -115,7 +115,7 @@ public class AssetsOnSiteServiceImpl implements AssetsOnSiteService {
         // Track movement and link to placement
         AssetMovementType movementType = assetMovementService.determineMovementType(fromType, LocationType.SITE_DISPLAY);
         AssetMovementTracker tracker = assetMovementService.trackMovement(
-                asset, movementType, fromType.equals(LocationType.FACTORY_DISPLAY) ? LocationType.FACTORY_DISPLAY : null, fromPlacement, saved);
+                asset, movementType, fromType.equals(LocationType.NEWLY_PLACED_DISPLAY) ? LocationType.NEWLY_PLACED_DISPLAY : null, fromPlacement, saved);
         
         // Update placement with tracker
         saved.setAssetMovementTracker(tracker);

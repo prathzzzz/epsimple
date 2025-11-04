@@ -13,10 +13,12 @@ public final class LocationType {
     public static final String WAREHOUSE = "warehouse";
     public static final String DATACENTER = "datacenter";
     public static final String FACTORY = "factory";
+    public static final String NEWLY_PLACED = "newly-placed";
     
     // Capitalized versions for display
     public static final String SITE_DISPLAY = "Site";
     public static final String WAREHOUSE_DISPLAY = "Warehouse";
     public static final String DATACENTER_DISPLAY = "Datacenter";
     public static final String FACTORY_DISPLAY = "Factory";
+    public static final String NEWLY_PLACED_DISPLAY = "Newly Placed";
 }

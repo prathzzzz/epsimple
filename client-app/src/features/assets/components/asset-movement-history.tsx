@@ -23,7 +23,13 @@ interface AssetMovementHistoryProps {
 const parseLocationFromMovement = (movement: AssetMovementHistory, direction: 'from' | 'to') => {
   if (direction === 'from') {
     if (movement.fromFactory) {
-      return { type: 'Factory', name: movement.fromFactory, code: 'FACTORY' };
+      // Determine the type based on the value
+      const isNewlyPlaced = movement.fromFactory.toLowerCase().includes('newly placed');
+      return { 
+        type: isNewlyPlaced ? 'Newly Placed' : 'Factory', 
+        name: movement.fromFactory, 
+        code: isNewlyPlaced ? 'NEW' : 'FACTORY' 
+      };
     }
     if (movement.fromSiteId) {
       return { type: 'Site', name: movement.fromSiteName || '', code: movement.fromSiteCode || '' };
