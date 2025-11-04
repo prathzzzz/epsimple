@@ -762,14 +762,32 @@
 - `GET /api/expenditures/vouchers` - List expenditure vouchers
 - `GET /api/projects/{projectId}/expenditures/vouchers` - List project voucher expenditures
 
-#### 6.5 Site Activity Work Expenditure Linkage
-- `POST /api/sites/{siteId}/activity-work-expenditures` - Link site activity work with expenditure
-- `GET /api/sites/{siteId}/activity-work-expenditures` - List site work expenditures
-- `GET /api/activity-works/{workId}/expenditures` - Get expenditures for activity work
+#### 6.5 Site Activity Work Expenditure Linkage ✅ COMPLETED
+- ✅ `POST /api/site-activity-work-expenditures` - Create site activity work expenditure linkage
+- ✅ `GET /api/site-activity-work-expenditures` - List all site activity work expenditures (with pagination and search)
+- ✅ `GET /api/site-activity-work-expenditures/search` - Search site activity work expenditures
+- ✅ `GET /api/site-activity-work-expenditures/site/{siteId}` - List expenditures for specific site
+- ✅ `GET /api/site-activity-work-expenditures/activity-work/{activityWorkId}` - List expenditures for specific activity work
+- ✅ `GET /api/site-activity-work-expenditures/{id}` - Get site activity work expenditure by ID
+- ✅ `PUT /api/site-activity-work-expenditures/{id}` - Update site activity work expenditure
+- ✅ `DELETE /api/site-activity-work-expenditures/{id}` - Delete site activity work expenditure
+- ✅ Backend: Full CRUD with Site, ActivityWork, ExpendituresInvoice FK validation
+- ✅ Frontend: Full CRUD UI with context-aware filtering (accessible from Sites action menu)
+- ✅ Postman: Complete collection with all 8 endpoints
 
-#### 6.6 Asset Expenditure and Activity Work
-- `POST /api/assets/{assetId}/expenditure-work-link` - Link asset procurement with expenditure and work
-- `GET /api/assets/{assetId}/expenditure-work-details` - Get asset expenditure and work details
+#### 6.6 Asset Expenditure and Activity Work ✅ COMPLETED
+- ✅ `POST /api/asset-expenditure-and-activity-works` - Create asset expenditure and activity work linkage
+- ✅ `GET /api/asset-expenditure-and-activity-works` - List all asset expenditure and activity works (with pagination and search)
+- ✅ `GET /api/asset-expenditure-and-activity-works/search` - Search asset expenditure and activity works
+- ✅ `GET /api/asset-expenditure-and-activity-works/asset/{assetId}` - List expenditures for specific asset
+- ✅ `GET /api/asset-expenditure-and-activity-works/activity-work/{activityWorkId}` - List expenditures for specific activity work
+- ✅ `GET /api/asset-expenditure-and-activity-works/{id}` - Get asset expenditure and activity work by ID
+- ✅ `PUT /api/asset-expenditure-and-activity-works/{id}` - Update asset expenditure and activity work
+- ✅ `DELETE /api/asset-expenditure-and-activity-works/{id}` - Delete asset expenditure and activity work
+- ✅ Backend: Full CRUD with Asset, ExpendituresInvoice (optional), ActivityWork (optional) FK validation
+- ✅ Frontend: Full CRUD UI with context-aware filtering (accessible from Assets action menu)
+- ✅ Postman: Complete collection with all 8 endpoints (Asset-Expenditure-And-Activity-Work-API.postman_collection.json)
+- ✅ **Note**: Both expendituresInvoiceId and activityWorkId are optional fields, allowing flexible linking
 
 ---
 

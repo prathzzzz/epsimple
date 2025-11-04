@@ -1,5 +1,6 @@
 import type { Row } from '@tanstack/react-table'
-import { MoreHorizontal, Pencil, Trash, History, MapPin } from 'lucide-react'
+import { MoreHorizontal, Pencil, Trash, History, MapPin, Receipt } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -17,6 +18,7 @@ interface AssetRowActionsProps {
 
 export function AssetRowActions({ row }: AssetRowActionsProps) {
   const asset = row.original
+  const navigate = useNavigate()
   const {
     setIsDrawerOpen,
     setEditingAsset,
@@ -48,6 +50,13 @@ export function AssetRowActions({ row }: AssetRowActionsProps) {
     setIsPlacementDialogOpen(true)
   }
 
+  const handleManageExpenditures = () => {
+    navigate({
+      to: '/asset-expenditure-and-activity-works',
+      search: { assetId: asset.id },
+    })
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -59,10 +68,14 @@ export function AssetRowActions({ row }: AssetRowActionsProps) {
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[180px]">
+      <DropdownMenuContent align="end" className="w-[200px]">
         <DropdownMenuItem onClick={handlePlaceAsset}>
           <MapPin className="mr-2 h-4 w-4" />
           Place Asset
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleManageExpenditures}>
+          <Receipt className="mr-2 h-4 w-4" />
+          Manage Expenditures
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleViewMovement}>
           <History className="mr-2 h-4 w-4" />

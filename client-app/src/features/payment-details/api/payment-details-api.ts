@@ -1,6 +1,5 @@
 import api from "@/lib/api";
-import type { BackendPageResponse } from '@/lib/api-utils';
-import { flattenPageResponse } from '@/lib/api-utils';
+import { flattenPageResponse, type BackendPageResponse } from '@/lib/api-utils';
 import { useQuery } from '@tanstack/react-query';
 import type { PaymentDetails, PaymentDetailsFormData } from './schema';
 
