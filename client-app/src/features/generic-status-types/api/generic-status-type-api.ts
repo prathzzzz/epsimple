@@ -1,7 +1,6 @@
 import api from "@/lib/api";
 import { useQuery } from '@tanstack/react-query';
-import type { BackendPageResponse } from '@/lib/api-utils';
-import { flattenPageResponse as flatten } from '@/lib/api-utils';
+import { flattenPageResponse as flatten, type BackendPageResponse } from '@/lib/api-utils';
 export interface GenericStatusType {
   id: number;
   statusName: string;

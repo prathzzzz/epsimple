@@ -1,6 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import type { AssetExpenditureAndActivityWork } from '../api/schema';
-import { AssetExpenditureAndActivityWorkRowActions } from './asset-expenditure-and-activity-work-row-actions.tsx';
+import { AssetExpenditureAndActivityWorkRowActions } from './asset-expenditure-and-activity-work-row-actions';
 
 export const assetExpenditureAndActivityWorkColumns: ColumnDef<AssetExpenditureAndActivityWork>[] = [
   {
