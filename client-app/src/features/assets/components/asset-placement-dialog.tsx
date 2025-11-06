@@ -157,7 +157,7 @@ export function AssetPlacementDialog({
     : (initialDatacentersResponse?.content || []);
 
   // Get locations based on selected type
-  const locations: any[] = locationType === LOCATION_TYPES.SITE
+  const locations = locationType === LOCATION_TYPES.SITE
     ? sites 
     : locationType === LOCATION_TYPES.WAREHOUSE
     ? warehouses 
@@ -227,8 +227,9 @@ export function AssetPlacementDialog({
       onOpenChange(false);
       form.reset();
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to place asset');
+    onError: (error: unknown) => {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || 'Failed to place asset');
     },
   });
 
@@ -298,7 +299,7 @@ export function AssetPlacementDialog({
                       value={field.value}
                       onValueChange={(value) => {
                         field.onChange(value);
-                        setLocationType(value as any);
+                        setLocationType(value as typeof LOCATION_TYPES[keyof typeof LOCATION_TYPES]);
                         form.setValue('locationId', 0);
                       }}
                     >
@@ -339,11 +340,17 @@ export function AssetPlacementDialog({
                             )}
                           >
                             {field.value
-                              ? locations.find((l: any) => l.id === field.value)?.[
-                                  locationType === LOCATION_TYPES.SITE ? 'siteCode' : 
-                                  locationType === LOCATION_TYPES.WAREHOUSE ? 'warehouseName' : 
-                                  'datacenterName'
-                                ] || 'Select location'
+                              ? (() => {
+                                  const location = locations.find((l) => l.id === field.value);
+                                  if (!location) return 'Select location';
+                                  if (locationType === LOCATION_TYPES.SITE) {
+                                    return (location as { siteCode: string }).siteCode;
+                                  } else if (locationType === LOCATION_TYPES.WAREHOUSE) {
+                                    return (location as { warehouseName: string }).warehouseName;
+                                  } else {
+                                    return (location as { datacenterName: string }).datacenterName;
+                                  }
+                                })()
                               : 'Select location'}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -359,28 +366,32 @@ export function AssetPlacementDialog({
                           <CommandList>
                             <CommandEmpty>No locations found.</CommandEmpty>
                             <CommandGroup>
-                              {locations.map((location: any) => (
-                                <CommandItem
-                                  key={location.id}
-                                  value={String(location.id)}
-                                  onSelect={() => {
-                                    field.onChange(location.id);
-                                    setLocationOpen(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      'mr-2 h-4 w-4',
-                                      location.id === field.value ? 'opacity-100' : 'opacity-0'
-                                    )}
-                                  />
-                                  {locationType === LOCATION_TYPES.SITE
-                                    ? `${(location as any).siteCode}` 
-                                    : locationType === LOCATION_TYPES.WAREHOUSE
-                                    ? (location as any).warehouseName
-                                    : (location as any).datacenterName}
-                                </CommandItem>
-                              ))}
+                              {locations.map((location) => {
+                                const displayValue = locationType === LOCATION_TYPES.SITE
+                                  ? (location as { siteCode: string }).siteCode
+                                  : locationType === LOCATION_TYPES.WAREHOUSE
+                                  ? (location as { warehouseName: string }).warehouseName
+                                  : (location as { datacenterName: string }).datacenterName;
+                                
+                                return (
+                                  <CommandItem
+                                    key={location.id}
+                                    value={String(location.id)}
+                                    onSelect={() => {
+                                      field.onChange(location.id);
+                                      setLocationOpen(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        'mr-2 h-4 w-4',
+                                        location.id === field.value ? 'opacity-100' : 'opacity-0'
+                                      )}
+                                    />
+                                    {displayValue}
+                                  </CommandItem>
+                                );
+                              })}
                             </CommandGroup>
                           </CommandList>
                         </Command>
