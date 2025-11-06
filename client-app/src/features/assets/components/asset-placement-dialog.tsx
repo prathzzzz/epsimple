@@ -66,6 +66,7 @@ const placementFormSchema = z.object({
   activatedOn: z.string().optional().or(z.literal('')),
   commissionedOn: z.string().optional().or(z.literal('')),
   decommissionedOn: z.string().optional().or(z.literal('')),
+  vacatedOn: z.string().optional().or(z.literal('')),
   disposedOn: z.string().optional().or(z.literal('')),
   scrappedOn: z.string().optional().or(z.literal('')),
 });
@@ -181,6 +182,7 @@ export function AssetPlacementDialog({
       activatedOn: '',
       commissionedOn: '',
       decommissionedOn: '',
+      vacatedOn: '',
       disposedOn: '',
       scrappedOn: '',
     },
@@ -206,6 +208,7 @@ export function AssetPlacementDialog({
         activatedOn: data.activatedOn || undefined,
         commissionedOn: data.commissionedOn || undefined,
         decommissionedOn: data.decommissionedOn || undefined,
+        vacatedOn: data.vacatedOn || undefined,
         disposedOn: data.disposedOn || undefined,
         scrappedOn: data.scrappedOn || undefined,
       };
@@ -616,23 +619,81 @@ export function AssetPlacementDialog({
 
               {/* Warehouse/Datacenter-specific dates */}
               {(locationType === LOCATION_TYPES.WAREHOUSE || locationType === LOCATION_TYPES.DATACENTER) && (
-                <FormField
-                  control={form.control}
-                  name="commissionedOn"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Commissioned On</FormLabel>
-                      <DatePicker
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date: Date | undefined) =>
-                          field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
-                        }
-                        placeholder="Select date"
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <>
+                  <FormField
+                    control={form.control}
+                    name="commissionedOn"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Commissioned On</FormLabel>
+                        <DatePicker
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={(date: Date | undefined) =>
+                            field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
+                          }
+                          placeholder="Select date"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="vacatedOn"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Vacated On</FormLabel>
+                          <DatePicker
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date: Date | undefined) =>
+                              field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
+                            }
+                            placeholder="Select date"
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="disposedOn"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Disposed On</FormLabel>
+                          <DatePicker
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date: Date | undefined) =>
+                              field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
+                            }
+                            placeholder="Select date"
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="scrappedOn"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Scrapped On</FormLabel>
+                        <DatePicker
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={(date: Date | undefined) =>
+                            field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
+                          }
+                          placeholder="Select date"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
               )}
 
               <DialogFooter>
