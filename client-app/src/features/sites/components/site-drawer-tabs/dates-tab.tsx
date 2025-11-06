@@ -117,6 +117,26 @@ export function DatesTab({ form }: DatesTabProps) {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="otcActivationDate"
+          render={({ field }) => (
+            <FormItem className="flex flex-col flex-1">
+              <FormLabel>OTC Activation Date</FormLabel>
+              <FormControl>
+                <DatePicker
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => {
+                    field.onChange(date ? format(date, 'yyyy-MM-dd') : null);
+                  }}
+                  placeholder="Select OTC activation date"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
     </TabsContent>
   );
