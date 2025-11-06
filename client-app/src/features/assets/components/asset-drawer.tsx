@@ -21,7 +21,6 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/date-picker'
 import {
@@ -43,10 +42,8 @@ import { assetsApi } from '../api/assets-api'
 import { assetSchema, type AssetFormData } from '../api/schema'
 import { assetCategoryApi } from '@/features/asset-categories/api/asset-categories-api'
 import { assetTypesApi } from '@/features/asset-types/api/asset-types-api'
-import { useSearchVendors } from '@/features/vendors/api/vendors-api'
-import { useSearchBanks } from '@/features/banks/api/banks-api'
-import type { Vendor } from '@/features/vendors/api/vendors-api'
-import type { Bank } from '@/features/banks/api/banks-api'
+import { useSearchVendors, type Vendor } from '@/features/vendors/api/vendors-api'
+import { useSearchBanks, type Bank } from '@/features/banks/api/banks-api'
 import { genericStatusTypeApi } from '@/features/generic-status-types/api/generic-status-type-api'
 import { assetTagCodeGeneratorApi } from '@/features/asset-tag-generators/api/asset-tag-generator-api'
 import { toast } from 'sonner'
@@ -115,15 +112,22 @@ export function AssetDrawer() {
       assetTagId: '',
       assetName: '',
       serialNumber: '',
+      modelNumber: '',
       assetCategoryId: 0,
       assetTypeId: 0,
       vendorId: 0,
       lenderBankId: 0,
       statusTypeId: 0,
-      purchaseDate: '',
-      purchasePrice: undefined,
+      ownershipStatusId: undefined,
+      purchaseOrderNumber: '',
+      purchaseOrderDate: '',
+      purchaseOrderCost: undefined,
+      dispatchOrderNumber: '',
+      dispatchOrderDate: '',
+      warrantyPeriod: undefined,
       warrantyExpiryDate: '',
-      remarks: '',
+      endOfLifeDate: '',
+      endOfSupportDate: '',
     },
   })
 
@@ -133,15 +137,22 @@ export function AssetDrawer() {
         assetTagId: editingAsset.assetTagId,
         assetName: editingAsset.assetName,
         serialNumber: editingAsset.serialNumber || '',
+        modelNumber: editingAsset.modelNumber || '',
         assetCategoryId: editingAsset.assetCategoryId,
         assetTypeId: editingAsset.assetTypeId,
         vendorId: editingAsset.vendorId,
         lenderBankId: editingAsset.lenderBankId,
         statusTypeId: editingAsset.statusTypeId,
-        purchaseDate: editingAsset.purchaseDate || '',
-        purchasePrice: editingAsset.purchasePrice,
+        ownershipStatusId: editingAsset.ownershipStatusId,
+        purchaseOrderNumber: editingAsset.purchaseOrderNumber || '',
+        purchaseOrderDate: editingAsset.purchaseOrderDate || '',
+        purchaseOrderCost: editingAsset.purchaseOrderCost,
+        dispatchOrderNumber: editingAsset.dispatchOrderNumber || '',
+        dispatchOrderDate: editingAsset.dispatchOrderDate || '',
+        warrantyPeriod: editingAsset.warrantyPeriod,
         warrantyExpiryDate: editingAsset.warrantyExpiryDate || '',
-        remarks: editingAsset.remarks || '',
+        endOfLifeDate: editingAsset.endOfLifeDate || '',
+        endOfSupportDate: editingAsset.endOfSupportDate || '',
       })
     } else {
       form.reset()
@@ -208,8 +219,8 @@ export function AssetDrawer() {
       
       form.setValue('assetTagId', result.assetTag)
       toast.success(`Generated tag: ${result.assetTag}`)
-    } catch (error) {
-      console.error('Failed to generate asset tag:', error);
+    } catch (_error) {
+      toast.error('Failed to generate asset tag')
     }
   }
 
@@ -683,19 +694,120 @@ export function AssetDrawer() {
               />
             </div>
 
+            <FormField
+              control={form.control}
+              name="serialNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Serial Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter serial number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="modelNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Model Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter model number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="purchaseDate"
+                name="purchaseOrderNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Purchase Order Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter PO number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="purchaseOrderDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Purchase Date</FormLabel>
+                    <FormLabel>Purchase Order Date</FormLabel>
                     <DatePicker
                       selected={field.value ? new Date(field.value) : undefined}
                       onSelect={(date: Date | undefined) =>
                         field.onChange(date ? format(date, "yyyy-MM-dd") : "")
                       }
-                      placeholder="Select purchase date"
+                      placeholder="Select PO date"
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="purchaseOrderCost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Purchase Order Cost</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) =>
+                          field.onChange(e.target.value ? Number.parseFloat(e.target.value) : undefined)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dispatchOrderNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dispatch Order Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter dispatch order number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="dispatchOrderDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Dispatch Order Date</FormLabel>
+                    <DatePicker
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date: Date | undefined) =>
+                        field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                      }
+                      placeholder="Select dispatch order date"
                     />
                     <FormMessage />
                   </FormItem>
@@ -704,18 +816,18 @@ export function AssetDrawer() {
 
               <FormField
                 control={form.control}
-                name="purchasePrice"
+                name="warrantyPeriod"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Purchase Price</FormLabel>
+                    <FormLabel>Warranty Period (months)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
-                        step="0.01"
-                        placeholder="0.00"
+                        placeholder="Enter warranty period"
                         {...field}
+                        value={field.value || ""}
                         onChange={(e) =>
-                          field.onChange(e.target.value ? Number.parseFloat(e.target.value) : undefined)
+                          field.onChange(e.target.value ? Number.parseInt(e.target.value) : undefined)
                         }
                       />
                     </FormControl>
@@ -743,6 +855,44 @@ export function AssetDrawer() {
               )}
             />
 
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="endOfLifeDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>End Of Life Date</FormLabel>
+                    <DatePicker
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date: Date | undefined) =>
+                        field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                      }
+                      placeholder="Select end of life date"
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="endOfSupportDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>End Of Support Date</FormLabel>
+                    <DatePicker
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date: Date | undefined) =>
+                        field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                      }
+                      placeholder="Select end of support date"
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             {!editingAsset && (
               <div className="flex items-center space-x-2 p-4 border rounded-lg bg-muted/50">
                 <Checkbox
@@ -758,25 +908,6 @@ export function AssetDrawer() {
                 </label>
               </div>
             )}
-
-            <FormField
-              control={form.control}
-              name="remarks"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Remarks</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter any additional remarks"
-                      className="resize-none"
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </form>
         </Form>
 

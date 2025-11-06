@@ -5,15 +5,22 @@ export const assetSchema = z.object({
   assetTagId: z.string().min(1, 'Asset Tag ID is required'),
   assetName: z.string().min(1, 'Asset Name is required'),
   serialNumber: z.string().optional(),
+  modelNumber: z.string().optional(),
   assetCategoryId: z.number().min(1, 'Asset Category is required'),
   assetTypeId: z.number().min(1, 'Asset Type is required'),
   vendorId: z.number().min(1, 'Vendor is required'),
-  lenderBankId: z.number().min(1, 'Bank is required'),
+  lenderBankId: z.number().min(1, 'Lender Bank is required'),
   statusTypeId: z.number().min(1, 'Status Type is required'),
-  purchaseDate: z.string().optional(),
-  purchasePrice: z.number().optional(),
+  ownershipStatusId: z.number().optional(),
+  purchaseOrderNumber: z.string().optional(),
+  purchaseOrderDate: z.string().optional(),
+  purchaseOrderCost: z.number().optional(),
+  dispatchOrderNumber: z.string().optional(),
+  dispatchOrderDate: z.string().optional(),
+  warrantyPeriod: z.number().optional(),
   warrantyExpiryDate: z.string().optional(),
-  remarks: z.string().optional(),
+  endOfLifeDate: z.string().optional(),
+  endOfSupportDate: z.string().optional(),
 })
 
 export type AssetFormData = z.infer<typeof assetSchema>
@@ -24,6 +31,7 @@ export interface Asset {
   assetTagId: string
   assetName: string
   serialNumber?: string
+  modelNumber?: string
   assetCategoryId: number
   assetCategoryName: string
   assetCategoryCode: string
@@ -38,10 +46,17 @@ export interface Asset {
   lenderBankCode: string
   statusTypeId: number
   statusTypeName: string
-  purchaseDate?: string
-  purchasePrice?: number
+  ownershipStatusId?: number
+  ownershipStatusName?: string
+  purchaseOrderNumber?: string
+  purchaseOrderDate?: string
+  purchaseOrderCost?: number
+  dispatchOrderNumber?: string
+  dispatchOrderDate?: string
+  warrantyPeriod?: number
   warrantyExpiryDate?: string
-  remarks?: string
+  endOfLifeDate?: string
+  endOfSupportDate?: string
   createdAt: string
   updatedAt: string
   createdBy: string
@@ -52,15 +67,22 @@ export interface AssetRequest {
   assetTagId: string
   assetName: string
   serialNumber?: string
+  modelNumber?: string
   assetCategoryId: number
   assetTypeId: number
   vendorId: number
   lenderBankId: number
   statusTypeId: number
-  purchaseDate?: string
-  purchasePrice?: number
+  ownershipStatusId?: number
+  purchaseOrderNumber?: string
+  purchaseOrderDate?: string
+  purchaseOrderCost?: number
+  dispatchOrderNumber?: string
+  dispatchOrderDate?: string
+  warrantyPeriod?: number
   warrantyExpiryDate?: string
-  remarks?: string
+  endOfLifeDate?: string
+  endOfSupportDate?: string
 }
 
 export interface AssetListParams {
