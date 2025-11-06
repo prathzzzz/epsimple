@@ -292,6 +292,147 @@ export function InvoiceFinancialTab({ form }: InvoiceFinancialTabProps) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField
           control={form.control}
+          name="amount1"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Amount 1</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="Enter amount 1"
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) =>
+                    field.onChange(e.target.value ? parseFloat(e.target.value) : 0)
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="amount2"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Amount 2</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="Enter amount 2"
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) =>
+                    field.onChange(e.target.value ? parseFloat(e.target.value) : 0)
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField
+          control={form.control}
+          name="discountPercentage"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Discount Percentage</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="Enter discount %"
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) =>
+                    field.onChange(e.target.value ? parseFloat(e.target.value) : 0)
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="discountAmount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Discount Amount (Less)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="Discount amount"
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) =>
+                    field.onChange(e.target.value ? parseFloat(e.target.value) : 0)
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField
+          control={form.control}
+          name="tds"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>TDS</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="Enter TDS"
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) =>
+                    field.onChange(e.target.value ? parseFloat(e.target.value) : 0)
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="advanceAmount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Advance Amount (Less)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="Advance amount"
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) =>
+                    field.onChange(e.target.value ? parseFloat(e.target.value) : 0)
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField
+          control={form.control}
           name="netPayable"
           render={({ field }) => (
             <FormItem>
