@@ -5,7 +5,6 @@ import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { ConfigDrawer } from '@/components/config-drawer';
 import { AssetsOnSiteProvider } from './context/assets-on-site-provider';
-import { AssetsOnSiteDrawer } from './components/assets-on-site-drawer';
 import { AssetsOnSiteDeleteDialog } from './components/assets-on-site-delete-dialog';
 import { AssetsOnSiteTable } from './components/assets-on-site-table';
 import { CreateAssetsOnSiteButton } from './components/create-assets-on-site-button';
@@ -36,7 +35,6 @@ export default function AssetsOnSitePage() {
           <AssetsOnSiteTable columns={assetsOnSiteColumns} />
         </div>
       </Main>
-      <AssetsOnSiteDrawer />
       <AssetsOnSiteDeleteDialog />
     </AssetsOnSiteProvider>
   );

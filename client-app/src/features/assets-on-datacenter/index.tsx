@@ -5,7 +5,6 @@ import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { ConfigDrawer } from '@/components/config-drawer';
 import { AssetsOnDatacenterProvider } from './context/assets-on-datacenter-provider';
-import { AssetsOnDatacenterDrawer } from './components/assets-on-datacenter-drawer';
 import { AssetsOnDatacenterDeleteDialog } from './components/assets-on-datacenter-delete-dialog';
 import { AssetsOnDatacenterTable } from './components/assets-on-datacenter-table';
 import { CreateAssetsOnDatacenterButton } from './components/create-assets-on-datacenter-button';
@@ -36,7 +35,6 @@ export default function AssetsOnDatacenterPage() {
           <AssetsOnDatacenterTable columns={assetsOnDatacenterColumns} />
         </div>
       </Main>
-      <AssetsOnDatacenterDrawer />
       <AssetsOnDatacenterDeleteDialog />
     </AssetsOnDatacenterProvider>
   );

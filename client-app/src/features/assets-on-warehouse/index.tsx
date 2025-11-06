@@ -5,7 +5,6 @@ import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { ConfigDrawer } from '@/components/config-drawer';
 import { AssetsOnWarehouseProvider } from './context/assets-on-warehouse-provider';
-import { AssetsOnWarehouseDrawer } from './components/assets-on-warehouse-drawer';
 import { AssetsOnWarehouseDeleteDialog } from './components/assets-on-warehouse-delete-dialog';
 import { AssetsOnWarehouseTable } from './components/assets-on-warehouse-table';
 import { CreateAssetsOnWarehouseButton } from './components/create-assets-on-warehouse-button';
@@ -36,7 +35,6 @@ export default function AssetsOnWarehousePage() {
           <AssetsOnWarehouseTable columns={assetsOnWarehouseColumns} />
         </div>
       </Main>
-      <AssetsOnWarehouseDrawer />
       <AssetsOnWarehouseDeleteDialog />
     </AssetsOnWarehouseProvider>
   );
