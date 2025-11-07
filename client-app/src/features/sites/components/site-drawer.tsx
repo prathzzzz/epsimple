@@ -19,7 +19,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSiteContext } from "../context/site-provider";
 import { siteApi } from "../api/site-api";
 import { siteSchema, type SiteFormData } from "../api/schema";
-import { stateApi } from "@/features/states/api/state-api";
+import { statesApi } from "@/features/states/api/states-api";
 import {
   BasicTab,
   DatesTab,
@@ -38,10 +38,10 @@ export function SiteDrawer() {
 
   const { data: statesResponse } = useQuery({
     queryKey: ["states", "list"],
-    queryFn: () => stateApi.getList(),
+    queryFn: () => statesApi.getList(),
   });
 
-  const states = statesResponse || [];
+  const states = statesResponse?.data || [];
 
   const form = useForm<SiteFormData>({
     resolver: zodResolver(siteSchema),

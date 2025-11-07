@@ -1,12 +1,23 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { StatesMutateDrawer } from './states-mutate-drawer'
+import { BulkUploadDialog } from './bulk-upload-dialog'
 import { useStates } from './states-provider'
 import { statesApi } from '@/features/states/api/states-api'
 import { toast } from 'sonner'
+import { handleServerError } from '@/lib/handle-server-error'
 
 export function StatesDialogs() {
-  const { isDrawerOpen, closeDrawer, isDeleteDialogOpen, closeDeleteDialog, selectedState, isEditMode } = useStates()
+  const { 
+    isDrawerOpen, 
+    closeDrawer, 
+    isDeleteDialogOpen, 
+    closeDeleteDialog, 
+    isBulkUploadDialogOpen,
+    closeBulkUploadDialog,
+    selectedState, 
+    isEditMode 
+  } = useStates()
   const queryClient = useQueryClient()
 
   const deleteMutation = useMutation({
@@ -16,11 +27,14 @@ export function StatesDialogs() {
       toast.success('State deleted successfully')
       closeDeleteDialog()
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || 'Failed to delete state'
-      toast.error(message)
+    onError: (error: unknown) => {
+      handleServerError(error)
     },
   })
+
+  const handleBulkUploadSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['states'] })
+  }
 
   return (
     <>
@@ -52,6 +66,12 @@ export function StatesDialogs() {
           confirmText='Delete'
         />
       )}
+      
+      <BulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={closeBulkUploadDialog}
+        onSuccess={handleBulkUploadSuccess}
+      />
     </>
   )
 }

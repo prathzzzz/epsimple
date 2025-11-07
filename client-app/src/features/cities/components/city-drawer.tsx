@@ -27,7 +27,7 @@ import { Input } from "@/components/ui/input";
 import { useCityContext } from "../context/city-provider";
 import { cityApi } from "../api/city-api";
 import { cityFormSchema, type CityFormData } from "../api/schema";
-import { stateApi } from "@/features/states/api/state-api";
+import { statesApi } from "@/features/states/api/states-api";
 
 export function CityDrawer() {
   const {
@@ -49,10 +49,10 @@ export function CityDrawer() {
   });
 
   // Fetch states using search hook
-  const { data: states = [], isLoading: isLoadingStates } = stateApi.useSearch(stateSearch);
+  const { data: states = [], isLoading: isLoadingStates } = statesApi.useSearch(stateSearch);
   
   // Fetch all states to get the selected state when editing
-  const { data: allStatesData = [] } = stateApi.useSearch("");
+  const { data: allStatesData = [] } = statesApi.useSearch("");
   
   // Combine search results with selected state to ensure it's always visible
   const displayStates = (() => {

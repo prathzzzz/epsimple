@@ -11,6 +11,11 @@ interface StatesContextType {
   isDeleteDialogOpen: boolean
   openDeleteDialog: () => void
   closeDeleteDialog: () => void
+  
+  // Bulk upload dialog state
+  isBulkUploadDialogOpen: boolean
+  openBulkUploadDialog: () => void
+  closeBulkUploadDialog: () => void
 
   // Selected state for edit/delete
   selectedState: State | null
@@ -26,6 +31,7 @@ const StatesContext = createContext<StatesContextType | undefined>(undefined)
 export function StatesProvider({ children }: { children: ReactNode }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false)
   const [selectedState, setSelectedState] = useState<State | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
 
@@ -41,6 +47,9 @@ export function StatesProvider({ children }: { children: ReactNode }) {
     setIsDeleteDialogOpen(false)
     setSelectedState(null)
   }
+  
+  const openBulkUploadDialog = () => setIsBulkUploadDialogOpen(true)
+  const closeBulkUploadDialog = () => setIsBulkUploadDialogOpen(false)
 
   return (
     <StatesContext.Provider
@@ -51,6 +60,9 @@ export function StatesProvider({ children }: { children: ReactNode }) {
         isDeleteDialogOpen,
         openDeleteDialog,
         closeDeleteDialog,
+        isBulkUploadDialogOpen,
+        openBulkUploadDialog,
+        closeBulkUploadDialog,
         selectedState,
         setSelectedState,
         isEditMode,

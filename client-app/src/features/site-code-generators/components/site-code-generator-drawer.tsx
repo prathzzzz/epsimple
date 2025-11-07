@@ -33,7 +33,7 @@ import { useSiteCodeGeneratorContext } from "../context/site-code-generator-prov
 import { siteCodeGeneratorApi } from "../api/site-code-generator-api";
 import { siteCodeGeneratorFormSchema, type SiteCodeGeneratorFormData } from "../api/schema";
 import { managedProjectApi } from "@/features/managed-projects/api/managed-project-api";
-import { stateApi } from "@/features/states/api/state-api";
+import { statesApi } from "@/features/states/api/states-api";
 
 export function SiteCodeGeneratorDrawer() {
   const { isDrawerOpen, setIsDrawerOpen, editingGenerator, setEditingGenerator } = useSiteCodeGeneratorContext();
@@ -49,7 +49,7 @@ export function SiteCodeGeneratorDrawer() {
   const { data: projects = [], isLoading: isLoadingProjects } = 
     managedProjectApi.useSearch(projectSearch);
   const { data: states = [], isLoading: isLoadingStates } = 
-    stateApi.useSearch(stateSearch);
+    statesApi.useSearch(stateSearch);
 
   const form = useForm<SiteCodeGeneratorFormData>({
     resolver: zodResolver(siteCodeGeneratorFormSchema),
@@ -87,8 +87,8 @@ export function SiteCodeGeneratorDrawer() {
         await createMutation.mutateAsync(data);
       }
       handleClose();
-    } catch (error) {
-      console.error('Failed to save site code generator:', error);
+    } catch (_error) {
+      // Error is already handled by mutation onError callbacks
     }
   };
 

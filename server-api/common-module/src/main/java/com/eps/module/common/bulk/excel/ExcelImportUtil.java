@@ -1,0 +1,231 @@
+package com.eps.module.common.bulk.excel;
+
+import lombok.extern.slf4j.Slf4j;
+import org.dhatim.fastexcel.reader.ReadableWorkbook;
+import org.dhatim.fastexcel.reader.Row;
+import org.dhatim.fastexcel.reader.Sheet;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.*;
+import java.util.stream.Stream;
+
+/**
+ * Utility class for reading Excel files using FastExcel Reader
+ */
+@Slf4j
+@Component
+public class ExcelImportUtil {
+    
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    
+    /**
+     * Parse Excel file and convert to list of DTOs
+     */
+    public <T> List<T> parseExcelFile(MultipartFile file, Class<T> clazz) throws IOException {
+        List<T> results = new ArrayList<>();
+        
+        try (ReadableWorkbook workbook = new ReadableWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getFirstSheet();
+            
+            // Get annotated fields
+            Map<String, FieldInfo> fieldMap = getFieldMap(clazz);
+            
+            try (Stream<Row> rows = sheet.openStream()) {
+                Iterator<Row> rowIterator = rows.iterator();
+                
+                if (!rowIterator.hasNext()) {
+                    throw new IllegalArgumentException("Excel file is empty");
+                }
+                
+                // Read header row
+                Row headerRow = rowIterator.next();
+                Map<Integer, String> columnMapping = buildColumnMapping(headerRow, fieldMap);
+                
+                if (columnMapping.isEmpty()) {
+                    throw new IllegalArgumentException("No valid columns found in Excel file");
+                }
+                
+                // Read data rows
+                int rowNumber = 2; // Start from 2 (1 is header)
+                while (rowIterator.hasNext()) {
+                    Row row = rowIterator.next();
+                    
+                    if (isEmptyRow(row)) {
+                        rowNumber++;
+                        continue;
+                    }
+                    
+                    try {
+                        T dto = parseRow(row, columnMapping, fieldMap, clazz);
+                        results.add(dto);
+                    } catch (Exception e) {
+                        log.error("Error parsing row {}: {}", rowNumber, e.getMessage());
+                        throw new RuntimeException("Error parsing row " + rowNumber + ": " + e.getMessage(), e);
+                    }
+                    
+                    rowNumber++;
+                }
+            }
+        }
+        
+        if (results.isEmpty()) {
+            throw new IllegalArgumentException("Excel file must contain at least one data row");
+        }
+        
+        return results;
+    }
+    
+    /**
+     * Get map of field names to FieldInfo
+     */
+    private <T> Map<String, FieldInfo> getFieldMap(Class<T> clazz) {
+        Map<String, FieldInfo> fieldMap = new HashMap<>();
+        
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.isAnnotationPresent(ExcelColumn.class)) {
+                ExcelColumn annotation = field.getAnnotation(ExcelColumn.class);
+                fieldMap.put(annotation.value(), new FieldInfo(field, annotation));
+            }
+        }
+        
+        return fieldMap;
+    }
+    
+    /**
+     * Build column index to field name mapping
+     */
+    private Map<Integer, String> buildColumnMapping(Row headerRow, Map<String, FieldInfo> fieldMap) {
+        Map<Integer, String> columnMapping = new HashMap<>();
+        
+        for (int i = 0; i < headerRow.getCellCount(); i++) {
+            String headerName = getCellValueAsString(headerRow, i).trim();
+            // Remove asterisk if present (required marker)
+            headerName = headerName.replaceAll("\\s*\\*$", "");
+            
+            if (fieldMap.containsKey(headerName)) {
+                columnMapping.put(i, headerName);
+            }
+        }
+        
+        return columnMapping;
+    }
+    
+    /**
+     * Parse a single row into DTO
+     */
+    private <T> T parseRow(Row row, Map<Integer, String> columnMapping, 
+                          Map<String, FieldInfo> fieldMap, Class<T> clazz) throws Exception {
+        T dto = clazz.getDeclaredConstructor().newInstance();
+        
+        for (Map.Entry<Integer, String> entry : columnMapping.entrySet()) {
+            int colIndex = entry.getKey();
+            String fieldName = entry.getValue();
+            FieldInfo fieldInfo = fieldMap.get(fieldName);
+            
+            String cellValue = getCellValueAsString(row, colIndex).trim();
+            if (!cellValue.isEmpty()) {
+                Object value = parseCellValue(cellValue, fieldInfo.field.getType());
+                setFieldValue(dto, fieldInfo.field, value);
+            }
+        }
+        
+        return dto;
+    }
+    
+    /**
+     * Parse cell value based on target field type
+     */
+    private Object parseCellValue(String cellValue, Class<?> targetType) {
+        if (cellValue.isEmpty()) {
+            return null;
+        }
+        
+        try {
+            if (targetType == String.class) {
+                return cellValue;
+            } else if (targetType == Integer.class || targetType == int.class) {
+                // Handle decimal values from Excel
+                if (cellValue.contains(".")) {
+                    return (int) Double.parseDouble(cellValue);
+                }
+                return Integer.parseInt(cellValue);
+            } else if (targetType == Long.class || targetType == long.class) {
+                if (cellValue.contains(".")) {
+                    return (long) Double.parseDouble(cellValue);
+                }
+                return Long.parseLong(cellValue);
+            } else if (targetType == Double.class || targetType == double.class) {
+                return Double.parseDouble(cellValue);
+            } else if (targetType == Boolean.class || targetType == boolean.class) {
+                return Boolean.parseBoolean(cellValue);
+            } else if (targetType == LocalDate.class) {
+                return LocalDate.parse(cellValue, DATE_FORMATTER);
+            } else if (targetType == LocalDateTime.class) {
+                return LocalDateTime.parse(cellValue, DATETIME_FORMATTER);
+            } else {
+                return cellValue;
+            }
+        } catch (NumberFormatException | DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid value '" + cellValue + "' for type " + targetType.getSimpleName());
+        }
+    }
+    
+    /**
+     * Get cell value as string
+     */
+    private String getCellValueAsString(Row row, int columnIndex) {
+        try {
+            if (columnIndex >= row.getCellCount()) {
+                return "";
+            }
+            
+            String value = row.getCellAsString(columnIndex).orElse("");
+            return value.trim();
+        } catch (Exception e) {
+            log.warn("Error reading cell at column {}: {}", columnIndex, e.getMessage());
+            return "";
+        }
+    }
+    
+    /**
+     * Set field value using reflection
+     */
+    private void setFieldValue(Object obj, Field field, Object value) throws IllegalAccessException {
+        field.setAccessible(true);
+        field.set(obj, value);
+    }
+    
+    /**
+     * Check if row is empty
+     */
+    private boolean isEmptyRow(Row row) {
+        for (int i = 0; i < row.getCellCount(); i++) {
+            String value = getCellValueAsString(row, i);
+            if (!value.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Helper class to hold field information
+     */
+    private static class FieldInfo {
+        Field field;
+        ExcelColumn annotation;
+        
+        FieldInfo(Field field, ExcelColumn annotation) {
+            this.field = field;
+            this.annotation = annotation;
+        }
+    }
+}

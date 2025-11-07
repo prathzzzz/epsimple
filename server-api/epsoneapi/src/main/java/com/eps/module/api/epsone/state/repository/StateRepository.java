@@ -20,6 +20,10 @@ public interface StateRepository extends JpaRepository<State, Long> {
     boolean existsByStateName(String stateName);
 
     boolean existsByStateCode(String stateCode);
+    
+    boolean existsByStateNameIgnoreCase(String stateName);
+    
+    boolean existsByStateCodeIgnoreCase(String stateCode);
 
     @Query("SELECT s FROM State s WHERE " +
            "LOWER(s.stateName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +

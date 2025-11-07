@@ -1,10 +1,15 @@
 package com.eps.module.api.epsone.state.service;
 
+import com.eps.module.api.epsone.state.dto.StateBulkUploadDto;
 import com.eps.module.api.epsone.state.dto.StateRequestDto;
 import com.eps.module.api.epsone.state.dto.StateResponseDto;
 import com.eps.module.api.epsone.state.mapper.StateMapper;
+import com.eps.module.api.epsone.state.processor.StateBulkUploadProcessor;
 import com.eps.module.api.epsone.state.repository.StateRepository;
 import com.eps.module.api.epsone.city.repository.CityRepository;
+import com.eps.module.common.bulk.excel.ExcelExportUtil;
+import com.eps.module.common.bulk.excel.ExcelImportUtil;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.exception.CustomException;
 import com.eps.module.location.State;
 import com.eps.module.location.City;
@@ -15,7 +20,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +35,9 @@ public class StateServiceImpl implements StateService {
     private final StateRepository stateRepository;
     private final CityRepository cityRepository;
     private final StateMapper stateMapper;
+    private final StateBulkUploadProcessor bulkUploadProcessor;
+    private final ExcelImportUtil excelImportUtil;
+    private final ExcelExportUtil excelExportUtil;
 
     @Override
     @Transactional
@@ -152,5 +163,60 @@ public class StateServiceImpl implements StateService {
 
         stateRepository.delete(state);
         log.info("State deleted successfully with ID: {}", id);
+    }
+    
+    @Override
+    public SseEmitter bulkUpload(MultipartFile file) throws IOException {
+        log.info("Starting bulk upload for states from file: {}", file.getOriginalFilename());
+        
+        // Validate file
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty");
+        }
+        
+        String filename = file.getOriginalFilename();
+        if (filename == null || !filename.toLowerCase().endsWith(".xlsx")) {
+            throw new IllegalArgumentException("Only .xlsx files are supported");
+        }
+        
+        // Parse Excel file
+        List<StateBulkUploadDto> uploadData = excelImportUtil.parseExcelFile(file, StateBulkUploadDto.class);
+        
+        if (uploadData.isEmpty()) {
+            throw new IllegalArgumentException("No data found in Excel file");
+        }
+        
+        // Create SSE emitter
+        SseEmitter emitter = BulkUploadProcessor.createEmitter();
+        
+        // Process asynchronously using virtual threads via @Async
+        bulkUploadProcessor.processBulkUpload(uploadData, emitter);
+        
+        return emitter;
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportToExcel() throws IOException {
+        log.info("Exporting all states to Excel");
+        
+        List<State> states = stateRepository.findAll();
+        
+        // Convert to export DTOs
+        List<StateBulkUploadDto> exportData = states.stream()
+                .map(state -> StateBulkUploadDto.builder()
+                        .stateName(state.getStateName())
+                        .stateCode(state.getStateCode())
+                        .stateCodeAlt(state.getStateCodeAlt())
+                        .build())
+                .collect(Collectors.toList());
+        
+        return excelExportUtil.exportToExcel(exportData, StateBulkUploadDto.class, "States");
+    }
+    
+    @Override
+    public byte[] downloadTemplate() throws IOException {
+        log.info("Generating template for state bulk upload");
+        return excelExportUtil.generateTemplate(StateBulkUploadDto.class, "States Template");
     }
 }

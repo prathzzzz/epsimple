@@ -31,6 +31,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String cookieName;
 
     @Override
+    protected boolean shouldNotFilterAsyncDispatch() {
+        // Allow filter to run on async dispatches (for SSE)
+        return false;
+    }
+
+    @Override
+    protected boolean shouldNotFilterErrorDispatch() {
+        // Allow filter to run on error dispatches
+        return false;
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 

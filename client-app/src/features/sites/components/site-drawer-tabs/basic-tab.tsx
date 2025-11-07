@@ -1,4 +1,4 @@
-import { UseFormReturn } from "react-hook-form";
+import type { UseFormReturn } from "react-hook-form";
 import { useState } from "react";
 import { Sparkles, Loader2, Check, ChevronsUpDown } from "lucide-react";
 import {
@@ -16,7 +16,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { SiteFormData } from "../../api/schema";
-import type { State } from "@/features/states/api/state-api";
+import type { State } from "@/features/states/api/states-api";
 import { siteCodeGeneratorApi } from "@/features/site-code-generators/api/site-code-generator-api";
 import { locationApi } from "@/features/locations/api/location-api";
 import { managedProjectApi } from "@/features/managed-projects/api/managed-project-api";
