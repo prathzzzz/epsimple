@@ -9,7 +9,8 @@ import { CostTypesTable } from "./components/cost-types-table";
 import { costTypesColumns } from "./components/cost-types-columns";
 import { CostTypeDrawer } from "./components/cost-type-drawer";
 import { CostTypeDeleteDialog } from "./components/cost-type-delete-dialog";
-import { CreateCostTypeButton } from "./components/create-cost-type-button";
+import { CostTypesPrimaryButtons } from "./components/cost-types-primary-buttons";
+import { CostTypesDialogs } from "./components/cost-types-dialogs";
 
 export default function CostTypes() {
   return (
@@ -32,7 +33,7 @@ export default function CostTypes() {
               Manage cost type classifications under categories
             </p>
           </div>
-          <CreateCostTypeButton />
+          <CostTypesPrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
           <CostTypesTable columns={costTypesColumns} />
@@ -40,6 +41,7 @@ export default function CostTypes() {
       </Main>
       <CostTypeDrawer />
       <CostTypeDeleteDialog />
+      <CostTypesDialogs />
     </CostTypesProvider>
   );
 }

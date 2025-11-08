@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface CostCategoryRepository extends JpaRepository<CostCategory, Long> {
     
@@ -21,4 +24,9 @@ public interface CostCategoryRepository extends JpaRepository<CostCategory, Long
     @Query("SELECT CASE WHEN COUNT(cc) > 0 THEN true ELSE false END FROM CostCategory cc WHERE " +
            "LOWER(cc.categoryName) = LOWER(:categoryName) AND cc.id <> :id")
     boolean existsByCategoryNameAndIdNot(@Param("categoryName") String categoryName, @Param("id") Long id);
+
+    @Query("SELECT cc FROM CostCategory cc ORDER BY cc.categoryName ASC")
+    List<CostCategory> findAllForExport();
+
+    Optional<CostCategory> findByCategoryNameIgnoreCase(String categoryName);
 }

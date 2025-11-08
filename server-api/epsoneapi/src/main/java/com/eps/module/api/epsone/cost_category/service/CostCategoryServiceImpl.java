@@ -1,10 +1,16 @@
 package com.eps.module.api.epsone.cost_category.service;
 
+import com.eps.module.api.epsone.cost_category.dto.CostCategoryBulkUploadDto;
+import com.eps.module.api.epsone.cost_category.dto.CostCategoryErrorReportDto;
 import com.eps.module.api.epsone.cost_category.dto.CostCategoryRequestDto;
 import com.eps.module.api.epsone.cost_category.dto.CostCategoryResponseDto;
 import com.eps.module.api.epsone.cost_category.mapper.CostCategoryMapper;
+import com.eps.module.api.epsone.cost_category.processor.CostCategoryBulkUploadProcessor;
 import com.eps.module.api.epsone.cost_category.repository.CostCategoryRepository;
 import com.eps.module.api.epsone.cost_type.repository.CostTypeRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.cost.CostCategory;
 import com.eps.module.cost.CostType;
 import lombok.RequiredArgsConstructor;
@@ -16,34 +22,34 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CostCategoryServiceImpl implements CostCategoryService {
-    
+public class CostCategoryServiceImpl extends BaseBulkUploadService<CostCategoryBulkUploadDto, CostCategory> implements CostCategoryService {
+
     private final CostCategoryRepository costCategoryRepository;
     private final CostTypeRepository costTypeRepository;
     private final CostCategoryMapper costCategoryMapper;
-    
+    private final CostCategoryBulkUploadProcessor bulkUploadProcessor;
+
     @Override
     @Transactional
     public CostCategoryResponseDto createCostCategory(CostCategoryRequestDto requestDto) {
         log.info("Creating cost category: {}", requestDto.getCategoryName());
-        
-        // Check for duplicate
+
         if (costCategoryRepository.existsByCategoryNameIgnoreCase(requestDto.getCategoryName())) {
             throw new IllegalArgumentException("Cost category '" + requestDto.getCategoryName() + "' already exists");
         }
-        
+
         CostCategory entity = costCategoryMapper.toEntity(requestDto);
         CostCategory saved = costCategoryRepository.save(entity);
-        
         log.info("Cost category created successfully with ID: {}", saved.getId());
         return costCategoryMapper.toResponseDto(saved);
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public Page<CostCategoryResponseDto> getAllCostCategories(Pageable pageable) {
@@ -51,7 +57,7 @@ public class CostCategoryServiceImpl implements CostCategoryService {
         return costCategoryRepository.findAll(pageable)
                 .map(costCategoryMapper::toResponseDto);
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public Page<CostCategoryResponseDto> searchCostCategories(String searchTerm, Pageable pageable) {
@@ -59,7 +65,7 @@ public class CostCategoryServiceImpl implements CostCategoryService {
         return costCategoryRepository.searchCostCategories(searchTerm, pageable)
                 .map(costCategoryMapper::toResponseDto);
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public List<CostCategoryResponseDto> getAllCostCategoriesList() {
@@ -68,7 +74,7 @@ public class CostCategoryServiceImpl implements CostCategoryService {
                 .map(costCategoryMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public CostCategoryResponseDto getCostCategoryById(Long id) {
@@ -77,45 +83,42 @@ public class CostCategoryServiceImpl implements CostCategoryService {
                 .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + id));
         return costCategoryMapper.toResponseDto(entity);
     }
-    
+
     @Override
     @Transactional
     public CostCategoryResponseDto updateCostCategory(Long id, CostCategoryRequestDto requestDto) {
         log.info("Updating cost category with ID: {}", id);
-        
+
         CostCategory existing = costCategoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + id));
-        
-        // Check for duplicate (excluding current record)
+
         if (costCategoryRepository.existsByCategoryNameAndIdNot(requestDto.getCategoryName(), id)) {
             throw new IllegalArgumentException("Cost category '" + requestDto.getCategoryName() + "' already exists");
         }
-        
+
         costCategoryMapper.updateEntityFromDto(requestDto, existing);
         CostCategory updated = costCategoryRepository.save(existing);
-        
         log.info("Cost category updated successfully with ID: {}", id);
         return costCategoryMapper.toResponseDto(updated);
     }
-    
+
     @Override
     @Transactional
     public void deleteCostCategory(Long id) {
         log.info("Deleting cost category with ID: {}", id);
-        
+
         CostCategory costCategory = costCategoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + id));
-        
-        // Check for dependent cost types
+
         Page<CostType> dependentCostTypes = costTypeRepository.findByCostCategoryId(id, PageRequest.of(0, 6));
-        
+
         if (!dependentCostTypes.isEmpty()) {
             long totalCount = dependentCostTypes.getTotalElements();
             List<String> typeNames = dependentCostTypes.getContent().stream()
                     .limit(5)
                     .map(CostType::getTypeName)
                     .collect(Collectors.toList());
-            
+
             String typeNamesList = String.join(", ", typeNames);
             String errorMessage = String.format(
                     "Cannot delete '%s' cost category because it is being used by %d cost type%s: %s. Please delete or reassign these cost types first.",
@@ -126,8 +129,61 @@ public class CostCategoryServiceImpl implements CostCategoryService {
             );
             throw new IllegalStateException(errorMessage);
         }
-        
+
         costCategoryRepository.deleteById(id);
         log.info("Cost category deleted successfully with ID: {}", id);
+    }
+
+    // =====================
+    // Bulk Upload Methods
+    // =====================
+
+    @Override
+    protected BulkUploadProcessor<CostCategoryBulkUploadDto, CostCategory> getProcessor() {
+        return bulkUploadProcessor;
+    }
+
+    @Override
+    public Class<CostCategoryBulkUploadDto> getBulkUploadDtoClass() {
+        return CostCategoryBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "CostCategory";
+    }
+
+    @Override
+    public List<CostCategory> getAllEntitiesForExport() {
+        return costCategoryRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<CostCategory, CostCategoryBulkUploadDto> getEntityToDtoMapper() {
+        return cc -> CostCategoryBulkUploadDto.builder()
+                .categoryName(cc.getCategoryName())
+                .categoryDescription(cc.getCategoryDescription())
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        CostCategoryErrorReportDto.CostCategoryErrorReportDtoBuilder builder =
+                CostCategoryErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorType(error.getErrorType())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.categoryName((String) error.getRowData().get("categoryName"))
+                    .categoryDescription((String) error.getRowData().get("categoryDescription"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return CostCategoryErrorReportDto.class;
     }
 }

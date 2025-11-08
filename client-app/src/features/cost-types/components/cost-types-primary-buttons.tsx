@@ -4,24 +4,24 @@ import { downloadFile } from "@/lib/api-utils";
 import { useExport } from "@/hooks/useExport";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useCostCategories } from "../context/cost-categories-provider";
+import { useCostTypes } from "../context/cost-types-provider";
 
-export function CostCategoriesPrimaryButtons() {
-  const { setSelectedCostCategory, setIsDrawerOpen, setIsEditMode, openBulkUploadDialog } =
-    useCostCategories();
+export function CostTypesPrimaryButtons() {
+  const { setSelectedCostType, setIsDrawerOpen, setIsEditMode, openBulkUploadDialog } =
+    useCostTypes();
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
 
   const { isExporting, handleExport } = useExport({
-    entityName: "CostCategory",
-    exportEndpoint: "/api/cost-categories/export",
+    entityName: "CostType",
+    exportEndpoint: "/api/cost-types/export",
   });
 
   const handleDownloadTemplate = async () => {
     setIsDownloadingTemplate(true);
     try {
       await downloadFile(
-        "/api/cost-categories/download-template",
-        "CostCategory_Upload_Template.xlsx"
+        "/api/cost-types/download-template",
+        "CostType_Upload_Template.xlsx"
       );
       toast.success("Template downloaded successfully");
     } catch (error) {
@@ -35,7 +35,7 @@ export function CostCategoriesPrimaryButtons() {
   };
 
   const handleCreate = () => {
-    setSelectedCostCategory(null);
+    setSelectedCostType(null);
     setIsEditMode(false);
     setIsDrawerOpen(true);
   };
@@ -84,7 +84,7 @@ export function CostCategoriesPrimaryButtons() {
 
       <Button onClick={handleCreate} size="sm" className="h-8">
         <Plus className="mr-2 h-4 w-4" />
-        Add Cost Category
+        Add Cost Type
       </Button>
     </div>
   );

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface CostTypeRepository extends JpaRepository<CostType, Long> {
 
@@ -18,4 +20,10 @@ public interface CostTypeRepository extends JpaRepository<CostType, Long> {
     Page<CostType> searchCostTypes(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     Page<CostType> findByCostCategoryId(Long costCategoryId, Pageable pageable);
+
+    // Bulk upload support
+    boolean existsByTypeNameIgnoreCase(String typeName);
+
+    @Query("SELECT ct FROM CostType ct LEFT JOIN FETCH ct.costCategory ORDER BY ct.typeName ASC")
+    List<CostType> findAllForExport();
 }

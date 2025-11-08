@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
 import { CostCategoriesMutateDrawer } from "./cost-categories-mutate-drawer";
 import { useCostCategories } from "../context/cost-categories-provider";
 import { costCategoriesApi } from "../api/cost-categories-api";
@@ -14,6 +15,8 @@ export function CostCategoriesDialogs() {
     setIsDrawerOpen,
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
+    isBulkUploadDialogOpen,
+    closeBulkUploadDialog,
   } = useCostCategories();
 
   const deleteMutation = useMutation({
@@ -32,6 +35,17 @@ export function CostCategoriesDialogs() {
     }
   };
 
+  const handleBulkUploadSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["cost-categories"] });
+  };
+
+  const bulkUploadConfig = {
+    entityName: "CostCategory",
+    uploadEndpoint: "/api/cost-categories/bulk-upload",
+    errorReportEndpoint: "/api/cost-categories/export-errors",
+    onSuccess: handleBulkUploadSuccess,
+  };
+
   return (
     <>
       <CostCategoriesMutateDrawer
@@ -47,6 +61,11 @@ export function CostCategoriesDialogs() {
         handleConfirm={handleDelete}
         isLoading={deleteMutation.isPending}
         destructive
+      />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={closeBulkUploadDialog}
+        config={bulkUploadConfig}
       />
     </>
   );

@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.cost_type.controller;
 import com.eps.module.api.epsone.cost_type.dto.CostTypeRequestDto;
 import com.eps.module.api.epsone.cost_type.dto.CostTypeResponseDto;
 import com.eps.module.api.epsone.cost_type.service.CostTypeService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -22,6 +23,7 @@ import java.util.List;
 public class CostTypeController {
 
     private final CostTypeService costTypeService;
+    private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<CostTypeResponseDto>> createCostType(
@@ -85,5 +87,29 @@ public class CostTypeController {
     public ResponseEntity<ApiResponse<Void>> deleteCostType(@PathVariable Long id) {
         costTypeService.deleteCostType(id);
         return ResponseBuilder.success(null, "Cost type deleted successfully");
+    }
+
+    // Bulk endpoints
+
+    @PostMapping(value = "/bulk-upload", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public org.springframework.web.servlet.mvc.method.annotation.SseEmitter bulkUploadCostTypes(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+        return bulkUploadHelper.bulkUpload(file, costTypeService);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportCostTypes() throws java.io.IOException {
+        return bulkUploadHelper.export(costTypeService);
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<byte[]> downloadTemplate() throws java.io.IOException {
+        return bulkUploadHelper.downloadTemplate(costTypeService);
+    }
+
+    @PostMapping("/export-errors")
+    public ResponseEntity<byte[]> exportBulkUploadErrors(
+            @RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws java.io.IOException {
+        return bulkUploadHelper.exportErrors(progressData, costTypeService);
     }
 }

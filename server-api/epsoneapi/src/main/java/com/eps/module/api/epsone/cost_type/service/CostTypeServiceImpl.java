@@ -2,10 +2,16 @@ package com.eps.module.api.epsone.cost_type.service;
 
 import com.eps.module.api.epsone.cost_category.repository.CostCategoryRepository;
 import com.eps.module.api.epsone.cost_item.repository.CostItemRepository;
+import com.eps.module.api.epsone.cost_type.dto.CostTypeBulkUploadDto;
+import com.eps.module.api.epsone.cost_type.dto.CostTypeErrorReportDto;
 import com.eps.module.api.epsone.cost_type.dto.CostTypeRequestDto;
 import com.eps.module.api.epsone.cost_type.dto.CostTypeResponseDto;
 import com.eps.module.api.epsone.cost_type.mapper.CostTypeMapper;
+import com.eps.module.api.epsone.cost_type.processor.CostTypeBulkUploadProcessor;
 import com.eps.module.api.epsone.cost_type.repository.CostTypeRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.cost.CostCategory;
 import com.eps.module.cost.CostType;
 import lombok.RequiredArgsConstructor;
@@ -16,17 +22,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CostTypeServiceImpl implements CostTypeService {
+public class CostTypeServiceImpl extends BaseBulkUploadService<CostTypeBulkUploadDto, CostType> implements CostTypeService {
     
     private final CostTypeRepository costTypeRepository;
     private final CostCategoryRepository costCategoryRepository;
     private final CostItemRepository costItemRepository;
     private final CostTypeMapper costTypeMapper;
+    private final CostTypeBulkUploadProcessor bulkUploadProcessor;
     
     @Override
     @Transactional
@@ -121,5 +129,60 @@ public class CostTypeServiceImpl implements CostTypeService {
         
         costTypeRepository.deleteById(id);
         log.info("Cost type deleted successfully with ID: {}", id);
+    }
+
+    // =====================
+    // Bulk Upload Methods
+    // =====================
+
+    @Override
+    protected BulkUploadProcessor<CostTypeBulkUploadDto, CostType> getProcessor() {
+        return bulkUploadProcessor;
+    }
+
+    @Override
+    public Class<CostTypeBulkUploadDto> getBulkUploadDtoClass() {
+        return CostTypeBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "CostType";
+    }
+
+    @Override
+    public List<CostType> getAllEntitiesForExport() {
+        return costTypeRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<CostType, CostTypeBulkUploadDto> getEntityToDtoMapper() {
+        return ct -> CostTypeBulkUploadDto.builder()
+                .typeName(ct.getTypeName())
+                .typeDescription(ct.getTypeDescription())
+                .costCategoryName(ct.getCostCategory() != null ? ct.getCostCategory().getCategoryName() : null)
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        CostTypeErrorReportDto.CostTypeErrorReportDtoBuilder builder =
+                CostTypeErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorType(error.getErrorType())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.typeName((String) error.getRowData().get("typeName"))
+                    .typeDescription((String) error.getRowData().get("typeDescription"))
+                    .costCategoryName((String) error.getRowData().get("costCategoryName"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return CostTypeErrorReportDto.class;
     }
 }

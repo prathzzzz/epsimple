@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.cost_category.controller;
 import com.eps.module.api.epsone.cost_category.dto.CostCategoryRequestDto;
 import com.eps.module.api.epsone.cost_category.dto.CostCategoryResponseDto;
 import com.eps.module.api.epsone.cost_category.service.CostCategoryService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -22,6 +23,7 @@ import java.util.List;
 public class CostCategoryController {
 
     private final CostCategoryService costCategoryService;
+    private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<CostCategoryResponseDto>> createCostCategory(
@@ -85,5 +87,29 @@ public class CostCategoryController {
     public ResponseEntity<ApiResponse<Void>> deleteCostCategory(@PathVariable Long id) {
         costCategoryService.deleteCostCategory(id);
         return ResponseBuilder.success(null, "Cost category deleted successfully");
+    }
+
+    // Bulk endpoints
+
+    @PostMapping(value = "/bulk-upload", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public org.springframework.web.servlet.mvc.method.annotation.SseEmitter bulkUploadCostCategories(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+        return bulkUploadHelper.bulkUpload(file, costCategoryService);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportCostCategories() throws java.io.IOException {
+        return bulkUploadHelper.export(costCategoryService);
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<byte[]> downloadTemplate() throws java.io.IOException {
+        return bulkUploadHelper.downloadTemplate(costCategoryService);
+    }
+
+    @PostMapping("/export-errors")
+    public ResponseEntity<byte[]> exportBulkUploadErrors(
+            @RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws java.io.IOException {
+        return bulkUploadHelper.exportErrors(progressData, costCategoryService);
     }
 }
