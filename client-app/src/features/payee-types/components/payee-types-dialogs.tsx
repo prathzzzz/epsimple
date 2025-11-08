@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
 import { PayeeTypesMutateDrawer } from "./payee-types-mutate-drawer";
 import { usePayeeTypes } from "../context/payee-types-provider";
 import { payeeTypesApi } from "../api/payee-types-api";
@@ -14,6 +15,8 @@ export function PayeeTypesDialogs() {
     setIsDrawerOpen,
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
+    isBulkUploadDialogOpen,
+    setIsBulkUploadDialogOpen,
   } = usePayeeTypes();
 
   const deleteMutation = useMutation({
@@ -47,6 +50,18 @@ export function PayeeTypesDialogs() {
         handleConfirm={handleDelete}
         isLoading={deleteMutation.isPending}
         destructive
+      />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          entityName: "Payee Type",
+          uploadEndpoint: "/api/payee-types/bulk-upload",
+          errorReportEndpoint: "/api/payee-types/export-errors",
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["payee-types"] });
+          },
+        }}
       />
     </>
   );

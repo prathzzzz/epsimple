@@ -10,6 +10,8 @@ interface PayeeDetailsContextType {
   setIsDeleteDialogOpen: (open: boolean) => void;
   payeeDetailsToDelete: PayeeDetails | null;
   setPayeeDetailsToDelete: (payeeDetails: PayeeDetails | null) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (open: boolean) => void;
   handleEdit: (payeeDetails: PayeeDetails) => void;
   handleDelete: (payeeDetails: PayeeDetails) => void;
   handleCreate: () => void;
@@ -28,6 +30,7 @@ export function PayeeDetailsProvider({ children }: { children: ReactNode }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [payeeDetailsToDelete, setPayeeDetailsToDelete] =
     useState<PayeeDetails | null>(null);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
 
   const handleEdit = (payeeDetails: PayeeDetails) => {
     setSelectedPayeeDetails(payeeDetails);
@@ -65,6 +68,8 @@ export function PayeeDetailsProvider({ children }: { children: ReactNode }) {
         setIsDeleteDialogOpen,
         payeeDetailsToDelete,
         setPayeeDetailsToDelete,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
         handleEdit,
         handleDelete,
         handleCreate,

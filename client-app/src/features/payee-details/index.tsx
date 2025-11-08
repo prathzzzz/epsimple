@@ -5,10 +5,9 @@ import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { ConfigDrawer } from '@/components/config-drawer';
 import { PayeeDetailsProvider } from './context/payee-details-provider';
-import { PayeeDetailsDrawer } from './components/payee-details-drawer';
-import { PayeeDetailsDeleteDialog } from './components/payee-details-delete-dialog';
+import { PayeeDetailsDialogs } from './components/payee-details-dialogs';
 import { PayeeDetailsTable } from './components/payee-details-table';
-import { CreatePayeeDetailsButton } from './components/create-payee-details-button';
+import { PayeeDetailsPrimaryButtons } from './components/payee-details-primary-buttons';
 import { payeeDetailsColumns } from './components/payee-details-columns';
 
 export default function PayeeDetailsPage() {
@@ -30,14 +29,13 @@ export default function PayeeDetailsPage() {
               Manage payee banking and identification details
             </p>
           </div>
-          <CreatePayeeDetailsButton />
+          <PayeeDetailsPrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
           <PayeeDetailsTable columns={payeeDetailsColumns} />
         </div>
       </Main>
-      <PayeeDetailsDrawer />
-      <PayeeDetailsDeleteDialog />
+      <PayeeDetailsDialogs />
     </PayeeDetailsProvider>
   );
 }

@@ -75,5 +75,9 @@ public interface PayeeDetailsRepository extends JpaRepository<PayeeDetails, Long
     @Query("SELECT pd FROM PayeeDetails pd WHERE pd.bank.id = :bankId ORDER BY pd.payeeName ASC")
     Page<PayeeDetails> findByBankId(@Param("bankId") Long bankId, Pageable pageable);
 
-
+    /**
+     * Bulk upload methods
+     */
+    @Query("SELECT pd FROM PayeeDetails pd LEFT JOIN FETCH pd.bank ORDER BY pd.payeeName ASC")
+    List<PayeeDetails> findAllForExport();
 }

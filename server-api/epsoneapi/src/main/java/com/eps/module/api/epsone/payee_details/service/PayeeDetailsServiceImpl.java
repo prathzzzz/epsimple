@@ -1,12 +1,18 @@
 package com.eps.module.api.epsone.payee_details.service;
 
 import com.eps.module.api.epsone.bank.repository.BankRepository;
+import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsBulkUploadDto;
+import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsErrorReportDto;
 import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsRequestDto;
 import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsResponseDto;
 import com.eps.module.api.epsone.payee_details.mapper.PayeeDetailsMapper;
+import com.eps.module.api.epsone.payee_details.processor.PayeeDetailsBulkUploadProcessor;
 import com.eps.module.api.epsone.payee_details.repository.PayeeDetailsRepository;
 import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.bank.Bank;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.payment.PayeeDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,16 +21,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PayeeDetailsServiceImpl implements PayeeDetailsService {
+public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsBulkUploadDto, PayeeDetails>
+        implements PayeeDetailsService {
 
     private final PayeeDetailsRepository payeeDetailsRepository;
     private final BankRepository bankRepository;
     private final PayeeRepository payeeRepository;
     private final PayeeDetailsMapper payeeDetailsMapper;
+    private final PayeeDetailsBulkUploadProcessor payeeDetailsBulkUploadProcessor;
 
     @Override
     @Transactional
@@ -170,5 +179,65 @@ public class PayeeDetailsServiceImpl implements PayeeDetailsService {
         }
         
         payeeDetailsRepository.deleteById(id);
+    }
+
+    // Bulk upload methods
+    @Override
+    protected BulkUploadProcessor<PayeeDetailsBulkUploadDto, PayeeDetails> getProcessor() {
+        return payeeDetailsBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<PayeeDetailsBulkUploadDto> getBulkUploadDtoClass() {
+        return PayeeDetailsBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "PayeeDetails";
+    }
+
+    @Override
+    public List<PayeeDetails> getAllEntitiesForExport() {
+        return payeeDetailsRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<PayeeDetails, PayeeDetailsBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> PayeeDetailsBulkUploadDto.builder()
+                .payeeName(entity.getPayeeName())
+                .panNumber(entity.getPanNumber())
+                .aadhaarNumber(entity.getAadhaarNumber())
+                .bankName(entity.getBank() != null ? entity.getBank().getBankName() : null)
+                .ifscCode(entity.getIfscCode())
+                .beneficiaryName(entity.getBeneficiaryName())
+                .accountNumber(entity.getAccountNumber())
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        PayeeDetailsErrorReportDto.PayeeDetailsErrorReportDtoBuilder builder =
+                PayeeDetailsErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorType(error.getErrorType())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.payeeName((String) error.getRowData().get("Payee Name"))
+                    .panNumber((String) error.getRowData().get("PAN Number"))
+                    .aadhaarNumber((String) error.getRowData().get("Aadhaar Number"))
+                    .bankName((String) error.getRowData().get("Bank Name"))
+                    .ifscCode((String) error.getRowData().get("IFSC Code"))
+                    .beneficiaryName((String) error.getRowData().get("Beneficiary Name"))
+                    .accountNumber((String) error.getRowData().get("Account Number"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return PayeeDetailsErrorReportDto.class;
     }
 }

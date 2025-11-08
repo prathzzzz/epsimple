@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PayeeTypeRepository extends JpaRepository<PayeeType, Long> {
 
@@ -20,4 +22,8 @@ public interface PayeeTypeRepository extends JpaRepository<PayeeType, Long> {
     boolean existsByPayeeTypeIgnoreCase(String payeeType);
 
     boolean existsByPayeeTypeAndIdNot(String payeeType, Long id);
+
+    // Bulk upload methods
+    @Query("SELECT pt FROM PayeeType pt ORDER BY pt.payeeType ASC")
+    List<PayeeType> findAllForExport();
 }

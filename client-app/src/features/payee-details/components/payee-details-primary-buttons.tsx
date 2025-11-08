@@ -1,30 +1,19 @@
 import { Download, FileDown, Plus, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { usePayeeTypes } from "../context/payee-types-provider";
+import { usePayeeDetails } from "../context/payee-details-provider";
 import { downloadFile } from "@/lib/api-utils";
 import { useExport } from "@/hooks/useExport";
 
-export function PayeeTypesPrimaryButtons() {
-  const {
-    setSelectedPayeeType,
-    setIsDrawerOpen,
-    setIsEditMode,
-    setIsBulkUploadDialogOpen,
-  } = usePayeeTypes();
+export function PayeeDetailsPrimaryButtons() {
+  const { handleCreate, setIsBulkUploadDialogOpen } = usePayeeDetails();
 
   const { handleExport, isExporting } = useExport({
-    entityName: "PayeeType",
-    exportEndpoint: "/api/payee-types/export",
+    entityName: "PayeeDetails",
+    exportEndpoint: "/api/payee-details/export",
   });
 
-  const handleCreate = () => {
-    setSelectedPayeeType(null);
-    setIsEditMode(false);
-    setIsDrawerOpen(true);
-  };
-
   const handleDownloadTemplate = async () => {
-    await downloadFile("/api/payee-types/download-template", "PayeeType_Template.xlsx");
+    await downloadFile("/api/payee-details/download-template", "PayeeDetails_Template.xlsx");
   };
 
   const handleBulkUpload = () => {
@@ -63,7 +52,7 @@ export function PayeeTypesPrimaryButtons() {
       </Button>
       <Button onClick={handleCreate} size="sm" className="h-8">
         <Plus className="mr-2 h-4 w-4" />
-        Add Payee Type
+        Add Payee Details
       </Button>
     </div>
   );

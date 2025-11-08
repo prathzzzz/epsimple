@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.payee_details.controller;
 import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsRequestDto;
 import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsResponseDto;
 import com.eps.module.api.epsone.payee_details.service.PayeeDetailsService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -15,7 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +30,7 @@ import java.util.List;
 public class PayeeDetailsController {
 
     private final PayeeDetailsService payeeDetailsService;
+    private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<PayeeDetailsResponseDto>> createPayeeDetails(
@@ -104,5 +110,26 @@ public class PayeeDetailsController {
         payeeDetailsService.deletePayeeDetails(id);
         log.info("Successfully deleted payee details with ID: {}", id);
         return ResponseBuilder.success(null, "Payee details deleted successfully", HttpStatus.OK);
+    }
+
+    // Bulk upload endpoints
+    @PostMapping("/bulk-upload")
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
+        return bulkUploadHelper.bulkUpload(file, payeeDetailsService);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> export() throws IOException {
+        return bulkUploadHelper.export(payeeDetailsService);
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<byte[]> downloadTemplate() throws IOException {
+        return bulkUploadHelper.downloadTemplate(payeeDetailsService);
+    }
+
+    @PostMapping("/export-errors")
+    public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progressData) throws IOException {
+        return bulkUploadHelper.exportErrors(progressData, payeeDetailsService);
     }
 }
