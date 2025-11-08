@@ -95,95 +95,6 @@ export const statesApi = {
     }
   },
 
-  // Bulk upload with SSE
-  bulkUpload: async (file: File, onProgress: (progress: BulkUploadProgress) => void): Promise<void> => {
-    const formData = new FormData()
-    formData.append('file', file)
-
-    // Get auth token from cookie or storage
-    const getAuthToken = (): string | null => {
-      // Try to get JWT from cookie
-      const cookies = document.cookie.split(';')
-      const jwtCookie = cookies.find(c => c.trim().startsWith('jwt-token='))
-      if (jwtCookie) {
-        return jwtCookie.split('=')[1]
-      }
-      return null
-    }
-
-    const token = getAuthToken()
-    const headers: HeadersInit = {
-      // Don't set Content-Type for FormData, browser will set it with boundary
-    }
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`
-    }
-
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/states/bulk-upload`, {
-      method: 'POST',
-      body: formData,
-      credentials: 'include',
-      headers,
-    })
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Authentication required. Please log in again.')
-      }
-      throw new Error(`Upload failed: ${response.statusText}`)
-    }
-
-    const reader = response.body?.getReader()
-    const decoder = new TextDecoder()
-
-    if (!reader) {
-      throw new Error('Response body is not readable')
-    }
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const chunk = decoder.decode(value)
-        const lines = chunk.split('\n')
-
-        for (const line of lines) {
-          if (line.startsWith('data:')) {
-            const data = line.substring(5).trim()
-            if (data) {
-              try {
-                const progress: BulkUploadProgress = JSON.parse(data)
-                onProgress(progress)
-              } catch (_error) {
-                // Ignore parsing errors for SSE data
-              }
-            }
-          }
-        }
-      }
-    } finally {
-      reader.releaseLock()
-    }
-  },
-
-  // Export states to Excel
-  exportToExcel: async (): Promise<Blob> => {
-    const response = await api.get('/api/states/export', {
-      responseType: 'blob',
-    })
-    return response.data
-  },
-
-  // Download template
-  downloadTemplate: async (): Promise<Blob> => {
-    const response = await api.get('/api/states/download-template', {
-      responseType: 'blob',
-    })
-    return response.data
-  },
-
   // Search hook for dropdowns (client-side filtering)
   useSearch: (searchTerm: string) => {
     return useQuery({
@@ -206,23 +117,4 @@ export const statesApi = {
       staleTime: 30000,
     })
   },
-}
-
-export interface BulkUploadProgress {
-  status: 'PROCESSING' | 'COMPLETED' | 'COMPLETED_WITH_ERRORS' | 'FAILED'
-  totalRecords: number
-  processedRecords: number
-  successCount: number
-  failureCount: number
-  progressPercentage: number
-  message: string
-  errors?: BulkUploadError[]
-  timestamp: string
-}
-
-export interface BulkUploadError {
-  rowNumber: number
-  fieldName: string
-  errorMessage: string
-  rejectedValue?: string
 }

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { StatesMutateDrawer } from './states-mutate-drawer'
-import { BulkUploadDialog } from './bulk-upload-dialog'
+import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog'
 import { useStates } from './states-provider'
 import { statesApi } from '@/features/states/api/states-api'
 import { toast } from 'sonner'
@@ -36,6 +36,13 @@ export function StatesDialogs() {
     queryClient.invalidateQueries({ queryKey: ['states'] })
   }
 
+  const bulkUploadConfig = {
+    entityName: 'State',
+    uploadEndpoint: '/api/states/bulk-upload',
+    errorReportEndpoint: '/api/states/export-errors',
+    onSuccess: handleBulkUploadSuccess,
+  }
+
   return (
     <>
       <StatesMutateDrawer
@@ -67,10 +74,10 @@ export function StatesDialogs() {
         />
       )}
       
-      <BulkUploadDialog
+      <GenericBulkUploadDialog
         open={isBulkUploadDialogOpen}
         onOpenChange={closeBulkUploadDialog}
-        onSuccess={handleBulkUploadSuccess}
+        config={bulkUploadConfig}
       />
     </>
   )

@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.state.controller;
 import com.eps.module.api.epsone.state.dto.StateRequestDto;
 import com.eps.module.api.epsone.state.dto.StateResponseDto;
 import com.eps.module.api.epsone.state.service.StateService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -12,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -32,6 +30,7 @@ import java.util.List;
 public class StateController {
 
     private final StateService stateService;
+    private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<StateResponseDto>> createState(
@@ -113,59 +112,27 @@ public class StateController {
     // Bulk Operations
     
     @PostMapping(value = "/bulk-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public SseEmitter bulkUploadStates(@RequestParam("file") MultipartFile file) {
+    public SseEmitter bulkUploadStates(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/states/bulk-upload - Starting bulk upload");
-        try {
-            return stateService.bulkUpload(file);
-        } catch (IOException e) {
-            log.error("Error during bulk upload: {}", e.getMessage(), e);
-            SseEmitter emitter = new SseEmitter();
-            try {
-                emitter.completeWithError(e);
-            } catch (Exception ex) {
-                log.error("Error completing emitter: {}", ex.getMessage());
-            }
-            return emitter;
-        }
+        return bulkUploadHelper.bulkUpload(file, stateService);
     }
     
     @GetMapping("/export")
-    public ResponseEntity<byte[]> exportStates() {
+    public ResponseEntity<byte[]> exportStates() throws IOException {
         log.info("GET /api/states/export - Exporting all states to Excel");
-        try {
-            byte[] excelData = stateService.exportToExcel();
-            
-            String filename = "States_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".xlsx";
-            
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDispositionFormData("attachment", filename);
-            headers.setContentLength(excelData.length);
-            
-            return new ResponseEntity<>(excelData, headers, HttpStatus.OK);
-        } catch (IOException e) {
-            log.error("Error exporting states: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return bulkUploadHelper.export(stateService);
     }
     
     @GetMapping("/download-template")
-    public ResponseEntity<byte[]> downloadTemplate() {
+    public ResponseEntity<byte[]> downloadTemplate() throws IOException {
         log.info("GET /api/states/download-template - Downloading bulk upload template");
-        try {
-            byte[] templateData = stateService.downloadTemplate();
-            
-            String filename = "State_Upload_Template.xlsx";
-            
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDispositionFormData("attachment", filename);
-            headers.setContentLength(templateData.length);
-            
-            return new ResponseEntity<>(templateData, headers, HttpStatus.OK);
-        } catch (IOException e) {
-            log.error("Error generating template: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return bulkUploadHelper.downloadTemplate(stateService);
+    }
+    
+    @PostMapping("/export-errors")
+    public ResponseEntity<byte[]> exportBulkUploadErrors(
+            @RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws IOException {
+        log.info("POST /api/states/export-errors - Exporting bulk upload errors");
+        return bulkUploadHelper.exportErrors(progressData, stateService);
     }
 }

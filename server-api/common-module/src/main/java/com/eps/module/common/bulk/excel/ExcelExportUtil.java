@@ -166,18 +166,13 @@ public class ExcelExportUtil {
      * Set cell value with appropriate type handling
      */
     private void setCellValue(Worksheet worksheet, int row, int col, Object value) {
-        if (value instanceof String) {
-            worksheet.value(row, col, (String) value);
-        } else if (value instanceof Number) {
-            worksheet.value(row, col, ((Number) value).doubleValue());
-        } else if (value instanceof Boolean) {
-            worksheet.value(row, col, (Boolean) value);
-        } else if (value instanceof LocalDate) {
-            worksheet.value(row, col, ((LocalDate) value).format(DATE_FORMATTER));
-        } else if (value instanceof LocalDateTime) {
-            worksheet.value(row, col, ((LocalDateTime) value).format(DATETIME_FORMATTER));
-        } else {
-            worksheet.value(row, col, value.toString());
+        switch (value) {
+            case String s -> worksheet.value(row, col, s);
+            case Number n -> worksheet.value(row, col, n.toString());
+            case Boolean b -> worksheet.value(row, col, b);
+            case LocalDate d -> worksheet.value(row, col, d.format(DATE_FORMATTER));
+            case LocalDateTime dt -> worksheet.value(row, col, dt.format(DATETIME_FORMATTER));
+            case null, default -> worksheet.value(row, col, value != null ? value.toString() : "");
         }
     }
     

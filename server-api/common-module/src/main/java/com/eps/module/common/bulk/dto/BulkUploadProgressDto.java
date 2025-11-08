@@ -21,6 +21,8 @@ public class BulkUploadProgressDto {
     private Integer processedRecords;
     private Integer successCount;
     private Integer failureCount;
+    private Integer duplicateCount;
+    private Integer skippedCount;
     private Double progressPercentage;
     private String message;
     private List<BulkUploadErrorDto> errors;

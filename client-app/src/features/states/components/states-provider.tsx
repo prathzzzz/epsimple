@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import type { State } from '../data/schema'
 
-interface StatesContextType {
+export interface StatesContextType {
   // Drawer state
   isDrawerOpen: boolean
   openDrawer: () => void
