@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Long> {
 
@@ -18,5 +21,10 @@ public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Lo
 
     boolean existsByMethodNameIgnoreCase(String methodName);
 
+    Optional<PaymentMethod> findByMethodNameIgnoreCase(String methodName);
+
     boolean existsByMethodNameAndIdNot(String methodName, Long id);
+
+    @Query("SELECT pm FROM PaymentMethod pm ORDER BY pm.id")
+    List<PaymentMethod> findAllForExport();
 }

@@ -1,9 +1,15 @@
 package com.eps.module.api.epsone.payment_method.service;
 
+import com.eps.module.api.epsone.payment_method.dto.PaymentMethodBulkUploadDto;
+import com.eps.module.api.epsone.payment_method.dto.PaymentMethodErrorReportDto;
 import com.eps.module.api.epsone.payment_method.dto.PaymentMethodRequestDto;
 import com.eps.module.api.epsone.payment_method.dto.PaymentMethodResponseDto;
 import com.eps.module.api.epsone.payment_method.mapper.PaymentMethodMapper;
+import com.eps.module.api.epsone.payment_method.processor.PaymentMethodBulkUploadProcessor;
 import com.eps.module.api.epsone.payment_method.repository.PaymentMethodRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.payment.PaymentMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,12 +22,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class PaymentMethodServiceImpl implements PaymentMethodService {
+@RequiredArgsConstructor
+public class PaymentMethodServiceImpl extends BaseBulkUploadService<PaymentMethodBulkUploadDto, PaymentMethod>
+        implements PaymentMethodService {
 
     private final PaymentMethodRepository paymentMethodRepository;
     private final PaymentMethodMapper paymentMethodMapper;
+    private final PaymentMethodBulkUploadProcessor paymentMethodBulkUploadProcessor;
 
     @Override
     @Transactional
@@ -103,5 +111,54 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
 
         paymentMethodRepository.deleteById(id);
         log.info("Payment method deleted successfully with ID: {}", id);
+    }
+
+    @Override
+    protected BulkUploadProcessor<PaymentMethodBulkUploadDto, PaymentMethod> getProcessor() {
+        return paymentMethodBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<PaymentMethodBulkUploadDto> getBulkUploadDtoClass() {
+        return PaymentMethodBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "PaymentMethod";
+    }
+
+    @Override
+    public List<PaymentMethod> getAllEntitiesForExport() {
+        return paymentMethodRepository.findAllForExport();
+    }
+
+    @Override
+    public java.util.function.Function<PaymentMethod, PaymentMethodBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> PaymentMethodBulkUploadDto.builder()
+                .methodName(entity.getMethodName())
+                .description(entity.getDescription())
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        PaymentMethodErrorReportDto.PaymentMethodErrorReportDtoBuilder builder =
+                PaymentMethodErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorType(error.getErrorType())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.methodName((String) error.getRowData().get("Method Name"))
+                    .description((String) error.getRowData().get("Description"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return PaymentMethodErrorReportDto.class;
     }
 }

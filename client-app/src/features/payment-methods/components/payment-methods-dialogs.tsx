@@ -4,6 +4,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PaymentMethodsMutateDrawer } from "./payment-methods-mutate-drawer";
 import { usePaymentMethods } from "../context/payment-methods-provider";
 import { paymentMethodsApi } from "../api/payment-methods-api";
+import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
 
 export function PaymentMethodsDialogs() {
   const queryClient = useQueryClient();
@@ -14,6 +15,8 @@ export function PaymentMethodsDialogs() {
     setIsDrawerOpen,
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
+    isBulkUploadDialogOpen,
+    closeBulkUploadDialog,
   } = usePaymentMethods();
 
   const deleteMutation = useMutation({
@@ -32,6 +35,11 @@ export function PaymentMethodsDialogs() {
     }
   };
 
+  const handleBulkUploadSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
+    toast.success("Payment methods imported successfully");
+  };
+
   return (
     <>
       <PaymentMethodsMutateDrawer
@@ -47,6 +55,16 @@ export function PaymentMethodsDialogs() {
         handleConfirm={handleDelete}
         isLoading={deleteMutation.isPending}
         destructive
+      />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={closeBulkUploadDialog}
+        config={{
+          entityName: "PaymentMethod",
+          uploadEndpoint: "/api/payment-methods/bulk-upload",
+          errorReportEndpoint: "/api/payment-methods/export-errors",
+          onSuccess: handleBulkUploadSuccess,
+        }}
       />
     </>
   );

@@ -10,6 +10,9 @@ interface PaymentDetailsContextType {
   setIsDeleteDialogOpen: (open: boolean) => void;
   isEditMode: boolean;
   setIsEditMode: (mode: boolean) => void;
+  isBulkUploadDialogOpen: boolean;
+  openBulkUploadDialog: () => void;
+  closeBulkUploadDialog: () => void;
 }
 
 const PaymentDetailsContext = createContext<
@@ -24,6 +27,10 @@ export const PaymentDetailsProvider: React.FC<{
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
+
+  const openBulkUploadDialog = () => setIsBulkUploadDialogOpen(true);
+  const closeBulkUploadDialog = () => setIsBulkUploadDialogOpen(false);
 
   return (
     <PaymentDetailsContext.Provider
@@ -36,6 +43,9 @@ export const PaymentDetailsProvider: React.FC<{
         setIsDeleteDialogOpen,
         isEditMode,
         setIsEditMode,
+        isBulkUploadDialogOpen,
+        openBulkUploadDialog,
+        closeBulkUploadDialog,
       }}
     >
       {children}

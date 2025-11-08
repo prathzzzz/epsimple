@@ -1,8 +1,11 @@
 package com.eps.module.api.epsone.payment_details.controller;
 
+import com.eps.module.api.epsone.payment_details.dto.PaymentDetailsBulkUploadDto;
 import com.eps.module.api.epsone.payment_details.dto.PaymentDetailsRequestDto;
 import com.eps.module.api.epsone.payment_details.dto.PaymentDetailsResponseDto;
 import com.eps.module.api.epsone.payment_details.service.PaymentDetailsService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -21,6 +26,7 @@ import java.util.List;
 public class PaymentDetailsController {
 
     private final PaymentDetailsService paymentDetailsService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
     public ResponseEntity<?> createPaymentDetails(@Valid @RequestBody PaymentDetailsRequestDto requestDto) {
@@ -87,5 +93,25 @@ public class PaymentDetailsController {
     public ResponseEntity<?> deletePaymentDetails(@PathVariable Long id) {
         paymentDetailsService.deletePaymentDetails(id);
         return ResponseBuilder.success(null, "Payment details deleted successfully");
+    }
+
+    @PostMapping("/bulk-upload")
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws java.io.IOException {
+        return bulkUploadControllerHelper.bulkUpload(file, paymentDetailsService);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportPaymentDetails() throws java.io.IOException {
+        return bulkUploadControllerHelper.export(paymentDetailsService);
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<byte[]> downloadTemplate() throws java.io.IOException {
+        return bulkUploadControllerHelper.downloadTemplate(paymentDetailsService);
+    }
+
+    @PostMapping("/export-errors")
+    public ResponseEntity<byte[]> exportErrors(@RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws java.io.IOException {
+        return bulkUploadControllerHelper.exportErrors(progressData, paymentDetailsService);
     }
 }

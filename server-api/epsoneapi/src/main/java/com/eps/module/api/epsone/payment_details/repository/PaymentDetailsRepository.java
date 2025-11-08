@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PaymentDetailsRepository extends JpaRepository<PaymentDetails, Long> {
 
@@ -18,4 +20,7 @@ public interface PaymentDetailsRepository extends JpaRepository<PaymentDetails, 
             "LOWER(pd.beneficiaryAccountNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
             "LOWER(pd.vpa) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<PaymentDetails> searchPaymentDetails(@Param("searchTerm") String searchTerm, Pageable pageable);
+
+    @Query("SELECT pd FROM PaymentDetails pd LEFT JOIN FETCH pd.paymentMethod ORDER BY pd.id")
+    List<PaymentDetails> findAllForExport();
 }

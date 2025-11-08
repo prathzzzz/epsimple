@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,6 +25,7 @@ import java.util.stream.Stream;
 public class ExcelImportUtil {
     
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter ISO_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     
     /**
@@ -149,32 +151,56 @@ public class ExcelImportUtil {
         }
         
         try {
-            if (targetType == String.class) {
-                return cellValue;
-            } else if (targetType == Integer.class || targetType == int.class) {
-                // Handle decimal values from Excel
-                if (cellValue.contains(".")) {
-                    return (int) Double.parseDouble(cellValue);
+            return switch (targetType.getName()) {
+                case "java.lang.String" -> cellValue;
+                case "java.lang.Integer", "int" -> {
+                    // Handle decimal values from Excel
+                    if (cellValue.contains(".")) {
+                        yield (int) Double.parseDouble(cellValue);
+                    }
+                    yield Integer.parseInt(cellValue);
                 }
-                return Integer.parseInt(cellValue);
-            } else if (targetType == Long.class || targetType == long.class) {
-                if (cellValue.contains(".")) {
-                    return (long) Double.parseDouble(cellValue);
+                case "java.lang.Long", "long" -> {
+                    if (cellValue.contains(".")) {
+                        yield (long) Double.parseDouble(cellValue);
+                    }
+                    yield Long.parseLong(cellValue);
                 }
-                return Long.parseLong(cellValue);
-            } else if (targetType == Double.class || targetType == double.class) {
-                return Double.parseDouble(cellValue);
-            } else if (targetType == Boolean.class || targetType == boolean.class) {
-                return Boolean.parseBoolean(cellValue);
-            } else if (targetType == LocalDate.class) {
-                return LocalDate.parse(cellValue, DATE_FORMATTER);
-            } else if (targetType == LocalDateTime.class) {
-                return LocalDateTime.parse(cellValue, DATETIME_FORMATTER);
-            } else {
-                return cellValue;
-            }
+                case "java.lang.Double", "double" -> Double.parseDouble(cellValue);
+                case "java.math.BigDecimal" -> new BigDecimal(cellValue);
+                case "java.lang.Boolean", "boolean" -> Boolean.parseBoolean(cellValue);
+                case "java.time.LocalDate" -> parseLocalDate(cellValue);
+                case "java.time.LocalDateTime" -> LocalDateTime.parse(cellValue, DATETIME_FORMATTER);
+                default -> cellValue;
+            };
         } catch (NumberFormatException | DateTimeParseException e) {
             throw new IllegalArgumentException("Invalid value '" + cellValue + "' for type " + targetType.getSimpleName());
+        }
+    }
+    
+    /**
+     * Parse LocalDate with multiple format support
+     */
+    private LocalDate parseLocalDate(String dateValue) {
+        if (dateValue == null || dateValue.trim().isEmpty()) {
+            return null;
+        }
+        
+        // Try ISO format first (yyyy-MM-dd)
+        try {
+            return LocalDate.parse(dateValue, ISO_DATE_FORMATTER);
+        } catch (DateTimeParseException e1) {
+            // Try dd-MM-yyyy format
+            try {
+                return LocalDate.parse(dateValue, DATE_FORMATTER);
+            } catch (DateTimeParseException e2) {
+                // Try ISO standard format (default)
+                try {
+                    return LocalDate.parse(dateValue);
+                } catch (DateTimeParseException e3) {
+                    throw new DateTimeParseException("Unable to parse date: " + dateValue, dateValue, 0);
+                }
+            }
         }
     }
     

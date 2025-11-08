@@ -4,6 +4,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PaymentDetailsMutateDrawer } from "./payment-details-mutate-drawer";
 import { usePaymentDetails } from "../context/payment-details-provider";
 import { paymentDetailsApi } from "../api/payment-details-api";
+import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
 
 export function PaymentDetailsDialogs() {
   const queryClient = useQueryClient();
@@ -14,6 +15,8 @@ export function PaymentDetailsDialogs() {
     setIsDrawerOpen,
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
+    isBulkUploadDialogOpen,
+    closeBulkUploadDialog,
   } = usePaymentDetails();
 
   const deleteMutation = useMutation({
@@ -32,6 +35,11 @@ export function PaymentDetailsDialogs() {
     }
   };
 
+  const handleBulkUploadSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["payment-details"] });
+    toast.success("Payment details imported successfully");
+  };
+
   return (
     <>
       <PaymentDetailsMutateDrawer
@@ -47,6 +55,16 @@ export function PaymentDetailsDialogs() {
         handleConfirm={handleDelete}
         isLoading={deleteMutation.isPending}
         destructive
+      />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={closeBulkUploadDialog}
+        config={{
+          entityName: "PaymentDetails",
+          uploadEndpoint: "/api/payment-details/bulk-upload",
+          errorReportEndpoint: "/api/payment-details/export-errors",
+          onSuccess: handleBulkUploadSuccess,
+        }}
       />
     </>
   );
