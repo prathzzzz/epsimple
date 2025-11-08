@@ -22,10 +22,14 @@ export const payeeDetailsColumns: ColumnDef<PayeeDetails>[] = [
     ),
     cell: ({ row }) => {
       const panNumber = row.getValue('panNumber') as string;
-      return (
-        <div className="font-mono text-sm">
-          {panNumber || <span className="text-muted-foreground">-</span>}
+      return panNumber ? (
+        <div className='flex space-x-2'>
+          <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
+            {panNumber}
+          </span>
         </div>
+      ) : (
+        <span className="text-muted-foreground">-</span>
       );
     },
   },
@@ -36,10 +40,14 @@ export const payeeDetailsColumns: ColumnDef<PayeeDetails>[] = [
     ),
     cell: ({ row }) => {
       const aadhaar = row.getValue('aadhaarNumber') as string;
-      return (
-        <div className="font-mono text-sm">
-          {aadhaar || <span className="text-muted-foreground">-</span>}
+      return aadhaar ? (
+        <div className='flex space-x-2'>
+          <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
+            {aadhaar}
+          </span>
         </div>
+      ) : (
+        <span className="text-muted-foreground">-</span>
       );
     },
   },
@@ -64,10 +72,14 @@ export const payeeDetailsColumns: ColumnDef<PayeeDetails>[] = [
     ),
     cell: ({ row }) => {
       const ifsc = row.getValue('ifscCode') as string;
-      return (
-        <div className="font-mono text-sm">
-          {ifsc || <span className="text-muted-foreground">-</span>}
+      return ifsc ? (
+        <div className='flex space-x-2'>
+          <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
+            {ifsc}
+          </span>
         </div>
+      ) : (
+        <span className="text-muted-foreground">-</span>
       );
     },
   },
@@ -78,10 +90,14 @@ export const payeeDetailsColumns: ColumnDef<PayeeDetails>[] = [
     ),
     cell: ({ row }) => {
       const accountNumber = row.getValue('accountNumber') as string;
-      return (
-        <div className="font-mono text-sm">
-          {accountNumber || <span className="text-muted-foreground">-</span>}
+      return accountNumber ? (
+        <div className='flex space-x-2'>
+          <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
+            {accountNumber}
+          </span>
         </div>
+      ) : (
+        <span className="text-muted-foreground">-</span>
       );
     },
   },

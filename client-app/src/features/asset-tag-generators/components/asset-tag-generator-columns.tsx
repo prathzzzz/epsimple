@@ -10,7 +10,11 @@ export const assetTagCodeGeneratorColumns: ColumnDef<AssetTagCodeGenerator>[] = 
       <div>
         <div className="font-medium">{row.original.assetCategoryName}</div>
         {row.original.assetCategoryCode && (
-          <div className="text-xs text-muted-foreground">{row.original.assetCategoryCode}</div>
+          <div className='flex space-x-2 mt-1'>
+            <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
+              {row.original.assetCategoryCode}
+            </span>
+          </div>
         )}
       </div>
     ),
@@ -22,7 +26,11 @@ export const assetTagCodeGeneratorColumns: ColumnDef<AssetTagCodeGenerator>[] = 
       <div>
         <div className="font-medium">{row.original.vendorName}</div>
         {row.original.vendorCode && (
-          <div className="text-xs text-muted-foreground">{row.original.vendorCode}</div>
+          <div className='flex space-x-2 mt-1'>
+            <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
+              {row.original.vendorCode}
+            </span>
+          </div>
         )}
       </div>
     ),
@@ -34,7 +42,11 @@ export const assetTagCodeGeneratorColumns: ColumnDef<AssetTagCodeGenerator>[] = 
       <div>
         <div className="font-medium">{row.original.bankName}</div>
         {row.original.bankCode && (
-          <div className="text-xs text-muted-foreground">{row.original.bankCode}</div>
+          <div className='flex space-x-2 mt-1'>
+            <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
+              {row.original.bankCode}
+            </span>
+          </div>
         )}
       </div>
     ),

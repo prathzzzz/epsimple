@@ -30,7 +30,7 @@ export const columns: ColumnDef<State>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[200px] truncate">
+          <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
             {row.original.stateCode}
           </span>
         </div>
@@ -46,9 +46,13 @@ export const columns: ColumnDef<State>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[200px] truncate text-muted-foreground">
-            {row.original.stateCodeAlt || '-'}
-          </span>
+          {row.original.stateCodeAlt ? (
+            <span className="inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10 dark:bg-purple-400/10 dark:text-purple-400 dark:ring-purple-400/30">
+              {row.original.stateCodeAlt}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          )}
         </div>
       )
     },

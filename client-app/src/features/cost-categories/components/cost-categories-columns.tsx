@@ -11,7 +11,11 @@ export const costCategoriesColumns: ColumnDef<CostCategory>[] = [
       <DataTableColumnHeader column={column} title="Category Name" />
     ),
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("categoryName")}</div>
+      <div className='flex space-x-2'>
+        <span className='inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10 dark:bg-purple-400/10 dark:text-purple-400 dark:ring-purple-400/30'>
+          {row.getValue("categoryName")}
+        </span>
+      </div>
     ),
   },
   {

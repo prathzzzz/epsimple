@@ -34,10 +34,14 @@ export const activityWorkColumns: ColumnDef<ActivityWork>[] = [
     ),
     cell: ({ row }) => {
       const orderNumber = row.getValue('vendorOrderNumber') as string;
-      return (
-        <div className="font-mono text-sm">
-          {orderNumber || <span className="text-muted-foreground">-</span>}
+      return orderNumber ? (
+        <div className='flex space-x-2'>
+          <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
+            {orderNumber}
+          </span>
         </div>
+      ) : (
+        <span className="text-muted-foreground">-</span>
       );
     },
   },
@@ -77,8 +81,10 @@ export const activityWorkColumns: ColumnDef<ActivityWork>[] = [
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => (
-      <div className="max-w-[150px] truncate">
-        {row.getValue('statusTypeName')}
+      <div className='flex space-x-2'>
+        <span className='inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10 dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30'>
+          {row.getValue('statusTypeName')}
+        </span>
       </div>
     ),
   },

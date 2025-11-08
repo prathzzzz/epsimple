@@ -58,8 +58,14 @@ export const banksColumns: ColumnDef<Bank>[] = [
     cell: ({ row }) => {
       const code = row.original.rbiBankCode
       return (
-        <div className='w-[100px]'>
-          {code || <span className='text-muted-foreground'>—</span>}
+        <div className='flex space-x-2'>
+          {code ? (
+            <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
+              {code}
+            </span>
+          ) : (
+            <span className='text-muted-foreground'>—</span>
+          )}
         </div>
       )
     },
@@ -73,8 +79,14 @@ export const banksColumns: ColumnDef<Bank>[] = [
     cell: ({ row }) => {
       const code = row.original.epsBankCode
       return (
-        <div className='w-[100px]'>
-          {code || <span className='text-muted-foreground'>—</span>}
+        <div className='flex space-x-2'>
+          {code ? (
+            <span className='inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10 dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30'>
+              {code}
+            </span>
+          ) : (
+            <span className='text-muted-foreground'>—</span>
+          )}
         </div>
       )
     },
@@ -88,8 +100,14 @@ export const banksColumns: ColumnDef<Bank>[] = [
     cell: ({ row }) => {
       const code = row.original.bankCodeAlt
       return (
-        <div className='w-[100px]'>
-          {code || <span className='text-muted-foreground'>—</span>}
+        <div className='flex space-x-2'>
+          {code ? (
+            <span className='inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10 dark:bg-purple-400/10 dark:text-purple-400 dark:ring-purple-400/30'>
+              {code}
+            </span>
+          ) : (
+            <span className='text-muted-foreground'>—</span>
+          )}
         </div>
       )
     },

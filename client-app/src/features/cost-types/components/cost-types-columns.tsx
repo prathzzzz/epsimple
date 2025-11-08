@@ -11,7 +11,11 @@ export const costTypesColumns: ColumnDef<CostType>[] = [
       <DataTableColumnHeader column={column} title="Type Name" />
     ),
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("typeName")}</div>
+      <div className='flex space-x-2'>
+        <span className='inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-700/10 dark:bg-orange-400/10 dark:text-orange-400 dark:ring-orange-400/30'>
+          {row.getValue("typeName")}
+        </span>
+      </div>
     ),
   },
   {
@@ -20,7 +24,11 @@ export const costTypesColumns: ColumnDef<CostType>[] = [
       <DataTableColumnHeader column={column} title="Cost Category" />
     ),
     cell: ({ row }) => (
-      <div>{row.getValue("costCategoryName")}</div>
+      <div className='flex space-x-2'>
+        <span className='inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10 dark:bg-purple-400/10 dark:text-purple-400 dark:ring-purple-400/30'>
+          {row.getValue("costCategoryName")}
+        </span>
+      </div>
     ),
   },
   {

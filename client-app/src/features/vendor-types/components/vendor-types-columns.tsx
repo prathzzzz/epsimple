@@ -7,14 +7,28 @@ export const vendorTypesColumns: ColumnDef<VendorType>[] = [
   {
     accessorKey: 'typeName',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Type Name" />,
-    cell: ({ row }) => <div className="font-medium">{row.getValue('typeName')}</div>,
+    cell: ({ row }) => (
+      <div className='flex space-x-2'>
+        <span className='inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-700/10 dark:bg-orange-400/10 dark:text-orange-400 dark:ring-orange-400/30'>
+          {row.getValue('typeName')}
+        </span>
+      </div>
+    ),
   },
   {
     accessorKey: 'vendorCategory.categoryName',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Category" />,
     cell: ({ row }) => {
       const vendorCategory = row.original.vendorCategory;
-      return <div>{vendorCategory?.categoryName || '-'}</div>;
+      return vendorCategory?.categoryName ? (
+        <div className='flex space-x-2'>
+          <span className='inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10 dark:bg-purple-400/10 dark:text-purple-400 dark:ring-purple-400/30'>
+            {vendorCategory.categoryName}
+          </span>
+        </div>
+      ) : (
+        <span className='text-muted-foreground'>-</span>
+      );
     },
   },
   {

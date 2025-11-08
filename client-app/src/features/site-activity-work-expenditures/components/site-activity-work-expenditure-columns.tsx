@@ -8,8 +8,8 @@ export const siteActivityWorkExpenditureColumns: ColumnDef<SiteActivityWorkExpen
     header: 'Site Code',
     cell: ({ row }) => {
       return (
-        <div className="flex space-x-2">
-          <span className="max-w-[200px] truncate font-medium">
+        <div className='flex space-x-2'>
+          <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
             {row.getValue('siteCode')}
           </span>
         </div>
@@ -47,8 +47,8 @@ export const siteActivityWorkExpenditureColumns: ColumnDef<SiteActivityWorkExpen
     header: 'Invoice Number',
     cell: ({ row }) => {
       return (
-        <div className="flex space-x-2">
-          <span className="max-w-[200px] truncate font-medium">
+        <div className='flex space-x-2'>
+          <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
             {row.getValue('invoiceNumber')}
           </span>
         </div>

@@ -22,10 +22,14 @@ export const datacenterColumns: ColumnDef<Datacenter>[] = [
     ),
     cell: ({ row }) => {
       const code = row.getValue('datacenterCode') as string;
-      return (
-        <div className="font-mono text-sm">
-          {code || <span className="text-muted-foreground">-</span>}
+      return code ? (
+        <div className='flex space-x-2'>
+          <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
+            {code}
+          </span>
         </div>
+      ) : (
+        <span className="text-muted-foreground">-</span>
       );
     },
   },
@@ -36,10 +40,14 @@ export const datacenterColumns: ColumnDef<Datacenter>[] = [
     ),
     cell: ({ row }) => {
       const type = row.getValue('datacenterType') as string;
-      return (
-        <div className="max-w-[150px] truncate">
-          {type || <span className="text-muted-foreground">-</span>}
+      return type ? (
+        <div className='flex space-x-2'>
+          <span className='inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-700/10 dark:bg-orange-400/10 dark:text-orange-400 dark:ring-orange-400/30'>
+            {type}
+          </span>
         </div>
+      ) : (
+        <span className="text-muted-foreground">-</span>
       );
     },
   },

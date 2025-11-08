@@ -11,7 +11,7 @@ export const siteCategoryColumns: ColumnDef<SiteCategory>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
+          <span className='inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10 dark:bg-purple-400/10 dark:text-purple-400 dark:ring-purple-400/30'>
             {row.getValue("categoryName")}
           </span>
         </div>
@@ -26,7 +26,7 @@ export const siteCategoryColumns: ColumnDef<SiteCategory>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[300px] truncate font-mono text-sm">
+          <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
             {row.getValue("categoryCode")}
           </span>
         </div>

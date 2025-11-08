@@ -10,7 +10,11 @@ export const invoiceColumns: ColumnDef<Invoice>[] = [
       <DataTableColumnHeader column={column} title="Invoice #" />
     ),
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("invoiceNumber")}</div>
+      <div className='flex space-x-2'>
+        <span className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30'>
+          {row.getValue("invoiceNumber")}
+        </span>
+      </div>
     ),
   },
   {
@@ -70,7 +74,11 @@ export const invoiceColumns: ColumnDef<Invoice>[] = [
     cell: ({ row }) => {
       const status = row.getValue("paymentStatus") as string | null;
       return status ? (
-        <div className="capitalize">{status.toLowerCase()}</div>
+        <div className='flex space-x-2'>
+          <span className='inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10 dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30'>
+            {status.toUpperCase()}
+          </span>
+        </div>
       ) : (
         <span className="text-muted-foreground">-</span>
       );
