@@ -49,6 +49,13 @@ public class StateBulkUploadProcessor extends BulkUploadProcessor<StateBulkUploa
         return rowData;
     }
     
+    @Override
+    protected boolean isEmptyRow(StateBulkUploadDto dto) {
+        // Consider row empty if all required fields (stateName and stateCode) are null or blank
+        return (dto.getStateName() == null || dto.getStateName().trim().isEmpty()) &&
+               (dto.getStateCode() == null || dto.getStateCode().trim().isEmpty());
+    }
+    
     /**
      * Capitalizes the first letter of the input string.
      * Example: "maharashtra" -> "Maharashtra"

@@ -7,9 +7,10 @@ import { ConfigDrawer } from "@/components/config-drawer";
 import { CityProvider } from "./context/city-provider";
 import { CityTable } from "./components/city-table";
 import { cityColumns } from "./components/city-columns";
-import { CreateCityButton } from "./components/create-city-button";
+import { CityPrimaryButtons } from "./components/city-primary-buttons";
 import { CityDrawer } from "./components/city-drawer";
 import { CityDeleteDialog } from "./components/city-delete-dialog";
+import { CityDialogs } from "./components/city-dialogs";
 
 function CitiesContent() {
   return (
@@ -31,7 +32,7 @@ function CitiesContent() {
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            <CreateCityButton />
+            <CityPrimaryButtons />
           </div>
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1">
@@ -40,6 +41,7 @@ function CitiesContent() {
       </Main>
       <CityDrawer />
       <CityDeleteDialog />
+      <CityDialogs />
     </>
   );
 }

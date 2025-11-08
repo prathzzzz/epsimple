@@ -73,28 +73,42 @@ public class AssetMovementServiceImpl implements AssetMovementService {
     }
 
     private void setFromLocation(AssetMovementTracker.AssetMovementTrackerBuilder builder, Object fromPlacement) {
-        if (fromPlacement instanceof AssetsOnSite) {
-            Site site = ((AssetsOnSite) fromPlacement).getSite();
-            builder.fromSite(site);
-        } else if (fromPlacement instanceof AssetsOnWarehouse) {
-            Warehouse warehouse = ((AssetsOnWarehouse) fromPlacement).getWarehouse();
-            builder.fromWarehouse(warehouse);
-        } else if (fromPlacement instanceof AssetsOnDatacenter) {
-            Datacenter datacenter = ((AssetsOnDatacenter) fromPlacement).getDatacenter();
-            builder.fromDatacenter(datacenter);
+        switch (fromPlacement) {
+            case AssetsOnSite assetsOnSite -> {
+                Site site = assetsOnSite.getSite();
+                builder.fromSite(site);
+            }
+            case AssetsOnWarehouse assetsOnWarehouse -> {
+                Warehouse warehouse = assetsOnWarehouse.getWarehouse();
+                builder.fromWarehouse(warehouse);
+            }
+            case AssetsOnDatacenter assetsOnDatacenter -> {
+                Datacenter datacenter = assetsOnDatacenter.getDatacenter();
+                builder.fromDatacenter(datacenter);
+            }
+            case null, default -> {
+                // No action for unknown types
+            }
         }
     }
 
     private void setToLocation(AssetMovementTracker.AssetMovementTrackerBuilder builder, Object toPlacement) {
-        if (toPlacement instanceof AssetsOnSite) {
-            Site site = ((AssetsOnSite) toPlacement).getSite();
-            builder.toSite(site);
-        } else if (toPlacement instanceof AssetsOnWarehouse) {
-            Warehouse warehouse = ((AssetsOnWarehouse) toPlacement).getWarehouse();
-            builder.toWarehouse(warehouse);
-        } else if (toPlacement instanceof AssetsOnDatacenter) {
-            Datacenter datacenter = ((AssetsOnDatacenter) toPlacement).getDatacenter();
-            builder.toDatacenter(datacenter);
+        switch (toPlacement) {
+            case AssetsOnSite assetsOnSite -> {
+                Site site = assetsOnSite.getSite();
+                builder.toSite(site);
+            }
+            case AssetsOnWarehouse assetsOnWarehouse -> {
+                Warehouse warehouse = assetsOnWarehouse.getWarehouse();
+                builder.toWarehouse(warehouse);
+            }
+            case AssetsOnDatacenter assetsOnDatacenter -> {
+                Datacenter datacenter = assetsOnDatacenter.getDatacenter();
+                builder.toDatacenter(datacenter);
+            }
+            case null, default -> {
+                // No action for unknown types
+            }
         }
     }
 

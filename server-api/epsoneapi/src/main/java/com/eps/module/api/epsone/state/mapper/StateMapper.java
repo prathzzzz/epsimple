@@ -32,8 +32,10 @@ public interface StateMapper {
     }
     
     /**
-     * Capitalizes the first letter of the input string.
+     * Capitalizes the first letter of each word in the input string.
      * Example: "maharashtra" -> "Maharashtra"
+     * Example: "new delhi" -> "New Delhi"
+     * Example: "uttar pradesh" -> "Uttar Pradesh"
      * This method is package-private to avoid MapStruct confusion
      */
     @Named("capitalizeFirstLetter")
@@ -41,8 +43,28 @@ public interface StateMapper {
         if (input == null || input.isEmpty()) {
             return input;
         }
+        
         String trimmed = input.trim();
-        return trimmed.substring(0, 1).toUpperCase() + trimmed.substring(1).toLowerCase();
+        if (trimmed.isEmpty()) {
+            return trimmed;
+        }
+        
+        // Split by spaces and capitalize each word
+        String[] words = trimmed.split("\\s+");
+        StringBuilder result = new StringBuilder();
+        
+        for (int i = 0; i < words.length; i++) {
+            if (i > 0) {
+                result.append(" ");
+            }
+            String word = words[i];
+            if (!word.isEmpty()) {
+                result.append(word.substring(0, 1).toUpperCase())
+                      .append(word.substring(1).toLowerCase());
+            }
+        }
+        
+        return result.toString();
     }
     
     /**

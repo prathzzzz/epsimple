@@ -1,11 +1,17 @@
 package com.eps.module.api.epsone.city.service;
 
+import com.eps.module.api.epsone.city.dto.CityBulkUploadDto;
 import com.eps.module.api.epsone.city.dto.CityRequestDto;
 import com.eps.module.api.epsone.city.dto.CityResponseDto;
 import com.eps.module.api.epsone.city.mapper.CityMapper;
+import com.eps.module.api.epsone.city.processor.CityBulkUploadProcessor;
 import com.eps.module.api.epsone.city.repository.CityRepository;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.state.repository.StateRepository;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.dto.CityErrorReportDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.location.City;
 import com.eps.module.location.Location;
 import com.eps.module.location.State;
@@ -18,18 +24,72 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class CityServiceImpl implements CityService {
+@RequiredArgsConstructor
+public class CityServiceImpl extends BaseBulkUploadService<CityBulkUploadDto, City> implements CityService {
 
     private final CityRepository cityRepository;
     private final StateRepository stateRepository;
     private final LocationRepository locationRepository;
     private final CityMapper cityMapper;
+    private final CityBulkUploadProcessor cityBulkUploadProcessor;
+
+    // Bulk upload implementation methods
+    @Override
+    protected BulkUploadProcessor<CityBulkUploadDto, City> getProcessor() {
+        return cityBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<CityBulkUploadDto> getBulkUploadDtoClass() {
+        return CityBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "City";
+    }
+
+    @Override
+    public List<City> getAllEntitiesForExport() {
+        return cityRepository.findAllCitiesList();
+    }
+
+    @Override
+    public Function<City, CityBulkUploadDto> getEntityToDtoMapper() {
+        return city -> CityBulkUploadDto.builder()
+                .cityName(city.getCityName())
+                .cityCode(city.getCityCode())
+                .stateName(city.getState() != null ? city.getState().getStateName() : null)
+                .stateCode(city.getState() != null ? city.getState().getStateCode() : null)
+                .stateCodeAlt(city.getState() != null ? city.getState().getStateCodeAlt() : null)
+                .build();
+    }
+
+    @Override
+    protected CityErrorReportDto buildErrorReportDto(BulkUploadErrorDto error) {
+        return CityErrorReportDto.builder()
+                .rowNumber(error.getRowNumber())
+                .errorType(error.getErrorType())
+                .errorMessage(error.getErrorMessage())
+                .cityName(error.getRowData() != null ? (String) error.getRowData().get("cityName") : null)
+                .cityCode(error.getRowData() != null ? (String) error.getRowData().get("cityCode") : null)
+                .stateName(error.getRowData() != null ? (String) error.getRowData().get("stateName") : null)
+                .stateCode(error.getRowData() != null ? (String) error.getRowData().get("stateCode") : null)
+                .stateCodeAlt(error.getRowData() != null ? (String) error.getRowData().get("stateCodeAlt") : null)
+                .build();
+    }
+
+    @Override
+    public Class<CityErrorReportDto> getErrorReportDtoClass() {
+        return CityErrorReportDto.class;
+    }
 
     @Override
     @Transactional

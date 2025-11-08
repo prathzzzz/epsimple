@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.city.controller;
 import com.eps.module.api.epsone.city.dto.CityRequestDto;
 import com.eps.module.api.epsone.city.dto.CityResponseDto;
 import com.eps.module.api.epsone.city.service.CityService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -15,7 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +30,7 @@ import java.util.List;
 public class CityController {
 
     private final CityService cityService;
+    private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<CityResponseDto>> createCity(@Valid @RequestBody CityRequestDto requestDto) {
@@ -109,4 +115,30 @@ public class CityController {
         cityService.deleteCity(id);
         return ResponseBuilder.success(null, "City deleted successfully");
     }
+
+    // Bulk upload endpoints
+    @PostMapping("/bulk-upload")
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
+        log.info("POST /api/cities/bulk-upload - Starting bulk upload");
+        return bulkUploadHelper.bulkUpload(file, cityService);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportToExcel() throws IOException {
+        log.info("GET /api/cities/export - Exporting cities to Excel");
+        return bulkUploadHelper.export(cityService);
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<byte[]> downloadTemplate() throws IOException {
+        log.info("GET /api/cities/download-template - Downloading bulk upload template");
+        return bulkUploadHelper.downloadTemplate(cityService);
+    }
+
+    @PostMapping("/export-errors")
+    public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progress) throws IOException {
+        log.info("POST /api/cities/export-errors - Exporting error report");
+        return bulkUploadHelper.exportErrors(progress, cityService);
+    }
 }
+

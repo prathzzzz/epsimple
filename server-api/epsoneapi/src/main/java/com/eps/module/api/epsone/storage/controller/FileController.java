@@ -50,17 +50,22 @@ public class FileController {
 
     private String determineContentType(String filename) {
         String lowerCaseFilename = filename.toLowerCase();
-        if (lowerCaseFilename.endsWith(".png")) {
-            return "image/png";
-        } else if (lowerCaseFilename.endsWith(".jpg") || lowerCaseFilename.endsWith(".jpeg")) {
-            return "image/jpeg";
-        } else if (lowerCaseFilename.endsWith(".svg")) {
-            return "image/svg+xml";
-        } else if (lowerCaseFilename.endsWith(".webp")) {
-            return "image/webp";
-        } else if (lowerCaseFilename.endsWith(".gif")) {
-            return "image/gif";
+        
+        // Extract file extension
+        int lastDotIndex = lowerCaseFilename.lastIndexOf('.');
+        if (lastDotIndex == -1) {
+            return "application/octet-stream";
         }
-        return "application/octet-stream";
+        
+        String extension = lowerCaseFilename.substring(lastDotIndex + 1);
+        
+        return switch (extension) {
+            case "png" -> "image/png";
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "svg" -> "image/svg+xml";
+            case "webp" -> "image/webp";
+            case "gif" -> "image/gif";
+            default -> "application/octet-stream";
+        };
     }
 }

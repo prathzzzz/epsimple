@@ -68,9 +68,9 @@ public class AssetMovementMapper {
                 .isPlaced(true)
                 .locationType(locationType);
 
-        if (placement instanceof AssetsOnSite) {
-            AssetsOnSite siteP = (AssetsOnSite) placement;
-            builder.placementId(siteP.getId())
+        switch (placement) {
+            case AssetsOnSite siteP -> builder
+                    .placementId(siteP.getId())
                     .locationId(siteP.getSite().getId())
                     .locationCode(siteP.getSite().getSiteCode())
                     .locationName(siteP.getSite().getSiteCode()) // Site uses code as name
@@ -79,9 +79,9 @@ public class AssetMovementMapper {
                     .assetStatusName(siteP.getAssetStatus() != null ? siteP.getAssetStatus().getStatusName() : null)
                     .activityWorkId(siteP.getActivityWork() != null ? siteP.getActivityWork().getId() : null)
                     .activityWorkNumber(siteP.getActivityWork() != null ? siteP.getActivityWork().getVendorOrderNumber() : null);
-        } else if (placement instanceof AssetsOnWarehouse) {
-            AssetsOnWarehouse warehouseP = (AssetsOnWarehouse) placement;
-            builder.placementId(warehouseP.getId())
+            
+            case AssetsOnWarehouse warehouseP -> builder
+                    .placementId(warehouseP.getId())
                     .locationId(warehouseP.getWarehouse().getId())
                     .locationCode(warehouseP.getWarehouse().getWarehouseCode())
                     .locationName(warehouseP.getWarehouse().getWarehouseName())
@@ -90,9 +90,9 @@ public class AssetMovementMapper {
                     .assetStatusName(warehouseP.getAssetStatus() != null ? warehouseP.getAssetStatus().getStatusName() : null)
                     .activityWorkId(warehouseP.getActivityWork() != null ? warehouseP.getActivityWork().getId() : null)
                     .activityWorkNumber(warehouseP.getActivityWork() != null ? warehouseP.getActivityWork().getVendorOrderNumber() : null);
-        } else if (placement instanceof AssetsOnDatacenter) {
-            AssetsOnDatacenter datacenterP = (AssetsOnDatacenter) placement;
-            builder.placementId(datacenterP.getId())
+            
+            case AssetsOnDatacenter datacenterP -> builder
+                    .placementId(datacenterP.getId())
                     .locationId(datacenterP.getDatacenter().getId())
                     .locationCode(datacenterP.getDatacenter().getDatacenterCode())
                     .locationName(datacenterP.getDatacenter().getDatacenterName())
@@ -101,6 +101,10 @@ public class AssetMovementMapper {
                     .assetStatusName(datacenterP.getAssetStatus() != null ? datacenterP.getAssetStatus().getStatusName() : null)
                     .activityWorkId(datacenterP.getActivityWork() != null ? datacenterP.getActivityWork().getId() : null)
                     .activityWorkNumber(datacenterP.getActivityWork() != null ? datacenterP.getActivityWork().getVendorOrderNumber() : null);
+            
+            case null, default -> {
+                // No additional fields for unknown types
+            }
         }
 
         return builder.build();

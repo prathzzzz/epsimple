@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BulkUploadErrorReportDto {
+public class StateErrorReportDto {
     
     @ExcelColumn(value = "Row Number", order = 1, required = true)
     private Integer rowNumber;
@@ -25,18 +25,10 @@ public class BulkUploadErrorReportDto {
     @ExcelColumn(value = "Alternate State Code", order = 4)
     private String stateCodeAlt;
     
-    // City fields
-    @ExcelColumn(value = "City Name", order = 5)
-    private String cityName;
-    
-    @ExcelColumn(value = "City Code", order = 6)
-    private String cityCode;
-    
     // Error fields
-    @ExcelColumn(value = "Error Type", order = 7, required = true)
+    @ExcelColumn(value = "Error Type", order = 5, required = true)
     private String errorType;
     
-    @ExcelColumn(value = "Error Message", order = 8, required = true)
+    @ExcelColumn(value = "Error Message", order = 6, required = true)
     private String errorMessage;
 }
-

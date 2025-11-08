@@ -8,14 +8,14 @@ import com.eps.module.api.epsone.state.processor.StateBulkUploadProcessor;
 import com.eps.module.api.epsone.state.repository.StateRepository;
 import com.eps.module.api.epsone.city.repository.CityRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
-import com.eps.module.common.bulk.dto.BulkUploadErrorReportDto;
+import com.eps.module.common.bulk.dto.StateErrorReportDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.CustomException;
 import com.eps.module.location.State;
 import com.eps.module.location.City;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,19 +28,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class StateServiceImpl extends BaseBulkUploadService<StateBulkUploadDto, State> implements StateService {
 
-    @Autowired
-    private StateRepository stateRepository;
-    
-    @Autowired
-    private CityRepository cityRepository;
-    
-    @Autowired
-    private StateMapper stateMapper;
-    
-    @Autowired
-    private StateBulkUploadProcessor bulkUploadProcessor;
+    private final StateRepository stateRepository;
+    private final CityRepository cityRepository;
+    private final StateMapper stateMapper;
+    private final StateBulkUploadProcessor bulkUploadProcessor;
 
     @Override
     @Transactional
@@ -203,8 +197,8 @@ public class StateServiceImpl extends BaseBulkUploadService<StateBulkUploadDto, 
     
     @Override
     protected Object buildErrorReportDto(BulkUploadErrorDto error) {
-        BulkUploadErrorReportDto.BulkUploadErrorReportDtoBuilder builder = 
-                BulkUploadErrorReportDto.builder()
+        StateErrorReportDto.StateErrorReportDtoBuilder builder = 
+                StateErrorReportDto.builder()
                         .rowNumber(error.getRowNumber())
                         .errorType(error.getErrorType())
                         .errorMessage(error.getErrorMessage());
@@ -221,6 +215,6 @@ public class StateServiceImpl extends BaseBulkUploadService<StateBulkUploadDto, 
     
     @Override
     protected Class<?> getErrorReportDtoClass() {
-        return BulkUploadErrorReportDto.class;
+        return StateErrorReportDto.class;
     }
 }

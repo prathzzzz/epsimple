@@ -1,13 +1,16 @@
 package com.eps.module.api.epsone.city.service;
 
+import com.eps.module.api.epsone.city.dto.CityBulkUploadDto;
 import com.eps.module.api.epsone.city.dto.CityRequestDto;
 import com.eps.module.api.epsone.city.dto.CityResponseDto;
+import com.eps.module.common.bulk.service.BulkUploadService;
+import com.eps.module.location.City;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface CityService {
+public interface CityService extends BulkUploadService<CityBulkUploadDto, City> {
 
     CityResponseDto createCity(CityRequestDto requestDto);
 

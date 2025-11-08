@@ -11,7 +11,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Generic processor for handling bulk uploads with SSE progress tracking
@@ -50,16 +52,33 @@ public abstract class BulkUploadProcessor<T, E> {
                 int rowNumber = i + 2; // +2 because row 1 is header and arrays are 0-indexed
                 
                 try {
+                    // Check if this is an empty row first
+                    boolean isEmptyRow = isEmptyRow(rowData);
+                    
+                    if (isEmptyRow) {
+                        // Skip empty rows silently - don't count as anything
+                        processedCount.incrementAndGet();
+                        continue;
+                    }
+                    
                     // Validate the row
                     List<BulkUploadErrorDto> rowErrors = validator.validate(rowData, rowNumber);
                     
                     if (!rowErrors.isEmpty()) {
-                        // Mark all errors with VALIDATION type and add row data
-                        rowErrors.forEach(error -> {
-                            error.setErrorType("VALIDATION");
-                            error.setRowData(getRowDataAsMap(rowData));
-                        });
-                        errors.addAll(rowErrors);
+                        // Combine all validation errors for this row into a single error message
+                        String combinedMessage = rowErrors.stream()
+                                .map(BulkUploadErrorDto::getErrorMessage)
+                                .collect(Collectors.joining("; "));
+                        
+                        // Create a single error entry for all validation errors
+                        BulkUploadErrorDto combinedError = BulkUploadErrorDto.builder()
+                                .rowNumber(rowNumber)
+                                .errorMessage(combinedMessage)
+                                .errorType("VALIDATION")
+                                .rowData(getRowDataAsMap(rowData))
+                                .build();
+                        
+                        errors.add(combinedError);
                         failureCount.incrementAndGet();
                         skippedCount.incrementAndGet();
                     } else if (validator.isDuplicate(rowData)) {
@@ -106,10 +125,15 @@ public abstract class BulkUploadProcessor<T, E> {
             String message = String.format("Upload completed. Success: %d, Failed: %d, Duplicates: %d, Skipped: %d", 
                     successCount.get(), failureCount.get(), duplicateCount.get(), skippedCount.get());
             
+            log.info("Bulk upload completed - Status: {}, Success: {}, Failed: {}, Duplicates: {}, Skipped: {}, Errors count: {}", 
+                    status, successCount.get(), failureCount.get(), duplicateCount.get(), skippedCount.get(), errors.size());
+            
             sendProgress(emitter, status, totalRecords, processedCount.get(), 
                     successCount.get(), failureCount.get(), duplicateCount.get(), skippedCount.get(), message, errors);
             
+            log.info("Final SSE event sent, completing emitter");
             emitter.complete();
+            log.info("Emitter completed successfully");
             
         } catch (Exception e) {
             log.error("Fatal error during bulk upload: {}", e.getMessage(), e);
@@ -145,9 +169,14 @@ public abstract class BulkUploadProcessor<T, E> {
                 .errors(errors)
                 .build();
         
+        log.debug("Sending SSE progress: status={}, processed={}/{}, success={}, failed={}, duplicates={}, errors={}", 
+                status, processed, total, success, failure, duplicate, errors != null ? errors.size() : 0);
+        
         emitter.send(SseEmitter.event()
                 .name("progress")
                 .data(progressDto));
+        
+        log.debug("SSE progress sent successfully");
     }
     
     /**
@@ -169,6 +198,12 @@ public abstract class BulkUploadProcessor<T, E> {
      * Convert row data to Map for error reporting
      */
     protected abstract java.util.Map<String, Object> getRowDataAsMap(T dto);
+    
+    /**
+     * Check if the row is empty (all required fields are null or empty)
+     * Override this method in subclasses to define what constitutes an empty row
+     */
+    protected abstract boolean isEmptyRow(T dto);
     
     /**
      * Create SSE Emitter with timeout

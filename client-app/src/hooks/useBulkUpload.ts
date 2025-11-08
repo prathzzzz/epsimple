@@ -37,6 +37,7 @@ export function useBulkUpload(config: BulkUploadConfig) {
   const [isUploading, setIsUploading] = useState(false)
   const [progress, setProgress] = useState<BulkUploadProgress | null>(null)
   const [errorReportDownloaded, setErrorReportDownloaded] = useState(false)
+  const [abortController, setAbortController] = useState<AbortController | null>(null)
 
   // Auto-download error report when errors are present
   useEffect(() => {
@@ -74,11 +75,22 @@ export function useBulkUpload(config: BulkUploadConfig) {
   const handleUpload = async () => {
     if (!selectedFile) return
 
+    // Abort any existing upload
+    if (abortController) {
+      console.log('Aborting previous upload')
+      abortController.abort()
+    }
+
+    // Create new abort controller
+    const controller = new AbortController()
+    setAbortController(controller)
+
     setIsUploading(true)
     setProgress(null)
+    setErrorReportDownloaded(false)
 
     try {
-      await bulkUploadWithSSE(config.uploadEndpoint, selectedFile, (progressData) => {
+      await bulkUploadWithSSE(config.uploadEndpoint, selectedFile, controller.signal, (progressData) => {
         setProgress(progressData)
 
         if (progressData.status === 'COMPLETED') {
@@ -101,12 +113,16 @@ export function useBulkUpload(config: BulkUploadConfig) {
         }
       })
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
       toast.error('Upload failed', {
         description: error instanceof Error ? error.message : 'An error occurred',
       })
       setProgress(null)
     } finally {
       setIsUploading(false)
+      setAbortController(null)
     }
   }
 
@@ -143,6 +159,7 @@ export function useBulkUpload(config: BulkUploadConfig) {
 async function bulkUploadWithSSE(
   endpoint: string,
   file: File,
+  signal: AbortSignal,
   onProgress: (progress: BulkUploadProgress) => void
 ): Promise<void> {
   const formData = new FormData()
@@ -153,6 +170,7 @@ async function bulkUploadWithSSE(
     body: formData,
     credentials: 'include',
     headers: createAuthHeaders(),
+    signal, // Add abort signal
   })
 
   if (!response.ok) {
@@ -181,24 +199,49 @@ async function bulkUploadWithSSE(
     throw new Error('Response body is not readable')
   }
 
+  let buffer = '' // Buffer to accumulate chunks
+
   try {
     while (true) {
       const { done, value } = await reader.read()
-      if (done) break
+      
+      if (done) {
+        break
+      }
 
-      const chunk = decoder.decode(value)
-      const lines = chunk.split('\n')
+      // Decode the chunk and add to buffer
+      const chunk = decoder.decode(value, { stream: true })
+      buffer += chunk
 
-      for (const line of lines) {
-        if (line.startsWith('data:')) {
-          const data = line.substring(5).trim()
-          if (data) {
-            try {
-              const progress: BulkUploadProgress = JSON.parse(data)
-              onProgress(progress)
-            } catch (_error) {
-              // Ignore parsing errors for SSE data
+      // Process complete SSE messages (ending with \n\n)
+      const messages = buffer.split('\n\n')
+      // Keep the last incomplete message in the buffer
+      buffer = messages.pop() || ''
+
+      for (const message of messages) {
+        if (!message.trim()) continue
+
+        // Parse SSE message format: event:progress\ndata:{json}
+        const lines = message.split('\n')
+        let data = ''
+        
+        for (const line of lines) {
+          if (line.startsWith('data:')) {
+            data = line.substring(5).trim()
+          }
+        }
+
+        if (data) {
+          try {
+            const progress: BulkUploadProgress = JSON.parse(data)
+            onProgress(progress)
+            
+            // Close the reader if we've reached a terminal status
+            if (progress.status === 'COMPLETED' || progress.status === 'COMPLETED_WITH_ERRORS' || progress.status === 'FAILED') {
+              return
             }
+          } catch (_error) {
+            // Ignore parsing errors for SSE data
           }
         }
       }

@@ -74,8 +74,15 @@ public abstract class BaseBulkUploadService<T, E> implements BulkUploadService<T
         // Create SSE emitter
         SseEmitter emitter = BulkUploadProcessor.createEmitter();
         
+        // Add completion and error handlers
+        emitter.onCompletion(() -> log.info("SSE emitter completed successfully for {}", getEntityName()));
+        emitter.onTimeout(() -> log.warn("SSE emitter timeout for {}", getEntityName()));
+        emitter.onError((ex) -> log.error("SSE emitter error for {}: {}", getEntityName(), ex.getMessage()));
+        
         // Process async with virtual threads (processor handles @Async internally)
         getProcessor().processBulkUpload(uploadData, emitter);
+        
+        log.info("Bulk upload processing started asynchronously for {}", getEntityName());
         
         return emitter;
     }
