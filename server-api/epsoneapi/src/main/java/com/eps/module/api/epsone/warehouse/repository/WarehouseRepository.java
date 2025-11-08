@@ -46,4 +46,20 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
 
     @Query("SELECT w FROM Warehouse w WHERE w.location.id = :locationId")
     Page<Warehouse> findByLocationId(@Param("locationId") Long locationId, Pageable pageable);
+
+    /**
+     * Find warehouse by name (case-insensitive) - for duplicate checking
+     */
+    @Query("SELECT w FROM Warehouse w WHERE LOWER(w.warehouseName) = LOWER(:warehouseName)")
+    Optional<Warehouse> findByWarehouseName(@Param("warehouseName") String warehouseName);
+
+    /**
+     * Get all warehouses with location, city, and state eagerly fetched - for export
+     */
+    @Query("SELECT w FROM Warehouse w " +
+           "LEFT JOIN FETCH w.location l " +
+           "LEFT JOIN FETCH l.city c " +
+           "LEFT JOIN FETCH c.state " +
+           "ORDER BY w.warehouseName ASC")
+    java.util.List<Warehouse> findAllWithLocationAndCityAndState();
 }

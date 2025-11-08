@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.warehouse.controller;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseRequestDto;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseResponseDto;
 import com.eps.module.api.epsone.warehouse.service.WarehouseService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -12,7 +14,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -22,6 +27,35 @@ import java.util.List;
 public class WarehouseController {
 
     private final WarehouseService warehouseService;
+    private final BulkUploadControllerHelper bulkUploadHelper;
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping("/bulk/upload")
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
+        log.info("POST /api/warehouses/bulk/upload - Starting bulk upload with file: {}", file.getOriginalFilename());
+        return bulkUploadHelper.bulkUpload(file, warehouseService);
+    }
+
+    @GetMapping("/bulk/export-template")
+    public ResponseEntity<byte[]> exportTemplate() throws IOException {
+        log.info("GET /api/warehouses/bulk/export-template - Exporting template");
+        return bulkUploadHelper.downloadTemplate(warehouseService);
+    }
+
+    @GetMapping("/bulk/export-data")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/warehouses/bulk/export-data - Exporting data");
+        return bulkUploadHelper.export(warehouseService);
+    }
+
+    @PostMapping("/bulk/export-error-report")
+    public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
+        log.info("POST /api/warehouses/bulk/export-error-report - Exporting error report");
+        return bulkUploadHelper.exportErrors(progressData, warehouseService);
+    }
+
+    // ========== CRUD Endpoints ==========
 
     @PostMapping
     public ResponseEntity<ApiResponse<WarehouseResponseDto>> createWarehouse(

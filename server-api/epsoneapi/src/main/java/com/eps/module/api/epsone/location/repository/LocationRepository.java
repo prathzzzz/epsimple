@@ -47,6 +47,12 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
     java.util.Optional<Location> findByLocationName(@Param("locationName") String locationName);
 
     /**
+     * Find location by name with city and state eagerly fetched - for bulk upload
+     */
+    @Query("SELECT l FROM Location l LEFT JOIN FETCH l.city c LEFT JOIN FETCH c.state WHERE LOWER(l.locationName) = LOWER(:locationName)")
+    java.util.Optional<Location> findByLocationNameWithCityAndState(@Param("locationName") String locationName);
+
+    /**
      * Get all locations with city and state eagerly fetched - for export
      */
     @Query("SELECT l FROM Location l LEFT JOIN FETCH l.city c LEFT JOIN FETCH c.state ORDER BY l.locationName ASC")

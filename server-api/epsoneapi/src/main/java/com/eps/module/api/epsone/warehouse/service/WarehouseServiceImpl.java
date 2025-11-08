@@ -1,11 +1,17 @@
 package com.eps.module.api.epsone.warehouse.service;
 
 import com.eps.module.api.epsone.location.repository.LocationRepository;
+import com.eps.module.api.epsone.warehouse.bulk.WarehouseBulkUploadProcessor;
+import com.eps.module.api.epsone.warehouse.dto.WarehouseBulkUploadDto;
+import com.eps.module.api.epsone.warehouse.dto.WarehouseErrorReportDto;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseRequestDto;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseResponseDto;
 import com.eps.module.api.epsone.warehouse.mapper.WarehouseMapper;
 import com.eps.module.api.epsone.warehouse.repository.WarehouseRepository;
 import com.eps.module.api.epsone.asset_placement.repository.AssetsOnWarehouseRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.Location;
 import com.eps.module.warehouse.Warehouse;
@@ -19,12 +25,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class WarehouseServiceImpl implements WarehouseService {
+public class WarehouseServiceImpl extends BaseBulkUploadService<WarehouseBulkUploadDto, Warehouse> 
+        implements WarehouseService {
 
     private static final String WAREHOUSE_NOT_FOUND_WITH_ID_MSG = "Warehouse not found with id: ";
 
@@ -32,6 +40,65 @@ public class WarehouseServiceImpl implements WarehouseService {
     private final LocationRepository locationRepository;
     private final WarehouseMapper warehouseMapper;
     private final AssetsOnWarehouseRepository assetsOnWarehouseRepository;
+    private final WarehouseBulkUploadProcessor warehouseBulkUploadProcessor;
+
+    // ========== Bulk Upload Methods ==========
+
+    @Override
+    protected BulkUploadProcessor<WarehouseBulkUploadDto, Warehouse> getProcessor() {
+        return warehouseBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<WarehouseBulkUploadDto> getBulkUploadDtoClass() {
+        return WarehouseBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Warehouse";
+    }
+
+    @Override
+    public List<Warehouse> getAllEntitiesForExport() {
+        return warehouseRepository.findAllWithLocationAndCityAndState();
+    }
+
+    @Override
+    public Function<Warehouse, WarehouseBulkUploadDto> getEntityToDtoMapper() {
+        return warehouse -> WarehouseBulkUploadDto.builder()
+                .warehouseName(warehouse.getWarehouseName())
+                .warehouseCode(warehouse.getWarehouseCode())
+                .warehouseType(warehouse.getWarehouseType())
+                .locationName(warehouse.getLocation().getLocationName())
+                .locationAddress(warehouse.getLocation().getAddress())
+                .cityName(warehouse.getLocation().getCity().getCityName())
+                .stateName(warehouse.getLocation().getCity().getState().getStateName())
+                .build();
+    }
+
+    @Override
+    protected WarehouseErrorReportDto buildErrorReportDto(BulkUploadErrorDto error) {
+        return WarehouseErrorReportDto.builder()
+                .rowNumber(error.getRowNumber())
+                .errorType(error.getErrorType())
+                .errorMessage(error.getErrorMessage())
+                .warehouseName(error.getRowData() != null ? (String) error.getRowData().get("warehouseName") : null)
+                .warehouseCode(error.getRowData() != null ? (String) error.getRowData().get("warehouseCode") : null)
+                .warehouseType(error.getRowData() != null ? (String) error.getRowData().get("warehouseType") : null)
+                .locationName(error.getRowData() != null ? (String) error.getRowData().get("locationName") : null)
+                .locationAddress(error.getRowData() != null ? (String) error.getRowData().get("locationAddress") : null)
+                .cityName(error.getRowData() != null ? (String) error.getRowData().get("cityName") : null)
+                .stateName(error.getRowData() != null ? (String) error.getRowData().get("stateName") : null)
+                .build();
+    }
+
+    @Override
+    public Class<WarehouseErrorReportDto> getErrorReportDtoClass() {
+        return WarehouseErrorReportDto.class;
+    }
+
+    // ========== Existing CRUD Methods ==========
 
     @Override
     @Transactional

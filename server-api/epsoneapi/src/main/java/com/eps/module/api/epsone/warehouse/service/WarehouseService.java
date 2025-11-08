@@ -1,12 +1,15 @@
 package com.eps.module.api.epsone.warehouse.service;
 
+import com.eps.module.api.epsone.warehouse.dto.WarehouseBulkUploadDto;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseRequestDto;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseResponseDto;
+import com.eps.module.common.bulk.service.BulkUploadService;
+import com.eps.module.warehouse.Warehouse;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-public interface WarehouseService {
+public interface WarehouseService extends BulkUploadService<WarehouseBulkUploadDto, Warehouse> {
 
     WarehouseResponseDto createWarehouse(WarehouseRequestDto requestDto);
 

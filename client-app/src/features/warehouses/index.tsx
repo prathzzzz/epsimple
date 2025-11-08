@@ -5,10 +5,9 @@ import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { ConfigDrawer } from '@/components/config-drawer';
 import { WarehouseProvider } from './context/warehouse-provider';
-import { WarehouseDrawer } from './components/warehouse-drawer';
-import { WarehouseDeleteDialog } from './components/warehouse-delete-dialog';
+import { WarehouseDialogs } from './components/warehouse-dialogs';
 import { WarehouseTable } from './components/warehouse-table';
-import { CreateWarehouseButton } from './components/create-warehouse-button';
+import { WarehousePrimaryButtons } from './components/warehouse-primary-buttons';
 import { warehouseColumns } from './components/warehouse-columns';
 
 export default function WarehousesPage() {
@@ -30,14 +29,13 @@ export default function WarehousesPage() {
               Manage warehouses across different locations
             </p>
           </div>
-          <CreateWarehouseButton />
+          <WarehousePrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
           <WarehouseTable columns={warehouseColumns} />
         </div>
       </Main>
-      <WarehouseDrawer />
-      <WarehouseDeleteDialog />
+      <WarehouseDialogs />
     </WarehouseProvider>
   );
 }
