@@ -1,12 +1,15 @@
 package com.eps.module.api.epsone.data_center.service;
 
+import com.eps.module.api.epsone.data_center.dto.DatacenterBulkUploadDto;
 import com.eps.module.api.epsone.data_center.dto.DatacenterRequestDto;
 import com.eps.module.api.epsone.data_center.dto.DatacenterResponseDto;
+import com.eps.module.common.bulk.service.BulkUploadService;
+import com.eps.module.warehouse.Datacenter;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-public interface DatacenterService {
+public interface DatacenterService extends BulkUploadService<DatacenterBulkUploadDto, Datacenter> {
 
     DatacenterResponseDto createDatacenter(DatacenterRequestDto requestDto);
 

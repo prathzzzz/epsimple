@@ -18,6 +18,6 @@ public class StateBulkUploadDto {
     @ExcelColumn(value = "State Code", order = 2, required = true, example = "MH")
     private String stateCode;
     
-    @ExcelColumn(value = "Alternate State Code", order = 3, required = false, example = "MAH")
+    @ExcelColumn(value = "Alternate State Code", order = 3, required = true, example = "MAH")
     private String stateCodeAlt;
 }

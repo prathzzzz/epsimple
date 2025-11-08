@@ -1,11 +1,17 @@
 package com.eps.module.api.epsone.data_center.service;
 
+import com.eps.module.api.epsone.data_center.dto.DatacenterBulkUploadDto;
+import com.eps.module.api.epsone.data_center.dto.DatacenterErrorReportDto;
 import com.eps.module.api.epsone.data_center.dto.DatacenterRequestDto;
 import com.eps.module.api.epsone.data_center.dto.DatacenterResponseDto;
 import com.eps.module.api.epsone.data_center.mapper.DatacenterMapper;
+import com.eps.module.api.epsone.data_center.processor.DatacenterBulkUploadProcessor;
 import com.eps.module.api.epsone.data_center.repository.DatacenterRepository;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.asset_placement.repository.AssetsOnDatacenterRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.Location;
 import com.eps.module.warehouse.Datacenter;
@@ -19,12 +25,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DatacenterServiceImpl implements DatacenterService {
+@Transactional
+public class DatacenterServiceImpl extends BaseBulkUploadService<DatacenterBulkUploadDto, Datacenter> 
+        implements DatacenterService {
 
     private static final String DATACENTER_NOT_FOUND_WITH_ID_MSG = "Datacenter not found with id: ";
 
@@ -32,6 +41,7 @@ public class DatacenterServiceImpl implements DatacenterService {
     private final LocationRepository locationRepository;
     private final DatacenterMapper datacenterMapper;
     private final AssetsOnDatacenterRepository assetsOnDatacenterRepository;
+    private final DatacenterBulkUploadProcessor bulkUploadProcessor;
 
     @Override
     @Transactional
@@ -156,5 +166,59 @@ public class DatacenterServiceImpl implements DatacenterService {
 
         datacenterRepository.delete(datacenter);
         log.info("Datacenter deleted successfully with ID: {}", id);
+    }
+
+    // ========== Bulk Upload Implementation ==========
+
+    @Override
+    protected BulkUploadProcessor<DatacenterBulkUploadDto, Datacenter> getProcessor() {
+        return bulkUploadProcessor;
+    }
+
+    @Override
+    public Class<DatacenterBulkUploadDto> getBulkUploadDtoClass() {
+        return DatacenterBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Datacenter";
+    }
+
+    @Override
+    public List<Datacenter> getAllEntitiesForExport() {
+        return datacenterRepository.findAllWithLocationDetails();
+    }
+
+    @Override
+    public Function<Datacenter, DatacenterBulkUploadDto> getEntityToDtoMapper() {
+        return datacenter -> DatacenterBulkUploadDto.builder()
+                .datacenterName(datacenter.getDatacenterName())
+                .datacenterCode(datacenter.getDatacenterCode())
+                .datacenterType(datacenter.getDatacenterType())
+                .locationName(datacenter.getLocation().getLocationName())
+                .cityName(datacenter.getLocation().getCity().getCityName())
+                .stateName(datacenter.getLocation().getCity().getState().getStateName())
+                .build();
+    }
+
+    @Override
+    protected DatacenterErrorReportDto buildErrorReportDto(BulkUploadErrorDto error) {
+        return DatacenterErrorReportDto.builder()
+                .rowNumber(error.getRowNumber())
+                .errorType(error.getErrorType())
+                .errorMessage(error.getErrorMessage())
+                .datacenterName(error.getRowData() != null ? (String) error.getRowData().get("datacenterName") : null)
+                .datacenterCode(error.getRowData() != null ? (String) error.getRowData().get("datacenterCode") : null)
+                .datacenterType(error.getRowData() != null ? (String) error.getRowData().get("datacenterType") : null)
+                .locationName(error.getRowData() != null ? (String) error.getRowData().get("locationName") : null)
+                .cityName(error.getRowData() != null ? (String) error.getRowData().get("cityName") : null)
+                .stateName(error.getRowData() != null ? (String) error.getRowData().get("stateName") : null)
+                .build();
+    }
+
+    @Override
+    public Class<DatacenterErrorReportDto> getErrorReportDtoClass() {
+        return DatacenterErrorReportDto.class;
     }
 }

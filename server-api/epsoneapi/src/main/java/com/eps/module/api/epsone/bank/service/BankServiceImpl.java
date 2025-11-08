@@ -2,7 +2,10 @@ package com.eps.module.api.epsone.bank.service;
 
 import com.eps.module.api.epsone.bank.dto.BankRequestDto;
 import com.eps.module.api.epsone.bank.dto.BankResponseDto;
+import com.eps.module.api.epsone.bank.dto.BankBulkUploadDto;
+import com.eps.module.api.epsone.bank.dto.BankErrorReportDto;
 import com.eps.module.api.epsone.bank.mapper.BankMapper;
+import com.eps.module.api.epsone.bank.processor.BankBulkUploadProcessor;
 import com.eps.module.api.epsone.bank.repository.BankRepository;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
 import com.eps.module.api.epsone.payee_details.repository.PayeeDetailsRepository;
@@ -10,8 +13,12 @@ import com.eps.module.api.epsone.storage.dto.FileUploadResponseDto;
 import com.eps.module.api.epsone.storage.service.FileStorageService;
 import com.eps.module.bank.Bank;
 import com.eps.module.bank.ManagedProject;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.payment.PayeeDetails;
 import com.eps.module.common.exception.ResourceNotFoundException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,13 +30,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.eps.module.api.epsone.bank.helper.BankHelper;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class BankServiceImpl implements BankService {
+public class BankServiceImpl extends BaseBulkUploadService<BankBulkUploadDto, Bank> implements BankService {
 
     private final BankRepository bankRepository;
     private final BankMapper bankMapper;
@@ -37,6 +45,7 @@ public class BankServiceImpl implements BankService {
     private final BankHelper bankHelper;
     private final ManagedProjectRepository managedProjectRepository;
     private final PayeeDetailsRepository payeeDetailsRepository;
+    private final BankBulkUploadProcessor bankBulkUploadProcessor;
 
     @Override
     public BankResponseDto createBank(BankRequestDto bankRequestDto) {
@@ -227,6 +236,59 @@ public class BankServiceImpl implements BankService {
         log.info("Fetching all banks as list");
         List<Bank> banks = bankRepository.findAll();
         return bankMapper.toResponseDtoList(banks);
+    }
+
+    // Bulk upload methods
+    @Override
+    protected BulkUploadProcessor<BankBulkUploadDto, Bank> getProcessor() {
+        return bankBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<BankBulkUploadDto> getBulkUploadDtoClass() {
+        return BankBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Bank";
+    }
+
+    @Override
+    public List<Bank> getAllEntitiesForExport() {
+        log.info("Fetching all banks for export");
+        return bankRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<Bank, BankBulkUploadDto> getEntityToDtoMapper() {
+        return bank -> BankBulkUploadDto.builder()
+                .bankName(bank.getBankName())
+                .rbiBankCode(bank.getRbiBankCode())
+                .epsBankCode(bank.getEpsBankCode())
+                .bankCodeAlt(bank.getBankCodeAlt())
+                .bankLogo(bank.getBankLogo())
+                .build();
+    }
+
+    @Override
+    protected BankErrorReportDto buildErrorReportDto(BulkUploadErrorDto error) {
+        BankErrorReportDto errorDto = new BankErrorReportDto();
+        errorDto.setRowNumber(error.getRowNumber());
+        // include error type for export (e.g., VALIDATION, DUPLICATE, ERROR)
+        errorDto.setErrorType(error.getErrorType());
+        errorDto.setBankName(error.getRowData() != null ? (String) error.getRowData().get("bankName") : null);
+        errorDto.setRbiBankCode(error.getRowData() != null ? (String) error.getRowData().get("rbiBankCode") : null);
+        errorDto.setEpsBankCode(error.getRowData() != null ? (String) error.getRowData().get("epsBankCode") : null);
+        errorDto.setBankCodeAlt(error.getRowData() != null ? (String) error.getRowData().get("bankCodeAlt") : null);
+        errorDto.setBankLogo(error.getRowData() != null ? (String) error.getRowData().get("bankLogo") : null);
+        errorDto.setErrorMessage(error.getErrorMessage());
+        return errorDto;
+    }
+
+    @Override
+    protected Class<BankErrorReportDto> getErrorReportDtoClass() {
+        return BankErrorReportDto.class;
     }
 
 }

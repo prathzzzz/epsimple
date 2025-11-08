@@ -5,10 +5,9 @@ import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { ConfigDrawer } from '@/components/config-drawer';
 import { DatacenterProvider } from './context/datacenter-provider';
-import { DatacenterDrawer } from './components/datacenter-drawer';
-import { DatacenterDeleteDialog } from './components/datacenter-delete-dialog';
+import { DatacenterDialogs } from './components/datacenter-dialogs';
 import { DatacenterTable } from './components/datacenter-table';
-import { CreateDatacenterButton } from './components/create-datacenter-button';
+import { DatacenterPrimaryButtons } from './components/datacenter-primary-buttons';
 import { datacenterColumns } from './components/datacenter-columns';
 
 export default function DatacentersPage() {
@@ -30,14 +29,13 @@ export default function DatacentersPage() {
               Manage datacenters across different locations
             </p>
           </div>
-          <CreateDatacenterButton />
+          <DatacenterPrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
           <DatacenterTable columns={datacenterColumns} />
         </div>
       </Main>
-      <DatacenterDrawer />
-      <DatacenterDeleteDialog />
+      <DatacenterDialogs />
     </DatacenterProvider>
   );
 }

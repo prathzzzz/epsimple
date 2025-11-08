@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog'
 import { BanksMutateDrawer } from './banks-mutate-drawer'
 import { useBanks } from './banks-provider'
 import { deleteBank } from '@/features/banks/api/banks-api'
 import { toast } from 'sonner'
 
 export function BanksDialogs() {
-  const { open, setOpen, currentRow, setCurrentRow } = useBanks()
+  const { open, setOpen, currentRow, setCurrentRow, isBulkUploadDialogOpen, closeBulkUploadDialog } = useBanks()
   const queryClient = useQueryClient()
 
   const deleteMutation = useMutation({
@@ -24,6 +25,17 @@ export function BanksDialogs() {
       toast.error(message)
     },
   })
+
+  const handleBulkUploadSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['banks'] })
+  }
+
+  const bulkUploadConfig = {
+    entityName: 'Bank',
+    uploadEndpoint: '/api/banks/bulk/upload',
+    errorReportEndpoint: '/api/banks/bulk/export-error-report',
+    onSuccess: handleBulkUploadSuccess,
+  }
 
   return (
     <>
@@ -73,6 +85,12 @@ export function BanksDialogs() {
           />
         </>
       )}
+
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={closeBulkUploadDialog}
+        config={bulkUploadConfig}
+      />
     </>
   )
 }

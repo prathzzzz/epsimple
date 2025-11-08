@@ -9,6 +9,9 @@ type BanksContextType = {
   setOpen: (str: BanksDialogType | null) => void
   currentRow: Bank | null
   setCurrentRow: React.Dispatch<React.SetStateAction<Bank | null>>
+  isBulkUploadDialogOpen: boolean
+  openBulkUploadDialog: () => void
+  closeBulkUploadDialog: () => void
 }
 
 const BanksContext = React.createContext<BanksContextType | null>(null)
@@ -16,9 +19,23 @@ const BanksContext = React.createContext<BanksContextType | null>(null)
 export function BanksProvider({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useDialogState<BanksDialogType>(null)
   const [currentRow, setCurrentRow] = useState<Bank | null>(null)
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false)
+
+  const openBulkUploadDialog = () => setIsBulkUploadDialogOpen(true)
+  const closeBulkUploadDialog = () => setIsBulkUploadDialogOpen(false)
 
   return (
-    <BanksContext value={{ open, setOpen, currentRow, setCurrentRow }}>
+    <BanksContext
+      value={{
+        open,
+        setOpen,
+        currentRow,
+        setCurrentRow,
+        isBulkUploadDialogOpen,
+        openBulkUploadDialog,
+        closeBulkUploadDialog,
+      }}
+    >
       {children}
     </BanksContext>
   )

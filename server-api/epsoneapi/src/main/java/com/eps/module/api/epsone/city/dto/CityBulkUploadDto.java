@@ -15,15 +15,15 @@ public class CityBulkUploadDto {
     @ExcelColumn(value = "City Name", order = 1, required = true, example = "Mumbai")
     private String cityName;
 
-    @ExcelColumn(value = "City Code", order = 2, required = false, example = "MUM")
+    @ExcelColumn(value = "City Code", order = 2, required = true, example = "MUM")
     private String cityCode;
 
     @ExcelColumn(value = "State Name", order = 3, required = true, example = "Maharashtra")
     private String stateName;
 
-    @ExcelColumn(value = "State Code", order = 4, required = false, example = "MH")
+    @ExcelColumn(value = "State Code", order = 4, required = true, example = "MH")
     private String stateCode;
 
-    @ExcelColumn(value = "State Code Alt", order = 5, required = false, example = "MAH")
+    @ExcelColumn(value = "State Code Alt", order = 5, required = true, example = "MAH")
     private String stateCodeAlt;
 }

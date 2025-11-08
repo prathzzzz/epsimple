@@ -15,10 +15,10 @@ public class WarehouseBulkUploadDto {
     @ExcelColumn(value = "Warehouse Name", order = 1, required = true, example = "Main Warehouse")
     private String warehouseName;
 
-    @ExcelColumn(value = "Warehouse Code", order = 2, required = false, example = "WH001")
+    @ExcelColumn(value = "Warehouse Code", order = 2, required = true, example = "WH001")
     private String warehouseCode;
 
-    @ExcelColumn(value = "Warehouse Type", order = 3, required = false, example = "Distribution Center")
+    @ExcelColumn(value = "Warehouse Type", order = 3, required = true, example = "Distribution Center")
     private String warehouseType;
 
     @ExcelColumn(value = "Location Name", order = 4, required = true, example = "Andheri Office")

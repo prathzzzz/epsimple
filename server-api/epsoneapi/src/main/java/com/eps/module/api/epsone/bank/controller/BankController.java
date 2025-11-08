@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.bank.controller;
 import com.eps.module.api.epsone.bank.dto.BankRequestDto;
 import com.eps.module.api.epsone.bank.dto.BankResponseDto;
 import com.eps.module.api.epsone.bank.service.BankService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -17,7 +19,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -27,6 +31,7 @@ import java.util.List;
 public class BankController {
 
     private final BankService bankService;
+    private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BankResponseDto>> createBank(
@@ -105,5 +110,31 @@ public class BankController {
         log.info("DELETE /api/banks/{} - Deleting bank", id);
         bankService.deleteBank(id);
         return ResponseBuilder.success(null, "Bank deleted successfully");
+    }
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping("/bulk/upload")
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
+        log.info("POST /api/banks/bulk/upload - Starting bulk upload with file: {}", file.getOriginalFilename());
+        return bulkUploadHelper.bulkUpload(file, bankService);
+    }
+
+    @GetMapping("/bulk/export-template")
+    public ResponseEntity<byte[]> exportTemplate() throws IOException {
+        log.info("GET /api/banks/bulk/export-template - Exporting template");
+        return bulkUploadHelper.downloadTemplate(bankService);
+    }
+
+    @GetMapping("/bulk/export-data")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/banks/bulk/export-data - Exporting data");
+        return bulkUploadHelper.export(bankService);
+    }
+
+    @PostMapping("/bulk/export-error-report")
+    public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
+        log.info("POST /api/banks/bulk/export-error-report - Exporting error report");
+        return bulkUploadHelper.exportErrors(progressData, bankService);
     }
 }

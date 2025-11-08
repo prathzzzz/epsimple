@@ -1,14 +1,17 @@
 package com.eps.module.api.epsone.bank.service;
 
+import com.eps.module.api.epsone.bank.dto.BankBulkUploadDto;
 import com.eps.module.api.epsone.bank.dto.BankRequestDto;
 import com.eps.module.api.epsone.bank.dto.BankResponseDto;
+import com.eps.module.bank.Bank;
+import com.eps.module.common.bulk.service.BulkUploadService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-public interface BankService {
+public interface BankService extends BulkUploadService<BankBulkUploadDto, Bank> {
 
     BankResponseDto createBank(BankRequestDto bankRequestDto);
 

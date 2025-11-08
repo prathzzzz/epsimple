@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -26,4 +27,31 @@ public interface BankRepository extends JpaRepository<Bank, Long> {
            "LOWER(b.rbiBankCode) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(b.epsBankCode) LIKE LOWER(CONCAT('%', :search, '%'))")
     Page<Bank> searchBanks(@Param("search") String search, Pageable pageable);
+
+    /**
+     * Find bank by name (case-insensitive) - for duplicate checking
+     */
+    @Query("SELECT b FROM Bank b WHERE LOWER(b.bankName) = LOWER(:bankName)")
+    Optional<Bank> findByBankNameIgnoreCase(@Param("bankName") String bankName);
+
+    /**
+     * Check if RBI bank code exists
+     */
+    boolean existsByRbiBankCode(String rbiBankCode);
+
+    /**
+     * Check if EPS bank code exists
+     */
+    boolean existsByEpsBankCode(String epsBankCode);
+
+    /**
+     * Check if alternate bank code exists
+     */
+    boolean existsByBankCodeAlt(String bankCodeAlt);
+
+    /**
+     * Get all banks ordered by name - for bulk upload export
+     */
+    @Query("SELECT b FROM Bank b ORDER BY b.bankName ASC")
+    List<Bank> findAllForExport();
 }
