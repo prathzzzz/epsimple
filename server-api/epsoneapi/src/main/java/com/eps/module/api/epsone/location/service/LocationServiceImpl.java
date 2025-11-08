@@ -11,7 +11,7 @@ import com.eps.module.api.epsone.warehouse.repository.WarehouseRepository;
 import com.eps.module.api.epsone.data_center.repository.DatacenterRepository;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
-import com.eps.module.common.bulk.dto.LocationErrorReportDto;
+import com.eps.module.api.epsone.location.dto.LocationErrorReportDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.ResourceNotFoundException;

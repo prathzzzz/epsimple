@@ -1,4 +1,4 @@
-package com.eps.module.common.bulk.dto;
+package com.eps.module.api.epsone.city.dto;
 
 import com.eps.module.common.bulk.excel.ExcelColumn;
 import lombok.AllArgsConstructor;

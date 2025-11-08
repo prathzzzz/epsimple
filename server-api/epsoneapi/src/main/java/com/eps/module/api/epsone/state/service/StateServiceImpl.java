@@ -8,7 +8,7 @@ import com.eps.module.api.epsone.state.processor.StateBulkUploadProcessor;
 import com.eps.module.api.epsone.state.repository.StateRepository;
 import com.eps.module.api.epsone.city.repository.CityRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
-import com.eps.module.common.bulk.dto.StateErrorReportDto;
+import com.eps.module.api.epsone.state.dto.StateErrorReportDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.CustomException;

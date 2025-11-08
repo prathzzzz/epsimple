@@ -10,7 +10,7 @@ import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.state.repository.StateRepository;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
-import com.eps.module.common.bulk.dto.CityErrorReportDto;
+import com.eps.module.api.epsone.city.dto.CityErrorReportDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.location.City;
 import com.eps.module.location.Location;
@@ -24,7 +24,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
