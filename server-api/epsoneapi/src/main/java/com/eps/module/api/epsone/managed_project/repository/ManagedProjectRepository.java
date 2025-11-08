@@ -41,4 +41,10 @@ public interface ManagedProjectRepository extends JpaRepository<ManagedProject, 
 
     @Query("SELECT s FROM Site s WHERE s.project.id = :projectId")
     Page<Site> findSitesByProjectId(@Param("projectId") Long projectId, Pageable pageable);
+
+    // Bulk upload methods
+    boolean existsByProjectName(String projectName);
+
+    @Query("SELECT mp FROM ManagedProject mp LEFT JOIN FETCH mp.bank ORDER BY mp.projectName ASC")
+    List<ManagedProject> findAllForExport();
 }

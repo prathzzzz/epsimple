@@ -1,12 +1,18 @@
 package com.eps.module.api.epsone.managed_project.service;
 
+import com.eps.module.api.epsone.managed_project.dto.ManagedProjectBulkUploadDto;
+import com.eps.module.api.epsone.managed_project.dto.ManagedProjectErrorReportDto;
 import com.eps.module.api.epsone.managed_project.dto.ManagedProjectRequestDto;
 import com.eps.module.api.epsone.managed_project.dto.ManagedProjectResponseDto;
 import com.eps.module.api.epsone.managed_project.mapper.ManagedProjectMapper;
+import com.eps.module.api.epsone.managed_project.processor.ManagedProjectBulkUploadProcessor;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
 import com.eps.module.api.epsone.bank.repository.BankRepository;
 import com.eps.module.bank.Bank;
 import com.eps.module.bank.ManagedProject;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.site.Site;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,16 +23,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ManagedProjectServiceImpl implements ManagedProjectService {
+@Transactional
+public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProjectBulkUploadDto, ManagedProject> implements ManagedProjectService {
 
     private final ManagedProjectRepository managedProjectRepository;
     private final BankRepository bankRepository;
     private final ManagedProjectMapper managedProjectMapper;
+    private final ManagedProjectBulkUploadProcessor managedProjectBulkUploadProcessor;
 
     @Override
     @Transactional
@@ -149,5 +158,59 @@ public class ManagedProjectServiceImpl implements ManagedProjectService {
     public List<ManagedProjectResponseDto> getAllManagedProjectsList() {
         List<ManagedProject> managedProjects = managedProjectRepository.findAllManagedProjectsList();
         return managedProjectMapper.toResponseDtoList(managedProjects);
+    }
+
+    // Bulk upload methods
+    @Override
+    protected BulkUploadProcessor<ManagedProjectBulkUploadDto, ManagedProject> getProcessor() {
+        return managedProjectBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<ManagedProjectBulkUploadDto> getBulkUploadDtoClass() {
+        return ManagedProjectBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "ManagedProject";
+    }
+
+    @Override
+    public List<ManagedProject> getAllEntitiesForExport() {
+        log.info("Fetching all managed projects for export");
+        return managedProjectRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<ManagedProject, ManagedProjectBulkUploadDto> getEntityToDtoMapper() {
+        return managedProject -> ManagedProjectBulkUploadDto.builder()
+                .projectName(managedProject.getProjectName())
+                .projectCode(managedProject.getProjectCode())
+                .projectType(managedProject.getProjectType())
+                .projectDescription(managedProject.getProjectDescription())
+                .bankName(managedProject.getBank() != null ? managedProject.getBank().getBankName() : null)
+                .rbiBankCode(managedProject.getBank() != null ? managedProject.getBank().getRbiBankCode() : null)
+                .epsBankCode(managedProject.getBank() != null ? managedProject.getBank().getEpsBankCode() : null)
+                .build();
+    }
+
+    @Override
+    protected ManagedProjectErrorReportDto buildErrorReportDto(BulkUploadErrorDto error) {
+        ManagedProjectErrorReportDto errorDto = new ManagedProjectErrorReportDto();
+        errorDto.setRowNumber(error.getRowNumber());
+        errorDto.setErrorType(error.getErrorType());
+        errorDto.setBankName(error.getRowData() != null ? (String) error.getRowData().get("bankName") : null);
+        errorDto.setProjectName(error.getRowData() != null ? (String) error.getRowData().get("projectName") : null);
+        errorDto.setProjectCode(error.getRowData() != null ? (String) error.getRowData().get("projectCode") : null);
+        errorDto.setProjectType(error.getRowData() != null ? (String) error.getRowData().get("projectType") : null);
+        errorDto.setProjectDescription(error.getRowData() != null ? (String) error.getRowData().get("projectDescription") : null);
+        errorDto.setErrorMessage(error.getErrorMessage());
+        return errorDto;
+    }
+
+    @Override
+    protected Class<ManagedProjectErrorReportDto> getErrorReportDtoClass() {
+        return ManagedProjectErrorReportDto.class;
     }
 }

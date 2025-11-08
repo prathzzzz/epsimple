@@ -9,7 +9,8 @@ import { ManagedProjectTable } from "./components/managed-project-table";
 import { managedProjectColumns } from "./components/managed-project-columns";
 import { ManagedProjectDrawer } from "./components/managed-project-drawer";
 import { ManagedProjectDeleteDialog } from "./components/managed-project-delete-dialog";
-import { CreateManagedProjectButton } from "./components/create-managed-project-button";
+import { ManagedProjectPrimaryButtons } from "./components/managed-project-primary-buttons";
+import { ManagedProjectDialogs } from "./components/managed-project-dialogs";
 
 function ManagedProjectsContent() {
   return (
@@ -31,7 +32,7 @@ function ManagedProjectsContent() {
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            <CreateManagedProjectButton />
+            <ManagedProjectPrimaryButtons />
           </div>
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1">
@@ -40,6 +41,7 @@ function ManagedProjectsContent() {
       </Main>
       <ManagedProjectDrawer />
       <ManagedProjectDeleteDialog />
+      <ManagedProjectDialogs />
     </>
   );
 }

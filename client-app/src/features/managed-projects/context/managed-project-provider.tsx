@@ -12,6 +12,9 @@ interface ManagedProjectContextType {
   setDeletingManagedProjectId: (id: number | null) => void;
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
+  isBulkUploadDialogOpen: boolean;
+  openBulkUploadDialog: () => void;
+  closeBulkUploadDialog: () => void;
 }
 
 const ManagedProjectContext = createContext<ManagedProjectContextType | undefined>(undefined);
@@ -22,6 +25,10 @@ export function ManagedProjectProvider({ children }: { children: React.ReactNode
   const [editingManagedProject, setEditingManagedProject] = useState<ManagedProject | null>(null);
   const [deletingManagedProjectId, setDeletingManagedProjectId] = useState<number | null>(null);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
+
+  const openBulkUploadDialog = () => setIsBulkUploadDialogOpen(true);
+  const closeBulkUploadDialog = () => setIsBulkUploadDialogOpen(false);
 
   return (
     <ManagedProjectContext.Provider
@@ -36,6 +43,9 @@ export function ManagedProjectProvider({ children }: { children: React.ReactNode
         setDeletingManagedProjectId,
         globalFilter,
         setGlobalFilter,
+        isBulkUploadDialogOpen,
+        openBulkUploadDialog,
+        closeBulkUploadDialog,
       }}
     >
       {children}

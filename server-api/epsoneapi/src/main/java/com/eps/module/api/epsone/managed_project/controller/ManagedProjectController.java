@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.managed_project.controller;
 import com.eps.module.api.epsone.managed_project.dto.ManagedProjectRequestDto;
 import com.eps.module.api.epsone.managed_project.dto.ManagedProjectResponseDto;
 import com.eps.module.api.epsone.managed_project.service.ManagedProjectService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -15,7 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +30,7 @@ import java.util.List;
 public class ManagedProjectController {
 
     private final ManagedProjectService managedProjectService;
+    private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<ManagedProjectResponseDto>> createManagedProject(
@@ -118,5 +124,31 @@ public class ManagedProjectController {
         log.info("DELETE /api/managed-projects/{} - Deleting managed project", id);
         managedProjectService.deleteManagedProject(id);
         return ResponseBuilder.success(null, "Managed project deleted successfully");
+    }
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping("/bulk/upload")
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
+        log.info("POST /api/managed-projects/bulk/upload - Starting bulk upload with file: {}", file.getOriginalFilename());
+        return bulkUploadHelper.bulkUpload(file, managedProjectService);
+    }
+
+    @GetMapping("/bulk/export-template")
+    public ResponseEntity<byte[]> exportTemplate() throws IOException {
+        log.info("GET /api/managed-projects/bulk/export-template - Exporting template");
+        return bulkUploadHelper.downloadTemplate(managedProjectService);
+    }
+
+    @GetMapping("/bulk/export-data")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/managed-projects/bulk/export-data - Exporting data");
+        return bulkUploadHelper.export(managedProjectService);
+    }
+
+    @PostMapping("/bulk/export-error-report")
+    public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
+        log.info("POST /api/managed-projects/bulk/export-error-report - Exporting error report");
+        return bulkUploadHelper.exportErrors(progressData, managedProjectService);
     }
 }
