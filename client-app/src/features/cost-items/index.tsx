@@ -7,7 +7,8 @@ import { ConfigDrawer } from '@/components/config-drawer';
 import { CostItemProvider } from './cost-item-provider';
 import { CostItemDrawer } from './cost-item-drawer';
 import { CostItemsTable } from './cost-items-table';
-import { CreateCostItemButton } from './create-cost-item-button';
+import { CostItemsPrimaryButtons } from './cost-items-primary-buttons';
+import { CostItemsDialogs } from './cost-items-dialogs';
 import { costItemColumns } from './cost-item-columns';
 
 export const CostItemsPage = () => {
@@ -29,13 +30,14 @@ export const CostItemsPage = () => {
               Manage cost items for your organization
             </p>
           </div>
-          <CreateCostItemButton />
+          <CostItemsPrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
           <CostItemsTable columns={costItemColumns} />
         </div>
       </Main>
       <CostItemDrawer />
+      <CostItemsDialogs />
     </CostItemProvider>
   );
 };

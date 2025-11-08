@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CostTypeRepository extends JpaRepository<CostType, Long> {
@@ -23,6 +24,8 @@ public interface CostTypeRepository extends JpaRepository<CostType, Long> {
 
     // Bulk upload support
     boolean existsByTypeNameIgnoreCase(String typeName);
+
+    Optional<CostType> findByTypeNameIgnoreCase(String typeName);
 
     @Query("SELECT ct FROM CostType ct LEFT JOIN FETCH ct.costCategory ORDER BY ct.typeName ASC")
     List<CostType> findAllForExport();

@@ -7,6 +7,9 @@ interface CostItemContextType {
   closeDrawer: () => void;
   editingCostItem: CostItem | null;
   setEditingCostItem: (costItem: CostItem | null) => void;
+  isBulkUploadDialogOpen: boolean;
+  openBulkUploadDialog: () => void;
+  closeBulkUploadDialog: () => void;
 }
 
 const CostItemContext = createContext<CostItemContextType | undefined>(undefined);
@@ -22,12 +25,16 @@ export const useCostItemContext = () => {
 export const CostItemProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingCostItem, setEditingCostItem] = useState<CostItem | null>(null);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
 
   const openDrawer = () => setIsDrawerOpen(true);
   const closeDrawer = () => {
     setIsDrawerOpen(false);
     setEditingCostItem(null);
   };
+
+  const openBulkUploadDialog = () => setIsBulkUploadDialogOpen(true);
+  const closeBulkUploadDialog = () => setIsBulkUploadDialogOpen(false);
 
   return (
     <CostItemContext.Provider
@@ -37,6 +44,9 @@ export const CostItemProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         closeDrawer,
         editingCostItem,
         setEditingCostItem,
+        isBulkUploadDialogOpen,
+        openBulkUploadDialog,
+        closeBulkUploadDialog,
       }}
     >
       {children}

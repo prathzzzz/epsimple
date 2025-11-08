@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.cost_item.controller;
 import com.eps.module.api.epsone.cost_item.dto.CostItemRequestDto;
 import com.eps.module.api.epsone.cost_item.dto.CostItemResponseDto;
 import com.eps.module.api.epsone.cost_item.service.CostItemService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import java.util.List;
 public class CostItemController {
 
     private final CostItemService costItemService;
+    private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
     public ResponseEntity<?> createCostItem(@Valid @RequestBody CostItemRequestDto requestDto) {
@@ -91,5 +93,33 @@ public class CostItemController {
         log.info("DELETE /api/cost-items/{} - Deleting cost item", id);
         costItemService.deleteCostItem(id);
         return ResponseBuilder.success(null, "Cost item deleted successfully", HttpStatus.OK);
+    }
+
+    // Bulk endpoints
+
+    @PostMapping(value = "/bulk-upload", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public org.springframework.web.servlet.mvc.method.annotation.SseEmitter bulkUploadCostItems(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+        log.info("POST /api/cost-items/bulk-upload - Starting bulk upload");
+        return bulkUploadHelper.bulkUpload(file, costItemService);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportCostItems() throws java.io.IOException {
+        log.info("GET /api/cost-items/export - Exporting all cost items to Excel");
+        return bulkUploadHelper.export(costItemService);
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<byte[]> downloadTemplate() throws java.io.IOException {
+        log.info("GET /api/cost-items/download-template - Downloading bulk upload template");
+        return bulkUploadHelper.downloadTemplate(costItemService);
+    }
+
+    @PostMapping("/export-errors")
+    public ResponseEntity<byte[]> exportBulkUploadErrors(
+            @RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws java.io.IOException {
+        log.info("POST /api/cost-items/export-errors - Exporting bulk upload errors");
+        return bulkUploadHelper.exportErrors(progressData, costItemService);
     }
 }

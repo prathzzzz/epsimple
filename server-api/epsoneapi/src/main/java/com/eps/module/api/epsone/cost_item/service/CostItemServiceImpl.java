@@ -1,10 +1,16 @@
 package com.eps.module.api.epsone.cost_item.service;
 
+import com.eps.module.api.epsone.cost_item.dto.CostItemBulkUploadDto;
+import com.eps.module.api.epsone.cost_item.dto.CostItemErrorReportDto;
 import com.eps.module.api.epsone.cost_item.dto.CostItemRequestDto;
 import com.eps.module.api.epsone.cost_item.dto.CostItemResponseDto;
 import com.eps.module.api.epsone.cost_item.mapper.CostItemMapper;
+import com.eps.module.api.epsone.cost_item.processor.CostItemBulkUploadProcessor;
 import com.eps.module.api.epsone.cost_item.repository.CostItemRepository;
 import com.eps.module.api.epsone.cost_type.repository.CostTypeRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.cost.CostItem;
 import com.eps.module.cost.CostType;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +21,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class CostItemServiceImpl implements CostItemService {
+public class CostItemServiceImpl extends BaseBulkUploadService<CostItemBulkUploadDto, CostItem> implements CostItemService {
 
     private final CostItemRepository costItemRepository;
     private final CostTypeRepository costTypeRepository;
     private final CostItemMapper costItemMapper;
+    private final CostItemBulkUploadProcessor bulkUploadProcessor;
 
     @Override
     public CostItemResponseDto createCostItem(CostItemRequestDto requestDto) {
@@ -122,5 +130,62 @@ public class CostItemServiceImpl implements CostItemService {
 
         costItemRepository.delete(costItem);
         log.info("Cost item deleted successfully with ID: {}", id);
+    }
+
+    // =====================
+    // Bulk Upload Methods
+    // =====================
+
+    @Override
+    protected BulkUploadProcessor<CostItemBulkUploadDto, CostItem> getProcessor() {
+        return bulkUploadProcessor;
+    }
+
+    @Override
+    public Class<CostItemBulkUploadDto> getBulkUploadDtoClass() {
+        return CostItemBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "CostItem";
+    }
+
+    @Override
+    public List<CostItem> getAllEntitiesForExport() {
+        return costItemRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<CostItem, CostItemBulkUploadDto> getEntityToDtoMapper() {
+        return ci -> CostItemBulkUploadDto.builder()
+                .costItemFor(ci.getCostItemFor())
+                .itemDescription(ci.getItemDescription())
+                .costTypeName(ci.getCostType() != null ? ci.getCostType().getTypeName() : null)
+                .costCategoryName(ci.getCostType() != null && ci.getCostType().getCostCategory() != null 
+                        ? ci.getCostType().getCostCategory().getCategoryName() : null)
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        CostItemErrorReportDto.CostItemErrorReportDtoBuilder builder =
+                CostItemErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorType(error.getErrorType())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.costItemFor((String) error.getRowData().get("costItemFor"))
+                    .itemDescription((String) error.getRowData().get("itemDescription"))
+                    .costTypeName((String) error.getRowData().get("costTypeName"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return CostItemErrorReportDto.class;
     }
 }

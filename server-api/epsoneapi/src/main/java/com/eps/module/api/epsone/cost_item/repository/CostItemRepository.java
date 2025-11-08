@@ -39,4 +39,10 @@ public interface CostItemRepository extends JpaRepository<CostItem, Long> {
 
     @Query("SELECT COUNT(ci) FROM CostItem ci WHERE ci.costType.id = :costTypeId")
     long countByCostTypeId(@Param("costTypeId") Long costTypeId);
+
+    // Bulk upload support
+    boolean existsByCostItemForIgnoreCase(String costItemFor);
+
+    @Query("SELECT ci FROM CostItem ci LEFT JOIN FETCH ci.costType ct LEFT JOIN FETCH ct.costCategory ORDER BY ci.costItemFor ASC")
+    List<CostItem> findAllForExport();
 }
