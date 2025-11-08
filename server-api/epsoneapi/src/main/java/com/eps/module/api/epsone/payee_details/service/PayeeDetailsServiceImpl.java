@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.payee_details.service;
 
+import com.eps.module.api.epsone.bank.repository.BankRepository;
 import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsRequestDto;
 import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsResponseDto;
 import com.eps.module.api.epsone.payee_details.mapper.PayeeDetailsMapper;
@@ -7,7 +8,6 @@ import com.eps.module.api.epsone.payee_details.repository.PayeeDetailsRepository
 import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.bank.Bank;
 import com.eps.module.payment.PayeeDetails;
-import com.eps.module.seeder.repository.bank.BankSeederRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class PayeeDetailsServiceImpl implements PayeeDetailsService {
 
     private final PayeeDetailsRepository payeeDetailsRepository;
-    private final BankSeederRepository bankRepository;
+    private final BankRepository bankRepository;
     private final PayeeRepository payeeRepository;
     private final PayeeDetailsMapper payeeDetailsMapper;
 
