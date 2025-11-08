@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.location.controller;
 import com.eps.module.api.epsone.location.dto.LocationRequestDto;
 import com.eps.module.api.epsone.location.dto.LocationResponseDto;
 import com.eps.module.api.epsone.location.service.LocationService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -15,7 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +30,7 @@ import java.util.List;
 public class LocationController {
 
     private final LocationService locationService;
+    private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<LocationResponseDto>> createLocation(
@@ -98,5 +104,31 @@ public class LocationController {
         log.info("DELETE /api/locations/{} - Deleting location", id);
         locationService.deleteLocation(id);
         return ResponseBuilder.success(null, "Location deleted successfully", HttpStatus.OK);
+    }
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping("/bulk/upload")
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
+        log.info("POST /api/locations/bulk/upload - Starting bulk upload with file: {}", file.getOriginalFilename());
+        return bulkUploadHelper.bulkUpload(file, locationService);
+    }
+
+    @GetMapping("/bulk/export-template")
+    public ResponseEntity<byte[]> exportTemplate() throws IOException {
+        log.info("GET /api/locations/bulk/export-template - Exporting template");
+        return bulkUploadHelper.downloadTemplate(locationService);
+    }
+
+    @GetMapping("/bulk/export-data")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/locations/bulk/export-data - Exporting data");
+        return bulkUploadHelper.export(locationService);
+    }
+
+    @PostMapping("/bulk/export-error-report")
+    public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
+        log.info("POST /api/locations/bulk/export-error-report - Exporting error report");
+        return bulkUploadHelper.exportErrors(progressData, locationService);
     }
 }

@@ -8,12 +8,16 @@ interface LocationContextType {
   setIsDrawerOpen: (show: boolean) => void;
   isDeleteDialogOpen: boolean;
   setIsDeleteDialogOpen: (show: boolean) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (show: boolean) => void;
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
   openDrawer: () => void;
   closeDrawer: () => void;
   openDeleteDialog: () => void;
   closeDeleteDialog: () => void;
+  openBulkUploadDialog: () => void;
+  closeBulkUploadDialog: () => void;
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(
@@ -24,6 +28,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
   const [globalFilter, setGlobalFilter] = useState('');
 
   const openDrawer = () => setIsDrawerOpen(true);
@@ -38,6 +43,9 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
     setSelectedLocation(null);
   };
 
+  const openBulkUploadDialog = () => setIsBulkUploadDialogOpen(true);
+  const closeBulkUploadDialog = () => setIsBulkUploadDialogOpen(false);
+
   return (
     <LocationContext.Provider
       value={{
@@ -47,12 +55,16 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         setIsDrawerOpen,
         isDeleteDialogOpen,
         setIsDeleteDialogOpen,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
         globalFilter,
         setGlobalFilter,
         openDrawer,
         closeDrawer,
         openDeleteDialog,
         closeDeleteDialog,
+        openBulkUploadDialog,
+        closeBulkUploadDialog,
       }}
     >
       {children}

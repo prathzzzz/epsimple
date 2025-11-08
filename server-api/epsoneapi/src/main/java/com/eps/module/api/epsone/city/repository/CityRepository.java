@@ -32,4 +32,7 @@ public interface CityRepository extends JpaRepository<City, Long> {
     List<City> findAllCitiesList();
 
     Optional<City> findByCityCode(String cityCode);
+
+    @Query("SELECT c FROM City c LEFT JOIN FETCH c.state WHERE LOWER(c.cityName) = LOWER(:cityName)")
+    Optional<City> findByCityName(@Param("cityName") String cityName);
 }

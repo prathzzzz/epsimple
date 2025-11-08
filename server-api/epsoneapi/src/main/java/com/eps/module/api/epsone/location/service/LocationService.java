@@ -1,13 +1,16 @@
 package com.eps.module.api.epsone.location.service;
 
+import com.eps.module.api.epsone.location.dto.LocationBulkUploadDto;
 import com.eps.module.api.epsone.location.dto.LocationRequestDto;
 import com.eps.module.api.epsone.location.dto.LocationResponseDto;
+import com.eps.module.common.bulk.service.BulkUploadService;
+import com.eps.module.location.Location;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface LocationService {
+public interface LocationService extends BulkUploadService<LocationBulkUploadDto, Location> {
 
     /**
      * Create a new location

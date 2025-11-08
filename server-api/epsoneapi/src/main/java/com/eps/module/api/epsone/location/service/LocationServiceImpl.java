@@ -1,13 +1,19 @@
 package com.eps.module.api.epsone.location.service;
 
 import com.eps.module.api.epsone.city.repository.CityRepository;
+import com.eps.module.api.epsone.location.dto.LocationBulkUploadDto;
 import com.eps.module.api.epsone.location.dto.LocationRequestDto;
 import com.eps.module.api.epsone.location.dto.LocationResponseDto;
 import com.eps.module.api.epsone.location.mapper.LocationMapper;
+import com.eps.module.api.epsone.location.processor.LocationBulkUploadProcessor;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.warehouse.repository.WarehouseRepository;
 import com.eps.module.api.epsone.data_center.repository.DatacenterRepository;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.dto.LocationErrorReportDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.City;
 import com.eps.module.location.Location;
@@ -23,13 +29,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class LocationServiceImpl implements LocationService {
+public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploadDto, Location> implements LocationService {
 
     private final LocationRepository locationRepository;
     private final CityRepository cityRepository;
@@ -37,6 +44,7 @@ public class LocationServiceImpl implements LocationService {
     private final DatacenterRepository datacenterRepository;
     private final SiteRepository siteRepository;
     private final LocationMapper locationMapper;
+    private final LocationBulkUploadProcessor bulkUploadProcessor;
 
     @Override
     public LocationResponseDto createLocation(LocationRequestDto locationRequestDto) {
@@ -201,5 +209,71 @@ public class LocationServiceImpl implements LocationService {
         return locations.stream()
                 .map(locationMapper::toResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    // ========== Bulk Upload Implementation ==========
+
+    @Override
+    protected BulkUploadProcessor<LocationBulkUploadDto, Location> getProcessor() {
+        return bulkUploadProcessor;
+    }
+
+    @Override
+    public Class<LocationBulkUploadDto> getBulkUploadDtoClass() {
+        return LocationBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Location";
+    }
+
+    @Override
+    public List<Location> getAllEntitiesForExport() {
+        return locationRepository.findAllWithCityAndState();
+    }
+
+    @Override
+    public Function<Location, LocationBulkUploadDto> getEntityToDtoMapper() {
+        return location -> LocationBulkUploadDto.builder()
+                .locationName(location.getLocationName())
+                .address(location.getAddress())
+                .district(location.getDistrict())
+                .cityName(location.getCity().getCityName())
+                .cityCode(location.getCity().getCityCode())
+                .stateName(location.getCity().getState().getStateName())
+                .stateCode(location.getCity().getState().getStateCode())
+                .pincode(location.getPincode())
+                .region(location.getRegion())
+                .zone(location.getZone())
+                .longitude(location.getLongitude() != null ? location.getLongitude().toString() : null)
+                .latitude(location.getLatitude() != null ? location.getLatitude().toString() : null)
+                .build();
+    }
+
+    @Override
+    protected LocationErrorReportDto buildErrorReportDto(BulkUploadErrorDto error) {
+        return LocationErrorReportDto.builder()
+                .rowNumber(error.getRowNumber())
+                .errorType(error.getErrorType())
+                .errorMessage(error.getErrorMessage())
+                .locationName(error.getRowData() != null ? (String) error.getRowData().get("locationName") : null)
+                .address(error.getRowData() != null ? (String) error.getRowData().get("address") : null)
+                .district(error.getRowData() != null ? (String) error.getRowData().get("district") : null)
+                .cityName(error.getRowData() != null ? (String) error.getRowData().get("cityName") : null)
+                .cityCode(error.getRowData() != null ? (String) error.getRowData().get("cityCode") : null)
+                .stateName(error.getRowData() != null ? (String) error.getRowData().get("stateName") : null)
+                .stateCode(error.getRowData() != null ? (String) error.getRowData().get("stateCode") : null)
+                .pincode(error.getRowData() != null ? (String) error.getRowData().get("pincode") : null)
+                .region(error.getRowData() != null ? (String) error.getRowData().get("region") : null)
+                .zone(error.getRowData() != null ? (String) error.getRowData().get("zone") : null)
+                .longitude(error.getRowData() != null ? (String) error.getRowData().get("longitude") : null)
+                .latitude(error.getRowData() != null ? (String) error.getRowData().get("latitude") : null)
+                .build();
+    }
+
+    @Override
+    public Class<LocationErrorReportDto> getErrorReportDtoClass() {
+        return LocationErrorReportDto.class;
     }
 }

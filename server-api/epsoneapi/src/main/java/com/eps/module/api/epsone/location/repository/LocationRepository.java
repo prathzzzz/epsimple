@@ -39,4 +39,16 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
      * Count locations by city (for dependency protection)
      */
     long countByCityId(Long cityId);
+
+    /**
+     * Find location by name (case-insensitive) - for duplicate checking
+     */
+    @Query("SELECT l FROM Location l WHERE LOWER(l.locationName) = LOWER(:locationName)")
+    java.util.Optional<Location> findByLocationName(@Param("locationName") String locationName);
+
+    /**
+     * Get all locations with city and state eagerly fetched - for export
+     */
+    @Query("SELECT l FROM Location l LEFT JOIN FETCH l.city c LEFT JOIN FETCH c.state ORDER BY l.locationName ASC")
+    List<Location> findAllWithCityAndState();
 }
