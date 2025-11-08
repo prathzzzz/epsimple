@@ -35,7 +35,7 @@ export function LocationPrimaryButtons() {
 
   return (
     <div className="flex gap-2">
-      <Button onClick={handleDownloadTemplate} size='sm' variant="outline" disabled={isDownloadingTemplate}>
+      <Button onClick={handleDownloadTemplate} size='sm' variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-400 dark:hover:bg-blue-950" disabled={isDownloadingTemplate}>
         {isDownloadingTemplate ? (
           <Loader2 className='mr-2 h-4 w-4 animate-spin' />
         ) : (
@@ -43,7 +43,7 @@ export function LocationPrimaryButtons() {
         )}
         Download Template
       </Button>
-      <Button onClick={handleExport} size='sm' variant="outline" disabled={isExporting}>
+      <Button onClick={handleExport} size='sm' variant="outline" className="border-green-500 text-green-600 hover:bg-green-50 dark:border-green-600 dark:text-green-400 dark:hover:bg-green-950" disabled={isExporting}>
         {isExporting ? (
           <Loader2 className='mr-2 h-4 w-4 animate-spin' />
         ) : (
@@ -51,7 +51,7 @@ export function LocationPrimaryButtons() {
         )}
         Export
       </Button>
-      <Button onClick={openBulkUploadDialog} size='sm' variant="outline">
+      <Button onClick={openBulkUploadDialog} size='sm' variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50 dark:border-orange-600 dark:text-orange-400 dark:hover:bg-orange-950">
         <Upload className='mr-2 h-4 w-4' />
         Bulk Upload
       </Button>
