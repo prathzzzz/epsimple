@@ -1,10 +1,16 @@
 package com.eps.module.api.epsone.vendor_category.service;
 
+import com.eps.module.api.epsone.vendor_category.dto.VendorCategoryBulkUploadDto;
+import com.eps.module.api.epsone.vendor_category.dto.VendorCategoryErrorReportDto;
 import com.eps.module.api.epsone.vendor_category.dto.VendorCategoryRequestDto;
 import com.eps.module.api.epsone.vendor_category.dto.VendorCategoryResponseDto;
 import com.eps.module.api.epsone.vendor_category.mapper.VendorCategoryMapper;
+import com.eps.module.api.epsone.vendor_category.processor.VendorCategoryBulkUploadProcessor;
 import com.eps.module.api.epsone.vendor_category.repository.VendorCategoryRepository;
 import com.eps.module.api.epsone.vendor_type.repository.VendorTypeRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.ForeignKeyConstraintException;
 import com.eps.module.vendor.VendorCategory;
 import com.eps.module.vendor.VendorType;
@@ -15,15 +21,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class VendorCategoryServiceImpl implements VendorCategoryService {
+public class VendorCategoryServiceImpl extends BaseBulkUploadService<VendorCategoryBulkUploadDto, VendorCategory> implements VendorCategoryService {
 
     private final VendorCategoryRepository vendorCategoryRepository;
     private final VendorCategoryMapper vendorCategoryMapper;
     private final VendorTypeRepository vendorTypeRepository;
+    private final VendorCategoryBulkUploadProcessor vendorCategoryBulkUploadProcessor;
 
     @Override
     @Transactional
@@ -114,5 +122,54 @@ public class VendorCategoryServiceImpl implements VendorCategoryService {
     public List<VendorCategoryResponseDto> getAllVendorCategoriesList() {
         List<VendorCategory> vendorCategories = vendorCategoryRepository.findAll();
         return vendorCategoryMapper.toResponseDtoList(vendorCategories);
+    }
+
+    @Override
+    protected BulkUploadProcessor<VendorCategoryBulkUploadDto, VendorCategory> getProcessor() {
+        return vendorCategoryBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<VendorCategoryBulkUploadDto> getBulkUploadDtoClass() {
+        return VendorCategoryBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "VendorCategory";
+    }
+
+    @Override
+    public List<VendorCategory> getAllEntitiesForExport() {
+        return vendorCategoryRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<VendorCategory, VendorCategoryBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> VendorCategoryBulkUploadDto.builder()
+                .categoryName(entity.getCategoryName())
+                .description(entity.getDescription())
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        VendorCategoryErrorReportDto.VendorCategoryErrorReportDtoBuilder builder =
+                VendorCategoryErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorType(error.getErrorType())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.categoryName((String) error.getRowData().get("categoryName"))
+                    .description((String) error.getRowData().get("description"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return VendorCategoryErrorReportDto.class;
     }
 }

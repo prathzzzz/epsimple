@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -24,4 +25,7 @@ public interface VendorCategoryRepository extends JpaRepository<VendorCategory, 
     @Query("SELECT CASE WHEN COUNT(vc) > 0 THEN true ELSE false END FROM VendorCategory vc WHERE " +
            "LOWER(vc.categoryName) = LOWER(:categoryName) AND vc.id <> :id")
     boolean existsByCategoryNameAndIdNot(@Param("categoryName") String categoryName, @Param("id") Long id);
+    
+    @Query("SELECT vc FROM VendorCategory vc ORDER BY vc.categoryName ASC")
+    List<VendorCategory> findAllForExport();
 }

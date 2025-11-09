@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.vendor_category.controller;
 import com.eps.module.api.epsone.vendor_category.dto.VendorCategoryRequestDto;
 import com.eps.module.api.epsone.vendor_category.dto.VendorCategoryResponseDto;
 import com.eps.module.api.epsone.vendor_category.service.VendorCategoryService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -13,8 +15,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -25,6 +30,7 @@ import java.util.List;
 public class VendorCategoryController {
 
     private final VendorCategoryService vendorCategoryService;
+    private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<VendorCategoryResponseDto>> createVendorCategory(
@@ -101,5 +107,32 @@ public class VendorCategoryController {
         log.info("DELETE /api/vendor-categories/{} - Deleting vendor category", id);
         vendorCategoryService.deleteVendorCategory(id);
         return ResponseBuilder.success(null, "Vendor category deleted successfully");
+    }
+
+    // Bulk Upload Endpoints
+    @PostMapping(value = "/bulk/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public SseEmitter bulkUploadVendorCategories(
+            @RequestParam("file") MultipartFile file) throws java.io.IOException {
+        log.info("POST /api/vendor-categories/bulk/upload - Starting bulk upload");
+        return bulkUploadHelper.bulkUpload(file, vendorCategoryService);
+    }
+
+    @GetMapping("/bulk/export-template")
+    public ResponseEntity<byte[]> downloadBulkUploadTemplate() throws java.io.IOException {
+        log.info("GET /api/vendor-categories/bulk/export-template - Downloading bulk upload template");
+        return bulkUploadHelper.downloadTemplate(vendorCategoryService);
+    }
+
+    @GetMapping("/bulk/export-data")
+    public ResponseEntity<byte[]> exportVendorCategories() throws java.io.IOException {
+        log.info("GET /api/vendor-categories/bulk/export-data - Exporting vendor categories");
+        return bulkUploadHelper.export(vendorCategoryService);
+    }
+
+    @PostMapping("/bulk/export-error-report")
+    public ResponseEntity<byte[]> exportErrorReport(
+            @RequestBody BulkUploadProgressDto progressDto) throws java.io.IOException {
+        log.info("POST /api/vendor-categories/bulk/export-error-report - Exporting error report");
+        return bulkUploadHelper.exportErrors(progressDto, vendorCategoryService);
     }
 }
