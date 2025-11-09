@@ -8,6 +8,10 @@ interface VendorTypesContextType {
   setIsDrawerOpen: (isOpen: boolean) => void;
   isDeleteDialogOpen: boolean;
   setIsDeleteDialogOpen: (isOpen: boolean) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (isOpen: boolean) => void;
+  openBulkUploadDialog: () => void;
+  closeBulkUploadDialog: () => void;
 }
 
 const VendorTypesContext = createContext<VendorTypesContextType | undefined>(undefined);
@@ -16,6 +20,10 @@ export const VendorTypesProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [selectedVendorType, setSelectedVendorType] = useState<VendorType | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
+
+  const openBulkUploadDialog = () => setIsBulkUploadDialogOpen(true);
+  const closeBulkUploadDialog = () => setIsBulkUploadDialogOpen(false);
 
   return (
     <VendorTypesContext.Provider
@@ -26,6 +34,10 @@ export const VendorTypesProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setIsDrawerOpen,
         isDeleteDialogOpen,
         setIsDeleteDialogOpen,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
+        openBulkUploadDialog,
+        closeBulkUploadDialog,
       }}
     >
       {children}

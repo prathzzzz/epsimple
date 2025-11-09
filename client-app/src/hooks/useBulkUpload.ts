@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { downloadFileWithPost, createAuthHeaders } from '@/lib/api-utils'
+import { downloadFileWithPost, downloadFile, createAuthHeaders } from '@/lib/api-utils'
 
 export interface BulkUploadProgress {
   status: 'PROCESSING' | 'COMPLETED' | 'COMPLETED_WITH_ERRORS' | 'FAILED'
@@ -28,6 +28,8 @@ export interface BulkUploadError {
 export interface BulkUploadConfig {
   entityName: string // "State", "City", etc.
   uploadEndpoint: string // "/api/states/bulk-upload"
+  templateEndpoint?: string // "/api/states/download-template"
+  exportEndpoint?: string // "/api/states/export"
   errorReportEndpoint: string // "/api/states/export-errors"
   onSuccess?: () => void
 }
@@ -38,6 +40,8 @@ export function useBulkUpload(config: BulkUploadConfig) {
   const [progress, setProgress] = useState<BulkUploadProgress | null>(null)
   const [errorReportDownloaded, setErrorReportDownloaded] = useState(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
+  const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
 
   // Auto-download error report when errors are present
   useEffect(() => {
@@ -144,13 +148,63 @@ export function useBulkUpload(config: BulkUploadConfig) {
     }
   }
 
+  const handleDownloadTemplate = async () => {
+    if (!config.templateEndpoint) {
+      toast.error('Template download not available')
+      return
+    }
+
+    setIsDownloadingTemplate(true)
+    try {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
+      await downloadFile(
+        config.templateEndpoint,
+        `${config.entityName}_Upload_Template_${timestamp}.xlsx`
+      )
+      toast.success('Template downloaded successfully')
+    } catch (error) {
+      toast.error('Failed to download template', {
+        description: error instanceof Error ? error.message : 'An error occurred',
+      })
+    } finally {
+      setIsDownloadingTemplate(false)
+    }
+  }
+
+  const handleExport = async () => {
+    if (!config.exportEndpoint) {
+      toast.error('Export not available')
+      return
+    }
+
+    setIsExporting(true)
+    try {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
+      await downloadFile(
+        config.exportEndpoint,
+        `${config.entityName}s_Export_${timestamp}.xlsx`
+      )
+      toast.success(`${config.entityName}s exported successfully`)
+    } catch (error) {
+      toast.error(`Failed to export ${config.entityName}s`, {
+        description: error instanceof Error ? error.message : 'An error occurred',
+      })
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   return {
     selectedFile,
     isUploading,
     progress,
+    isDownloadingTemplate,
+    isExporting,
     handleFileSelect,
     handleRemoveFile,
     handleUpload,
+    handleDownloadTemplate,
+    handleExport,
     handleDownloadErrorReport,
   }
 }

@@ -28,4 +28,7 @@ public interface VendorTypeRepository extends JpaRepository<VendorType, Long> {
     
     @Query("SELECT vt FROM VendorType vt WHERE vt.vendorCategory.id = :categoryId")
     java.util.List<VendorType> findByVendorCategoryId(@Param("categoryId") Long categoryId);
+    
+    @Query("SELECT vt FROM VendorType vt LEFT JOIN FETCH vt.vendorCategory")
+    java.util.List<VendorType> findAllWithCategory();
 }

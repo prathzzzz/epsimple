@@ -2,10 +2,16 @@ package com.eps.module.api.epsone.vendor_type.service;
 
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.api.epsone.vendor_category.repository.VendorCategoryRepository;
+import com.eps.module.api.epsone.vendor_type.dto.VendorTypeBulkUploadDto;
+import com.eps.module.api.epsone.vendor_type.dto.VendorTypeErrorReportDto;
 import com.eps.module.api.epsone.vendor_type.dto.VendorTypeRequestDto;
 import com.eps.module.api.epsone.vendor_type.dto.VendorTypeResponseDto;
 import com.eps.module.api.epsone.vendor_type.mapper.VendorTypeMapper;
+import com.eps.module.api.epsone.vendor_type.processor.VendorTypeBulkUploadProcessor;
 import com.eps.module.api.epsone.vendor_type.repository.VendorTypeRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.vendor.Vendor;
 import com.eps.module.vendor.VendorCategory;
@@ -18,16 +24,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class VendorTypeServiceImpl implements VendorTypeService {
+public class VendorTypeServiceImpl extends BaseBulkUploadService<VendorTypeBulkUploadDto, VendorType> implements VendorTypeService {
 
     private final VendorTypeRepository vendorTypeRepository;
     private final VendorCategoryRepository vendorCategoryRepository;
     private final VendorRepository vendorRepository;
     private final VendorTypeMapper vendorTypeMapper;
+    private final VendorTypeBulkUploadProcessor vendorTypeBulkUploadProcessor;
 
     @Override
     @Transactional
@@ -155,5 +163,59 @@ public class VendorTypeServiceImpl implements VendorTypeService {
         }
         
         return !fullName.isEmpty() ? fullName.toString() : "Unknown Vendor";
+    }
+
+    // ========== Bulk Upload Methods ==========
+
+    @Override
+    protected BulkUploadProcessor<VendorTypeBulkUploadDto, VendorType> getProcessor() {
+        return vendorTypeBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<VendorTypeBulkUploadDto> getBulkUploadDtoClass() {
+        return VendorTypeBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "VendorType";
+    }
+
+    @Override
+    public List<VendorType> getAllEntitiesForExport() {
+        return vendorTypeRepository.findAllWithCategory();
+    }
+
+    @Override
+    public Function<VendorType, VendorTypeBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> VendorTypeBulkUploadDto.builder()
+                .typeName(entity.getTypeName())
+                .vendorCategoryName(entity.getVendorCategory() != null ? 
+                        entity.getVendorCategory().getCategoryName() : "")
+                .description(entity.getDescription())
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        VendorTypeErrorReportDto.VendorTypeErrorReportDtoBuilder builder =
+                VendorTypeErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorType(error.getErrorType())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.typeName((String) error.getRowData().get("typeName"))
+                    .vendorCategoryName((String) error.getRowData().get("vendorCategoryName"))
+                    .description((String) error.getRowData().get("description"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return VendorTypeErrorReportDto.class;
     }
 }

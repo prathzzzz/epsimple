@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog';
 import { VendorTypesMutateDrawer } from './vendor-types-mutate-drawer';
 import { useVendorTypes } from '../context/vendor-types-provider';
 import { vendorTypesApi } from '../api/vendor-types-api';
@@ -14,6 +15,8 @@ export function VendorTypesDialogs() {
     setIsDrawerOpen,
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
+    isBulkUploadDialogOpen,
+    closeBulkUploadDialog,
   } = useVendorTypes();
 
   const deleteMutation = useMutation({
@@ -32,6 +35,19 @@ export function VendorTypesDialogs() {
     }
   };
 
+  const handleBulkUploadSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['vendor-types'] });
+  };
+
+  const bulkUploadConfig = {
+    entityName: 'VendorType',
+    uploadEndpoint: '/api/vendor-types/bulk-upload',
+    templateEndpoint: '/api/vendor-types/download-template',
+    exportEndpoint: '/api/vendor-types/export',
+    errorReportEndpoint: '/api/vendor-types/export-errors',
+    onSuccess: handleBulkUploadSuccess,
+  };
+
   return (
     <>
       <VendorTypesMutateDrawer
@@ -47,6 +63,11 @@ export function VendorTypesDialogs() {
         handleConfirm={handleDelete}
         isLoading={deleteMutation.isPending}
         destructive
+      />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={closeBulkUploadDialog}
+        config={bulkUploadConfig}
       />
     </>
   );
