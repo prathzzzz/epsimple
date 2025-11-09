@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface GenericStatusTypeRepository extends JpaRepository<GenericStatusType, Long> {
 
@@ -21,7 +23,10 @@ public interface GenericStatusTypeRepository extends JpaRepository<GenericStatus
 
     boolean existsByStatusNameAndIdNot(String statusName, Long id);
 
-    boolean existsByStatusCodeIgnoreCase(String statusCode);
+    boolean existsByStatusCode(String statusCode);
 
     boolean existsByStatusCodeAndIdNot(String statusCode, Long id);
+
+    @Query("SELECT g FROM GenericStatusType g ORDER BY g.statusName ASC")
+    List<GenericStatusType> findAllForExport();
 }

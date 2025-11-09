@@ -10,6 +10,8 @@ interface GenericStatusTypeContextType {
   setIsDeleteDialogOpen: (open: boolean) => void;
   isEditMode: boolean;
   setIsEditMode: (mode: boolean) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (open: boolean) => void;
 }
 
 const GenericStatusTypeContext = createContext<
@@ -24,6 +26,7 @@ export const GenericStatusTypeProvider: React.FC<{
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
 
   return (
     <GenericStatusTypeContext.Provider
@@ -36,6 +39,8 @@ export const GenericStatusTypeProvider: React.FC<{
         setIsDeleteDialogOpen,
         isEditMode,
         setIsEditMode,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
       }}
     >
       {children}

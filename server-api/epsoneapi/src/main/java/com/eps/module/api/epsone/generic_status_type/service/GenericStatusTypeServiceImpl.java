@@ -1,10 +1,16 @@
 package com.eps.module.api.epsone.generic_status_type.service;
 
+import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeBulkUploadDto;
+import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeErrorReportDto;
 import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeRequestDto;
 import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeResponseDto;
 import com.eps.module.api.epsone.generic_status_type.mapper.GenericStatusTypeMapper;
+import com.eps.module.api.epsone.generic_status_type.processor.GenericStatusTypeBulkUploadProcessor;
 import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTypeRepository;
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.status.GenericStatusType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,16 +20,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class GenericStatusTypeServiceImpl implements GenericStatusTypeService {
+public class GenericStatusTypeServiceImpl extends BaseBulkUploadService<GenericStatusTypeBulkUploadDto, GenericStatusType> implements GenericStatusTypeService {
 
     private final GenericStatusTypeRepository genericStatusTypeRepository;
     private final ActivityWorkRepository activityWorkRepository;
     private final GenericStatusTypeMapper genericStatusTypeMapper;
+    private final GenericStatusTypeBulkUploadProcessor genericStatusTypeBulkUploadProcessor;
 
     @Override
     @Transactional
@@ -35,7 +43,7 @@ public class GenericStatusTypeServiceImpl implements GenericStatusTypeService {
         }
 
         if (requestDto.getStatusCode() != null && !requestDto.getStatusCode().isEmpty() &&
-            genericStatusTypeRepository.existsByStatusCodeIgnoreCase(requestDto.getStatusCode())) {
+            genericStatusTypeRepository.existsByStatusCode(requestDto.getStatusCode())) {
             throw new IllegalArgumentException("Status type with code '" + requestDto.getStatusCode() + "' already exists");
         }
 
@@ -121,5 +129,56 @@ public class GenericStatusTypeServiceImpl implements GenericStatusTypeService {
 
         genericStatusTypeRepository.deleteById(id);
         log.info("Generic status type deleted successfully with ID: {}", id);
+    }
+
+    // Bulk Upload Methods
+    @Override
+    protected BulkUploadProcessor<GenericStatusTypeBulkUploadDto, GenericStatusType> getProcessor() {
+        return genericStatusTypeBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<GenericStatusTypeBulkUploadDto> getBulkUploadDtoClass() {
+        return GenericStatusTypeBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Generic Status Type";
+    }
+
+    @Override
+    public List<GenericStatusType> getAllEntitiesForExport() {
+        return genericStatusTypeRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<GenericStatusType, GenericStatusTypeBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> GenericStatusTypeBulkUploadDto.builder()
+                .statusName(entity.getStatusName())
+                .statusCode(entity.getStatusCode())
+                .description(entity.getDescription())
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        GenericStatusTypeErrorReportDto.GenericStatusTypeErrorReportDtoBuilder builder =
+                GenericStatusTypeErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.statusName((String) error.getRowData().get("statusName"))
+                    .statusCode((String) error.getRowData().get("statusCode"))
+                    .description((String) error.getRowData().get("description"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return GenericStatusTypeErrorReportDto.class;
     }
 }

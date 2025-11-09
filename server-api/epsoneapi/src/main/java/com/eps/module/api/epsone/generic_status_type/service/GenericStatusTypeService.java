@@ -1,13 +1,16 @@
 package com.eps.module.api.epsone.generic_status_type.service;
 
+import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeBulkUploadDto;
 import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeRequestDto;
 import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeResponseDto;
+import com.eps.module.common.bulk.service.BulkUploadService;
+import com.eps.module.status.GenericStatusType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface GenericStatusTypeService {
+public interface GenericStatusTypeService extends BulkUploadService<GenericStatusTypeBulkUploadDto, GenericStatusType> {
 
     GenericStatusTypeResponseDto createGenericStatusType(GenericStatusTypeRequestDto genericStatusTypeRequestDto);
 

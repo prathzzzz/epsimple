@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
 import { GenericStatusTypeMutateDrawer } from "./generic-status-type-mutate-drawer";
 import { useGenericStatusType } from "../context/generic-status-type-provider";
 import { genericStatusTypeApi } from "../api/generic-status-type-api";
@@ -14,6 +15,8 @@ export function GenericStatusTypeDialogs() {
     setIsDrawerOpen,
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
+    isBulkUploadDialogOpen,
+    setIsBulkUploadDialogOpen,
   } = useGenericStatusType();
 
   const deleteMutation = useMutation({
@@ -47,6 +50,20 @@ export function GenericStatusTypeDialogs() {
         handleConfirm={handleDelete}
         isLoading={deleteMutation.isPending}
         destructive
+      />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          entityName: "Generic Status Type",
+          uploadEndpoint: "/api/generic-status-types/bulk-upload",
+          templateEndpoint: "/api/generic-status-types/download-template",
+          exportEndpoint: "/api/generic-status-types/export",
+          errorReportEndpoint: "/api/generic-status-types/export-errors",
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["generic-status-types"] });
+          },
+        }}
       />
     </>
   );
