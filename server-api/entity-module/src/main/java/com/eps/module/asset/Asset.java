@@ -3,7 +3,6 @@ package com.eps.module.asset;
 import com.eps.module.common.entity.BaseEntity;
 import com.eps.module.bank.Bank;
 import com.eps.module.status.GenericStatusType;
-import com.eps.module.status.OwnershipStatus;
 import com.eps.module.vendor.Vendor;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -50,10 +49,6 @@ public class Asset extends BaseEntity {
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "status_type_id")
         private GenericStatusType statusType;
-
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "ownership_status_id")
-        private OwnershipStatus ownershipStatus;
 
     @Column(name = "asset_Name")
     private String assetName;

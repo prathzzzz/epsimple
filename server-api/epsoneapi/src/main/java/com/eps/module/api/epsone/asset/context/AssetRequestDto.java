@@ -19,7 +19,6 @@ public class AssetRequestDto {
     private Long vendorId;
     private Long lenderBankId;
     private Long statusTypeId;
-    private Long ownershipStatusId;
     private String assetName;
     private String serialNumber;
     private String modelNumber;

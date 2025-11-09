@@ -41,10 +41,6 @@ public class AssetResponseDto {
     private Long statusTypeId;
     private String statusTypeName;
     
-    // Ownership Status
-    private Long ownershipStatusId;
-    private String ownershipStatusName;
-    
     // Asset Details
     private String assetName;
     private String serialNumber;

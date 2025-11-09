@@ -11,7 +11,6 @@ export const assetSchema = z.object({
   vendorId: z.number().min(1, 'Vendor is required'),
   lenderBankId: z.number().min(1, 'Lender Bank is required'),
   statusTypeId: z.number().min(1, 'Status Type is required'),
-  ownershipStatusId: z.number().optional(),
   purchaseOrderNumber: z.string().optional(),
   purchaseOrderDate: z.string().optional(),
   purchaseOrderCost: z.number().optional(),
@@ -46,8 +45,6 @@ export interface Asset {
   lenderBankCode: string
   statusTypeId: number
   statusTypeName: string
-  ownershipStatusId?: number
-  ownershipStatusName?: string
   purchaseOrderNumber?: string
   purchaseOrderDate?: string
   purchaseOrderCost?: number
@@ -73,7 +70,6 @@ export interface AssetRequest {
   vendorId: number
   lenderBankId: number
   statusTypeId: number
-  ownershipStatusId?: number
   purchaseOrderNumber?: string
   purchaseOrderDate?: string
   purchaseOrderCost?: number

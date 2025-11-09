@@ -8,7 +8,6 @@ import com.eps.module.asset.AssetType;
 import com.eps.module.bank.Bank;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.status.GenericStatusType;
-import com.eps.module.status.OwnershipStatus;
 import com.eps.module.vendor.Vendor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,7 +23,6 @@ public interface AssetMapper {
     @Mapping(target = "vendor", source = "vendorId")
     @Mapping(target = "lenderBank", source = "lenderBankId")
     @Mapping(target = "statusType", source = "statusTypeId")
-    @Mapping(target = "ownershipStatus", source = "ownershipStatusId")
     Asset toEntity(AssetRequestDto dto);
 
     @Mapping(target = "assetTypeId", source = "asset.assetType.id")
@@ -41,8 +39,6 @@ public interface AssetMapper {
     @Mapping(target = "lenderBankCode", source = "asset.lenderBank.bankCodeAlt")
     @Mapping(target = "statusTypeId", source = "asset.statusType.id")
     @Mapping(target = "statusTypeName", source = "asset.statusType.statusName")
-    @Mapping(target = "ownershipStatusId", source = "asset.ownershipStatus.id")
-    @Mapping(target = "ownershipStatusName", source = "asset.ownershipStatus.typeName")
     AssetResponseDto toDto(Asset asset);
 
     @Mapping(target = "id", ignore = true)
@@ -51,7 +47,6 @@ public interface AssetMapper {
     @Mapping(target = "vendor", source = "vendorId")
     @Mapping(target = "lenderBank", source = "lenderBankId")
     @Mapping(target = "statusType", source = "statusTypeId")
-    @Mapping(target = "ownershipStatus", source = "ownershipStatusId")
     void updateEntityFromDto(AssetRequestDto dto, @MappingTarget Asset asset);
 
     default AssetType mapAssetType(Long id) {
@@ -87,13 +82,6 @@ public interface AssetMapper {
         GenericStatusType statusType = new GenericStatusType();
         statusType.setId(id);
         return statusType;
-    }
-
-    default OwnershipStatus mapOwnershipStatus(Long id) {
-        if (id == null) return null;
-        OwnershipStatus ownershipStatus = new OwnershipStatus();
-        ownershipStatus.setId(id);
-        return ownershipStatus;
     }
 
     default String buildVendorName(Vendor vendor) {

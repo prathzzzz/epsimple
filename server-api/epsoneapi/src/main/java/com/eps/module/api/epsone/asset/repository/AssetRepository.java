@@ -25,7 +25,6 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
            "JOIN FETCH v.vendorDetails vd " +
            "JOIN FETCH a.lenderBank b " +
            "LEFT JOIN FETCH a.statusType st " +
-           "LEFT JOIN FETCH a.ownershipStatus os " +
            "WHERE LOWER(a.assetTagId) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(a.serialNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(a.modelNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
@@ -44,8 +43,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
            "JOIN FETCH a.vendor v " +
            "JOIN FETCH v.vendorDetails " +
            "JOIN FETCH a.lenderBank " +
-           "LEFT JOIN FETCH a.statusType " +
-           "LEFT JOIN FETCH a.ownershipStatus")
+           "LEFT JOIN FETCH a.statusType")
     List<Asset> findAllWithDetails();
 
     @Query("SELECT a FROM Asset a " +
