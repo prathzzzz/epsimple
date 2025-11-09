@@ -21,24 +21,6 @@ export const landlordColumns: ColumnDef<Landlord>[] = [
     cell: ({ row }) => <div>{row.getValue('landlordName')}</div>,
   },
   {
-    accessorKey: 'landlordEmail',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Email
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const email = row.getValue('landlordEmail') as string | undefined;
-      return <div>{email || '-'}</div>;
-    },
-  },
-  {
     accessorKey: 'landlordPhone',
     header: ({ column }) => {
       return (

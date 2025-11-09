@@ -23,10 +23,6 @@ export const personDetailsColumns: ColumnDef<PersonDetails>[] = [
     ),
   },
   {
-    accessorKey: "email",
-    header: "Email",
-  },
-  {
     accessorKey: "contactNumber",
     header: "Contact Number",
     cell: ({ row }) => {

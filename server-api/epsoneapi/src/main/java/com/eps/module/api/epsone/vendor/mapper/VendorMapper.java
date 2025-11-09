@@ -17,7 +17,6 @@ public interface VendorMapper {
     @Mapping(source = "vendorType.vendorCategory.categoryName", target = "vendorCategoryName")
     @Mapping(source = "vendorDetails.id", target = "vendorDetailsId")
     @Mapping(target = "vendorName", expression = "java(buildFullName(entity))")
-    @Mapping(source = "vendorDetails.email", target = "vendorEmail")
     @Mapping(source = "vendorDetails.contactNumber", target = "vendorContact")
     VendorResponseDto toDto(Vendor entity);
 

@@ -24,7 +24,7 @@ public interface AssetTagCodeGeneratorRepository extends JpaRepository<AssetTagC
            "WHERE LOWER(ac.categoryName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(vd.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(vd.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-           "OR LOWER(vd.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+           "OR LOWER(vd.contactNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(b.bankName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<AssetTagCodeGenerator> search(@Param("searchTerm") String searchTerm, Pageable pageable);
 

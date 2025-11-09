@@ -118,6 +118,6 @@ public interface AssetMapper {
             name.append(details.getLastName());
         }
         
-        return name.length() > 0 ? name.toString() : details.getEmail();
+        return name.length() > 0 ? name.toString() : "Unknown Vendor";
     }
 }

@@ -22,11 +22,6 @@ export const personDetailsFormSchema = z.object({
     .regex(/^[0-9]{10}$/, "Phone number must be exactly 10 digits")
     .optional()
     .or(z.literal("")),
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Invalid email address format")
-    .max(255, "Email cannot exceed 255 characters"),
   permanentAddress: z
     .string()
     .max(5000, "Permanent address cannot exceed 5000 characters")
@@ -50,7 +45,6 @@ export interface PersonDetails {
   lastName?: string;
   fullName?: string;
   contactNumber?: string;
-  email: string;
   permanentAddress?: string;
   correspondenceAddress?: string;
   createdAt: string;

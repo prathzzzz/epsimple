@@ -7,8 +7,8 @@ import { ConfigDrawer } from "@/components/config-drawer";
 import { PersonDetailsProvider } from "./context/person-details-provider";
 import { PersonDetailsTable } from "./components/person-details-table";
 import { PersonDetailsDrawer } from "./components/person-details-drawer";
-import { PersonDetailsDeleteDialog } from "./components/person-details-delete-dialog";
-import { CreatePersonDetailsButton } from "./components/create-person-details-button";
+import { PersonDetailsDialogs } from "./components/person-details-dialogs";
+import { PersonDetailsPrimaryButtons } from "./components/person-details-primary-buttons";
 
 function PersonDetailsContent() {
   return (
@@ -30,7 +30,7 @@ function PersonDetailsContent() {
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            <CreatePersonDetailsButton />
+            <PersonDetailsPrimaryButtons />
           </div>
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1">
@@ -38,7 +38,7 @@ function PersonDetailsContent() {
         </div>
       </Main>
       <PersonDetailsDrawer />
-      <PersonDetailsDeleteDialog />
+      <PersonDetailsDialogs />
     </>
   );
 }

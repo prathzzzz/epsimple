@@ -21,7 +21,6 @@ public class PersonDetailsResponseDto {
     private String lastName;
     private String fullName;
     private String contactNumber;
-    private String email;
     private String permanentAddress;
     private String correspondenceAddress;
     private LocalDateTime createdAt;

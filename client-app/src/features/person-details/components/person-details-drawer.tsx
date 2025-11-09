@@ -60,7 +60,6 @@ export function PersonDetailsDrawer() {
       middleName: "",
       lastName: "",
       contactNumber: "",
-      email: "",
       permanentAddress: "",
       correspondenceAddress: "",
     },
@@ -91,7 +90,6 @@ export function PersonDetailsDrawer() {
         middleName: editingPersonDetails.middleName || "",
         lastName: editingPersonDetails.lastName || "",
         contactNumber: editingPersonDetails.contactNumber || "",
-        email: editingPersonDetails.email,
         permanentAddress: editingPersonDetails.permanentAddress || "",
         correspondenceAddress: editingPersonDetails.correspondenceAddress || "",
       });
@@ -102,7 +100,6 @@ export function PersonDetailsDrawer() {
         middleName: "",
         lastName: "",
         contactNumber: "",
-        email: "",
         permanentAddress: "",
         correspondenceAddress: "",
       });
@@ -271,42 +268,23 @@ export function PersonDetailsDrawer() {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="e.g., john.doe@example.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="contactNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Number</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="10-digit number"
-                        maxLength={10}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="contactNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contact Number</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="10-digit number"
+                      maxLength={10}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

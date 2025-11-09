@@ -1,5 +1,8 @@
 package com.eps.module.api.epsone.person_details.service;
 
+import com.eps.module.api.epsone.person_details.bulk.PersonDetailsBulkUploadProcessor;
+import com.eps.module.api.epsone.person_details.dto.PersonDetailsBulkUploadDto;
+import com.eps.module.api.epsone.person_details.dto.PersonDetailsErrorReportDto;
 import com.eps.module.api.epsone.person_details.dto.PersonDetailsRequestDto;
 import com.eps.module.api.epsone.person_details.dto.PersonDetailsResponseDto;
 import com.eps.module.api.epsone.person_details.mapper.PersonDetailsMapper;
@@ -7,6 +10,9 @@ import com.eps.module.api.epsone.person_details.repository.PersonDetailsReposito
 import com.eps.module.api.epsone.person_type.repository.PersonTypeRepository;
 import com.eps.module.api.epsone.landlord.repository.LandlordRepository;
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.person.PersonType;
 import jakarta.persistence.EntityNotFoundException;
@@ -18,32 +24,29 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PersonDetailsServiceImpl implements PersonDetailsService {
+public class PersonDetailsServiceImpl extends BaseBulkUploadService<PersonDetailsBulkUploadDto, PersonDetails> implements PersonDetailsService {
 
     private final PersonDetailsRepository personDetailsRepository;
     private final PersonTypeRepository personTypeRepository;
     private final VendorRepository vendorRepository;
     private final LandlordRepository landlordRepository;
     private final PersonDetailsMapper personDetailsMapper;
+    private final PersonDetailsBulkUploadProcessor personDetailsBulkUploadProcessor;
 
     @Override
     @Transactional
     public PersonDetailsResponseDto createPersonDetails(PersonDetailsRequestDto requestDto) {
-        log.info("Creating person details with email: {}", requestDto.getEmail());
+        log.info("Creating person details for person type ID: {}", requestDto.getPersonTypeId());
 
         // Validate person type exists
         PersonType personType = personTypeRepository.findById(requestDto.getPersonTypeId())
                 .orElseThrow(() -> new EntityNotFoundException("Person type not found with ID: " + requestDto.getPersonTypeId()));
-
-        // Check for duplicate email
-        if (personDetailsRepository.existsByEmail(requestDto.getEmail())) {
-            throw new IllegalArgumentException("Email already exists: " + requestDto.getEmail());
-        }
 
         PersonDetails personDetails = personDetailsMapper.toEntity(requestDto);
         personDetails.setPersonType(personType);
@@ -114,13 +117,6 @@ public class PersonDetailsServiceImpl implements PersonDetailsService {
         PersonType personType = personTypeRepository.findById(requestDto.getPersonTypeId())
                 .orElseThrow(() -> new EntityNotFoundException("Person type not found with ID: " + requestDto.getPersonTypeId()));
 
-        // Check for duplicate email if changed
-        if (!requestDto.getEmail().equals(personDetails.getEmail())) {
-            if (personDetailsRepository.existsByEmailAndIdNot(requestDto.getEmail(), id)) {
-                throw new IllegalArgumentException("Email already exists: " + requestDto.getEmail());
-            }
-        }
-
         personDetailsMapper.updateEntityFromDto(requestDto, personDetails);
         personDetails.setPersonType(personType);
 
@@ -172,5 +168,65 @@ public class PersonDetailsServiceImpl implements PersonDetailsService {
             name.append(personDetails.getLastName());
         }
         return name.length() > 0 ? name.toString() : "Unknown";
+    }
+
+    // ========== Bulk Upload Methods ==========
+
+    @Override
+    protected BulkUploadProcessor<PersonDetailsBulkUploadDto, PersonDetails> getProcessor() {
+        return personDetailsBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<PersonDetailsBulkUploadDto> getBulkUploadDtoClass() {
+        return PersonDetailsBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "PersonDetails";
+    }
+
+    @Override
+    public List<PersonDetails> getAllEntitiesForExport() {
+        return personDetailsRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<PersonDetails, PersonDetailsBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> PersonDetailsBulkUploadDto.builder()
+                .personTypeName(entity.getPersonType() != null ? entity.getPersonType().getTypeName() : "")
+                .firstName(entity.getFirstName())
+                .middleName(entity.getMiddleName())
+                .lastName(entity.getLastName())
+                .contactNumber(entity.getContactNumber())
+                .permanentAddress(entity.getPermanentAddress())
+                .correspondenceAddress(entity.getCorrespondenceAddress())
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        PersonDetailsErrorReportDto.PersonDetailsErrorReportDtoBuilder builder =
+                PersonDetailsErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.personTypeName((String) error.getRowData().get("personTypeName"))
+                    .firstName((String) error.getRowData().get("firstName"))
+                    .middleName((String) error.getRowData().get("middleName"))
+                    .lastName((String) error.getRowData().get("lastName"))
+                    .contactNumber((String) error.getRowData().get("contactNumber"))
+                    .permanentAddress((String) error.getRowData().get("permanentAddress"))
+                    .correspondenceAddress((String) error.getRowData().get("correspondenceAddress"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return PersonDetailsErrorReportDto.class;
     }
 }

@@ -9,7 +9,6 @@ export interface Vendor {
   vendorCategoryName: string;
   vendorDetailsId: number;
   vendorName: string;
-  vendorEmail: string;
   vendorContact: string;
   vendorCodeAlt?: string;
   createdAt: string;

@@ -93,11 +93,11 @@ public interface AssetTagCodeGeneratorMapper {
             name.append(details.getLastName());
         }
         
-        // Fallback to email if no name parts
-        if (name.length() == 0 && details.getEmail() != null) {
-            return details.getEmail();
+        // Fallback to contact number if no name parts
+        if (name.length() == 0 && details.getContactNumber() != null) {
+            return details.getContactNumber();
         }
         
-        return name.toString();
+        return name.length() > 0 ? name.toString() : "Unknown Person";
     }
 }

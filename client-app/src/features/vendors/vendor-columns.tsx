@@ -49,24 +49,6 @@ export const vendorColumns: ColumnDef<Vendor>[] = [
     cell: ({ row }) => <div>{row.getValue('vendorName')}</div>,
   },
   {
-    accessorKey: 'vendorEmail',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Email
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const email = row.getValue('vendorEmail') as string | undefined;
-      return <div>{email || '-'}</div>;
-    },
-  },
-  {
     accessorKey: 'vendorContact',
     header: ({ column }) => {
       return (

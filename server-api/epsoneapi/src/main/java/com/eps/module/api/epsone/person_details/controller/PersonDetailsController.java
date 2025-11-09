@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.person_details.controller;
 import com.eps.module.api.epsone.person_details.dto.PersonDetailsRequestDto;
 import com.eps.module.api.epsone.person_details.dto.PersonDetailsResponseDto;
 import com.eps.module.api.epsone.person_details.service.PersonDetailsService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -15,7 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +30,7 @@ import java.util.List;
 public class PersonDetailsController {
 
     private final PersonDetailsService personDetailsService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<PersonDetailsResponseDto>> createPersonDetails(@Valid @RequestBody PersonDetailsRequestDto requestDto) {
@@ -108,5 +114,32 @@ public class PersonDetailsController {
         log.info("DELETE /api/person-details/{} - Deleting person details", id);
         personDetailsService.deletePersonDetails(id);
         return ResponseBuilder.success(null, "Person details deleted successfully");
+    }
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping("/bulk-upload")
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
+        log.info("POST /api/person-details/bulk-upload - Starting bulk upload");
+        return bulkUploadControllerHelper.bulkUpload(file, personDetailsService);
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<byte[]> downloadTemplate() throws IOException {
+        log.info("GET /api/person-details/download-template - Downloading bulk upload template");
+        return bulkUploadControllerHelper.downloadTemplate(personDetailsService);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/person-details/export - Exporting all person details");
+        return bulkUploadControllerHelper.export(personDetailsService);
+    }
+
+    @PostMapping("/export-errors")
+    public ResponseEntity<byte[]> exportErrors(
+            @RequestBody BulkUploadProgressDto progressData) throws IOException {
+        log.info("POST /api/person-details/export-errors - Exporting bulk upload error report");
+        return bulkUploadControllerHelper.exportErrors(progressData, personDetailsService);
     }
 }

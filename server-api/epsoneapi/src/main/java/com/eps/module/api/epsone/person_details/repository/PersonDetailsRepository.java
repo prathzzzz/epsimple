@@ -24,7 +24,6 @@ public interface PersonDetailsRepository extends JpaRepository<PersonDetails, Lo
            "WHERE LOWER(pd.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(pd.middleName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(pd.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-           "OR LOWER(pd.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(pd.contactNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<PersonDetails> searchPersonDetails(@Param("searchTerm") String searchTerm, Pageable pageable);
 
@@ -34,9 +33,11 @@ public interface PersonDetailsRepository extends JpaRepository<PersonDetails, Lo
     @Query("SELECT pd FROM PersonDetails pd LEFT JOIN FETCH pd.personType ORDER BY pd.firstName ASC, pd.lastName ASC")
     List<PersonDetails> findAllPersonDetailsList();
 
-    Optional<PersonDetails> findByEmail(String email);
+    @Query("SELECT pd FROM PersonDetails pd LEFT JOIN FETCH pd.personType")
+    List<PersonDetails> findAllForExport();
 
-    boolean existsByEmail(String email);
-
-    boolean existsByEmailAndIdNot(String email, Long id);
+    // Bulk upload helper methods
+    boolean existsByContactNumber(String contactNumber);
+    
+    Optional<PersonDetails> findByContactNumber(String contactNumber);
 }

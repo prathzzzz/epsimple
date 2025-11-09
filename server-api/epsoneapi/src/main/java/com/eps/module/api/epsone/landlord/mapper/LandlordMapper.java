@@ -13,7 +13,6 @@ public interface LandlordMapper {
 
     @Mapping(source = "landlordDetails.id", target = "landlordDetailsId")
     @Mapping(target = "landlordName", expression = "java(buildFullName(entity))")
-    @Mapping(source = "landlordDetails.email", target = "landlordEmail")
     @Mapping(source = "landlordDetails.contactNumber", target = "landlordPhone")
     LandlordResponseDto toDto(Landlord entity);
 

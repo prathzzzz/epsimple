@@ -12,6 +12,9 @@ interface PersonDetailsContextType {
   setDeletingPersonDetailsId: (id: number | null) => void;
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
+  isBulkUploadDialogOpen: boolean;
+  openBulkUploadDialog: () => void;
+  closeBulkUploadDialog: () => void;
 }
 
 const PersonDetailsContext = createContext<PersonDetailsContextType | undefined>(
@@ -24,6 +27,10 @@ export function PersonDetailsProvider({ children }: { children: React.ReactNode 
   const [editingPersonDetails, setEditingPersonDetails] = useState<PersonDetails | null>(null);
   const [deletingPersonDetailsId, setDeletingPersonDetailsId] = useState<number | null>(null);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
+
+  const openBulkUploadDialog = () => setIsBulkUploadDialogOpen(true);
+  const closeBulkUploadDialog = () => setIsBulkUploadDialogOpen(false);
 
   return (
     <PersonDetailsContext.Provider
@@ -38,6 +45,9 @@ export function PersonDetailsProvider({ children }: { children: React.ReactNode 
         setDeletingPersonDetailsId,
         globalFilter,
         setGlobalFilter,
+        isBulkUploadDialogOpen,
+        openBulkUploadDialog,
+        closeBulkUploadDialog,
       }}
     >
       {children}

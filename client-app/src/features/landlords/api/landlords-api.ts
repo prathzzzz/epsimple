@@ -6,7 +6,6 @@ export interface Landlord {
   id: number;
   landlordDetailsId: number;
   landlordName: string;
-  landlordEmail: string;
   landlordPhone: string;
   rentSharePercentage?: number;
   createdAt: string;

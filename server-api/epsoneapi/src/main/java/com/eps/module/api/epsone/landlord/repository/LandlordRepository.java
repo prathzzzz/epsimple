@@ -15,14 +15,13 @@ import java.util.Optional;
 public interface LandlordRepository extends JpaRepository<Landlord, Long> {
 
     /**
-     * Search landlords by person details (name, contact number, email)
+     * Search landlords by person details (name, contact number)
      */
     @Query("SELECT l FROM Landlord l " +
             "LEFT JOIN FETCH l.landlordDetails ld " +
             "WHERE LOWER(ld.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(ld.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-            "OR LOWER(ld.contactNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-            "OR LOWER(ld.email) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+            "OR LOWER(ld.contactNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<Landlord> searchLandlords(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     /**

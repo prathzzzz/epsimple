@@ -2,8 +2,6 @@ package com.eps.module.person;
 
 import com.eps.module.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -42,12 +40,6 @@ public class PersonDetails extends BaseEntity {
     @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be exactly 10 digits")
     @Column(name = "contact_number", length = 20)
     private String contactNumber;
-
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email address format")
-    @Size(max = 255, message = "Email cannot exceed 255 characters")
-    @Column(unique = true, length = 255)
-    private String email;
 
     @Size(max = 5000, message = "Permanent address cannot exceed 5000 characters")
     @Column(name = "permanent_address", columnDefinition = "TEXT")

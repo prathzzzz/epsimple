@@ -17,7 +17,6 @@ public class LandlordResponseDto {
     private Long id;
     private Long landlordDetailsId;
     private String landlordName;  // Person full name
-    private String landlordEmail;
     private String landlordPhone;
     private BigDecimal rentSharePercentage;
     private LocalDateTime createdAt;

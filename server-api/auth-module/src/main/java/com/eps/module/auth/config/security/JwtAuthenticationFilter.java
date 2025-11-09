@@ -79,19 +79,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Validate token and set authentication
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            log.debug("Attempting to authenticate user: {}", username);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            try {
+                log.debug("Attempting to authenticate user: {}", username);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            if (jwtUtil.validateToken(token, userDetails)) {
-                log.debug("JWT token validated successfully for user: {}", username);
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-                log.debug("Authentication set for user: {} with {} authorities", username, userDetails.getAuthorities().size());
-            } else {
-                log.warn("JWT token validation failed for user: {}", username);
+                if (jwtUtil.validateToken(token, userDetails)) {
+                    log.debug("JWT token validated successfully for user: {}", username);
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    log.debug("Authentication set for user: {} with {} authorities", username, userDetails.getAuthorities().size());
+                } else {
+                    log.warn("JWT token validation failed for user: {}", username);
+                }
+            } catch (Exception e) {
+                log.error("Authentication error for user {}: {}", username, e.getMessage());
+                // Don't set authentication, let the request continue without auth
+                // Spring Security will handle the unauthorized access
             }
         } else if (token != null) {
             log.debug("User already authenticated, skipping JWT validation");

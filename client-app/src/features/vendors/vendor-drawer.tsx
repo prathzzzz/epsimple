@@ -258,7 +258,7 @@ export const VendorDrawer = () => {
                                 ]
                                   .filter(Boolean)
                                   .join(' ') || 'Unknown';
-                                return `${fullName}${person.email ? ` (${person.email})` : ''}`;
+                                return `${fullName}${person.contactNumber ? ` (${person.contactNumber})` : ''}`;
                               })()
                             : "Select person details"}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -307,9 +307,9 @@ export const VendorDrawer = () => {
                                   )}
                                 />
                                 {fullName}
-                                {person.email && (
+                                {person.contactNumber && (
                                   <span className="ml-2 text-muted-foreground">
-                                    ({person.email})
+                                    ({person.contactNumber})
                                   </span>
                                 )}
                               </CommandItem>

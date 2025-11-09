@@ -23,7 +23,7 @@ public interface VendorRepository extends JpaRepository<Vendor, Long> {
             "WHERE LOWER(v.vendorCodeAlt) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(vd.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(vd.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-            "OR LOWER(vd.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(vd.contactNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(vt.typeName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<Vendor> searchVendors(@Param("searchTerm") String searchTerm, Pageable pageable);
 

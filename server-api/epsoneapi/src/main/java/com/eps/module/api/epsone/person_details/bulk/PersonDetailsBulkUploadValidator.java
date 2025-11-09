@@ -1,0 +1,127 @@
+package com.eps.module.api.epsone.person_details.bulk;
+
+import com.eps.module.api.epsone.person_details.dto.PersonDetailsBulkUploadDto;
+import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.person_type.repository.PersonTypeRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.validator.BulkRowValidator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class PersonDetailsBulkUploadValidator implements BulkRowValidator<PersonDetailsBulkUploadDto> {
+
+    private final PersonDetailsRepository personDetailsRepository;
+    private final PersonTypeRepository personTypeRepository;
+
+    @Override
+    public List<BulkUploadErrorDto> validate(PersonDetailsBulkUploadDto dto, int rowNumber) {
+        List<BulkUploadErrorDto> errors = new ArrayList<>();
+        
+        // Validate person type name
+        if (dto.getPersonTypeName() == null || dto.getPersonTypeName().isBlank()) {
+            errors.add(BulkUploadErrorDto.builder()
+                    .rowNumber(rowNumber)
+                    .fieldName("Person Type Name")
+                    .errorMessage("Person type name is required")
+                    .rejectedValue(dto.getPersonTypeName())
+                    .build());
+        } else if (dto.getPersonTypeName().length() > 150) {
+            errors.add(BulkUploadErrorDto.builder()
+                    .rowNumber(rowNumber)
+                    .fieldName("Person Type Name")
+                    .errorMessage("Person type name cannot exceed 150 characters")
+                    .rejectedValue(dto.getPersonTypeName())
+                    .build());
+        } else {
+            // Check if person type exists
+            if (!personTypeRepository.existsByTypeNameIgnoreCase(dto.getPersonTypeName())) {
+                errors.add(BulkUploadErrorDto.builder()
+                        .rowNumber(rowNumber)
+                        .fieldName("Person Type Name")
+                        .errorMessage("Person type not found: " + dto.getPersonTypeName())
+                        .rejectedValue(dto.getPersonTypeName())
+                        .build());
+            }
+        }
+
+        // Validate first name (optional but if provided, should be valid)
+        if (dto.getFirstName() != null && dto.getFirstName().length() > 100) {
+            errors.add(BulkUploadErrorDto.builder()
+                    .rowNumber(rowNumber)
+                    .fieldName("First Name")
+                    .errorMessage("First name cannot exceed 100 characters")
+                    .rejectedValue(dto.getFirstName())
+                    .build());
+        }
+
+        // Validate middle name (optional but if provided, should be valid)
+        if (dto.getMiddleName() != null && dto.getMiddleName().length() > 100) {
+            errors.add(BulkUploadErrorDto.builder()
+                    .rowNumber(rowNumber)
+                    .fieldName("Middle Name")
+                    .errorMessage("Middle name cannot exceed 100 characters")
+                    .rejectedValue(dto.getMiddleName())
+                    .build());
+        }
+
+        // Validate last name (optional but if provided, should be valid)
+        if (dto.getLastName() != null && dto.getLastName().length() > 100) {
+            errors.add(BulkUploadErrorDto.builder()
+                    .rowNumber(rowNumber)
+                    .fieldName("Last Name")
+                    .errorMessage("Last name cannot exceed 100 characters")
+                    .rejectedValue(dto.getLastName())
+                    .build());
+        }
+
+        // Validate contact number (optional but if provided, should be exactly 10 digits)
+        if (dto.getContactNumber() != null && !dto.getContactNumber().isBlank()) {
+            if (!dto.getContactNumber().matches("^[0-9]{10}$")) {
+                errors.add(BulkUploadErrorDto.builder()
+                        .rowNumber(rowNumber)
+                        .fieldName("Contact Number")
+                        .errorMessage("Contact number must be exactly 10 digits")
+                        .rejectedValue(dto.getContactNumber())
+                        .build());
+            }
+        }
+
+        // Validate permanent address (optional but if provided, should be valid)
+        if (dto.getPermanentAddress() != null && dto.getPermanentAddress().length() > 5000) {
+            errors.add(BulkUploadErrorDto.builder()
+                    .rowNumber(rowNumber)
+                    .fieldName("Permanent Address")
+                    .errorMessage("Permanent address cannot exceed 5000 characters")
+                    .rejectedValue(dto.getPermanentAddress())
+                    .build());
+        }
+
+        // Validate correspondence address (optional but if provided, should be valid)
+        if (dto.getCorrespondenceAddress() != null && dto.getCorrespondenceAddress().length() > 5000) {
+            errors.add(BulkUploadErrorDto.builder()
+                    .rowNumber(rowNumber)
+                    .fieldName("Correspondence Address")
+                    .errorMessage("Correspondence address cannot exceed 5000 characters")
+                    .rejectedValue(dto.getCorrespondenceAddress())
+                    .build());
+        }
+
+        return errors;
+    }
+
+    @Override
+    public boolean isDuplicate(PersonDetailsBulkUploadDto rowData) {
+        // Check for duplicates based on contact number (if provided)
+        if (rowData.getContactNumber() != null && !rowData.getContactNumber().isBlank()) {
+            return personDetailsRepository.existsByContactNumber(rowData.getContactNumber().trim());
+        }
+        return false;
+    }
+}

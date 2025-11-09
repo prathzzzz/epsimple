@@ -19,7 +19,6 @@ public class VendorResponseDto {
     private String vendorCategoryName;
     private Long vendorDetailsId;
     private String vendorName;  // Person full name
-    private String vendorEmail;
     private String vendorContact;
     private String vendorCodeAlt;
     private LocalDateTime createdAt;

@@ -34,7 +34,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
            "OR LOWER(at.typeName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(vd.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(vd.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-           "OR LOWER(vd.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+           "OR LOWER(vd.contactNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(b.bankName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<Asset> search(@Param("searchTerm") String searchTerm, Pageable pageable);
 
