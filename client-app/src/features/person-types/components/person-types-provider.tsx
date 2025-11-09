@@ -8,6 +8,10 @@ interface PersonTypesContextType {
   setIsDrawerOpen: (open: boolean) => void
   isDeleteDialogOpen: boolean
   setIsDeleteDialogOpen: (open: boolean) => void
+  isBulkUploadDialogOpen: boolean
+  setIsBulkUploadDialogOpen: (open: boolean) => void
+  openBulkUploadDialog: () => void
+  closeBulkUploadDialog: () => void
 }
 
 const PersonTypesContext = createContext<PersonTypesContextType | undefined>(
@@ -19,6 +23,10 @@ export function PersonTypesProvider({ children }: { children: ReactNode }) {
     useState<PersonType | null>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false)
+
+  const openBulkUploadDialog = () => setIsBulkUploadDialogOpen(true)
+  const closeBulkUploadDialog = () => setIsBulkUploadDialogOpen(false)
 
   return (
     <PersonTypesContext.Provider
@@ -29,6 +37,10 @@ export function PersonTypesProvider({ children }: { children: ReactNode }) {
         setIsDrawerOpen,
         isDeleteDialogOpen,
         setIsDeleteDialogOpen,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
+        openBulkUploadDialog,
+        closeBulkUploadDialog,
       }}
     >
       {children}

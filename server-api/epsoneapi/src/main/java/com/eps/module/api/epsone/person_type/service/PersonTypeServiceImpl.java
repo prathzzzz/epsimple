@@ -1,10 +1,16 @@
 package com.eps.module.api.epsone.person_type.service;
 
 import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.person_type.dto.PersonTypeBulkUploadDto;
+import com.eps.module.api.epsone.person_type.dto.PersonTypeErrorReportDto;
 import com.eps.module.api.epsone.person_type.dto.PersonTypeRequestDto;
 import com.eps.module.api.epsone.person_type.dto.PersonTypeResponseDto;
 import com.eps.module.api.epsone.person_type.mapper.PersonTypeMapper;
+import com.eps.module.api.epsone.person_type.processor.PersonTypeBulkUploadProcessor;
 import com.eps.module.api.epsone.person_type.repository.PersonTypeRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.person.PersonType;
 import lombok.RequiredArgsConstructor;
@@ -15,15 +21,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PersonTypeServiceImpl implements PersonTypeService {
+public class PersonTypeServiceImpl extends BaseBulkUploadService<PersonTypeBulkUploadDto, PersonType> implements PersonTypeService {
 
     private final PersonTypeRepository personTypeRepository;
     private final PersonTypeMapper personTypeMapper;
     private final PersonDetailsRepository personDetailsRepository;
+    private final PersonTypeBulkUploadProcessor personTypeBulkUploadProcessor;
 
     @Override
     @Transactional
@@ -142,5 +150,56 @@ public class PersonTypeServiceImpl implements PersonTypeService {
     public List<PersonTypeResponseDto> getAllPersonTypesList() {
         List<PersonType> personTypes = personTypeRepository.findAll();
         return personTypeMapper.toResponseDtoList(personTypes);
+    }
+
+    // ========== Bulk Upload Methods ==========
+
+    @Override
+    protected BulkUploadProcessor<PersonTypeBulkUploadDto, PersonType> getProcessor() {
+        return personTypeBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<PersonTypeBulkUploadDto> getBulkUploadDtoClass() {
+        return PersonTypeBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "PersonType";
+    }
+
+    @Override
+    public List<PersonType> getAllEntitiesForExport() {
+        return personTypeRepository.findAll();
+    }
+
+    @Override
+    public Function<PersonType, PersonTypeBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> PersonTypeBulkUploadDto.builder()
+                .typeName(entity.getTypeName())
+                .description(entity.getDescription())
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        PersonTypeErrorReportDto.PersonTypeErrorReportDtoBuilder builder =
+                PersonTypeErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorType(error.getErrorType())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.typeName((String) error.getRowData().get("typeName"))
+                    .description((String) error.getRowData().get("description"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return PersonTypeErrorReportDto.class;
     }
 }

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog'
 import { personTypesApi } from '@/features/person-types/api/person-types-api'
 import { usePersonTypes } from './person-types-provider'
 import { PersonTypesMutateDrawer } from './person-types-mutate-drawer'
@@ -13,6 +14,8 @@ export function PersonTypesDialogs() {
     setIsDeleteDialogOpen,
     isDrawerOpen,
     setIsDrawerOpen,
+    isBulkUploadDialogOpen,
+    closeBulkUploadDialog,
   } = usePersonTypes()
 
   const deleteMutation = useMutation({
@@ -27,6 +30,19 @@ export function PersonTypesDialogs() {
       toast.error(message)
     },
   })
+
+  const handleBulkUploadSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['person-types'] })
+  }
+
+  const bulkUploadConfig = {
+    entityName: 'PersonType',
+    uploadEndpoint: '/api/person-types/bulk-upload',
+    templateEndpoint: '/api/person-types/download-template',
+    exportEndpoint: '/api/person-types/export',
+    errorReportEndpoint: '/api/person-types/export-errors',
+    onSuccess: handleBulkUploadSuccess,
+  }
 
   return (
     <>
@@ -57,6 +73,12 @@ export function PersonTypesDialogs() {
           confirmText='Delete'
         />
       )}
+
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={closeBulkUploadDialog}
+        config={bulkUploadConfig}
+      />
     </>
   )
 }

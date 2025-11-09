@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.person_type.controller;
 import com.eps.module.api.epsone.person_type.dto.PersonTypeRequestDto;
 import com.eps.module.api.epsone.person_type.dto.PersonTypeResponseDto;
 import com.eps.module.api.epsone.person_type.service.PersonTypeService;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -15,7 +16,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -101,5 +105,31 @@ public class PersonTypeController {
         log.info("DELETE /api/person-types/{} - Deleting person type", id);
         personTypeService.deletePersonType(id);
         return ResponseBuilder.success(null, "Person type deleted successfully");
+    }
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping("/bulk-upload")
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
+        log.info("POST /api/person-types/bulk-upload - Starting bulk upload");
+        return personTypeService.bulkUpload(file);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportToExcel() throws IOException {
+        log.info("GET /api/person-types/export - Exporting all person types to Excel");
+        return personTypeService.exportToExcel();
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<byte[]> downloadTemplate() throws IOException {
+        log.info("GET /api/person-types/download-template - Downloading bulk upload template");
+        return personTypeService.downloadTemplate();
+    }
+
+    @PostMapping("/export-errors")
+    public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
+        log.info("POST /api/person-types/export-errors - Exporting error report");
+        return personTypeService.exportErrorReport(progressData);
     }
 }
