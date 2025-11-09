@@ -4,6 +4,8 @@ package com.eps.module.api.epsone.vendor.controller;
 import com.eps.module.api.epsone.vendor.dto.VendorRequestDto;
 import com.eps.module.api.epsone.vendor.dto.VendorResponseDto;
 import com.eps.module.api.epsone.vendor.service.VendorService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -16,7 +18,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -26,6 +31,7 @@ import java.util.List;
 public class VendorController {
 
     private final VendorService vendorService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<VendorResponseDto>> createVendor(
@@ -106,5 +112,31 @@ public class VendorController {
         log.info("Deleting vendor with id: {}", id);
         vendorService.deleteVendor(id);
         return ResponseBuilder.success(null, "Vendor deleted successfully", HttpStatus.OK);
+    }
+
+    // Bulk Upload Endpoints
+    @PostMapping("/bulk-upload")
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
+        log.info("POST /api/vendors/bulk-upload - Starting bulk upload");
+        return bulkUploadControllerHelper.bulkUpload(file, vendorService);
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<byte[]> downloadTemplate() throws IOException {
+        log.info("GET /api/vendors/download-template - Downloading bulk upload template");
+        return bulkUploadControllerHelper.downloadTemplate(vendorService);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/vendors/export - Exporting all vendors");
+        return bulkUploadControllerHelper.export(vendorService);
+    }
+
+    @PostMapping("/export-errors")
+    public ResponseEntity<byte[]> exportErrors(
+            @RequestBody BulkUploadProgressDto progressData) throws IOException {
+        log.info("POST /api/vendors/export-errors - Exporting bulk upload error report");
+        return bulkUploadControllerHelper.exportErrors(progressData, vendorService);
     }
 }

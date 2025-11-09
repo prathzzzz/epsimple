@@ -7,7 +7,8 @@ import { ConfigDrawer } from '@/components/config-drawer';
 import { VendorProvider } from './vendor-provider';
 import { VendorDrawer } from './vendor-drawer';
 import { VendorsTable } from './vendors-table';
-import { CreateVendorButton } from './create-vendor-button';
+import { VendorPrimaryButtons } from './components/vendor-primary-buttons';
+import { VendorDialogs } from './components/vendor-dialogs';
 import { vendorColumns } from './vendor-columns';
 
 export default function VendorsPage() {
@@ -29,13 +30,14 @@ export default function VendorsPage() {
               Manage vendor information and relationships
             </p>
           </div>
-          <CreateVendorButton />
+          <VendorPrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
           <VendorsTable columns={vendorColumns} />
         </div>
       </Main>
       <VendorDrawer />
+      <VendorDialogs />
     </VendorProvider>
   );
 }

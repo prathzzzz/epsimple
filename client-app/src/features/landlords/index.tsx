@@ -7,7 +7,8 @@ import { ConfigDrawer } from '@/components/config-drawer';
 import { LandlordProvider } from './landlord-provider';
 import { LandlordDrawer } from './landlord-drawer';
 import { LandlordsTable } from './landlords-table';
-import { CreateLandlordButton } from './create-landlord-button';
+import { LandlordPrimaryButtons } from './components/landlord-primary-buttons';
+import { LandlordDialogs } from './components/landlord-dialogs';
 import { landlordColumns } from './landlord-columns';
 
 export default function LandlordsPage() {
@@ -29,13 +30,14 @@ export default function LandlordsPage() {
               Manage landlord information and rent share percentages
             </p>
           </div>
-          <CreateLandlordButton />
+          <LandlordPrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
           <LandlordsTable columns={landlordColumns} />
         </div>
       </Main>
       <LandlordDrawer />
+      <LandlordDialogs />
     </LandlordProvider>
   );
 }

@@ -70,4 +70,13 @@ public interface VendorRepository extends JpaRepository<Vendor, Long> {
     @Query("SELECT CASE WHEN COUNT(v) > 0 THEN true ELSE false END FROM Vendor v " +
             "WHERE v.vendorCodeAlt = :vendorCodeAlt AND v.id <> :id")
     boolean existsByVendorCodeAltAndIdNot(@Param("vendorCodeAlt") String vendorCodeAlt, @Param("id") Long id);
+
+    /**
+     * Get all vendors for export with eager loading to avoid LazyInitializationException
+     */
+    @Query("SELECT v FROM Vendor v " +
+            "LEFT JOIN FETCH v.vendorType vt " +
+            "LEFT JOIN FETCH v.vendorDetails vd " +
+            "LEFT JOIN FETCH vd.personType pt")
+    List<Vendor> findAllForExport();
 }

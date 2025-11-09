@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.landlord.controller;
 import com.eps.module.api.epsone.landlord.dto.LandlordRequestDto;
 import com.eps.module.api.epsone.landlord.dto.LandlordResponseDto;
 import com.eps.module.api.epsone.landlord.service.LandlordService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -15,7 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -25,6 +30,7 @@ import java.util.List;
 public class LandlordController {
 
     private final LandlordService landlordService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<LandlordResponseDto>> createLandlord(
@@ -90,5 +96,31 @@ public class LandlordController {
         log.info("Deleting landlord with id: {}", id);
         landlordService.deleteLandlord(id);
         return ResponseBuilder.success(null, "Landlord deleted successfully", HttpStatus.OK);
+    }
+
+    // Bulk Upload Endpoints
+    @PostMapping("/bulk-upload")
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
+        log.info("POST /api/landlords/bulk-upload - Starting bulk upload");
+        return bulkUploadControllerHelper.bulkUpload(file, landlordService);
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<byte[]> downloadTemplate() throws IOException {
+        log.info("GET /api/landlords/download-template - Downloading bulk upload template");
+        return bulkUploadControllerHelper.downloadTemplate(landlordService);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/landlords/export - Exporting all landlords");
+        return bulkUploadControllerHelper.export(landlordService);
+    }
+
+    @PostMapping("/export-errors")
+    public ResponseEntity<byte[]> exportErrors(
+            @RequestBody BulkUploadProgressDto progressData) throws IOException {
+        log.info("POST /api/landlords/export-errors - Exporting bulk upload error report");
+        return bulkUploadControllerHelper.exportErrors(progressData, landlordService);
     }
 }

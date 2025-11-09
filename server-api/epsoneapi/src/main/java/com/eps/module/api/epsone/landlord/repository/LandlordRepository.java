@@ -40,4 +40,12 @@ public interface LandlordRepository extends JpaRepository<Landlord, Long> {
      * Count landlords by landlord details
      */
     long countByLandlordDetailsId(Long landlordDetailsId);
+
+    /**
+     * Get all landlords for export with eager loading to avoid LazyInitializationException
+     */
+    @Query("SELECT l FROM Landlord l " +
+            "LEFT JOIN FETCH l.landlordDetails ld " +
+            "LEFT JOIN FETCH ld.personType pt")
+    List<Landlord> findAllForExport();
 }

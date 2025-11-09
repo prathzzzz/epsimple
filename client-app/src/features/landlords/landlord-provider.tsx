@@ -11,6 +11,9 @@ interface LandlordContextType {
   openCreateDrawer: () => void;
   openEditDrawer: (landlord: Landlord) => void;
   closeDrawer: () => void;
+  isBulkUploadDialogOpen: boolean;
+  openBulkUploadDialog: () => void;
+  closeBulkUploadDialog: () => void;
 }
 
 const LandlordContext = createContext<LandlordContextType | undefined>(undefined);
@@ -19,6 +22,7 @@ export const LandlordProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [selectedLandlord, setSelectedLandlord] = useState<Landlord | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<'create' | 'edit'>('create');
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
 
   const openCreateDrawer = () => {
     setSelectedLandlord(null);
@@ -37,6 +41,9 @@ export const LandlordProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setSelectedLandlord(null);
   };
 
+  const openBulkUploadDialog = () => setIsBulkUploadDialogOpen(true);
+  const closeBulkUploadDialog = () => setIsBulkUploadDialogOpen(false);
+
   return (
     <LandlordContext.Provider
       value={{
@@ -49,6 +56,9 @@ export const LandlordProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         openCreateDrawer,
         openEditDrawer,
         closeDrawer,
+        isBulkUploadDialogOpen,
+        openBulkUploadDialog,
+        closeBulkUploadDialog,
       }}
     >
       {children}
