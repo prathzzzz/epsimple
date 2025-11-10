@@ -3,16 +3,21 @@ import { Main } from '@/components/layout/main';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
-import { AssetTypesProvider } from './context/asset-types-provider';
+import { AssetTypesProvider, useAssetTypes } from './context/asset-types-provider';
 import { AssetTypesTable } from './components/asset-types-table';
 import { assetTypesColumns } from './components/asset-types-columns';
 import { AssetTypesDialogs } from './components/asset-types-dialogs';
 import { AssetTypesPrimaryButtons } from './components/asset-types-primary-buttons';
 import { ConfigDrawer } from '@/components/config-drawer';
+import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog';
+import { useQueryClient } from '@tanstack/react-query';
 
-export default function AssetTypes() {
+function AssetTypesContent() {
+  const { isBulkUploadDialogOpen, setIsBulkUploadDialogOpen } = useAssetTypes();
+  const queryClient = useQueryClient();
+
   return (
-    <AssetTypesProvider>
+    <>
       <Header fixed>
         <Search />
         <div className="ml-auto flex items-center space-x-4">
@@ -34,6 +39,26 @@ export default function AssetTypes() {
         </div>
       </Main>
       <AssetTypesDialogs />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: '/api/asset-types/bulk-upload',
+          errorReportEndpoint: '/api/asset-types/bulk-upload/errors',
+          entityName: 'Asset Type',
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['asset-types'] });
+          },
+        }}
+      />
+    </>
+  );
+}
+
+export default function AssetTypes() {
+  return (
+    <AssetTypesProvider>
+      <AssetTypesContent />
     </AssetTypesProvider>
   );
 }

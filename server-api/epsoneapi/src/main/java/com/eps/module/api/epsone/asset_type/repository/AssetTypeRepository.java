@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface AssetTypeRepository extends JpaRepository<AssetType, Long> {
     
@@ -28,4 +30,8 @@ public interface AssetTypeRepository extends JpaRepository<AssetType, Long> {
     @Query("SELECT CASE WHEN COUNT(at) > 0 THEN true ELSE false END FROM AssetType at WHERE " +
            "LOWER(at.typeCode) = LOWER(:typeCode) AND at.id <> :id")
     boolean existsByTypeCodeAndIdNot(@Param("typeCode") String typeCode, @Param("id") Long id);
+
+    // Bulk Upload Methods
+    @Query("SELECT at FROM AssetType at ORDER BY at.typeName ASC")
+    List<AssetType> findAllForExport();
 }

@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.asset_type.controller;
 import com.eps.module.api.epsone.asset_type.dto.AssetTypeRequestDto;
 import com.eps.module.api.epsone.asset_type.dto.AssetTypeResponseDto;
 import com.eps.module.api.epsone.asset_type.service.AssetTypeService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -11,8 +13,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -22,6 +27,7 @@ import java.util.List;
 public class AssetTypeController {
 
     private final AssetTypeService assetTypeService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<AssetTypeResponseDto>> createAssetType(
@@ -85,5 +91,27 @@ public class AssetTypeController {
     public ResponseEntity<ApiResponse<Void>> deleteAssetType(@PathVariable Long id) {
         assetTypeService.deleteAssetType(id);
         return ResponseBuilder.success(null, "Asset type deleted successfully");
+    }
+
+    // ========== Bulk Upload Endpoints ==========
+    
+    @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter bulkUploadAssetTypes(@RequestParam("file") MultipartFile file) throws Exception {
+        return bulkUploadControllerHelper.bulkUpload(file, assetTypeService);
+    }
+
+    @GetMapping("/bulk-upload/template")
+    public ResponseEntity<byte[]> downloadTemplate() throws Exception {
+        return bulkUploadControllerHelper.downloadTemplate(assetTypeService);
+    }
+
+    @GetMapping("/bulk-upload/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        return bulkUploadControllerHelper.export(assetTypeService);
+    }
+
+    @PostMapping("/bulk-upload/errors")
+    public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
+        return bulkUploadControllerHelper.exportErrors(progressData, assetTypeService);
     }
 }

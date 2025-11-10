@@ -8,6 +8,10 @@ interface AssetTypesContextType {
   setIsDrawerOpen: (isOpen: boolean) => void;
   isDeleteDialogOpen: boolean;
   setIsDeleteDialogOpen: (isOpen: boolean) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (isOpen: boolean) => void;
+  globalFilter: string;
+  setGlobalFilter: (filter: string) => void;
 }
 
 const AssetTypesContext = createContext<AssetTypesContextType | undefined>(undefined);
@@ -16,6 +20,8 @@ export const AssetTypesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [selectedAssetType, setSelectedAssetType] = useState<AssetType | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
+  const [globalFilter, setGlobalFilter] = useState('');
 
   return (
     <AssetTypesContext.Provider
@@ -26,6 +32,10 @@ export const AssetTypesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setIsDrawerOpen,
         isDeleteDialogOpen,
         setIsDeleteDialogOpen,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
+        globalFilter,
+        setGlobalFilter,
       }}
     >
       {children}
