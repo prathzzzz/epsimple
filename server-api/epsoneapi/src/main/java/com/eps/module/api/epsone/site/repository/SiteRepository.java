@@ -70,6 +70,11 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
            "LEFT JOIN FETCH c.state " +
            "LEFT JOIN FETCH s.siteType " +
            "LEFT JOIN FETCH s.siteStatus " +
+           "LEFT JOIN FETCH s.channelManagerContact " +
+           "LEFT JOIN FETCH s.regionalManagerContact " +
+           "LEFT JOIN FETCH s.stateHeadContact " +
+           "LEFT JOIN FETCH s.bankPersonContact " +
+           "LEFT JOIN FETCH s.masterFranchiseeContact " +
            "ORDER BY s.siteCode ASC")
     List<Site> findAllSitesList();
 

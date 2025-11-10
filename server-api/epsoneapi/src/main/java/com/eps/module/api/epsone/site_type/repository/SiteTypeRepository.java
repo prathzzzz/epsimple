@@ -23,4 +23,7 @@ public interface SiteTypeRepository extends JpaRepository<SiteType, Long> {
     List<SiteType> findAllForExport();
 
     boolean existsByTypeNameIgnoreCase(String typeName);
+
+    @Query("SELECT st FROM SiteType st WHERE LOWER(st.typeName) = LOWER(:typeName)")
+    java.util.Optional<SiteType> findByTypeNameIgnoreCase(@Param("typeName") String typeName);
 }

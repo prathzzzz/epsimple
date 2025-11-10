@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.site.controller;
 import com.eps.module.api.epsone.site.dto.SiteRequestDto;
 import com.eps.module.api.epsone.site.dto.SiteResponseDto;
 import com.eps.module.api.epsone.site.service.SiteService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -13,8 +15,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -25,6 +30,7 @@ import java.util.List;
 public class SiteController {
 
     private final SiteService siteService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<SiteResponseDto>> createSite(@Valid @RequestBody SiteRequestDto requestDto) {
@@ -110,5 +116,31 @@ public class SiteController {
         log.info("DELETE /api/sites/{} - Deleting site", id);
         siteService.deleteSite(id);
         return ResponseBuilder.success(null, "Site deleted successfully");
+    }
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws Exception {
+        log.info("POST /api/sites/bulk-upload - Bulk uploading sites");
+        return bulkUploadControllerHelper.bulkUpload(file, siteService);
+    }
+
+    @GetMapping("/bulk-upload/template")
+    public ResponseEntity<byte[]> downloadTemplate() throws Exception {
+        log.info("GET /api/sites/bulk-upload/template - Downloading template");
+        return bulkUploadControllerHelper.downloadTemplate(siteService);
+    }
+
+    @GetMapping("/bulk-upload/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        log.info("GET /api/sites/bulk-upload/export - Exporting data");
+        return bulkUploadControllerHelper.export(siteService);
+    }
+
+    @PostMapping("/bulk-upload/errors")
+    public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progressData) throws Exception {
+        log.info("POST /api/sites/bulk-upload/errors - Exporting errors");
+        return bulkUploadControllerHelper.exportErrors(progressData, siteService);
     }
 }

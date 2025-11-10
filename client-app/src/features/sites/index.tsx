@@ -4,14 +4,19 @@ import { ProfileDropdown } from "@/components/profile-dropdown";
 import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { ConfigDrawer } from "@/components/config-drawer";
-import { SiteProvider } from "./context/site-provider";
+import { SiteProvider, useSite } from "./context/site-provider";
 import { SiteTable } from "./components/site-table";
 import { siteColumns } from "./components/site-columns";
 import { SiteDrawer } from "./components/site-drawer";
 import { SiteDeleteDialog } from "./components/site-delete-dialog";
-import { CreateSiteButton } from "./components/create-site-button";
+import { SitePrimaryButtons } from "./components/site-primary-buttons";
+import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
+import { useQueryClient } from "@tanstack/react-query";
 
 function SitesContent() {
+  const { isBulkUploadDialogOpen, setIsBulkUploadDialogOpen } = useSite();
+  const queryClient = useQueryClient();
+
   return (
     <>
       <Header fixed>
@@ -30,9 +35,7 @@ function SitesContent() {
               Manage all sites and their information
             </p>
           </div>
-          <div className="flex items-center space-x-2">
-            <CreateSiteButton />
-          </div>
+          <SitePrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1">
           <SiteTable columns={siteColumns} />
@@ -40,6 +43,18 @@ function SitesContent() {
       </Main>
       <SiteDrawer />
       <SiteDeleteDialog />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: '/api/sites/bulk-upload',
+          errorReportEndpoint: '/api/sites/bulk-upload/errors',
+          entityName: 'Site',
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['sites'] });
+          },
+        }}
+      />
     </>
   );
 }

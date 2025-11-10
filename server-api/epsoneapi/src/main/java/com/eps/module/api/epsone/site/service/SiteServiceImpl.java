@@ -4,13 +4,19 @@ import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTyp
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
 import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.site.dto.SiteBulkUploadDto;
+import com.eps.module.api.epsone.site.dto.SiteErrorReportDto;
 import com.eps.module.api.epsone.site.dto.SiteRequestDto;
 import com.eps.module.api.epsone.site.dto.SiteResponseDto;
 import com.eps.module.api.epsone.site.mapper.SiteMapper;
+import com.eps.module.api.epsone.site.processor.SiteBulkUploadProcessor;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
 import com.eps.module.api.epsone.site_category.repository.SiteCategoryRepository;
 import com.eps.module.api.epsone.site_type.repository.SiteTypeRepository;
 import com.eps.module.bank.ManagedProject;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.Location;
 import com.eps.module.person.PersonDetails;
@@ -26,12 +32,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SiteServiceImpl implements SiteService {
+public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Site> implements SiteService {
 
     private final SiteRepository siteRepository;
     private final ManagedProjectRepository managedProjectRepository;
@@ -41,6 +48,7 @@ public class SiteServiceImpl implements SiteService {
     private final GenericStatusTypeRepository genericStatusTypeRepository;
     private final PersonDetailsRepository personDetailsRepository;
     private final SiteMapper siteMapper;
+    private final SiteBulkUploadProcessor siteBulkUploadProcessor;
 
     @Override
     @Transactional
@@ -256,5 +264,163 @@ public class SiteServiceImpl implements SiteService {
                     break;
             }
         }
+    }
+
+    // ========== Bulk Upload Methods ==========
+
+    @Override
+    protected BulkUploadProcessor<SiteBulkUploadDto, Site> getProcessor() {
+        return siteBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<SiteBulkUploadDto> getBulkUploadDtoClass() {
+        return SiteBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Site";
+    }
+
+    @Override
+    public List<Site> getAllEntitiesForExport() {
+        return siteRepository.findAllSitesList();
+    }
+
+    @Override
+    public Function<Site, SiteBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> SiteBulkUploadDto.builder()
+                .siteCode(entity.getSiteCode())
+                .projectCode(entity.getProject() != null ? entity.getProject().getProjectCode() : null)
+                .projectPhase(entity.getProjectPhase())
+                .oldSiteCode(entity.getOldSiteCode())
+                .previousMspTermId(entity.getPreviousMspTermId())
+                .siteCategoryName(entity.getSiteCategory() != null ? entity.getSiteCategory().getCategoryName() : null)
+                .locationName(entity.getLocation() != null ? entity.getLocation().getLocationName() : null)
+                .locationClass(entity.getLocationClass())
+                .siteTypeName(entity.getSiteType() != null ? entity.getSiteType().getTypeName() : null)
+                .siteStatusCode(entity.getSiteStatus() != null ? entity.getSiteStatus().getStatusCode() : null)
+                .techLiveDate(entity.getTechLiveDate() != null ? entity.getTechLiveDate().toString() : null)
+                .cashLiveDate(entity.getCashLiveDate() != null ? entity.getCashLiveDate().toString() : null)
+                .siteCloseDate(entity.getSiteCloseDate() != null ? entity.getSiteCloseDate().toString() : null)
+                .possessionDate(entity.getPossessionDate() != null ? entity.getPossessionDate().toString() : null)
+                .actualPossessionDate(entity.getActualPossessionDate() != null ? entity.getActualPossessionDate().toString() : null)
+                .groutingStatus(entity.getGroutingStatus())
+                .itStabilizer(entity.getItStabilizer())
+                .rampStatus(entity.getRampStatus())
+                .upsBatteryBackupCapacity(entity.getUpsBatteryBackupCapacity())
+                .connectivityType(entity.getConnectivityType())
+                .acUnits(entity.getAcUnits())
+                .mainDoorGlassWidth(entity.getMainDoorGlassWidth() != null ? entity.getMainDoorGlassWidth().toString() : null)
+                .fixedGlassWidth(entity.getFixedGlassWidth() != null ? entity.getFixedGlassWidth().toString() : null)
+                .signboardSize(entity.getSignboardSize())
+                .brandingSize(entity.getBrandingSize())
+                .channelManagerName(entity.getChannelManagerContact() != null ? getFullName(entity.getChannelManagerContact()) : null)
+                .regionalManagerName(entity.getRegionalManagerContact() != null ? getFullName(entity.getRegionalManagerContact()) : null)
+                .stateHeadName(entity.getStateHeadContact() != null ? getFullName(entity.getStateHeadContact()) : null)
+                .bankPersonName(entity.getBankPersonContact() != null ? getFullName(entity.getBankPersonContact()) : null)
+                .masterFranchiseeName(entity.getMasterFranchiseeContact() != null ? getFullName(entity.getMasterFranchiseeContact()) : null)
+                .gatewayIp(entity.getGatewayIp())
+                .atmIp(entity.getAtmIp())
+                .subnetMask(entity.getSubnetMask())
+                .natIp(entity.getNatIp())
+                .tlsPort(entity.getTlsPort())
+                .switchIp(entity.getSwitchIp())
+                .tlsDomainName(entity.getTlsDomainName())
+                .ejDocket(entity.getEjDocket())
+                .tssDocket(entity.getTssDocket())
+                .otcActivationStatus(entity.getOtcActivationStatus())
+                .otcActivationDate(entity.getOtcActivationDate() != null ? entity.getOtcActivationDate().toString() : null)
+                .craName(entity.getCraName())
+                .cassetteSwapStatus(entity.getCassetteSwapStatus())
+                .cassetteType1(entity.getCassetteType1())
+                .cassetteType2(entity.getCassetteType2())
+                .cassetteType3(entity.getCassetteType3())
+                .cassetteType4(entity.getCassetteType4())
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        SiteErrorReportDto.SiteErrorReportDtoBuilder builder =
+                SiteErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorType(error.getErrorType())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.siteCode((String) error.getRowData().get("Site Code"))
+                    .projectCode((String) error.getRowData().get("Project Code"))
+                    .projectPhase((String) error.getRowData().get("Project Phase"))
+                    .oldSiteCode((String) error.getRowData().get("Old Site Code"))
+                    .previousMspTermId((String) error.getRowData().get("Previous MSP Term ID"))
+                    .siteCategoryName((String) error.getRowData().get("Site Category"))
+                    .locationName((String) error.getRowData().get("Location Name"))
+                    .locationClass((String) error.getRowData().get("Location Class"))
+                    .siteTypeName((String) error.getRowData().get("Site Type"))
+                    .siteStatusCode((String) error.getRowData().get("Site Status"))
+                    .techLiveDate((String) error.getRowData().get("Tech Live Date"))
+                    .cashLiveDate((String) error.getRowData().get("Cash Live Date"))
+                    .siteCloseDate((String) error.getRowData().get("Site Close Date"))
+                    .possessionDate((String) error.getRowData().get("Possession Date"))
+                    .actualPossessionDate((String) error.getRowData().get("Actual Possession Date"))
+                    .groutingStatus((String) error.getRowData().get("Grouting Status"))
+                    .itStabilizer((String) error.getRowData().get("IT Stabilizer"))
+                    .rampStatus((String) error.getRowData().get("Ramp Status"))
+                    .upsBatteryBackupCapacity((String) error.getRowData().get("UPS Battery Backup Capacity"))
+                    .connectivityType((String) error.getRowData().get("Connectivity Type"))
+                    .acUnits((String) error.getRowData().get("AC Units"))
+                    .mainDoorGlassWidth((String) error.getRowData().get("Main Door Glass Width"))
+                    .fixedGlassWidth((String) error.getRowData().get("Fixed Glass Width"))
+                    .signboardSize((String) error.getRowData().get("Signboard Size"))
+                    .brandingSize((String) error.getRowData().get("Branding Size"))
+                    .gatewayIp((String) error.getRowData().get("Gateway IP"))
+                    .atmIp((String) error.getRowData().get("ATM IP"))
+                    .subnetMask((String) error.getRowData().get("Subnet Mask"))
+                    .natIp((String) error.getRowData().get("NAT IP"))
+                    .tlsPort((String) error.getRowData().get("TLS Port"))
+                    .switchIp((String) error.getRowData().get("Switch IP"))
+                    .tlsDomainName((String) error.getRowData().get("TLS Domain Name"))
+                    .ejDocket((String) error.getRowData().get("EJ Docket"))
+                    .tssDocket((String) error.getRowData().get("TSS Docket"))
+                    .otcActivationStatus((String) error.getRowData().get("OTC Activation Status"))
+                    .otcActivationDate((String) error.getRowData().get("OTC Activation Date"))
+                    .craName((String) error.getRowData().get("CRA Name"))
+                    .cassetteSwapStatus((String) error.getRowData().get("Cassette Swap Status"))
+                    .cassetteType1((String) error.getRowData().get("Cassette Type 1"))
+                    .cassetteType2((String) error.getRowData().get("Cassette Type 2"))
+                    .cassetteType3((String) error.getRowData().get("Cassette Type 3"))
+                    .cassetteType4((String) error.getRowData().get("Cassette Type 4"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return SiteErrorReportDto.class;
+    }
+
+    /**
+     * Helper method to concatenate person name fields
+     */
+    private String getFullName(com.eps.module.person.PersonDetails person) {
+        if (person == null) {
+            return null;
+        }
+        StringBuilder name = new StringBuilder();
+        if (person.getFirstName() != null && !person.getFirstName().trim().isEmpty()) {
+            name.append(person.getFirstName().trim());
+        }
+        if (person.getMiddleName() != null && !person.getMiddleName().trim().isEmpty()) {
+            if (name.length() > 0) name.append(" ");
+            name.append(person.getMiddleName().trim());
+        }
+        if (person.getLastName() != null && !person.getLastName().trim().isEmpty()) {
+            if (name.length() > 0) name.append(" ");
+            name.append(person.getLastName().trim());
+        }
+        return name.length() > 0 ? name.toString() : null;
     }
 }

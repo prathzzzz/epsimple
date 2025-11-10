@@ -35,29 +35,55 @@ public interface SiteCodeGeneratorMapper {
 
     @Named("buildSiteCode")
     default String buildSiteCode(ManagedProject project, State state, Integer sequence, Integer maxSeqDigit) {
+        if (project == null || state == null || sequence == null || maxSeqDigit == null) {
+            throw new IllegalArgumentException("Cannot build site code with null parameters");
+        }
+        
         StringBuilder code = new StringBuilder();
         
         // Add project code or abbreviation (no separator)
         if (project.getProjectCode() != null && !project.getProjectCode().isEmpty()) {
-            code.append(project.getProjectCode());
+            code.append(project.getProjectCode().toUpperCase());
+        } else if (project.getProjectName() != null && !project.getProjectName().isEmpty()) {
+            // Use first 3-4 letters of project name if no code
+            String projectName = project.getProjectName().replaceAll("[^A-Za-z0-9]", "");
+            int length = Math.min(4, Math.max(3, projectName.length()));
+            code.append(projectName.substring(0, length).toUpperCase());
         } else {
-            // Use first 3 letters of project name if no code
-            String projectName = project.getProjectName();
-            code.append(projectName.substring(0, Math.min(3, projectName.length())).toUpperCase());
+            throw new IllegalArgumentException("Project must have either projectCode or projectName");
         }
         
         // Add state code (no separator, no category code)
-        code.append(state.getStateCode());
+        if (state.getStateCode() == null || state.getStateCode().isEmpty()) {
+            throw new IllegalArgumentException("State must have a stateCode");
+        }
+        code.append(state.getStateCode().toUpperCase());
         
         // Add padded sequence number (no separator)
         String sequenceStr = String.valueOf(sequence);
         int paddingNeeded = maxSeqDigit - sequenceStr.length();
+        if (paddingNeeded < 0) {
+            throw new IllegalArgumentException("Sequence " + sequence + " exceeds max digits " + maxSeqDigit);
+        }
         for (int i = 0; i < paddingNeeded; i++) {
             code.append("0");
         }
         code.append(sequenceStr);
         
-        return code.toString();
+        String result = code.toString().toUpperCase();
+        
+        // Validate final code meets requirements
+        if (result.length() < 5 || result.length() > 50) {
+            throw new IllegalArgumentException("Generated site code '" + result + "' length (" + result.length() + 
+                    ") is outside valid range (5-50 characters). ProjectCode: " + project.getProjectCode() + 
+                    ", StateCode: " + state.getStateCode() + ", Sequence: " + sequence);
+        }
+        
+        if (!result.matches("^[A-Z0-9]+$")) {
+            throw new IllegalArgumentException("Generated site code '" + result + "' contains invalid characters");
+        }
+        
+        return result;
     }
 
     default GeneratedSiteCodeDto toGeneratedCodeDto(SiteCodeGenerator generator, String siteCode) {

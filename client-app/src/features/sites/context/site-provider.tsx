@@ -12,6 +12,8 @@ interface SiteContextType {
   setDeletingSiteId: (id: number | null) => void;
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (open: boolean) => void;
 }
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
@@ -22,6 +24,7 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
   const [editingSite, setEditingSite] = useState<Site | null>(null);
   const [deletingSiteId, setDeletingSiteId] = useState<number | null>(null);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
 
   return (
     <SiteContext.Provider
@@ -36,6 +39,8 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
         setDeletingSiteId,
         globalFilter,
         setGlobalFilter,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
       }}
     >
       {children}
@@ -50,3 +55,6 @@ export function useSiteContext() {
   }
   return context;
 }
+
+// Export alias for consistency with other features
+export const useSite = useSiteContext;
