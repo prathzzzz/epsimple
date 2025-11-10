@@ -1,10 +1,16 @@
 package com.eps.module.api.epsone.movement_type.service;
 
+import com.eps.module.api.epsone.movement_type.dto.MovementTypeBulkUploadDto;
+import com.eps.module.api.epsone.movement_type.dto.MovementTypeErrorReportDto;
 import com.eps.module.api.epsone.movement_type.dto.MovementTypeRequestDto;
 import com.eps.module.api.epsone.movement_type.dto.MovementTypeResponseDto;
 import com.eps.module.api.epsone.movement_type.mapper.MovementTypeMapper;
+import com.eps.module.api.epsone.movement_type.processor.MovementTypeBulkUploadProcessor;
 import com.eps.module.api.epsone.movement_type.repository.MovementTypeRepository;
 import com.eps.module.asset.AssetMovementType;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,15 +19,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MovementTypeServiceImpl implements MovementTypeService {
+public class MovementTypeServiceImpl extends BaseBulkUploadService<MovementTypeBulkUploadDto, AssetMovementType> implements MovementTypeService {
     
     private final MovementTypeRepository movementTypeRepository;
     private final MovementTypeMapper movementTypeMapper;
+    private final MovementTypeBulkUploadProcessor movementTypeBulkUploadProcessor;
     
     @Override
     @Transactional
@@ -105,5 +113,55 @@ public class MovementTypeServiceImpl implements MovementTypeService {
         
         movementTypeRepository.deleteById(id);
         log.info("Movement type deleted successfully with ID: {}", id);
+    }
+
+    // ========== Bulk Upload Methods ==========
+
+    @Override
+    protected BulkUploadProcessor<MovementTypeBulkUploadDto, AssetMovementType> getProcessor() {
+        return movementTypeBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<MovementTypeBulkUploadDto> getBulkUploadDtoClass() {
+        return MovementTypeBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Movement Type";
+    }
+
+    @Override
+    public List<AssetMovementType> getAllEntitiesForExport() {
+        return movementTypeRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<AssetMovementType, MovementTypeBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> MovementTypeBulkUploadDto.builder()
+                .movementType(entity.getMovementType())
+                .description(entity.getDescription())
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        MovementTypeErrorReportDto.MovementTypeErrorReportDtoBuilder builder =
+                MovementTypeErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.movementType((String) error.getRowData().get("movementType"))
+                    .description((String) error.getRowData().get("description"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return MovementTypeErrorReportDto.class;
     }
 }

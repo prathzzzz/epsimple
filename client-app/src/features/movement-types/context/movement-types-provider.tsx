@@ -8,6 +8,8 @@ interface MovementTypesContextType {
   setIsDrawerOpen: (open: boolean) => void;
   isDeleteDialogOpen: boolean;
   setIsDeleteDialogOpen: (open: boolean) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (open: boolean) => void;
 }
 
 const MovementTypesContext = createContext<MovementTypesContextType | undefined>(undefined);
@@ -16,6 +18,7 @@ export function MovementTypesProvider({ children }: { children: ReactNode }) {
   const [selectedMovementType, setSelectedMovementType] = useState<MovementType | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
 
   return (
     <MovementTypesContext.Provider
@@ -26,6 +29,8 @@ export function MovementTypesProvider({ children }: { children: ReactNode }) {
         setIsDrawerOpen,
         isDeleteDialogOpen,
         setIsDeleteDialogOpen,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
       }}
     >
       {children}

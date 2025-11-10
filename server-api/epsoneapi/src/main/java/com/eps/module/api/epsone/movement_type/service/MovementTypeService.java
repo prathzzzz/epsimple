@@ -1,13 +1,16 @@
 package com.eps.module.api.epsone.movement_type.service;
 
+import com.eps.module.api.epsone.movement_type.dto.MovementTypeBulkUploadDto;
 import com.eps.module.api.epsone.movement_type.dto.MovementTypeRequestDto;
 import com.eps.module.api.epsone.movement_type.dto.MovementTypeResponseDto;
+import com.eps.module.asset.AssetMovementType;
+import com.eps.module.common.bulk.service.BulkUploadService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface MovementTypeService {
+public interface MovementTypeService extends BulkUploadService<MovementTypeBulkUploadDto, AssetMovementType> {
     
     MovementTypeResponseDto createMovementType(MovementTypeRequestDto requestDto);
     

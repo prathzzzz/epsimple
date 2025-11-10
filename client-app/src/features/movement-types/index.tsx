@@ -3,16 +3,21 @@ import { Main } from '@/components/layout/main';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
-import { MovementTypesProvider } from './context/movement-types-provider';
+import { MovementTypesProvider, useMovementTypes } from './context/movement-types-provider';
 import { MovementTypesTable } from './components/movement-types-table';
 import { movementTypesColumns } from './components/movement-types-columns';
 import { MovementTypesDialogs } from './components/movement-types-dialogs';
 import { MovementTypesPrimaryButtons } from './components/movement-types-primary-buttons';
 import { ConfigDrawer } from '@/components/config-drawer';
+import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog';
+import { useQueryClient } from '@tanstack/react-query';
 
-export default function MovementTypes() {
+function MovementTypesContent() {
+  const { isBulkUploadDialogOpen, setIsBulkUploadDialogOpen } = useMovementTypes();
+  const queryClient = useQueryClient();
+
   return (
-    <MovementTypesProvider>
+    <>
       <Header fixed>
         <Search />
         <div className="ml-auto flex items-center space-x-4">
@@ -34,6 +39,26 @@ export default function MovementTypes() {
         </div>
       </Main>
       <MovementTypesDialogs />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: '/api/movement-types/bulk-upload',
+          errorReportEndpoint: '/api/movement-types/bulk-upload/errors',
+          entityName: 'Movement Type',
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['movement-types'] });
+          },
+        }}
+      />
+    </>
+  );
+}
+
+export default function MovementTypes() {
+  return (
+    <MovementTypesProvider>
+      <MovementTypesContent />
     </MovementTypesProvider>
   );
 }
