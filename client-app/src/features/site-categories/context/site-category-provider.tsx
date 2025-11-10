@@ -8,6 +8,8 @@ interface SiteCategoryContextType {
   setIsDrawerOpen: (show: boolean) => void;
   isDeleteDialogOpen: boolean;
   setIsDeleteDialogOpen: (show: boolean) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (show: boolean) => void;
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
 }
@@ -25,6 +27,7 @@ export function SiteCategoryProvider({
     useState<SiteCategory | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
 
   return (
@@ -36,6 +39,8 @@ export function SiteCategoryProvider({
         setIsDrawerOpen,
         isDeleteDialogOpen,
         setIsDeleteDialogOpen,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
         globalFilter,
         setGlobalFilter,
       }}

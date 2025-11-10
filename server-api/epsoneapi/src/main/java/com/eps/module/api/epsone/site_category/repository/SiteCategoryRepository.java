@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface SiteCategoryRepository extends JpaRepository<SiteCategory, Long> {
 
@@ -16,4 +18,12 @@ public interface SiteCategoryRepository extends JpaRepository<SiteCategory, Long
             "LOWER(sc.categoryCode) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
             "LOWER(sc.description) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<SiteCategory> searchSiteCategories(@Param("searchTerm") String searchTerm, Pageable pageable);
+
+    // Bulk upload methods
+    boolean existsByCategoryNameIgnoreCase(String categoryName);
+    
+    boolean existsByCategoryCode(String categoryCode);
+
+    @Query("SELECT sc FROM SiteCategory sc ORDER BY sc.categoryName ASC")
+    List<SiteCategory> findAllForExport();
 }

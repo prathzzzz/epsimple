@@ -1,10 +1,13 @@
 package com.eps.module.api.epsone.site_category.controller;
 
+import com.eps.module.api.epsone.site_category.dto.SiteCategoryBulkUploadDto;
 import com.eps.module.api.epsone.site_category.dto.SiteCategoryRequestDto;
 import com.eps.module.api.epsone.site_category.dto.SiteCategoryResponseDto;
 import com.eps.module.api.epsone.site_category.service.SiteCategoryService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
+import com.eps.module.site.SiteCategory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +16,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -25,6 +31,7 @@ import java.util.List;
 public class SiteCategoryController {
 
     private final SiteCategoryService siteCategoryService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<SiteCategoryResponseDto>> createSiteCategory(@Valid @RequestBody SiteCategoryRequestDto requestDto) {
@@ -39,7 +46,7 @@ public class SiteCategoryController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
-        
+
         log.info("GET /api/site-categories - Fetching all site categories with pagination");
         Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
@@ -54,7 +61,7 @@ public class SiteCategoryController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
-        
+
         log.info("GET /api/site-categories/search - Searching site categories with term: {}", searchTerm);
         Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
@@ -90,5 +97,31 @@ public class SiteCategoryController {
         log.info("DELETE /api/site-categories/{} - Deleting site category", id);
         siteCategoryService.deleteSiteCategory(id);
         return ResponseBuilder.success(null, "Site category deleted successfully");
+    }
+
+    // ============ Bulk Upload Endpoints ============
+
+    @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter bulkUploadSiteCategories(@RequestParam("file") MultipartFile file) throws Exception {
+        log.info("POST /api/site-categories/bulk-upload - Starting bulk upload for site categories");
+        return bulkUploadControllerHelper.bulkUpload(file, siteCategoryService);
+    }
+
+    @GetMapping("/bulk-upload/template")
+    public ResponseEntity<byte[]> downloadBulkUploadTemplate() throws Exception {
+        log.info("GET /api/site-categories/bulk-upload/template - Downloading bulk upload template");
+        return bulkUploadControllerHelper.downloadTemplate(siteCategoryService);
+    }
+
+    @GetMapping("/bulk-upload/export")
+    public ResponseEntity<byte[]> exportSiteCategories() throws Exception {
+        log.info("GET /api/site-categories/bulk-upload/export - Exporting all site categories");
+        return bulkUploadControllerHelper.export(siteCategoryService);
+    }
+
+    @PostMapping("/bulk-upload/errors")
+    public ResponseEntity<byte[]> downloadErrorReport(@RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws Exception {
+        log.info("POST /api/site-categories/bulk-upload/errors - Downloading error report");
+        return bulkUploadControllerHelper.exportErrors(progressData, siteCategoryService);
     }
 }

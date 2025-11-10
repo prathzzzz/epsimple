@@ -1,26 +1,36 @@
 package com.eps.module.api.epsone.site_category.service;
 
+import com.eps.module.api.epsone.site_category.dto.SiteCategoryBulkUploadDto;
+import com.eps.module.api.epsone.site_category.dto.SiteCategoryErrorReportDto;
 import com.eps.module.api.epsone.site_category.dto.SiteCategoryRequestDto;
 import com.eps.module.api.epsone.site_category.dto.SiteCategoryResponseDto;
 import com.eps.module.api.epsone.site_category.mapper.SiteCategoryMapper;
+import com.eps.module.api.epsone.site_category.processor.SiteCategoryBulkUploadProcessor;
 import com.eps.module.api.epsone.site_category.repository.SiteCategoryRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.site.SiteCategory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class SiteCategoryServiceImpl implements SiteCategoryService {
+public class SiteCategoryServiceImpl extends BaseBulkUploadService<SiteCategoryBulkUploadDto, SiteCategory> implements SiteCategoryService {
 
     private final SiteCategoryRepository repository;
     private final SiteCategoryMapper mapper;
+    private final SiteCategoryBulkUploadProcessor siteCategoryBulkUploadProcessor;
 
     @Override
     @Transactional
@@ -78,5 +88,56 @@ public class SiteCategoryServiceImpl implements SiteCategoryService {
             throw new ResourceNotFoundException("Site Category not found with id: " + id);
         }
         repository.deleteById(id);
+    }
+
+    // Bulk Upload Methods
+    @Override
+    protected BulkUploadProcessor<SiteCategoryBulkUploadDto, SiteCategory> getProcessor() {
+        return siteCategoryBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<SiteCategoryBulkUploadDto> getBulkUploadDtoClass() {
+        return SiteCategoryBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Site Category";
+    }
+
+    @Override
+    public List<SiteCategory> getAllEntitiesForExport() {
+        return repository.findAllForExport();
+    }
+
+    @Override
+    public Function<SiteCategory, SiteCategoryBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> SiteCategoryBulkUploadDto.builder()
+                .categoryName(entity.getCategoryName())
+                .categoryCode(entity.getCategoryCode())
+                .description(entity.getDescription())
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        SiteCategoryErrorReportDto.SiteCategoryErrorReportDtoBuilder builder =
+                SiteCategoryErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.categoryName((String) error.getRowData().get("categoryName"))
+                    .categoryCode((String) error.getRowData().get("categoryCode"))
+                    .description((String) error.getRowData().get("description"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return SiteCategoryErrorReportDto.class;
     }
 }

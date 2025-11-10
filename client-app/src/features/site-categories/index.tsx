@@ -10,8 +10,15 @@ import { siteCategoryColumns } from "./components/site-category-columns";
 import { CreateSiteCategoryButton } from "./components/create-site-category-button";
 import { SiteCategoryDrawer } from "./components/site-category-drawer";
 import { SiteCategoryDeleteDialog } from "./components/site-category-delete-dialog";
+import { SiteCategoryPrimaryButtons } from "./components/site-category-primary-buttons";
+import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
+import { useSiteCategoryContext } from "./context/site-category-provider";
+import { useQueryClient } from "@tanstack/react-query";
 
 function SiteCategoriesContent() {
+  const { isBulkUploadDialogOpen, setIsBulkUploadDialogOpen } = useSiteCategoryContext();
+  const queryClient = useQueryClient();
+
   return (
     <>
       <Header fixed>
@@ -33,6 +40,7 @@ function SiteCategoriesContent() {
             </p>
           </div>
           <div className="flex items-center space-x-2">
+            <SiteCategoryPrimaryButtons />
             <CreateSiteCategoryButton />
           </div>
         </div>
@@ -42,6 +50,18 @@ function SiteCategoriesContent() {
       </Main>
       <SiteCategoryDrawer />
       <SiteCategoryDeleteDialog />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: "/api/site-categories/bulk-upload",
+          errorReportEndpoint: "/api/site-categories/bulk-upload/errors",
+          entityName: "Site Category",
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["site-categories"] });
+          },
+        }}
+      />
     </>
   );
 }
