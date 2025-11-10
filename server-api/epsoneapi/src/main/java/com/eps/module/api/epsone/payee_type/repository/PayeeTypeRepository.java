@@ -23,6 +23,9 @@ public interface PayeeTypeRepository extends JpaRepository<PayeeType, Long> {
 
     boolean existsByPayeeTypeAndIdNot(String payeeType, Long id);
 
+    @Query("SELECT pt FROM PayeeType pt WHERE LOWER(pt.payeeType) = LOWER(:payeeType)")
+    java.util.Optional<PayeeType> findByPayeeTypeIgnoreCase(@Param("payeeType") String payeeType);
+
     // Bulk upload methods
     @Query("SELECT pt FROM PayeeType pt ORDER BY pt.payeeType ASC")
     List<PayeeType> findAllForExport();

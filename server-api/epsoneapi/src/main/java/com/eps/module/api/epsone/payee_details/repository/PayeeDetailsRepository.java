@@ -80,4 +80,10 @@ public interface PayeeDetailsRepository extends JpaRepository<PayeeDetails, Long
      */
     @Query("SELECT pd FROM PayeeDetails pd LEFT JOIN FETCH pd.bank ORDER BY pd.payeeName ASC")
     List<PayeeDetails> findAllForExport();
+
+    /**
+     * Find payee details by payee name (case-insensitive) - for bulk upload
+     */
+    @Query("SELECT pd FROM PayeeDetails pd WHERE LOWER(pd.payeeName) = LOWER(:payeeName)")
+    java.util.Optional<PayeeDetails> findByPayeeNameIgnoreCase(@Param("payeeName") String payeeName);
 }
