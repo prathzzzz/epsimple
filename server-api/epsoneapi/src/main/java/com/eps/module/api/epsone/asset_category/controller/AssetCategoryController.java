@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.asset_category.controller;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryRequestDto;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryResponseDto;
 import com.eps.module.api.epsone.asset_category.service.AssetCategoryService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -13,8 +15,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -25,6 +30,7 @@ import java.util.List;
 public class AssetCategoryController {
 
     private final AssetCategoryService assetCategoryService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<AssetCategoryResponseDto>> createAssetCategory(
@@ -101,5 +107,31 @@ public class AssetCategoryController {
         log.info("DELETE /api/asset-categories/{} - Deleting asset category", id);
         assetCategoryService.deleteAssetCategory(id);
         return ResponseBuilder.success(null, "Asset category deleted successfully");
+    }
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter bulkUploadAssetCategories(@RequestParam("file") MultipartFile file) throws Exception {
+        log.info("POST /api/asset-categories/bulk-upload - Starting bulk upload");
+        return bulkUploadControllerHelper.bulkUpload(file, assetCategoryService);
+    }
+
+    @GetMapping("/bulk-upload/template")
+    public ResponseEntity<byte[]> downloadTemplate() throws Exception {
+        log.info("GET /api/asset-categories/bulk-upload/template - Downloading template");
+        return bulkUploadControllerHelper.downloadTemplate(assetCategoryService);
+    }
+
+    @GetMapping("/bulk-upload/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        log.info("GET /api/asset-categories/bulk-upload/export - Exporting data");
+        return bulkUploadControllerHelper.export(assetCategoryService);
+    }
+
+    @PostMapping("/bulk-upload/errors")
+    public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
+        log.info("POST /api/asset-categories/bulk-upload/errors - Downloading error report");
+        return bulkUploadControllerHelper.exportErrors(progressData, assetCategoryService);
     }
 }

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface AssetCategoryRepository extends JpaRepository<AssetCategory, Long> {
 
@@ -17,6 +19,9 @@ public interface AssetCategoryRepository extends JpaRepository<AssetCategory, Lo
            "OR LOWER(ac.assetCodeAlt) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(ac.assetType.typeName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<AssetCategory> searchAssetCategories(@Param("searchTerm") String searchTerm, Pageable pageable);
+
+    @Query("SELECT ac FROM AssetCategory ac LEFT JOIN FETCH ac.assetType")
+    List<AssetCategory> findAllForExport();
 
     Page<AssetCategory> findByAssetTypeId(Long assetTypeId, Pageable pageable);
 

@@ -22,6 +22,8 @@ public interface AssetTypeRepository extends JpaRepository<AssetType, Long> {
     boolean existsByTypeNameIgnoreCase(String typeName);
     
     boolean existsByTypeCodeIgnoreCase(String typeCode);
+
+    java.util.Optional<AssetType> findByTypeCodeIgnoreCase(String typeCode);
     
     @Query("SELECT CASE WHEN COUNT(at) > 0 THEN true ELSE false END FROM AssetType at WHERE " +
            "LOWER(at.typeName) = LOWER(:typeName) AND at.id <> :id")

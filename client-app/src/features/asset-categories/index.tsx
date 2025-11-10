@@ -4,14 +4,20 @@ import { ProfileDropdown } from "@/components/profile-dropdown";
 import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { ConfigDrawer } from "@/components/config-drawer";
-import { AssetCategoryProvider } from "./context/asset-category-provider";
+import { AssetCategoryProvider, useAssetCategoryContext } from "./context/asset-category-provider";
 import { assetCategoryColumns } from "./components/asset-category-columns";
 import { AssetCategoryTable } from "./components/asset-category-table";
 import { AssetCategoryDrawer } from "./components/asset-category-drawer";
 import { AssetCategoryDeleteDialog } from "./components/asset-category-delete-dialog";
 import { CreateAssetCategoryButton } from "./components/create-asset-category-button";
+import { AssetCategoryPrimaryButtons } from "./components/asset-category-primary-buttons";
+import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
+import { useQueryClient } from "@tanstack/react-query";
 
 function AssetCategoriesContent() {
+  const { isBulkUploadDialogOpen, setIsBulkUploadDialogOpen } = useAssetCategoryContext();
+  const queryClient = useQueryClient();
+
   return (
     <>
       <Header fixed>
@@ -31,6 +37,7 @@ function AssetCategoriesContent() {
             </p>
           </div>
           <div className="flex items-center space-x-2">
+            <AssetCategoryPrimaryButtons />
             <CreateAssetCategoryButton />
           </div>
         </div>
@@ -40,6 +47,18 @@ function AssetCategoriesContent() {
       </Main>
       <AssetCategoryDrawer />
       <AssetCategoryDeleteDialog />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: '/api/asset-categories/bulk-upload',
+          errorReportEndpoint: '/api/asset-categories/bulk-upload/errors',
+          entityName: 'Asset Category',
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['asset-categories'] });
+          },
+        }}
+      />
     </>
   );
 }

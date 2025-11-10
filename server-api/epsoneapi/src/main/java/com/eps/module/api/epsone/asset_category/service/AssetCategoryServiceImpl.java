@@ -1,12 +1,18 @@
 package com.eps.module.api.epsone.asset_category.service;
 
+import com.eps.module.api.epsone.asset_category.dto.AssetCategoryBulkUploadDto;
+import com.eps.module.api.epsone.asset_category.dto.AssetCategoryErrorReportDto;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryRequestDto;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryResponseDto;
 import com.eps.module.api.epsone.asset_category.mapper.AssetCategoryMapper;
+import com.eps.module.api.epsone.asset_category.processor.AssetCategoryBulkUploadProcessor;
 import com.eps.module.api.epsone.asset_category.repository.AssetCategoryRepository;
 import com.eps.module.api.epsone.asset_type.repository.AssetTypeRepository;
 import com.eps.module.asset.AssetCategory;
 import com.eps.module.asset.AssetType;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -15,16 +21,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AssetCategoryServiceImpl implements AssetCategoryService {
+public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategoryBulkUploadDto, AssetCategory> implements AssetCategoryService {
 
     private final AssetCategoryRepository assetCategoryRepository;
     private final AssetTypeRepository assetTypeRepository;
     private final AssetCategoryMapper assetCategoryMapper;
+    private final AssetCategoryBulkUploadProcessor assetCategoryBulkUploadProcessor;
 
     @Override
     @Transactional
@@ -136,5 +144,61 @@ public class AssetCategoryServiceImpl implements AssetCategoryService {
 
         assetCategoryRepository.deleteById(id);
         log.info("Asset category deleted successfully with ID: {}", id);
+    }
+
+    // ========== Bulk Upload Methods ==========
+
+    @Override
+    protected BulkUploadProcessor<AssetCategoryBulkUploadDto, AssetCategory> getProcessor() {
+        return assetCategoryBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<AssetCategoryBulkUploadDto> getBulkUploadDtoClass() {
+        return AssetCategoryBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Asset Category";
+    }
+
+    @Override
+    public List<AssetCategory> getAllEntitiesForExport() {
+        return assetCategoryRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<AssetCategory, AssetCategoryBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> AssetCategoryBulkUploadDto.builder()
+                .categoryName(entity.getCategoryName())
+                .categoryCode(entity.getCategoryCode())
+                .assetTypeCode(entity.getAssetType() != null ? entity.getAssetType().getTypeCode() : null)
+                .assetCodeAlt(entity.getAssetCodeAlt())
+                .description(entity.getDescription())
+                .build();
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        AssetCategoryErrorReportDto.AssetCategoryErrorReportDtoBuilder builder =
+                AssetCategoryErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.categoryName((String) error.getRowData().get("categoryName"))
+                    .categoryCode((String) error.getRowData().get("categoryCode"))
+                    .assetTypeCode((String) error.getRowData().get("assetTypeCode"))
+                    .assetCodeAlt((String) error.getRowData().get("assetCodeAlt"))
+                    .description((String) error.getRowData().get("description"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return AssetCategoryErrorReportDto.class;
     }
 }

@@ -1,13 +1,16 @@
 package com.eps.module.api.epsone.asset_category.service;
 
+import com.eps.module.api.epsone.asset_category.dto.AssetCategoryBulkUploadDto;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryRequestDto;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryResponseDto;
+import com.eps.module.asset.AssetCategory;
+import com.eps.module.common.bulk.service.BulkUploadService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface AssetCategoryService {
+public interface AssetCategoryService extends BulkUploadService<AssetCategoryBulkUploadDto, AssetCategory> {
 
     AssetCategoryResponseDto createAssetCategory(AssetCategoryRequestDto requestDto);
 
