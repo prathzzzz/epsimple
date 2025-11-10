@@ -1,13 +1,19 @@
 package com.eps.module.api.epsone.payee.service;
 
 import com.eps.module.api.epsone.landlord.repository.LandlordRepository;
+import com.eps.module.api.epsone.payee.dto.PayeeBulkUploadDto;
+import com.eps.module.api.epsone.payee.dto.PayeeErrorReportDto;
 import com.eps.module.api.epsone.payee.dto.PayeeRequestDto;
 import com.eps.module.api.epsone.payee.dto.PayeeResponseDto;
 import com.eps.module.api.epsone.payee.mapper.PayeeMapper;
+import com.eps.module.api.epsone.payee.processor.PayeeBulkUploadProcessor;
 import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.api.epsone.payee_details.repository.PayeeDetailsRepository;
 import com.eps.module.api.epsone.payee_type.repository.PayeeTypeRepository;
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.payment.Payee;
 import com.eps.module.payment.PayeeDetails;
 import com.eps.module.payment.PayeeType;
@@ -21,12 +27,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PayeeServiceImpl implements PayeeService {
+public class PayeeServiceImpl extends BaseBulkUploadService<PayeeBulkUploadDto, Payee> implements PayeeService {
 
     private final PayeeRepository payeeRepository;
     private final PayeeTypeRepository payeeTypeRepository;
@@ -34,6 +41,7 @@ public class PayeeServiceImpl implements PayeeService {
     private final VendorRepository vendorRepository;
     private final LandlordRepository landlordRepository;
     private final PayeeMapper payeeMapper;
+    private final PayeeBulkUploadProcessor payeeBulkUploadProcessor;
 
     @Override
     @Transactional
@@ -182,5 +190,72 @@ public class PayeeServiceImpl implements PayeeService {
     @Transactional(readOnly = true)
     public long countPayees() {
         return payeeRepository.count();
+    }
+
+    // ========== Bulk Upload Methods ==========
+
+    @Override
+    protected BulkUploadProcessor<PayeeBulkUploadDto, Payee> getProcessor() {
+        return payeeBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<PayeeBulkUploadDto> getBulkUploadDtoClass() {
+        return PayeeBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Payee";
+    }
+
+    @Override
+    public List<Payee> getAllEntitiesForExport() {
+        return payeeRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<Payee, PayeeBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> {
+            String vendorEmail = null;
+            if (entity.getVendor() != null && entity.getVendor().getVendorDetails() != null) {
+                vendorEmail = entity.getVendor().getVendorDetails().getEmail();
+            }
+
+            String landlordEmail = null;
+            if (entity.getLandlord() != null && entity.getLandlord().getLandlordDetails() != null) {
+                landlordEmail = entity.getLandlord().getLandlordDetails().getEmail();
+            }
+
+            return PayeeBulkUploadDto.builder()
+                    .payeeType(entity.getPayeeType() != null ? entity.getPayeeType().getPayeeType() : "")
+                    .payeeName(entity.getPayeeDetails() != null ? entity.getPayeeDetails().getPayeeName() : "")
+                    .vendorEmail(vendorEmail)
+                    .landlordEmail(landlordEmail)
+                    .build();
+        };
+    }
+
+    @Override
+    protected Object buildErrorReportDto(BulkUploadErrorDto error) {
+        PayeeErrorReportDto.PayeeErrorReportDtoBuilder builder =
+                PayeeErrorReportDto.builder()
+                        .rowNumber(error.getRowNumber())
+                        .errorType(error.getErrorType())
+                        .errorMessage(error.getErrorMessage());
+
+        if (error.getRowData() != null) {
+            builder.payeeType((String) error.getRowData().get("Payee Type"))
+                    .payeeName((String) error.getRowData().get("Payee Name"))
+                    .vendorEmail((String) error.getRowData().get("Vendor Email"))
+                    .landlordEmail((String) error.getRowData().get("Landlord Email"));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    protected Class<?> getErrorReportDtoClass() {
+        return PayeeErrorReportDto.class;
     }
 }

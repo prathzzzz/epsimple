@@ -59,4 +59,15 @@ public interface PayeeRepository extends JpaRepository<Payee, Long> {
     long countByVendorId(Long vendorId);
 
     long countByLandlordId(Long landlordId);
+
+    @Query("SELECT p FROM Payee p " +
+            "LEFT JOIN FETCH p.payeeType pt " +
+            "LEFT JOIN FETCH p.payeeDetails pd " +
+            "LEFT JOIN FETCH pd.bank " +
+            "LEFT JOIN FETCH p.vendor v " +
+            "LEFT JOIN FETCH v.vendorDetails " +
+            "LEFT JOIN FETCH p.landlord l " +
+            "LEFT JOIN FETCH l.landlordDetails " +
+            "ORDER BY p.id")
+    java.util.List<Payee> findAllForExport();
 }

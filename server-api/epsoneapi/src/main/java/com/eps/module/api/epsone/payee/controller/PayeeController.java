@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.payee.controller;
 import com.eps.module.api.epsone.payee.dto.PayeeRequestDto;
 import com.eps.module.api.epsone.payee.dto.PayeeResponseDto;
 import com.eps.module.api.epsone.payee.service.PayeeService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +14,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -24,6 +29,7 @@ import java.util.List;
 public class PayeeController {
 
     private final PayeeService payeeService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
     public ResponseEntity<?> createPayee(@Valid @RequestBody PayeeRequestDto requestDto) {
@@ -117,5 +123,31 @@ public class PayeeController {
         log.info("Received request to count payees");
         long count = payeeService.countPayees();
         return ResponseBuilder.success(count, "Payee count retrieved successfully", HttpStatus.OK);
+    }
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) {
+        log.info("Received bulk upload request for Payees");
+        return bulkUploadControllerHelper.handleBulkUpload(file, payeeService);
+    }
+
+    @GetMapping("/bulk-upload/template")
+    public ResponseEntity<byte[]> downloadTemplate() {
+        log.info("Received request to download Payee bulk upload template");
+        return bulkUploadControllerHelper.downloadTemplate(payeeService);
+    }
+
+    @GetMapping("/bulk-upload/export")
+    public ResponseEntity<byte[]> exportData() {
+        log.info("Received request to export Payee data");
+        return bulkUploadControllerHelper.exportData(payeeService);
+    }
+
+    @PostMapping("/bulk-upload/errors")
+    public ResponseEntity<byte[]> exportErrors(@RequestBody List<BulkUploadProgressDto.ErrorDetail> errors) {
+        log.info("Received request to export Payee bulk upload errors");
+        return bulkUploadControllerHelper.exportErrors(errors, payeeService);
     }
 }

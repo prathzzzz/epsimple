@@ -10,6 +10,8 @@ interface PayeeContextType {
   isDeleteDialogOpen: boolean;
   openDeleteDialog: () => void;
   closeDeleteDialog: () => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (open: boolean) => void;
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
 }
@@ -20,6 +22,7 @@ export function PayeeProvider({ children }: { children: ReactNode }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedPayee, setSelectedPayee] = useState<Payee | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
   const [globalFilter, setGlobalFilter] = useState('');
 
   const openDrawer = () => setIsDrawerOpen(true);
@@ -45,6 +48,8 @@ export function PayeeProvider({ children }: { children: ReactNode }) {
         isDeleteDialogOpen,
         openDeleteDialog,
         closeDeleteDialog,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
         globalFilter,
         setGlobalFilter,
       }}

@@ -1,13 +1,16 @@
 package com.eps.module.api.epsone.payee.service;
 
+import com.eps.module.api.epsone.payee.dto.PayeeBulkUploadDto;
 import com.eps.module.api.epsone.payee.dto.PayeeRequestDto;
 import com.eps.module.api.epsone.payee.dto.PayeeResponseDto;
+import com.eps.module.common.bulk.service.BulkUploadService;
+import com.eps.module.payment.Payee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface PayeeService {
+public interface PayeeService extends BulkUploadService<PayeeBulkUploadDto, Payee> {
 
     PayeeResponseDto createPayee(PayeeRequestDto requestDto);
 

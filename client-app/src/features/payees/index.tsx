@@ -4,15 +4,20 @@ import { ProfileDropdown } from '@/components/profile-dropdown';
 import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { ConfigDrawer } from '@/components/config-drawer';
-import { PayeeProvider } from './context/payee-provider';
+import { PayeeProvider, usePayee } from './context/payee-provider';
 import { PayeeDrawer } from './components/payee-drawer';
 import { PayeeDeleteDialog } from './components/payee-delete-dialog';
 import { PayeeTable } from './components/payee-table';
-import { CreatePayeeButton } from './components/create-payee-button';
+import { PayeePrimaryButtons } from './components/payee-primary-buttons';
+import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog';
+import { useQueryClient } from '@tanstack/react-query';
 
-export default function PayeesPage() {
+function PayeeContent() {
+  const { isBulkUploadDialogOpen, setIsBulkUploadDialogOpen } = usePayee();
+  const queryClient = useQueryClient();
+
   return (
-    <PayeeProvider>
+    <>
       <Header fixed>
         <Search />
         <div className="ml-auto flex items-center space-x-4">
@@ -29,7 +34,7 @@ export default function PayeesPage() {
               Manage payees linked to vendors, landlords, and payment details
             </p>
           </div>
-          <CreatePayeeButton />
+          <PayeePrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
           <PayeeTable />
@@ -37,6 +42,26 @@ export default function PayeesPage() {
       </Main>
       <PayeeDrawer />
       <PayeeDeleteDialog />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: '/api/payees/bulk-upload',
+          errorReportEndpoint: '/api/payees/bulk-upload/errors',
+          entityName: 'Payee',
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['payees'] });
+          },
+        }}
+      />
+    </>
+  );
+}
+
+export default function PayeesPage() {
+  return (
+    <PayeeProvider>
+      <PayeeContent />
     </PayeeProvider>
   );
 }
