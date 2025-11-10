@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface SiteTypeRepository extends JpaRepository<SiteType, Long> {
 
@@ -15,4 +17,10 @@ public interface SiteTypeRepository extends JpaRepository<SiteType, Long> {
             "LOWER(st.typeName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
             "LOWER(st.description) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<SiteType> searchSiteTypes(@Param("searchTerm") String searchTerm, Pageable pageable);
+
+    // Bulk Upload Methods
+    @Query("SELECT st FROM SiteType st ORDER BY st.typeName ASC")
+    List<SiteType> findAllForExport();
+
+    boolean existsByTypeNameIgnoreCase(String typeName);
 }

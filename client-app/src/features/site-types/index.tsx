@@ -13,6 +13,8 @@ import { siteTypeColumns } from "./components/site-type-columns";
 import { SiteTypeDialogs } from "./components/site-type-dialogs";
 import { SiteTypeMutateDrawer } from "./components/site-type-mutate-drawer";
 import { SiteTypePrimaryButtons } from "./components/site-type-primary-buttons";
+import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
+import { useQueryClient } from "@tanstack/react-query";
 
 function SiteTypesContent() {
   const {
@@ -20,7 +22,10 @@ function SiteTypesContent() {
     setShowMutateDrawer,
     editingSiteType,
     setEditingSiteType,
+    isBulkUploadDialogOpen,
+    setIsBulkUploadDialogOpen,
   } = useSiteTypeContext();
+  const queryClient = useQueryClient();
 
   return (
     <>
@@ -57,6 +62,18 @@ function SiteTypesContent() {
         currentRow={editingSiteType}
       />
       <SiteTypeDialogs />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: "/api/site-types/bulk-upload",
+          errorReportEndpoint: "/api/site-types/bulk-upload/errors",
+          entityName: "Site Type",
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["site-types"] });
+          },
+        }}
+      />
     </>
   );
 }

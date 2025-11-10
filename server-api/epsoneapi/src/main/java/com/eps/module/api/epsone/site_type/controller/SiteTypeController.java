@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.site_type.controller;
 import com.eps.module.api.epsone.site_type.dto.SiteTypeRequestDto;
 import com.eps.module.api.epsone.site_type.dto.SiteTypeResponseDto;
 import com.eps.module.api.epsone.site_type.service.SiteTypeService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -13,8 +14,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -25,6 +29,7 @@ import java.util.List;
 public class SiteTypeController {
 
     private final SiteTypeService siteTypeService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<SiteTypeResponseDto>> createSiteType(@Valid @RequestBody SiteTypeRequestDto requestDto) {
@@ -90,5 +95,31 @@ public class SiteTypeController {
         log.info("DELETE /api/site-types/{} - Deleting site type", id);
         siteTypeService.deleteSiteType(id);
         return ResponseBuilder.success(null, "Site type deleted successfully");
+    }
+
+    // ============ Bulk Upload Endpoints ============
+
+    @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter bulkUploadSiteTypes(@RequestParam("file") MultipartFile file) throws Exception {
+        log.info("POST /api/site-types/bulk-upload - Starting bulk upload for site types");
+        return bulkUploadControllerHelper.bulkUpload(file, siteTypeService);
+    }
+
+    @GetMapping("/bulk-upload/template")
+    public ResponseEntity<byte[]> downloadBulkUploadTemplate() throws Exception {
+        log.info("GET /api/site-types/bulk-upload/template - Downloading bulk upload template");
+        return bulkUploadControllerHelper.downloadTemplate(siteTypeService);
+    }
+
+    @GetMapping("/bulk-upload/export")
+    public ResponseEntity<byte[]> exportSiteTypes() throws Exception {
+        log.info("GET /api/site-types/bulk-upload/export - Exporting all site types");
+        return bulkUploadControllerHelper.export(siteTypeService);
+    }
+
+    @PostMapping("/bulk-upload/errors")
+    public ResponseEntity<byte[]> downloadErrorReport(@RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws Exception {
+        log.info("POST /api/site-types/bulk-upload/errors - Downloading error report");
+        return bulkUploadControllerHelper.exportErrors(progressData, siteTypeService);
     }
 }

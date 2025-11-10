@@ -8,6 +8,10 @@ interface SiteTypeContextType {
   setShowMutateDrawer: (show: boolean) => void;
   showDeleteDialog: boolean;
   setShowDeleteDialog: (show: boolean) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (show: boolean) => void;
+  globalFilter: string;
+  setGlobalFilter: (filter: string) => void;
 }
 
 const SiteTypeContext = createContext<SiteTypeContextType | undefined>(
@@ -18,6 +22,8 @@ export function SiteTypeProvider({ children }: { children: React.ReactNode }) {
   const [editingSiteType, setEditingSiteType] = useState<SiteType | null>(null);
   const [showMutateDrawer, setShowMutateDrawer] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
+  const [globalFilter, setGlobalFilter] = useState("");
 
   return (
     <SiteTypeContext.Provider
@@ -28,6 +34,10 @@ export function SiteTypeProvider({ children }: { children: React.ReactNode }) {
         setShowMutateDrawer,
         showDeleteDialog,
         setShowDeleteDialog,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
+        globalFilter,
+        setGlobalFilter,
       }}
     >
       {children}
