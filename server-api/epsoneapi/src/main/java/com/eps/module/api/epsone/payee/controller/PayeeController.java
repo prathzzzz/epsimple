@@ -128,26 +128,26 @@ public class PayeeController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) {
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws Exception {
         log.info("Received bulk upload request for Payees");
-        return bulkUploadControllerHelper.handleBulkUpload(file, payeeService);
+        return bulkUploadControllerHelper.bulkUpload(file, payeeService);
     }
 
     @GetMapping("/bulk-upload/template")
-    public ResponseEntity<byte[]> downloadTemplate() {
+    public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("Received request to download Payee bulk upload template");
         return bulkUploadControllerHelper.downloadTemplate(payeeService);
     }
 
     @GetMapping("/bulk-upload/export")
-    public ResponseEntity<byte[]> exportData() {
+    public ResponseEntity<byte[]> exportData() throws Exception {
         log.info("Received request to export Payee data");
-        return bulkUploadControllerHelper.exportData(payeeService);
+        return bulkUploadControllerHelper.export(payeeService);
     }
 
     @PostMapping("/bulk-upload/errors")
-    public ResponseEntity<byte[]> exportErrors(@RequestBody List<BulkUploadProgressDto.ErrorDetail> errors) {
+    public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("Received request to export Payee bulk upload errors");
-        return bulkUploadControllerHelper.exportErrors(errors, payeeService);
+        return bulkUploadControllerHelper.exportErrors(progressData, payeeService);
     }
 }

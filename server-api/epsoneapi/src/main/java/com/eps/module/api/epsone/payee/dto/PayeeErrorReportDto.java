@@ -27,9 +27,9 @@ public class PayeeErrorReportDto {
     @ExcelColumn(value = "Payee Name", order = 5)
     private String payeeName;
 
-    @ExcelColumn(value = "Vendor Email", order = 6)
-    private String vendorEmail;
+    @ExcelColumn(value = "Vendor Contact Number", order = 6)
+    private String vendorContactNumber;
 
-    @ExcelColumn(value = "Landlord Email", order = 7)
-    private String landlordEmail;
+    @ExcelColumn(value = "Landlord Contact Number", order = 7)
+    private String landlordContactNumber;
 }

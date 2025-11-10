@@ -217,21 +217,21 @@ public class PayeeServiceImpl extends BaseBulkUploadService<PayeeBulkUploadDto, 
     @Override
     public Function<Payee, PayeeBulkUploadDto> getEntityToDtoMapper() {
         return entity -> {
-            String vendorEmail = null;
+            String vendorContactNumber = null;
             if (entity.getVendor() != null && entity.getVendor().getVendorDetails() != null) {
-                vendorEmail = entity.getVendor().getVendorDetails().getEmail();
+                vendorContactNumber = entity.getVendor().getVendorDetails().getContactNumber();
             }
 
-            String landlordEmail = null;
+            String landlordContactNumber = null;
             if (entity.getLandlord() != null && entity.getLandlord().getLandlordDetails() != null) {
-                landlordEmail = entity.getLandlord().getLandlordDetails().getEmail();
+                landlordContactNumber = entity.getLandlord().getLandlordDetails().getContactNumber();
             }
 
             return PayeeBulkUploadDto.builder()
                     .payeeType(entity.getPayeeType() != null ? entity.getPayeeType().getPayeeType() : "")
                     .payeeName(entity.getPayeeDetails() != null ? entity.getPayeeDetails().getPayeeName() : "")
-                    .vendorEmail(vendorEmail)
-                    .landlordEmail(landlordEmail)
+                    .vendorContactNumber(vendorContactNumber)
+                    .landlordContactNumber(landlordContactNumber)
                     .build();
         };
     }
@@ -247,8 +247,8 @@ public class PayeeServiceImpl extends BaseBulkUploadService<PayeeBulkUploadDto, 
         if (error.getRowData() != null) {
             builder.payeeType((String) error.getRowData().get("Payee Type"))
                     .payeeName((String) error.getRowData().get("Payee Name"))
-                    .vendorEmail((String) error.getRowData().get("Vendor Email"))
-                    .landlordEmail((String) error.getRowData().get("Landlord Email"));
+                    .vendorContactNumber((String) error.getRowData().get("Vendor Contact Number"))
+                    .landlordContactNumber((String) error.getRowData().get("Landlord Contact Number"));
         }
 
         return builder.build();

@@ -37,6 +37,14 @@ public interface LandlordRepository extends JpaRepository<Landlord, Long> {
     Optional<Landlord> findByLandlordDetailsId(Long landlordDetailsId);
 
     /**
+     * Find landlord by contact number (through PersonDetails)
+     */
+    @Query("SELECT l FROM Landlord l " +
+            "LEFT JOIN FETCH l.landlordDetails ld " +
+            "WHERE ld.contactNumber = :contactNumber")
+    Optional<Landlord> findByLandlordDetailsContactNumber(@Param("contactNumber") String contactNumber);
+
+    /**
      * Count landlords by landlord details
      */
     long countByLandlordDetailsId(Long landlordDetailsId);

@@ -49,14 +49,14 @@ public class PayeeBulkUploadProcessor extends BulkUploadProcessor<PayeeBulkUploa
         builder.payeeDetails(payeeDetails);
 
         // Set Vendor if provided
-        if (dto.getVendorEmail() != null && !dto.getVendorEmail().trim().isEmpty()) {
-            Vendor vendor = vendorRepository.findByVendorDetailsEmail(dto.getVendorEmail()).orElse(null);
+        if (dto.getVendorContactNumber() != null && !dto.getVendorContactNumber().trim().isEmpty()) {
+            Vendor vendor = vendorRepository.findByVendorDetailsContactNumber(dto.getVendorContactNumber()).orElse(null);
             builder.vendor(vendor);
         }
 
         // Set Landlord if provided
-        if (dto.getLandlordEmail() != null && !dto.getLandlordEmail().trim().isEmpty()) {
-            Landlord landlord = landlordRepository.findByLandlordDetailsEmail(dto.getLandlordEmail()).orElse(null);
+        if (dto.getLandlordContactNumber() != null && !dto.getLandlordContactNumber().trim().isEmpty()) {
+            Landlord landlord = landlordRepository.findByLandlordDetailsContactNumber(dto.getLandlordContactNumber()).orElse(null);
             builder.landlord(landlord);
         }
 
@@ -73,8 +73,8 @@ public class PayeeBulkUploadProcessor extends BulkUploadProcessor<PayeeBulkUploa
         Map<String, Object> rowData = new HashMap<>();
         rowData.put("Payee Type", dto.getPayeeType());
         rowData.put("Payee Name", dto.getPayeeName());
-        rowData.put("Vendor Email", dto.getVendorEmail());
-        rowData.put("Landlord Email", dto.getLandlordEmail());
+        rowData.put("Vendor Contact Number", dto.getVendorContactNumber());
+        rowData.put("Landlord Contact Number", dto.getLandlordContactNumber());
         return rowData;
     }
 
@@ -82,7 +82,7 @@ public class PayeeBulkUploadProcessor extends BulkUploadProcessor<PayeeBulkUploa
     protected boolean isEmptyRow(PayeeBulkUploadDto dto) {
         return (dto.getPayeeType() == null || dto.getPayeeType().trim().isEmpty()) &&
                (dto.getPayeeName() == null || dto.getPayeeName().trim().isEmpty()) &&
-               (dto.getVendorEmail() == null || dto.getVendorEmail().trim().isEmpty()) &&
-               (dto.getLandlordEmail() == null || dto.getLandlordEmail().trim().isEmpty());
+               (dto.getVendorContactNumber() == null || dto.getVendorContactNumber().trim().isEmpty()) &&
+               (dto.getLandlordContactNumber() == null || dto.getLandlordContactNumber().trim().isEmpty());
     }
 }

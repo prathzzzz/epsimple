@@ -82,27 +82,27 @@ public class PayeeBulkUploadValidator implements BulkRowValidator<PayeeBulkUploa
         }
 
         // Validate Vendor if provided
-        if (rowData.getVendorEmail() != null && !rowData.getVendorEmail().trim().isEmpty()) {
-            boolean vendorExists = vendorRepository.findByVendorDetailsEmail(rowData.getVendorEmail()).isPresent();
+        if (rowData.getVendorContactNumber() != null && !rowData.getVendorContactNumber().trim().isEmpty()) {
+            boolean vendorExists = vendorRepository.findByVendorDetailsContactNumber(rowData.getVendorContactNumber()).isPresent();
             if (!vendorExists) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .fieldName("Vendor Email")
-                        .errorMessage("Vendor with email '" + rowData.getVendorEmail() + "' does not exist")
-                        .rejectedValue(rowData.getVendorEmail())
+                        .fieldName("Vendor Contact Number")
+                        .errorMessage("Vendor with contact number '" + rowData.getVendorContactNumber() + "' does not exist")
+                        .rejectedValue(rowData.getVendorContactNumber())
                         .build());
             }
         }
 
         // Validate Landlord if provided
-        if (rowData.getLandlordEmail() != null && !rowData.getLandlordEmail().trim().isEmpty()) {
-            boolean landlordExists = landlordRepository.findByLandlordDetailsEmail(rowData.getLandlordEmail()).isPresent();
+        if (rowData.getLandlordContactNumber() != null && !rowData.getLandlordContactNumber().trim().isEmpty()) {
+            boolean landlordExists = landlordRepository.findByLandlordDetailsContactNumber(rowData.getLandlordContactNumber()).isPresent();
             if (!landlordExists) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .fieldName("Landlord Email")
-                        .errorMessage("Landlord with email '" + rowData.getLandlordEmail() + "' does not exist")
-                        .rejectedValue(rowData.getLandlordEmail())
+                        .fieldName("Landlord Contact Number")
+                        .errorMessage("Landlord with contact number '" + rowData.getLandlordContactNumber() + "' does not exist")
+                        .rejectedValue(rowData.getLandlordContactNumber())
                         .build());
             }
         }

@@ -55,6 +55,14 @@ public interface VendorRepository extends JpaRepository<Vendor, Long> {
     Optional<Vendor> findByVendorDetailsId(Long vendorDetailsId);
 
     /**
+     * Find vendor by contact number (through PersonDetails)
+     */
+    @Query("SELECT v FROM Vendor v " +
+            "LEFT JOIN FETCH v.vendorDetails vd " +
+            "WHERE vd.contactNumber = :contactNumber")
+    Optional<Vendor> findByVendorDetailsContactNumber(@Param("contactNumber") String contactNumber);
+
+    /**
      * Count vendors by vendor details
      */
     long countByVendorDetailsId(Long vendorDetailsId);

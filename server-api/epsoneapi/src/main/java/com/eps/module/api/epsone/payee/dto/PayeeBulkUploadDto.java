@@ -18,9 +18,9 @@ public class PayeeBulkUploadDto {
     @ExcelColumn(value = "Payee Name", order = 2, required = true, example = "ABC Corporation")
     private String payeeName;
 
-    @ExcelColumn(value = "Vendor Email", order = 3, required = false, example = "vendor@example.com")
-    private String vendorEmail;
+    @ExcelColumn(value = "Vendor Contact Number", order = 3, required = false, example = "9876543210")
+    private String vendorContactNumber;
 
-    @ExcelColumn(value = "Landlord Email", order = 4, required = false, example = "landlord@example.com")
-    private String landlordEmail;
+    @ExcelColumn(value = "Landlord Contact Number", order = 4, required = false, example = "9123456780")
+    private String landlordContactNumber;
 }
