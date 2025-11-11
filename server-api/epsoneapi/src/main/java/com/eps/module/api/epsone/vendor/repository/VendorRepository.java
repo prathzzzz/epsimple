@@ -87,4 +87,21 @@ public interface VendorRepository extends JpaRepository<Vendor, Long> {
             "LEFT JOIN FETCH v.vendorDetails vd " +
             "LEFT JOIN FETCH vd.personType pt")
     List<Vendor> findAllForExport();
+
+    /**
+     * Find vendor by name (case-insensitive) - for bulk upload
+     * Note: vendorName is actually the person's full name from vendorDetails
+     */
+    @Query("SELECT v FROM Vendor v " +
+           "LEFT JOIN FETCH v.vendorDetails vd " +
+           "WHERE LOWER(CONCAT(COALESCE(vd.firstName, ''), ' ', COALESCE(vd.lastName, ''))) = LOWER(:vendorName)")
+    Optional<Vendor> findByVendorNameIgnoreCase(@Param("vendorName") String vendorName);
+
+    /**
+     * Find vendor by vendor code (case-insensitive) - for bulk upload
+     */
+    @Query("SELECT v FROM Vendor v " +
+           "LEFT JOIN FETCH v.vendorDetails vd " +
+           "WHERE LOWER(v.vendorCodeAlt) = LOWER(:vendorCode)")
+    Optional<Vendor> findByVendorCodeIgnoreCase(@Param("vendorCode") String vendorCode);
 }

@@ -78,6 +78,7 @@ public interface AssetsOnWarehouseRepository extends JpaRepository<AssetsOnWareh
     @Query("SELECT aow FROM AssetsOnWarehouse aow " +
             "LEFT JOIN FETCH aow.asset a " +
             "LEFT JOIN FETCH aow.warehouse w " +
+            "LEFT JOIN FETCH aow.assetStatus ast " +
             "WHERE aow.asset.id = :assetId")
     Optional<AssetsOnWarehouse> findByAssetId(@Param("assetId") Long assetId);
 

@@ -82,6 +82,7 @@ public interface AssetsOnSiteRepository extends JpaRepository<AssetsOnSite, Long
     @Query("SELECT aos FROM AssetsOnSite aos " +
             "LEFT JOIN FETCH aos.asset a " +
             "LEFT JOIN FETCH aos.site s " +
+            "LEFT JOIN FETCH aos.assetStatus ast " +
             "WHERE aos.asset.id = :assetId")
     Optional<AssetsOnSite> findByAssetId(@Param("assetId") Long assetId);
 

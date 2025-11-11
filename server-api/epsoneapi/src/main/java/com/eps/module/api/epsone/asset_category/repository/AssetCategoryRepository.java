@@ -36,4 +36,10 @@ public interface AssetCategoryRepository extends JpaRepository<AssetCategory, Lo
     boolean existsByAssetCodeAltIgnoreCase(String assetCodeAlt);
 
     boolean existsByAssetCodeAltAndIdNot(String assetCodeAlt, Long id);
+
+    /**
+     * Find asset category by name (case-insensitive) - for bulk upload
+     */
+    @Query("SELECT ac FROM AssetCategory ac LEFT JOIN FETCH ac.assetType WHERE LOWER(ac.categoryName) = LOWER(:categoryName)")
+    java.util.Optional<AssetCategory> findByCategoryNameIgnoreCase(@Param("categoryName") String categoryName);
 }

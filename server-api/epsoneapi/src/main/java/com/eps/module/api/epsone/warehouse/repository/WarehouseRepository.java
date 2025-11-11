@@ -62,4 +62,10 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
            "LEFT JOIN FETCH c.state " +
            "ORDER BY w.warehouseName ASC")
     java.util.List<Warehouse> findAllWithLocationAndCityAndState();
+
+    /**
+     * Find warehouse by name (case-insensitive) - for bulk upload
+     */
+    @Query("SELECT w FROM Warehouse w WHERE LOWER(w.warehouseName) = LOWER(:warehouseName)")
+    Optional<Warehouse> findByWarehouseNameIgnoreCase(@Param("warehouseName") String warehouseName);
 }

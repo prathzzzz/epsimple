@@ -62,4 +62,24 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
         @Param("vendorId") Long vendorId,
         @Param("bankId") Long bankId
     );
+
+    /**
+     * Find all assets with all relationships eagerly fetched - for bulk upload export
+     * IMPORTANT: Use LEFT JOIN FETCH for ALL relationships accessed in DTO mapping
+     */
+    @Query("SELECT a FROM Asset a " +
+           "LEFT JOIN FETCH a.assetType at " +
+           "LEFT JOIN FETCH a.assetCategory ac " +
+           "LEFT JOIN FETCH a.vendor v " +
+           "LEFT JOIN FETCH v.vendorDetails vd " +
+           "LEFT JOIN FETCH a.lenderBank lb " +
+           "LEFT JOIN FETCH a.statusType st " +
+           "ORDER BY a.assetTagId ASC")
+    List<Asset> findAllForExport();
+
+    /**
+     * Check if asset exists by asset tag ID (case-insensitive) - for duplicate checking
+     */
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Asset a WHERE LOWER(a.assetTagId) = LOWER(:assetTagId)")
+    boolean existsByAssetTagIdIgnoreCase(@Param("assetTagId") String assetTagId);
 }

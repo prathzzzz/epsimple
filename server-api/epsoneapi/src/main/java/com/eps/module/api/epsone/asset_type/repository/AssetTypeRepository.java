@@ -36,4 +36,10 @@ public interface AssetTypeRepository extends JpaRepository<AssetType, Long> {
     // Bulk Upload Methods
     @Query("SELECT at FROM AssetType at ORDER BY at.typeName ASC")
     List<AssetType> findAllForExport();
+
+    /**
+     * Find asset type by name (case-insensitive) - for bulk upload
+     */
+    @Query("SELECT at FROM AssetType at WHERE LOWER(at.typeName) = LOWER(:typeName)")
+    java.util.Optional<AssetType> findByTypeNameIgnoreCase(@Param("typeName") String typeName);
 }

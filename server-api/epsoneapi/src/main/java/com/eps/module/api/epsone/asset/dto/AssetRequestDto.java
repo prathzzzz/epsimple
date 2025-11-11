@@ -1,4 +1,4 @@
-package com.eps.module.api.epsone.asset.context;
+package com.eps.module.api.epsone.asset.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

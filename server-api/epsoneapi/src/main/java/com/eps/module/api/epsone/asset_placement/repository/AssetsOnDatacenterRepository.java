@@ -78,6 +78,7 @@ public interface AssetsOnDatacenterRepository extends JpaRepository<AssetsOnData
     @Query("SELECT aod FROM AssetsOnDatacenter aod " +
             "LEFT JOIN FETCH aod.asset a " +
             "LEFT JOIN FETCH aod.datacenter d " +
+            "LEFT JOIN FETCH aod.assetStatus ast " +
             "WHERE aod.asset.id = :assetId")
     Optional<AssetsOnDatacenter> findByAssetId(@Param("assetId") Long assetId);
 

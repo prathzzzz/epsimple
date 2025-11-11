@@ -1,7 +1,7 @@
 package com.eps.module.api.epsone.asset.mapper;
 
-import com.eps.module.api.epsone.asset.context.AssetRequestDto;
-import com.eps.module.api.epsone.asset.context.AssetResponseDto;
+import com.eps.module.api.epsone.asset.dto.AssetRequestDto;
+import com.eps.module.api.epsone.asset.dto.AssetResponseDto;
 import com.eps.module.asset.Asset;
 import com.eps.module.asset.AssetCategory;
 import com.eps.module.asset.AssetType;
@@ -88,24 +88,24 @@ public interface AssetMapper {
         if (vendor == null || vendor.getVendorDetails() == null) {
             return null;
         }
-        
+
         PersonDetails details = vendor.getVendorDetails();
         StringBuilder name = new StringBuilder();
-        
+
         if (details.getFirstName() != null && !details.getFirstName().isEmpty()) {
             name.append(details.getFirstName());
         }
-        
+
         if (details.getMiddleName() != null && !details.getMiddleName().isEmpty()) {
             if (name.length() > 0) name.append(" ");
             name.append(details.getMiddleName());
         }
-        
+
         if (details.getLastName() != null && !details.getLastName().isEmpty()) {
             if (name.length() > 0) name.append(" ");
             name.append(details.getLastName());
         }
-        
+
         return name.length() > 0 ? name.toString() : "Unknown Vendor";
     }
 }

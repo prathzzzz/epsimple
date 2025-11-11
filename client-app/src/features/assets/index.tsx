@@ -7,11 +7,13 @@ import { ConfigDrawer } from '@/components/config-drawer'
 import { AssetProvider, useAssetContext } from './context/asset-provider'
 import { AssetTable } from './components/asset-table'
 import { assetColumns } from './components/asset-columns'
-import { CreateAssetButton } from './components/create-asset-button'
+import { AssetPrimaryButtons } from './components/asset-primary-buttons'
 import { AssetDrawer } from './components/asset-drawer'
 import { AssetDeleteDialog } from './components/asset-delete-dialog'
 import { AssetMovementDialog } from './components/asset-movement-dialog'
 import { AssetPlacementDialog } from './components/asset-placement-dialog'
+import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog'
+import { useQueryClient } from '@tanstack/react-query'
 
 function AssetsContent() {
   const { 
@@ -21,7 +23,10 @@ function AssetsContent() {
     isPlacementDialogOpen,
     setIsPlacementDialogOpen,
     assetForPlacement,
+    isBulkUploadDialogOpen,
+    setIsBulkUploadDialogOpen,
   } = useAssetContext();
+  const queryClient = useQueryClient();
 
   return (
     <>
@@ -41,9 +46,7 @@ function AssetsContent() {
               Manage all assets and their details
             </p>
           </div>
-          <div className="flex items-center space-x-2">
-            <CreateAssetButton />
-          </div>
+          <AssetPrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1">
           <AssetTable columns={assetColumns} />
@@ -69,6 +72,18 @@ function AssetsContent() {
           assetName={assetForPlacement.assetName}
         />
       )}
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: '/api/assets/bulk/upload',
+          errorReportEndpoint: '/api/assets/bulk/export-error-report',
+          entityName: 'Asset',
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['assets'] });
+          },
+        }}
+      />
     </>
   )
 }
