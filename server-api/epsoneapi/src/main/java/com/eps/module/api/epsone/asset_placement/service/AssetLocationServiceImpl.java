@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.asset_placement.service;
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
 import com.eps.module.api.epsone.asset_placement.constants.ErrorMessages;
 import com.eps.module.api.epsone.asset_placement.dto.AssetLocationCheckDto;
+import com.eps.module.api.epsone.asset_placement.dto.AssetPlacementBulkUploadDto;
+import com.eps.module.api.epsone.asset_placement.processor.AssetPlacementBulkUploadProcessor;
 import com.eps.module.api.epsone.asset_placement.repository.AssetsOnDatacenterRepository;
 import com.eps.module.api.epsone.asset_placement.repository.AssetsOnSiteRepository;
 import com.eps.module.api.epsone.asset_placement.repository.AssetsOnWarehouseRepository;
@@ -11,13 +13,25 @@ import com.eps.module.asset.Asset;
 import com.eps.module.asset.AssetsOnDatacenter;
 import com.eps.module.asset.AssetsOnSite;
 import com.eps.module.asset.AssetsOnWarehouse;
+import com.eps.module.common.bulk.excel.ExcelExportUtil;
+import com.eps.module.common.bulk.excel.ExcelImportUtil;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -29,6 +43,9 @@ public class AssetLocationServiceImpl implements AssetLocationService {
     private final AssetsOnWarehouseRepository assetsOnWarehouseRepository;
     private final AssetsOnDatacenterRepository assetsOnDatacenterRepository;
     private final AssetRepository assetRepository;
+    private final AssetPlacementBulkUploadProcessor bulkUploadProcessor;
+    private final ExcelImportUtil excelImportUtil;
+    private final ExcelExportUtil excelExportUtil;
 
     @Override
     @Transactional(readOnly = true)
@@ -126,5 +143,75 @@ public class AssetLocationServiceImpl implements AssetLocationService {
         });
 
         log.info("Asset {} marked as vacated from current location successfully", assetId);
+    }
+
+    @Override
+    public SseEmitter bulkUploadPlacements(MultipartFile file) throws IOException {
+        log.info("Starting asset placement bulk upload");
+        
+        // Validate file
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty");
+        }
+        
+        if (!file.getOriginalFilename().endsWith(".xlsx")) {
+            throw new IllegalArgumentException("Invalid file format. Please upload an Excel file (.xlsx)");
+        }
+        
+        // Parse Excel file
+        List<AssetPlacementBulkUploadDto> uploadData = excelImportUtil.parseExcelFile(file, AssetPlacementBulkUploadDto.class);
+        
+        log.info("Parsed {} placement records from Excel file", uploadData.size());
+        
+        // Create SSE emitter
+        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        
+        // Add completion and error handlers
+        emitter.onCompletion(() -> log.info("SSE emitter completed successfully for asset placement bulk upload"));
+        emitter.onTimeout(() -> log.warn("SSE emitter timeout for asset placement bulk upload"));
+        emitter.onError((ex) -> log.error("SSE emitter error for asset placement bulk upload: {}", ex.getMessage()));
+        
+        // Process async
+        bulkUploadProcessor.processBulkUpload(uploadData, emitter);
+        
+        log.info("Asset placement bulk upload processing started asynchronously");
+        
+        return emitter;
+    }
+
+    @Override
+    public ResponseEntity<byte[]> exportPlacementTemplate() throws IOException {
+        log.info("Exporting asset placement template");
+        
+        // Create empty template with sample data
+        List<AssetPlacementBulkUploadDto> sampleData = new ArrayList<>();
+        sampleData.add(AssetPlacementBulkUploadDto.builder()
+                .assetTagId("EXAMPLE-TAG-001")
+                .locationCode("SITE-CODE")
+                .placementStatusCode("ACTIVE")
+                .assignedOn("")
+                .deliveredOn("")
+                .deployedOn("")
+                .activatedOn("")
+                .commissionedOn("")
+                .decommissionedOn("")
+                .vacatedOn("")
+                .disposedOn("")
+                .scrappedOn("")
+                .build());
+        
+        byte[] excelData = excelExportUtil.exportToExcel(
+                sampleData,
+                AssetPlacementBulkUploadDto.class,
+                "Asset_Placement_Template"
+        );
+        
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        String filename = "Asset_Placement_Template_" + timestamp + ".xlsx";
+        
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(excelData);
     }
 }

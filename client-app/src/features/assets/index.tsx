@@ -25,6 +25,8 @@ function AssetsContent() {
     assetForPlacement,
     isBulkUploadDialogOpen,
     setIsBulkUploadDialogOpen,
+    isPlacementBulkUploadDialogOpen,
+    setIsPlacementBulkUploadDialogOpen,
   } = useAssetContext();
   const queryClient = useQueryClient();
 
@@ -81,6 +83,21 @@ function AssetsContent() {
           entityName: 'Asset',
           onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['assets'] });
+          },
+        }}
+      />
+      <GenericBulkUploadDialog
+        open={isPlacementBulkUploadDialogOpen}
+        onOpenChange={setIsPlacementBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: '/api/asset-location/bulk-upload',
+          errorReportEndpoint: '/api/asset-location/export-error-report',
+          entityName: 'Asset Placement',
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['assets'] });
+            queryClient.invalidateQueries({ queryKey: ['assetsOnSite'] });
+            queryClient.invalidateQueries({ queryKey: ['assetsOnDatacenter'] });
+            queryClient.invalidateQueries({ queryKey: ['assetsOnWarehouse'] });
           },
         }}
       />

@@ -1,18 +1,29 @@
 import { Button } from "@/components/ui/button";
-import { Download, FileUp, Upload, Plus } from "lucide-react";
+import { Download, FileUp, Upload, Plus, MapPin, ChevronDown } from "lucide-react";
 import { useAssetContext } from "../context/asset-provider";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function AssetPrimaryButtons() {
-  const { setIsDrawerOpen, setEditingAsset, setIsBulkUploadDialogOpen } = useAssetContext();
+  const { 
+    setIsDrawerOpen, 
+    setEditingAsset, 
+    setIsBulkUploadDialogOpen,
+    setIsPlacementBulkUploadDialogOpen 
+  } = useAssetContext();
 
   const handleDownloadTemplate = async () => {
     try {
       const response = await fetch('/api/assets/bulk/export-template', {
         method: 'GET',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -36,13 +47,39 @@ export function AssetPrimaryButtons() {
     }
   };
 
+  const handleDownloadPlacementTemplate = async () => {
+    try {
+      const response = await fetch('/api/asset-location/export-template', {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to download placement template');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Asset_Placement_Template.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success("Placement template downloaded successfully");
+    } catch (error) {
+      console.error("Error downloading placement template:", error);
+      toast.error("Failed to download placement template");
+    }
+  };
+
   const handleExportData = async () => {
     try {
       const response = await fetch('/api/assets/bulk/export-data', {
         method: 'GET',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -72,38 +109,62 @@ export function AssetPrimaryButtons() {
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleDownloadTemplate}
-        className="border-blue-500 text-blue-600 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-950"
-      >
-        <Download className="h-4 w-4 mr-2" />
-        Download Template
-      </Button>
+    <div className="flex items-center gap-2">
+      {/* Bulk Actions Dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 px-3 text-sm font-medium"
+          >
+            <FileUp className="h-4 w-4 mr-2" />
+            Bulk Actions
+            <ChevronDown className="h-4 w-4 ml-2" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-64">
+          <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
+            Asset Creation
+          </DropdownMenuLabel>
+          <DropdownMenuItem onClick={handleDownloadTemplate} className="cursor-pointer">
+            <Download className="h-4 w-4 mr-2 text-blue-600" />
+            <span>Download Asset Template</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsBulkUploadDialogOpen(true)} className="cursor-pointer">
+            <FileUp className="h-4 w-4 mr-2 text-blue-600" />
+            <span>Bulk Upload Assets</span>
+          </DropdownMenuItem>
+          
+          <DropdownMenuSeparator />
+          
+          <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
+            Asset Placement
+          </DropdownMenuLabel>
+          <DropdownMenuItem onClick={handleDownloadPlacementTemplate} className="cursor-pointer">
+            <Download className="h-4 w-4 mr-2 text-teal-600" />
+            <span>Download Placement Template</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsPlacementBulkUploadDialogOpen(true)} className="cursor-pointer">
+            <MapPin className="h-4 w-4 mr-2 text-teal-600" />
+            <span>Bulk Place Assets</span>
+          </DropdownMenuItem>
+          
+          <DropdownMenuSeparator />
+          
+          <DropdownMenuItem onClick={handleExportData} className="cursor-pointer">
+            <Upload className="h-4 w-4 mr-2 text-purple-600" />
+            <span>Export All Data</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-      <Button
-        variant="outline"
+      {/* Primary Action */}
+      <Button 
+        onClick={handleCreate}
         size="sm"
-        onClick={() => setIsBulkUploadDialogOpen(true)}
-        className="border-green-500 text-green-600 hover:bg-green-50 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-950"
+        className="h-9 px-4 text-sm font-medium"
       >
-        <FileUp className="h-4 w-4 mr-2" />
-        Bulk Upload
-      </Button>
-
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleExportData}
-        className="border-purple-500 text-purple-600 hover:bg-purple-50 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-950"
-      >
-        <Upload className="h-4 w-4 mr-2" />
-        Export Data
-      </Button>
-
-      <Button onClick={handleCreate}>
         <Plus className="h-4 w-4 mr-2" />
         Add Asset
       </Button>

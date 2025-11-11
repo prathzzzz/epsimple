@@ -28,3 +28,10 @@ export const assetLocationApi = {
     await api.delete(`/api/asset-location/remove/${assetId}`);
   },
 };
+
+// Asset Placement Bulk Upload API endpoints
+export const ASSET_PLACEMENT_BULK_UPLOAD_ENDPOINTS = {
+  UPLOAD: '/api/asset-location/bulk-upload',
+  EXPORT_TEMPLATE: '/api/asset-location/export-template',
+  EXPORT_ERROR_REPORT: '/api/asset-location/export-error-report',
+};

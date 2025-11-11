@@ -1,11 +1,21 @@
-import { Download, Plus, Upload, FileSpreadsheet } from "lucide-react";
+import { Download, Plus, Upload, FileSpreadsheet, Loader2, FileUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useGenericStatusType } from "../context/generic-status-type-provider";
 import { toast } from "sonner";
+import { useState } from "react";
 
 export function GenericStatusTypePrimaryButtons() {
   const { setSelectedStatusType, setIsDrawerOpen, setIsEditMode, setIsBulkUploadDialogOpen } =
     useGenericStatusType();
+  const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleCreate = () => {
     setSelectedStatusType(null);
@@ -14,12 +24,11 @@ export function GenericStatusTypePrimaryButtons() {
   };
 
   const handleDownloadTemplate = async () => {
+    setIsDownloadingTemplate(true);
     try {
       const response = await fetch("/api/generic-status-types/download-template", {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -39,16 +48,17 @@ export function GenericStatusTypePrimaryButtons() {
     } catch (error) {
       toast.error("Failed to download template");
       console.error("Download error:", error);
+    } finally {
+      setIsDownloadingTemplate(false);
     }
   };
 
   const handleExportData = async () => {
+    setIsExporting(true);
     try {
       const response = await fetch("/api/generic-status-types/export", {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -68,6 +78,8 @@ export function GenericStatusTypePrimaryButtons() {
     } catch (error) {
       toast.error("Failed to export data");
       console.error("Export error:", error);
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -77,31 +89,40 @@ export function GenericStatusTypePrimaryButtons() {
 
   return (
     <div className="flex items-center gap-2">
-      <Button
-        onClick={handleDownloadTemplate}
-        variant="outline"
-        className="border-blue-500 text-blue-500 hover:bg-blue-50"
-      >
-        <Download className="mr-2 h-4 w-4" />
-        Download Template
-      </Button>
-      <Button
-        onClick={handleExportData}
-        variant="outline"
-        className="border-green-500 text-green-500 hover:bg-green-50"
-      >
-        <FileSpreadsheet className="mr-2 h-4 w-4" />
-        Export Data
-      </Button>
-      <Button
-        onClick={handleBulkUpload}
-        variant="outline"
-        className="border-orange-500 text-orange-500 hover:bg-orange-50"
-      >
-        <Upload className="mr-2 h-4 w-4" />
-        Bulk Upload
-      </Button>
-      <Button onClick={handleCreate}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" className="h-9 px-3">
+            <FileUp className="mr-2 h-4 w-4" />
+            Bulk Actions
+            <ChevronDown className="ml-2 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-64">
+          <DropdownMenuItem onClick={handleDownloadTemplate} disabled={isDownloadingTemplate}>
+            {isDownloadingTemplate ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin text-blue-600" />
+            ) : (
+              <Download className="mr-2 h-4 w-4 text-blue-600" />
+            )}
+            <span>Download Template</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleBulkUpload}>
+            <Upload className="mr-2 h-4 w-4 text-orange-600" />
+            <span>Bulk Upload</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleExportData} disabled={isExporting}>
+            {isExporting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin text-green-600" />
+            ) : (
+              <FileSpreadsheet className="mr-2 h-4 w-4 text-green-600" />
+            )}
+            <span>Export All Data</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Button onClick={handleCreate} size="sm" className="h-9">
         <Plus className="mr-2 h-4 w-4" />
         Add Status Type
       </Button>

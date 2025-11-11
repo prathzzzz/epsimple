@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Slf4j
 @RestController
@@ -30,5 +32,27 @@ public class AssetLocationController {
         log.info("DELETE /api/asset-location/remove/{} - Removing asset from current location", assetId);
         assetLocationService.removeAssetFromCurrentLocation(assetId);
         return ResponseBuilder.success(null, "Asset removed from current location successfully", HttpStatus.OK);
+    }
+
+    @PostMapping("/bulk-upload")
+    public SseEmitter bulkUploadPlacements(@RequestParam("file") MultipartFile file) {
+        log.info("POST /api/asset-location/bulk-upload - Starting bulk placement upload");
+        try {
+            return assetLocationService.bulkUploadPlacements(file);
+        } catch (Exception e) {
+            log.error("Error in bulk upload: {}", e.getMessage(), e);
+            throw new RuntimeException("Bulk upload failed: " + e.getMessage(), e);
+        }
+    }
+
+    @GetMapping("/export-template")
+    public ResponseEntity<byte[]> exportPlacementTemplate() {
+        log.info("GET /api/asset-location/export-template - Exporting placement template");
+        try {
+            return assetLocationService.exportPlacementTemplate();
+        } catch (Exception e) {
+            log.error("Error exporting template: {}", e.getMessage(), e);
+            throw new RuntimeException("Template export failed: " + e.getMessage(), e);
+        }
     }
 }

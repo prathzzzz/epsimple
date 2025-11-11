@@ -1,10 +1,20 @@
-import { Download, FileUp, Plus, Upload } from 'lucide-react';
+import { Download, FileUp, Plus, Upload, Loader2, ChevronDown, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useAssetTypes } from '../context/asset-types-provider';
 import { toast } from 'sonner';
+import { useState } from 'react';
 
 export function AssetTypesPrimaryButtons() {
   const { setIsBulkUploadDialogOpen, setSelectedAssetType, setIsDrawerOpen } = useAssetTypes();
+  const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleCreate = () => {
     setSelectedAssetType(null);
@@ -12,12 +22,11 @@ export function AssetTypesPrimaryButtons() {
   };
 
   const handleDownloadTemplate = async () => {
+    setIsDownloadingTemplate(true);
     try {
       const response = await fetch('/api/asset-types/bulk-upload/template', {
         method: 'GET',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -38,16 +47,17 @@ export function AssetTypesPrimaryButtons() {
     } catch (error) {
       console.error('Error downloading template:', error);
       toast.error('Failed to download template');
+    } finally {
+      setIsDownloadingTemplate(false);
     }
   };
 
   const handleExportData = async () => {
+    setIsExporting(true);
     try {
       const response = await fetch('/api/asset-types/bulk-upload/export', {
         method: 'GET',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -68,43 +78,48 @@ export function AssetTypesPrimaryButtons() {
     } catch (error) {
       console.error('Error exporting data:', error);
       toast.error('Failed to export data');
+    } finally {
+      setIsExporting(false);
     }
   };
 
   return (
     <div className="flex flex-wrap gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleDownloadTemplate}
-        className="border-blue-500 text-blue-600 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-950"
-      >
-        <Download className="h-4 w-4 mr-2" />
-        Download Template
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" className="h-9 px-3">
+            <FileUp className="mr-2 h-4 w-4" />
+            Bulk Actions
+            <ChevronDown className="ml-2 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-64">
+          <DropdownMenuItem onClick={handleDownloadTemplate} disabled={isDownloadingTemplate}>
+            {isDownloadingTemplate ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin text-blue-600" />
+            ) : (
+              <Download className="mr-2 h-4 w-4 text-blue-600" />
+            )}
+            <span>Download Template</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsBulkUploadDialogOpen(true)}>
+            <Upload className="mr-2 h-4 w-4 text-orange-600" />
+            <span>Bulk Upload</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleExportData} disabled={isExporting}>
+            {isExporting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin text-green-600" />
+            ) : (
+              <FileSpreadsheet className="mr-2 h-4 w-4 text-green-600" />
+            )}
+            <span>Export All Data</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setIsBulkUploadDialogOpen(true)}
-        className="border-green-500 text-green-600 hover:bg-green-50 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-950"
-      >
-        <FileUp className="h-4 w-4 mr-2" />
-        Bulk Upload
-      </Button>
-
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleExportData}
-        className="border-purple-500 text-purple-600 hover:bg-purple-50 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-950"
-      >
-        <Upload className="h-4 w-4 mr-2" />
-        Export Data
-      </Button>
-
-      <Button onClick={handleCreate}>
-        <Plus className="h-4 w-4 mr-2" />
+      <Button onClick={handleCreate} size="sm" className="h-9">
+        <Plus className="mr-2 h-4 w-4" />
         Add Asset Type
       </Button>
     </div>

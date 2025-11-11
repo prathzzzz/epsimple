@@ -1,5 +1,12 @@
 import { Button } from '@/components/ui/button'
-import { Plus, Upload, FileSpreadsheet, Loader2, Download } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Plus, Upload, FileSpreadsheet, Loader2, Download, FileUp, ChevronDown } from 'lucide-react'
 import { useLocation } from '../context/location-provider'
 import { useExport } from '@/hooks/useExport'
 import { useState } from 'react'
@@ -35,28 +42,41 @@ export function LocationPrimaryButtons() {
 
   return (
     <div className="flex gap-2">
-      <Button onClick={handleDownloadTemplate} size='sm' variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-400 dark:hover:bg-blue-950" disabled={isDownloadingTemplate}>
-        {isDownloadingTemplate ? (
-          <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-        ) : (
-          <Download className='mr-2 h-4 w-4' />
-        )}
-        Download Template
-      </Button>
-      <Button onClick={handleExport} size='sm' variant="outline" className="border-green-500 text-green-600 hover:bg-green-50 dark:border-green-600 dark:text-green-400 dark:hover:bg-green-950" disabled={isExporting}>
-        {isExporting ? (
-          <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-        ) : (
-          <FileSpreadsheet className='mr-2 h-4 w-4' />
-        )}
-        Export
-      </Button>
-      <Button onClick={openBulkUploadDialog} size='sm' variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50 dark:border-orange-600 dark:text-orange-400 dark:hover:bg-orange-950">
-        <Upload className='mr-2 h-4 w-4' />
-        Bulk Upload
-      </Button>
-      <Button onClick={handleCreateClick} size='sm'>
-        <Plus className='mr-2 h-4 w-4' />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" className="h-9 px-3">
+            <FileUp className="mr-2 h-4 w-4" />
+            Bulk Actions
+            <ChevronDown className="ml-2 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-64">
+          <DropdownMenuItem onClick={handleDownloadTemplate} disabled={isDownloadingTemplate}>
+            {isDownloadingTemplate ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin text-blue-600" />
+            ) : (
+              <Download className="mr-2 h-4 w-4 text-blue-600" />
+            )}
+            <span>Download Template</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={openBulkUploadDialog}>
+            <Upload className="mr-2 h-4 w-4 text-orange-600" />
+            <span>Bulk Upload</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleExport} disabled={isExporting}>
+            {isExporting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin text-green-600" />
+            ) : (
+              <FileSpreadsheet className="mr-2 h-4 w-4 text-green-600" />
+            )}
+            <span>Export All Data</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Button onClick={handleCreateClick} size="sm" className="h-9">
+        <Plus className="mr-2 h-4 w-4" />
         Add Location
       </Button>
     </div>
