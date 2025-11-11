@@ -1,10 +1,16 @@
 package com.eps.module.api.epsone.activity.service;
 
 import com.eps.module.activity.Activity;
+import com.eps.module.api.epsone.activity.dto.ActivityBulkUploadDto;
+import com.eps.module.api.epsone.activity.dto.ActivityErrorReportDto;
 import com.eps.module.api.epsone.activity.dto.ActivityRequestDto;
 import com.eps.module.api.epsone.activity.dto.ActivityResponseDto;
 import com.eps.module.api.epsone.activity.mapper.ActivityMapper;
+import com.eps.module.api.epsone.activity.processor.ActivityBulkUploadProcessor;
 import com.eps.module.api.epsone.activity.repository.ActivityRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,16 +19,65 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ActivityServiceImpl implements ActivityService {
+public class ActivityServiceImpl extends BaseBulkUploadService<ActivityBulkUploadDto, Activity> implements ActivityService {
 
     private final ActivityRepository activityRepository;
     private final ActivityMapper activityMapper;
     private final com.eps.module.api.epsone.activities.repository.ActivitiesRepository activitiesRepository;
+    private final ActivityBulkUploadProcessor activityBulkUploadProcessor;
+
+    // ========== Bulk Upload Methods ==========
+
+    @Override
+    protected BulkUploadProcessor<ActivityBulkUploadDto, Activity> getProcessor() {
+        return activityBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<ActivityBulkUploadDto> getBulkUploadDtoClass() {
+        return ActivityBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Activity";
+    }
+
+    @Override
+    public List<Activity> getAllEntitiesForExport() {
+        return activityRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<Activity, ActivityBulkUploadDto> getEntityToDtoMapper() {
+        return activity -> ActivityBulkUploadDto.builder()
+                .activityName(activity.getActivityName())
+                .activityDescription(activity.getActivityDescription())
+                .build();
+    }
+
+    @Override
+    public ActivityErrorReportDto buildErrorReportDto(BulkUploadErrorDto errorDto) {
+        return ActivityErrorReportDto.builder()
+                .rowNumber(errorDto.getRowNumber())
+                .activityName((String) errorDto.getRowData().get("Activity Name"))
+                .activityDescription((String) errorDto.getRowData().get("Activity Description"))
+                .error(errorDto.getErrorMessage())
+                .build();
+    }
+
+    @Override
+    public Class<ActivityErrorReportDto> getErrorReportDtoClass() {
+        return ActivityErrorReportDto.class;
+    }
+
+    // ========== CRUD Methods ==========
 
     @Override
     @Transactional

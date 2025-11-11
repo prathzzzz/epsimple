@@ -10,6 +10,8 @@ interface ActivitiesListContextType {
   setIsDeleteDialogOpen: (open: boolean) => void;
   isEditMode: boolean;
   setIsEditMode: (mode: boolean) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (open: boolean) => void;
 }
 
 const ActivitiesListContext = createContext<ActivitiesListContextType | undefined>(
@@ -24,6 +26,7 @@ export const ActivitiesListProvider: React.FC<{
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
 
   return (
     <ActivitiesListContext.Provider
@@ -36,6 +39,8 @@ export const ActivitiesListProvider: React.FC<{
         setIsDeleteDialogOpen,
         isEditMode,
         setIsEditMode,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
       }}
     >
       {children}

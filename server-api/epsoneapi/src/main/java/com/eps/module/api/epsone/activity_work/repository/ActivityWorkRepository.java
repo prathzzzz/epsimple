@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -54,4 +55,13 @@ public interface ActivityWorkRepository extends JpaRepository<ActivityWork, Long
 
     @Query("SELECT aw FROM ActivityWork aw WHERE aw.statusType.id = :statusTypeId")
     Page<ActivityWork> findByStatusTypeId(@Param("statusTypeId") Long statusTypeId, Pageable pageable);
+
+    @Query("SELECT aw FROM ActivityWork aw " +
+            "LEFT JOIN FETCH aw.activities a " +
+            "LEFT JOIN FETCH a.activity " +
+            "LEFT JOIN FETCH aw.vendor v " +
+            "LEFT JOIN FETCH v.vendorDetails " +
+            "LEFT JOIN FETCH aw.statusType st " +
+            "ORDER BY aw.id")
+    List<ActivityWork> findAllForExport();
 }

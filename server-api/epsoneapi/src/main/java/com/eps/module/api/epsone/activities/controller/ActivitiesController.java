@@ -3,25 +3,61 @@ package com.eps.module.api.epsone.activities.controller;
 import com.eps.module.api.epsone.activities.dto.ActivitiesRequestDto;
 import com.eps.module.api.epsone.activities.dto.ActivitiesResponseDto;
 import com.eps.module.api.epsone.activities.service.ActivitiesService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/activities")
 @RequiredArgsConstructor
 public class ActivitiesController {
 
     private final ActivitiesService activitiesService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter bulkUploadActivities(@RequestParam("file") MultipartFile file) throws Exception {
+        log.info("POST /api/activities/bulk-upload - Starting bulk upload");
+        return bulkUploadControllerHelper.bulkUpload(file, activitiesService);
+    }
+
+    @GetMapping("/bulk-upload/template")
+    public ResponseEntity<byte[]> downloadTemplate() throws Exception {
+        log.info("GET /api/activities/bulk-upload/template - Downloading template");
+        return bulkUploadControllerHelper.downloadTemplate(activitiesService);
+    }
+
+    @GetMapping("/bulk-upload/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        log.info("GET /api/activities/bulk-upload/export - Exporting data");
+        return bulkUploadControllerHelper.export(activitiesService);
+    }
+
+    @PostMapping("/bulk-upload/errors")
+    public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
+        log.info("POST /api/activities/bulk-upload/errors - Downloading error report");
+        return bulkUploadControllerHelper.exportErrors(progressData, activitiesService);
+    }
+
+    // ========== CRUD Endpoints ==========
 
     @PostMapping
     public ResponseEntity<ApiResponse<ActivitiesResponseDto>> createActivities(

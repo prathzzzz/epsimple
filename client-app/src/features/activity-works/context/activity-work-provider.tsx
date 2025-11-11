@@ -8,6 +8,8 @@ interface ActivityWorkContextType {
   setIsDrawerOpen: (show: boolean) => void;
   isDeleteDialogOpen: boolean;
   setIsDeleteDialogOpen: (show: boolean) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (show: boolean) => void;
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
   openDrawer: () => void;
@@ -24,6 +26,7 @@ export function ActivityWorkProvider({ children }: { children: React.ReactNode }
   const [selectedActivityWork, setSelectedActivityWork] = useState<ActivityWork | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
   const [globalFilter, setGlobalFilter] = useState('');
 
   const openDrawer = () => setIsDrawerOpen(true);
@@ -47,6 +50,8 @@ export function ActivityWorkProvider({ children }: { children: React.ReactNode }
         setIsDrawerOpen,
         isDeleteDialogOpen,
         setIsDeleteDialogOpen,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
         globalFilter,
         setGlobalFilter,
         openDrawer,

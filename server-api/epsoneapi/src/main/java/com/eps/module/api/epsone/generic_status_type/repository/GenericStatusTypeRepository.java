@@ -27,6 +27,9 @@ public interface GenericStatusTypeRepository extends JpaRepository<GenericStatus
 
     boolean existsByStatusCodeAndIdNot(String statusCode, Long id);
 
+    @Query("SELECT CASE WHEN COUNT(g) > 0 THEN true ELSE false END FROM GenericStatusType g WHERE LOWER(g.statusCode) = LOWER(:statusCode)")
+    boolean existsByStatusCodeIgnoreCase(@Param("statusCode") String statusCode);
+
     @Query("SELECT g FROM GenericStatusType g WHERE LOWER(g.statusCode) = LOWER(:statusCode)")
     java.util.Optional<GenericStatusType> findByStatusCodeIgnoreCase(@Param("statusCode") String statusCode);
 

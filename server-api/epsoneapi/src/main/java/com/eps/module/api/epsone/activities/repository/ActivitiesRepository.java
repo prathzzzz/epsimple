@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ActivitiesRepository extends JpaRepository<Activities, Long> {
@@ -24,5 +25,10 @@ public interface ActivitiesRepository extends JpaRepository<Activities, Long> {
 
     boolean existsByActivityNameIgnoreCase(String activityName);
 
+    Optional<Activities> findByActivityNameIgnoreCase(String activityName);
+
     boolean existsByActivityNameAndIdNot(String activityName, Long id);
+
+    @Query("SELECT a FROM Activities a LEFT JOIN FETCH a.activity ORDER BY a.id")
+    List<Activities> findAllForExport();
 }

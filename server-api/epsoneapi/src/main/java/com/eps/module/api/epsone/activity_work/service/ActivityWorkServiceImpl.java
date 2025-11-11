@@ -3,12 +3,18 @@ package com.eps.module.api.epsone.activity_work.service;
 import com.eps.module.activity.Activities;
 import com.eps.module.activity.ActivityWork;
 import com.eps.module.api.epsone.activities.repository.ActivitiesRepository;
+import com.eps.module.api.epsone.activity_work.dto.ActivityWorkBulkUploadDto;
+import com.eps.module.api.epsone.activity_work.dto.ActivityWorkErrorReportDto;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkRequestDto;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkResponseDto;
 import com.eps.module.api.epsone.activity_work.mapper.ActivityWorkMapper;
+import com.eps.module.api.epsone.activity_work.processor.ActivityWorkBulkUploadProcessor;
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
 import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTypeRepository;
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.status.GenericStatusType;
 import com.eps.module.vendor.Vendor;
@@ -22,18 +28,93 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ActivityWorkServiceImpl implements ActivityWorkService {
+public class ActivityWorkServiceImpl extends BaseBulkUploadService<ActivityWorkBulkUploadDto, ActivityWork> implements ActivityWorkService {
 
     private final ActivityWorkRepository activityWorkRepository;
     private final ActivitiesRepository activitiesRepository;
     private final VendorRepository vendorRepository;
     private final GenericStatusTypeRepository genericStatusTypeRepository;
     private final ActivityWorkMapper activityWorkMapper;
+    private final ActivityWorkBulkUploadProcessor activityWorkBulkUploadProcessor;
+
+    // ========== Bulk Upload Methods ==========
+
+    @Override
+    protected BulkUploadProcessor<ActivityWorkBulkUploadDto, ActivityWork> getProcessor() {
+        return activityWorkBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<ActivityWorkBulkUploadDto> getBulkUploadDtoClass() {
+        return ActivityWorkBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Activity Work";
+    }
+
+    @Override
+    public List<ActivityWork> getAllEntitiesForExport() {
+        return activityWorkRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<ActivityWork, ActivityWorkBulkUploadDto> getEntityToDtoMapper() {
+        return activityWork -> {
+            String activitiesName = activityWork.getActivities() != null 
+                    ? activityWork.getActivities().getActivityName() : "";
+            
+            String vendorName = "";
+            if (activityWork.getVendor() != null && activityWork.getVendor().getVendorDetails() != null) {
+                String firstName = activityWork.getVendor().getVendorDetails().getFirstName();
+                String lastName = activityWork.getVendor().getVendorDetails().getLastName();
+                vendorName = (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
+                vendorName = vendorName.trim();
+            }
+            
+            String statusCode = activityWork.getStatusType() != null 
+                    ? activityWork.getStatusType().getStatusCode() : "";
+
+            return ActivityWorkBulkUploadDto.builder()
+                    .activitiesName(activitiesName)
+                    .vendorName(vendorName)
+                    .vendorOrderNumber(activityWork.getVendorOrderNumber())
+                    .workOrderDate(activityWork.getWorkOrderDate() != null ? activityWork.getWorkOrderDate().toString() : "")
+                    .workStartDate(activityWork.getWorkStartDate() != null ? activityWork.getWorkStartDate().toString() : "")
+                    .workCompletionDate(activityWork.getWorkCompletionDate() != null ? activityWork.getWorkCompletionDate().toString() : "")
+                    .statusTypeCode(statusCode)
+                    .build();
+        };
+    }
+
+    @Override
+    public ActivityWorkErrorReportDto buildErrorReportDto(BulkUploadErrorDto errorDto) {
+        return ActivityWorkErrorReportDto.builder()
+                .rowNumber(errorDto.getRowNumber())
+                .activitiesName((String) errorDto.getRowData().get("Activities Name"))
+                .vendorName((String) errorDto.getRowData().get("Vendor Name"))
+                .vendorOrderNumber((String) errorDto.getRowData().get("Vendor Order Number"))
+                .workOrderDate((String) errorDto.getRowData().get("Work Order Date"))
+                .workStartDate((String) errorDto.getRowData().get("Work Start Date"))
+                .workCompletionDate((String) errorDto.getRowData().get("Work Completion Date"))
+                .statusTypeCode((String) errorDto.getRowData().get("Status Type Code"))
+                .error(errorDto.getErrorMessage())
+                .build();
+    }
+
+    @Override
+    public Class<ActivityWorkErrorReportDto> getErrorReportDtoClass() {
+        return ActivityWorkErrorReportDto.class;
+    }
+
+    // ========== CRUD Methods ==========
 
     @Override
     @Transactional

@@ -104,4 +104,12 @@ public interface VendorRepository extends JpaRepository<Vendor, Long> {
            "LEFT JOIN FETCH v.vendorDetails vd " +
            "WHERE LOWER(v.vendorCodeAlt) = LOWER(:vendorCode)")
     Optional<Vendor> findByVendorCodeIgnoreCase(@Param("vendorCode") String vendorCode);
+
+    /**
+     * Check if vendor exists by name (case-insensitive) - for bulk upload validation
+     */
+    @Query("SELECT CASE WHEN COUNT(v) > 0 THEN true ELSE false END FROM Vendor v " +
+           "LEFT JOIN v.vendorDetails vd " +
+           "WHERE LOWER(CONCAT(COALESCE(vd.firstName, ''), ' ', COALESCE(vd.lastName, ''))) = LOWER(:vendorName)")
+    boolean existsByVendorNameIgnoreCase(@Param("vendorName") String vendorName);
 }

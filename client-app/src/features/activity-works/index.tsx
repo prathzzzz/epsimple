@@ -4,15 +4,20 @@ import { ProfileDropdown } from '@/components/profile-dropdown';
 import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { ConfigDrawer } from '@/components/config-drawer';
-import { ActivityWorkProvider } from './context/activity-work-provider';
+import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog';
+import { ActivityWorkProvider, useActivityWork } from './context/activity-work-provider';
 import { ActivityWorkDrawer } from './components/activity-work-drawer';
 import { ActivityWorkDeleteDialog } from './components/activity-work-delete-dialog';
 import { ActivityWorkTable } from './components/activity-work-table';
 import { CreateActivityWorkButton } from './components/create-activity-work-button';
+import { useQueryClient } from '@tanstack/react-query';
 
-export default function ActivityWorksPage() {
+function ActivityWorksContent() {
+  const { isBulkUploadDialogOpen, setIsBulkUploadDialogOpen } = useActivityWork();
+  const queryClient = useQueryClient();
+
   return (
-    <ActivityWorkProvider>
+    <>
       <Header fixed>
         <Search />
         <div className="ml-auto flex items-center space-x-4">
@@ -37,6 +42,26 @@ export default function ActivityWorksPage() {
       </Main>
       <ActivityWorkDrawer />
       <ActivityWorkDeleteDialog />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: '/api/activity-works/bulk-upload',
+          errorReportEndpoint: '/api/activity-works/bulk-upload/errors',
+          entityName: 'Activity Work',
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['activity-works'] });
+          },
+        }}
+      />
+    </>
+  );
+}
+
+export default function ActivityWorksPage() {
+  return (
+    <ActivityWorkProvider>
+      <ActivityWorksContent />
     </ActivityWorkProvider>
   );
 }

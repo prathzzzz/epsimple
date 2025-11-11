@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.activity_work.controller;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkRequestDto;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkResponseDto;
 import com.eps.module.api.epsone.activity_work.service.ActivityWorkService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -10,8 +12,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -22,6 +27,35 @@ import java.util.List;
 public class ActivityWorkController {
 
     private final ActivityWorkService activityWorkService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter bulkUploadActivityWorks(@RequestParam("file") MultipartFile file) throws Exception {
+        log.info("POST /api/activity-works/bulk-upload - Starting bulk upload");
+        return bulkUploadControllerHelper.bulkUpload(file, activityWorkService);
+    }
+
+    @GetMapping("/bulk-upload/template")
+    public ResponseEntity<byte[]> downloadTemplate() throws Exception {
+        log.info("GET /api/activity-works/bulk-upload/template - Downloading template");
+        return bulkUploadControllerHelper.downloadTemplate(activityWorkService);
+    }
+
+    @GetMapping("/bulk-upload/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        log.info("GET /api/activity-works/bulk-upload/export - Exporting data");
+        return bulkUploadControllerHelper.export(activityWorkService);
+    }
+
+    @PostMapping("/bulk-upload/errors")
+    public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
+        log.info("POST /api/activity-works/bulk-upload/errors - Downloading error report");
+        return bulkUploadControllerHelper.exportErrors(progressData, activityWorkService);
+    }
+
+    // ========== CRUD Endpoints ==========
 
     @PostMapping
     public ResponseEntity<ApiResponse<ActivityWorkResponseDto>> createActivityWork(

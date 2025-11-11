@@ -1,12 +1,15 @@
 package com.eps.module.api.epsone.activity_work.service;
 
+import com.eps.module.activity.ActivityWork;
+import com.eps.module.api.epsone.activity_work.dto.ActivityWorkBulkUploadDto;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkRequestDto;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkResponseDto;
+import com.eps.module.common.bulk.service.BulkUploadService;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-public interface ActivityWorkService {
+public interface ActivityWorkService extends BulkUploadService<ActivityWorkBulkUploadDto, ActivityWork> {
 
     ActivityWorkResponseDto createActivityWork(ActivityWorkRequestDto requestDto);
 

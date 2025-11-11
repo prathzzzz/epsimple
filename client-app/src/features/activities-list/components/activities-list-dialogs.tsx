@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
 import { ActivitiesListMutateDrawer } from "./activities-list-mutate-drawer";
 import { useActivitiesList } from "../context/activities-list-provider";
 import { activitiesListApi } from "../api/activities-list-api";
@@ -14,6 +15,8 @@ export function ActivitiesListDialogs() {
     setIsDrawerOpen,
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
+    isBulkUploadDialogOpen,
+    setIsBulkUploadDialogOpen,
   } = useActivitiesList();
 
   const deleteMutation = useMutation({
@@ -47,6 +50,18 @@ export function ActivitiesListDialogs() {
         handleConfirm={handleDelete}
         isLoading={deleteMutation.isPending}
         destructive
+      />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: '/api/activities/bulk-upload',
+          errorReportEndpoint: '/api/activities/bulk-upload/errors',
+          entityName: 'Activities',
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['activities'] });
+          },
+        }}
       />
     </>
   );
