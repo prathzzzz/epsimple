@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CostTypeBulkUploadDto {
 
-    @ExcelColumn(value = "Type Name", order = 1, required = true, example = "Hardware Purchase")
+    @ExcelColumn(value = "Type Name", order = 1, required = true, example = "Procurement")
     private String typeName;
 
-    @ExcelColumn(value = "Type Description", order = 2, required = true, example = "Purchase of hardware equipment")
+    @ExcelColumn(value = "Type Description", order = 2, required = true, example = "The initial cost of acquiring the asset. Includes the purchase price and any applicable taxes, duties, or shipping costs.")
     private String typeDescription;
 
-    @ExcelColumn(value = "Cost Category Name", order = 3, required = true, example = "Operational Expenses")
+    @ExcelColumn(value = "Cost Category Name", order = 3, required = true, example = "CAPEX")
     private String costCategoryName;
 }

@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PaymentMethodBulkUploadDto {
 
-    @ExcelColumn(value = "Method Name", order = 1, required = true, example = "Credit Card")
+    @ExcelColumn(value = "Method Name", order = 1, required = true, example = "NEFT")
     private String methodName;
 
-    @ExcelColumn(value = "Description", order = 2, required = false, example = "Payment via credit card")
+    @ExcelColumn(value = "Description", order = 2, required = false, example = "Payment done through National Electronic Funds Transfer (NEFT)")
     private String description;
 }

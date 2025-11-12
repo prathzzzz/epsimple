@@ -26,6 +26,6 @@ public class Vendor extends BaseEntity {
     @JoinColumn(name = "vendor_details_id", nullable = false, unique = true)
     private PersonDetails vendorDetails;
 
-    @Column(name = "vendor_code_alt", unique = true, length = 10)
+    @Column(name = "vendor_code_alt", nullable = false, unique = true, length = 10)
     private String vendorCodeAlt;
 }

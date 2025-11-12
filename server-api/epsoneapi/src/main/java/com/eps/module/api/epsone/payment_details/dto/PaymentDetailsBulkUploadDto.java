@@ -15,10 +15,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class PaymentDetailsBulkUploadDto {
 
-    @ExcelColumn(value = "Payment Method Name", order = 1, required = true, example = "Credit Card")
+    @ExcelColumn(value = "Payment Method Name", order = 1, required = true, example = "NEFT")
     private String paymentMethodName;
 
-    @ExcelColumn(value = "Payment Date", order = 2, required = false, example = "2024-01-15")
+    @ExcelColumn(value = "Payment Date", order = 2, required = false, example = "YYYY-MM-DD")
     private LocalDate paymentDate;
 
     @ExcelColumn(value = "Payment Amount", order = 3, required = false, example = "5000.00")

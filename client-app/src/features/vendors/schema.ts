@@ -9,15 +9,11 @@ export const vendorFormSchema = z.object({
   }).positive('Vendor details is required'),
   vendorCodeAlt: z
     .string()
-    .optional()
-    .refine(
-      (val) => {
-        if (!val || val.trim() === '') return true;
-        return /^[A-Z0-9]{1,10}$/.test(val);
-      },
-      {
-        message: 'Vendor code must be 1-10 uppercase alphanumeric characters',
-      }
+    .min(1, 'Vendor code is required')
+    .max(10, 'Vendor code must not exceed 10 characters')
+    .regex(
+      /^[A-Z0-9_-]+$/,
+      'Vendor code must contain only uppercase letters, numbers, hyphens, and underscores'
     ),
 });
 

@@ -100,10 +100,10 @@ export const VendorDrawer = () => {
 
   const onSubmit = async (data: VendorFormValues) => {
     try {
-      // Clean up empty vendorCodeAlt
+      // Trim vendor code
       const submitData = {
         ...data,
-        vendorCodeAlt: data.vendorCodeAlt?.trim() || undefined,
+        vendorCodeAlt: data.vendorCodeAlt.trim(),
       };
 
       if (drawerMode === 'create') {
@@ -332,7 +332,7 @@ export const VendorDrawer = () => {
               name="vendorCodeAlt"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Vendor Code (Optional)</FormLabel>
+                  <FormLabel>Vendor Code *</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -345,7 +345,7 @@ export const VendorDrawer = () => {
                     />
                   </FormControl>
                   <FormDescription>
-                    Optional unique code (1-10 uppercase alphanumeric characters)
+                    Unique code (1-10 uppercase letters, numbers, hyphens, underscores)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

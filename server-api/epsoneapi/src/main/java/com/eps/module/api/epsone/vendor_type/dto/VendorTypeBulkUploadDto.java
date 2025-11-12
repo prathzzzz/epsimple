@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class VendorTypeBulkUploadDto {
 
-    @ExcelColumn(value = "Type Name", order = 1, required = true, example = "Construction Contractor")
+    @ExcelColumn(value = "Type Name", order = 1, required = true, example = "TIS")
     private String typeName;
 
     @ExcelColumn(value = "Vendor Category Name", order = 2, required = true, example = "Construction")
     private String vendorCategoryName;
 
-    @ExcelColumn(value = "Description", order = 3, required = false, example = "Vendors specializing in construction and building services")
+    @ExcelColumn(value = "Description", order = 3, required = false, example = "Vendors who construct and set up the site for functioning, including building infrastructure, foundations, and structural work.")
     private String description;
 }

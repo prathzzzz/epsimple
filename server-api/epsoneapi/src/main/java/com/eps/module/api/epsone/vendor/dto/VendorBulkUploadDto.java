@@ -15,9 +15,9 @@ public class VendorBulkUploadDto {
     @ExcelColumn(value = "Contact Number", order = 1, example = "9876543210")
     private String contactNumber;
 
-    @ExcelColumn(value = "Vendor Type Name", order = 2, example = "Supplier")
+    @ExcelColumn(value = "Vendor Type Name", order = 2, required = true, example = "TIS")
     private String vendorTypeName;
 
-    @ExcelColumn(value = "Vendor Code", order = 3, example = "VEN001")
+    @ExcelColumn(value = "Vendor Code", order = 3, required = true, example = "VEN001")
     private String vendorCodeAlt;
 }

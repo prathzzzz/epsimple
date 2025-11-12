@@ -20,6 +20,7 @@ public class VendorRequestDto {
     @NotNull(message = "Vendor details ID (Person Details) is required")
     private Long vendorDetailsId;
 
+    @NotNull(message = "Vendor code is required")
     @Size(max = 10, message = "Vendor code alternate must not exceed 10 characters")
     @Pattern(regexp = "^[A-Z0-9_-]*$", message = "Vendor code alternate must contain only uppercase letters, numbers, hyphens, and underscores")
     private String vendorCodeAlt;

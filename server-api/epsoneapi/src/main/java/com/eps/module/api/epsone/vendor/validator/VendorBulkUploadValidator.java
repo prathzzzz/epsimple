@@ -53,12 +53,23 @@ public class VendorBulkUploadValidator implements BulkRowValidator<VendorBulkUpl
                         .build());
             } else {
                 // Check if this person is already a vendor
-                PersonDetails personDetails = personDetailsRepository.findByContactNumber(dto.getContactNumber()).get();
-                if (vendorRepository.findByVendorDetailsId(personDetails.getId()).isPresent()) {
+                try {
+                    PersonDetails personDetails = personDetailsRepository.findByContactNumber(dto.getContactNumber()).get();
+                    if (vendorRepository.findByVendorDetailsId(personDetails.getId()).isPresent()) {
+                        errors.add(BulkUploadErrorDto.builder()
+                                .rowNumber(rowNumber)
+                                .fieldName("Contact Number")
+                                .errorMessage("Person with contact number " + dto.getContactNumber() + " is already a vendor")
+                                .rejectedValue(dto.getContactNumber())
+                                .build());
+                    }
+                } catch (Exception e) {
+                    // Handle case where multiple person details exist with same contact number
+                    log.error("Error checking vendor for contact number {}: {}", dto.getContactNumber(), e.getMessage());
                     errors.add(BulkUploadErrorDto.builder()
                             .rowNumber(rowNumber)
                             .fieldName("Contact Number")
-                            .errorMessage("Person with contact number " + dto.getContactNumber() + " is already a vendor")
+                            .errorMessage("Multiple person records found with contact number " + dto.getContactNumber() + ". Please contact administrator to resolve data duplication.")
                             .rejectedValue(dto.getContactNumber())
                             .build());
                 }
@@ -92,16 +103,28 @@ public class VendorBulkUploadValidator implements BulkRowValidator<VendorBulkUpl
             }
         }
 
-        // Validate Vendor Code (optional but with length limit and uniqueness check)
-        if (dto.getVendorCodeAlt() != null && !dto.getVendorCodeAlt().isBlank()) {
-            if (dto.getVendorCodeAlt().length() > 10) {
-                errors.add(BulkUploadErrorDto.builder()
-                        .rowNumber(rowNumber)
-                        .fieldName("Vendor Code")
-                        .errorMessage("Vendor Code cannot exceed 10 characters")
-                        .rejectedValue(dto.getVendorCodeAlt())
-                        .build());
-            }
+        // Validate Vendor Code (required)
+        if (dto.getVendorCodeAlt() == null || dto.getVendorCodeAlt().isBlank()) {
+            errors.add(BulkUploadErrorDto.builder()
+                    .rowNumber(rowNumber)
+                    .fieldName("Vendor Code")
+                    .errorMessage("Vendor Code is required")
+                    .rejectedValue(dto.getVendorCodeAlt())
+                    .build());
+        } else if (dto.getVendorCodeAlt().length() > 10) {
+            errors.add(BulkUploadErrorDto.builder()
+                    .rowNumber(rowNumber)
+                    .fieldName("Vendor Code")
+                    .errorMessage("Vendor Code cannot exceed 10 characters")
+                    .rejectedValue(dto.getVendorCodeAlt())
+                    .build());
+        } else if (!dto.getVendorCodeAlt().matches("^[A-Z0-9_-]+$")) {
+            errors.add(BulkUploadErrorDto.builder()
+                    .rowNumber(rowNumber)
+                    .fieldName("Vendor Code")
+                    .errorMessage("Vendor Code must contain only uppercase letters, numbers, hyphens, and underscores")
+                    .rejectedValue(dto.getVendorCodeAlt())
+                    .build());
         }
 
         return errors;

@@ -12,19 +12,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ManagedProjectBulkUploadDto {
 
-    @ExcelColumn(value = "Project Name", order = 1, required = true, example = "Infrastructure Modernization")
+    @ExcelColumn(value = "Project Name", order = 1, required = true, example = "BOI")
     private String projectName;
 
-    @ExcelColumn(value = "Project Code", order = 2, required = true, example = "PROJ-2024-001")
+    @ExcelColumn(value = "Project Code", order = 2, required = true, example = "7BOI")
     private String projectCode;
 
-    @ExcelColumn(value = "Project Type", order = 3, required = true, example = "IT Infrastructure")
+    @ExcelColumn(value = "Project Type", order = 3, required = true, example = "BLA")
     private String projectType;
 
-    @ExcelColumn(value = "Project Description", order = 4, required = true, example = "Complete infrastructure modernization project")
+    @ExcelColumn(value = "Project Description", order = 4, required = true, example = "Bank of India ATM deployment and maintenance project")
     private String projectDescription;
 
-    @ExcelColumn(value = "Bank Name", order = 5, required = true, example = "State Bank of India")
+    @ExcelColumn(value = "Bank Name", order = 5, required = true, example = "Bank of India")
     private String bankName;
 
     // For export only - populated from relationship

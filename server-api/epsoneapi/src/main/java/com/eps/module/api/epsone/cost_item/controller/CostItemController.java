@@ -42,8 +42,11 @@ public class CostItemController {
             @RequestParam(defaultValue = "ASC") String sortDirection) {
         log.info("GET /api/cost-items - Fetching all cost items");
 
+        // Map DTO field names to entity field names for sorting
+        String entitySortField = mapSortFieldToEntity(sortBy);
+        
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, entitySortField));
 
         Page<CostItemResponseDto> costItemsPage = costItemService.getAllCostItems(pageable);
         return ResponseBuilder.success(costItemsPage, "Cost items fetched successfully", HttpStatus.OK);
@@ -58,8 +61,11 @@ public class CostItemController {
             @RequestParam(defaultValue = "ASC") String sortDirection) {
         log.info("GET /api/cost-items/search - Searching cost items with term: {}", searchTerm);
 
+        // Map DTO field names to entity field names for sorting
+        String entitySortField = mapSortFieldToEntity(sortBy);
+        
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, entitySortField));
 
         Page<CostItemResponseDto> costItemsPage = costItemService.searchCostItems(searchTerm, pageable);
         return ResponseBuilder.success(costItemsPage, "Cost items search completed", HttpStatus.OK);
@@ -121,5 +127,17 @@ public class CostItemController {
             @RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws java.io.IOException {
         log.info("POST /api/cost-items/export-errors - Exporting bulk upload errors");
         return bulkUploadHelper.exportErrors(progressData, costItemService);
+    }
+
+    /**
+     * Map DTO field names to entity field names for sorting
+     * This handles nested relationships and prevents PropertyReferenceException
+     */
+    private String mapSortFieldToEntity(String dtoField) {
+        return switch (dtoField) {
+            case "costTypeName" -> "costType.typeName";
+            case "costCategoryName" -> "costType.costCategory.categoryName";
+            default -> dtoField;
+        };
     }
 }

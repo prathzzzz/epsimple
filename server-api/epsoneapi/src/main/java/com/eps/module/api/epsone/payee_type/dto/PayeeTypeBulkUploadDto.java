@@ -15,9 +15,9 @@ public class PayeeTypeBulkUploadDto {
     @ExcelColumn(value = "Payee Type", order = 1, required = true, example = "Vendor")
     private String payeeType;
 
-    @ExcelColumn(value = "Payee Category", order = 2, required = false, example = "Service Provider")
+    @ExcelColumn(value = "Payee Category", order = 2, required = false, example = "Site and Asset Vendors")
     private String payeeCategory;
 
-    @ExcelColumn(value = "Description", order = 3, required = false, example = "External service vendors")
+    @ExcelColumn(value = "Description", order = 3, required = false, example = "Vendors managing Site and providing Assets")
     private String description;
 }

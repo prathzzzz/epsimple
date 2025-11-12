@@ -36,23 +36,45 @@ public class VendorBulkUploadProcessor extends BulkUploadProcessor<VendorBulkUpl
     @Override
     @Transactional
     public Vendor convertToEntity(VendorBulkUploadDto dto) {
-        // Find existing PersonDetails by contact number
-        PersonDetails personDetails = personDetailsRepository.findByContactNumber(dto.getContactNumber())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Person Details not found with contact number: " + dto.getContactNumber()));
+        try {
+            // Find existing PersonDetails by contact number
+            PersonDetails personDetails = personDetailsRepository.findByContactNumber(dto.getContactNumber())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Person Details not found with contact number: " + dto.getContactNumber()));
 
-        // Find vendor type
-        VendorType vendorType = vendorTypeRepository.findByTypeNameIgnoreCase(dto.getVendorTypeName())
-                .orElseThrow(() -> new IllegalArgumentException("Vendor Type not found: " + dto.getVendorTypeName()));
+            // Find vendor type
+            VendorType vendorType = vendorTypeRepository.findByTypeNameIgnoreCase(dto.getVendorTypeName())
+                    .orElseThrow(() -> new IllegalArgumentException("Vendor Type not found: " + dto.getVendorTypeName()));
 
-        // Create vendor
-        return Vendor.builder()
-                .vendorType(vendorType)
-                .vendorDetails(personDetails)
-                .vendorCodeAlt(dto.getVendorCodeAlt() != null && !dto.getVendorCodeAlt().isBlank() 
-                        ? dto.getVendorCodeAlt().trim() 
-                        : null)
-                .build();
+            // Create vendor
+            return Vendor.builder()
+                    .vendorType(vendorType)
+                    .vendorDetails(personDetails)
+                    .vendorCodeAlt(dto.getVendorCodeAlt() != null && !dto.getVendorCodeAlt().isBlank() 
+                            ? dto.getVendorCodeAlt().trim() 
+                            : null)
+                    .build();
+        } catch (org.springframework.dao.IncorrectResultSizeDataAccessException e) {
+            // Handle case where query returns multiple results
+            log.error("Duplicate data found for vendor upload - Contact: {}, VendorType: {}", 
+                    dto.getContactNumber(), dto.getVendorTypeName(), e);
+            
+            String errorMessage = e.getMessage();
+            String specificError;
+            
+            if (errorMessage.contains("findByContactNumber") || errorMessage.contains("contact_number")) {
+                specificError = "Multiple person records found with contact number: " + dto.getContactNumber() + 
+                    ". Please contact administrator to resolve data duplication.";
+            } else if (errorMessage.contains("findByTypeNameIgnoreCase") || errorMessage.contains("type_name")) {
+                specificError = "Multiple vendor types found with name: " + dto.getVendorTypeName() + 
+                    ". Please contact administrator to resolve data duplication.";
+            } else {
+                specificError = "Duplicate data found. Please contact administrator. (Contact: " + dto.getContactNumber() + 
+                    ", Vendor Type: " + dto.getVendorTypeName() + ")";
+            }
+            
+            throw new IllegalArgumentException(specificError);
+        }
     }
 
     @Override
