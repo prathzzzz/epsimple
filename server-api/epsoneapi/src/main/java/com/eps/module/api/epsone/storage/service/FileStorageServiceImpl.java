@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -44,7 +45,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             Files.createDirectories(uploadPath);
 
             // Generate unique filename
-            String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+            String originalFilename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
             String fileExtension = getFileExtension(originalFilename);
             String uniqueFilename = UUID.randomUUID().toString() + "." + fileExtension;
 

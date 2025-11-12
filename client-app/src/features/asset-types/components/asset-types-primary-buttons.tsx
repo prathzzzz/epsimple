@@ -10,11 +10,17 @@ import {
 import { useAssetTypes } from '../context/asset-types-provider';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { downloadFile } from '@/lib/api-utils';
+import { useExport } from '@/hooks/useExport';
 
 export function AssetTypesPrimaryButtons() {
   const { setIsBulkUploadDialogOpen, setSelectedAssetType, setIsDrawerOpen } = useAssetTypes();
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+
+  const { isExporting, handleExport } = useExport({
+    entityName: 'AssetTypes',
+    exportEndpoint: '/api/asset-types/bulk-upload/export',
+  });
 
   const handleCreate = () => {
     setSelectedAssetType(null);
@@ -24,62 +30,14 @@ export function AssetTypesPrimaryButtons() {
   const handleDownloadTemplate = async () => {
     setIsDownloadingTemplate(true);
     try {
-      const response = await fetch('/api/asset-types/bulk-upload/template', {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to download template');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'AssetType_BulkUpload_Template.xlsx';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
+      await downloadFile('/api/asset-types/bulk-upload/template', 'AssetType_BulkUpload_Template.xlsx');
       toast.success('Template downloaded successfully');
     } catch (error) {
-      console.error('Error downloading template:', error);
-      toast.error('Failed to download template');
+      toast.error('Failed to download template', {
+        description: error instanceof Error ? error.message : 'An error occurred',
+      });
     } finally {
       setIsDownloadingTemplate(false);
-    }
-  };
-
-  const handleExportData = async () => {
-    setIsExporting(true);
-    try {
-      const response = await fetch('/api/asset-types/bulk-upload/export', {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to export data');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'AssetTypes_Export.xlsx';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      toast.success('Data exported successfully');
-    } catch (error) {
-      console.error('Error exporting data:', error);
-      toast.error('Failed to export data');
-    } finally {
-      setIsExporting(false);
     }
   };
 
@@ -107,7 +65,7 @@ export function AssetTypesPrimaryButtons() {
             <span>Bulk Upload</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleExportData} disabled={isExporting}>
+          <DropdownMenuItem onClick={handleExport} disabled={isExporting}>
             {isExporting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin text-green-600" />
             ) : (

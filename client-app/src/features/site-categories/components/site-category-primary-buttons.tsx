@@ -1,7 +1,10 @@
-import { Download, FileUp, Upload, ChevronDown } from "lucide-react";
+import { Download, FileUp, ChevronDown, Loader2, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSiteCategoryContext } from "../context/site-category-provider";
 import { toast } from "sonner";
+import { useState } from "react";
+import { downloadFile } from "@/lib/api-utils";
+import { useExport } from "@/hooks/useExport";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,60 +15,24 @@ import {
 
 export function SiteCategoryPrimaryButtons() {
   const { setIsBulkUploadDialogOpen } = useSiteCategoryContext();
+  const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
+  
+  const { isExporting, handleExport } = useExport({
+    entityName: 'SiteCategory',
+    exportEndpoint: '/api/site-categories/export',
+  });
 
   const handleDownloadTemplate = async () => {
+    setIsDownloadingTemplate(true);
     try {
-      const response = await fetch("/api/site-categories/bulk-upload/template", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to download template");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "SiteCategory_BulkUpload_Template.xlsx";
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
+      await downloadFile("/api/site-categories/bulk-upload/template", "SiteCategory_Upload_Template.xlsx");
       toast.success("Template downloaded successfully");
     } catch (error) {
-      console.error("Error downloading template:", error);
-      toast.error("Failed to download template");
-    }
-  };
-
-  const handleExportData = async () => {
-    try {
-      const response = await fetch("/api/site-categories/bulk-upload/export", {
-        method: "GET",
-        credentials: "include",
+      toast.error("Failed to download template", {
+        description: error instanceof Error ? error.message : 'An error occurred',
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to export data");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "SiteCategories_Export.xlsx";
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      toast.success("Data exported successfully");
-    } catch (error) {
-      console.error("Error exporting data:", error);
-      toast.error("Failed to export data");
+    } finally {
+      setIsDownloadingTemplate(false);
     }
   };
 
@@ -85,8 +52,16 @@ export function SiteCategoryPrimaryButtons() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-64">
-          <DropdownMenuItem onClick={handleDownloadTemplate} className="cursor-pointer">
-            <Download className="h-4 w-4 mr-2 text-blue-600" />
+          <DropdownMenuItem 
+            onClick={handleDownloadTemplate} 
+            className="cursor-pointer"
+            disabled={isDownloadingTemplate}
+          >
+            {isDownloadingTemplate ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin text-blue-600" />
+            ) : (
+              <Download className="h-4 w-4 mr-2 text-blue-600" />
+            )}
             <span>Download Template</span>
           </DropdownMenuItem>
           
@@ -97,8 +72,16 @@ export function SiteCategoryPrimaryButtons() {
           
           <DropdownMenuSeparator />
           
-          <DropdownMenuItem onClick={handleExportData} className="cursor-pointer">
-            <Upload className="h-4 w-4 mr-2 text-purple-600" />
+          <DropdownMenuItem 
+            onClick={handleExport} 
+            className="cursor-pointer"
+            disabled={isExporting}
+          >
+            {isExporting ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin text-purple-600" />
+            ) : (
+              <FileSpreadsheet className="h-4 w-4 mr-2 text-purple-600" />
+            )}
             <span>Export All Data</span>
           </DropdownMenuItem>
         </DropdownMenuContent>

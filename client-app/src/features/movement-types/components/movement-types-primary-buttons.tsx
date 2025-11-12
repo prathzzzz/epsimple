@@ -10,11 +10,17 @@ import {
 import { useMovementTypes } from '../context/movement-types-provider';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { downloadFile } from '@/lib/api-utils';
+import { useExport } from '@/hooks/useExport';
 
 export function MovementTypesPrimaryButtons() {
   const { setIsBulkUploadDialogOpen, setSelectedMovementType, setIsDrawerOpen } = useMovementTypes();
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+  
+  const { isExporting, handleExport } = useExport({
+    entityName: 'MovementType',
+    exportEndpoint: '/api/movement-types/export',
+  });
 
   const handleCreate = () => {
     setSelectedMovementType(null);
@@ -24,62 +30,14 @@ export function MovementTypesPrimaryButtons() {
   const handleDownloadTemplate = async () => {
     setIsDownloadingTemplate(true);
     try {
-      const response = await fetch('/api/movement-types/bulk-upload/template', {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to download template');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'MovementType_BulkUpload_Template.xlsx';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
+      await downloadFile('/api/movement-types/bulk-upload/template', 'MovementType_Upload_Template.xlsx');
       toast.success('Template downloaded successfully');
     } catch (error) {
-      console.error('Error downloading template:', error);
-      toast.error('Failed to download template');
+      toast.error('Failed to download template', {
+        description: error instanceof Error ? error.message : 'An error occurred',
+      });
     } finally {
       setIsDownloadingTemplate(false);
-    }
-  };
-
-  const handleExportData = async () => {
-    setIsExporting(true);
-    try {
-      const response = await fetch('/api/movement-types/bulk-upload/export', {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to export data');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'MovementTypes_Export.xlsx';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      toast.success('Data exported successfully');
-    } catch (error) {
-      console.error('Error exporting data:', error);
-      toast.error('Failed to export data');
-    } finally {
-      setIsExporting(false);
     }
   };
 
@@ -107,7 +65,7 @@ export function MovementTypesPrimaryButtons() {
             <span>Bulk Upload</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleExportData} disabled={isExporting}>
+          <DropdownMenuItem onClick={handleExport} disabled={isExporting}>
             {isExporting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin text-green-600" />
             ) : (
