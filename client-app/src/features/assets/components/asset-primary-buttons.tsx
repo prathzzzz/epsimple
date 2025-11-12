@@ -41,8 +41,7 @@ export function AssetPrimaryButtons() {
       document.body.removeChild(a);
 
       toast.success("Template downloaded successfully");
-    } catch (error) {
-      console.error("Error downloading template:", error);
+    } catch {
       toast.error("Failed to download template");
     }
   };
@@ -69,8 +68,7 @@ export function AssetPrimaryButtons() {
       document.body.removeChild(a);
 
       toast.success("Placement template downloaded successfully");
-    } catch (error) {
-      console.error("Error downloading placement template:", error);
+    } catch {
       toast.error("Failed to download placement template");
     }
   };
@@ -97,8 +95,7 @@ export function AssetPrimaryButtons() {
       document.body.removeChild(a);
 
       toast.success("Data exported successfully");
-    } catch (error) {
-      console.error("Error exporting data:", error);
+    } catch {
       toast.error("Failed to export data");
     }
   };
@@ -123,7 +120,7 @@ export function AssetPrimaryButtons() {
             <ChevronDown className="h-4 w-4 ml-2" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-64">
+        <DropdownMenuContent align="start" className="w-80">
           <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
             Asset Creation
           </DropdownMenuLabel>
