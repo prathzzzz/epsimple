@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { Upload, Download, FileSpreadsheet, X, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -31,6 +31,16 @@ export function GenericBulkUploadDialog({ open, onOpenChange, config }: GenericB
     handleUpload,
     handleDownloadErrorReport,
   } = useBulkUpload(config)
+
+  // Auto-close dialog after successful upload (with a 2-second delay to show final status)
+  useEffect(() => {
+    if (progress?.status === 'COMPLETED' && !isUploading) {
+      const timer = setTimeout(() => {
+        onOpenChange(false)
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [progress?.status, isUploading, onOpenChange])
 
   const onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
