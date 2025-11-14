@@ -60,7 +60,6 @@ export function InvoiceDialogs() {
           errorReportEndpoint: "/api/invoices/bulk-upload/errors",
           onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["invoices"] });
-            toast.success("Invoice bulk upload completed successfully");
           },
         }}
       />

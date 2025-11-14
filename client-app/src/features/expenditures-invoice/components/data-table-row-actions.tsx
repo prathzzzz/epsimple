@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Row } from '@tanstack/react-table';
+import type { Row } from '@tanstack/react-table';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useExpendituresInvoiceContext } from '../context/expenditures-invoice-provider';
+import { useExpendituresInvoiceContext } from '../hooks/use-expenditures-invoice-context';
 import { expendituresInvoiceApi } from '../api/expenditures-invoice-api';
 import type { ExpendituresInvoice } from '../api/schema';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';

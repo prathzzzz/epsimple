@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { useExpendituresInvoiceContext } from '../context/expenditures-invoice-provider';
+import { useExpendituresInvoiceContext } from '../hooks/use-expenditures-invoice-context';
 import { expendituresInvoiceFormSchema, type ExpendituresInvoiceFormData } from '../api/schema';
 import { expendituresInvoiceApi } from '../api/expenditures-invoice-api';
 import type { CostItem } from '@/features/cost-items/api/cost-items-api';
@@ -136,8 +136,8 @@ export const ExpendituresInvoiceDrawer = () => {
       }
       closeDrawer();
       form.reset();
-    } catch (error) {
-      console.error('Failed to save expenditure:', error);
+    } catch (_error) {
+      // Error already handled by mutation callbacks
     }
   };
 

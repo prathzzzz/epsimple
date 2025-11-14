@@ -44,6 +44,10 @@ public interface ManagedProjectRepository extends JpaRepository<ManagedProject, 
 
     // Bulk upload methods
     boolean existsByProjectName(String projectName);
+    
+    Optional<ManagedProject> findByProjectCodeIgnoreCase(String projectCode);
+    
+    boolean existsByProjectCodeIgnoreCase(String projectCode);
 
     @Query("SELECT mp FROM ManagedProject mp LEFT JOIN FETCH mp.bank ORDER BY mp.projectName ASC")
     List<ManagedProject> findAllForExport();

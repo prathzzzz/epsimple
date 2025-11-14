@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.expenditures_invoice.controller;
 import com.eps.module.api.epsone.expenditures_invoice.dto.ExpendituresInvoiceRequestDto;
 import com.eps.module.api.epsone.expenditures_invoice.dto.ExpendituresInvoiceResponseDto;
 import com.eps.module.api.epsone.expenditures_invoice.service.ExpendituresInvoiceService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -15,6 +17,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -25,6 +29,35 @@ import java.util.List;
 public class ExpendituresInvoiceController {
 
     private final ExpendituresInvoiceService expendituresInvoiceService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping("/bulk-upload")
+    public SseEmitter bulkUploadExpendituresInvoices(@RequestParam("file") MultipartFile file) throws Exception {
+        log.info("POST /api/expenditures/invoices/bulk-upload - Starting bulk upload");
+        return bulkUploadControllerHelper.bulkUpload(file, expendituresInvoiceService);
+    }
+
+    @GetMapping("/bulk-upload/template")
+    public ResponseEntity<byte[]> downloadTemplate() throws Exception {
+        log.info("GET /api/expenditures/invoices/bulk-upload/template - Downloading template");
+        return bulkUploadControllerHelper.downloadTemplate(expendituresInvoiceService);
+    }
+
+    @PostMapping("/bulk-upload/errors")
+    public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
+        log.info("POST /api/expenditures/invoices/bulk-upload/errors - Exporting error report");
+        return bulkUploadControllerHelper.exportErrors(progressData, expendituresInvoiceService);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        log.info("GET /api/expenditures/invoices/export - Exporting all data");
+        return bulkUploadControllerHelper.export(expendituresInvoiceService);
+    }
+
+    // ========== CRUD Endpoints ==========
 
     @PostMapping
     public ResponseEntity<ApiResponse<ExpendituresInvoiceResponseDto>> createExpendituresInvoice(

@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useExpendituresInvoiceContext } from '../context/expenditures-invoice-provider';
+import { useExpendituresInvoiceContext } from '../hooks/use-expenditures-invoice-context';
 import { expendituresInvoiceApi } from '../api/expenditures-invoice-api';
 import {
-  ColumnDef,
-  SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
+  type ColumnDef,
+  type SortingState,
+  type VisibilityState,
 } from '@tanstack/react-table';
 import {
   Table,
@@ -41,7 +41,7 @@ export const ExpendituresInvoiceTable = ({ columns }: ExpendituresInvoiceTablePr
 
   // Query for all data
   const { data: allData, isLoading: isAllLoading } = useQuery({
-    queryKey: ['expenditures-invoices', page, pageSize, sorting],
+    queryKey: ['expenditures-invoices', page, pageSize, sorting[0]?.id, sorting[0]?.desc],
     queryFn: () =>
       expendituresInvoiceApi.getAll(
         page,
@@ -54,7 +54,7 @@ export const ExpendituresInvoiceTable = ({ columns }: ExpendituresInvoiceTablePr
 
   // Query for search data
   const { data: searchData, isLoading: isSearchLoading } = useQuery({
-    queryKey: ['expenditures-invoices', 'search', globalFilter, page, pageSize, sorting],
+    queryKey: ['expenditures-invoices', 'search', globalFilter, page, pageSize, sorting[0]?.id, sorting[0]?.desc],
     queryFn: () =>
       expendituresInvoiceApi.search(
         globalFilter,

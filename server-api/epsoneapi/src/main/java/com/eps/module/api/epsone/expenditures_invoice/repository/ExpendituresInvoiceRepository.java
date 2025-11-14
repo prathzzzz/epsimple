@@ -81,4 +81,15 @@ public interface ExpendituresInvoiceRepository extends JpaRepository<Expenditure
             "LEFT JOIN FETCH ei.managedProject mp " +
             "LEFT JOIN FETCH mp.bank b")
     List<ExpendituresInvoice> findAllWithDetailsList();
+
+    @Query("SELECT ei FROM ExpendituresInvoice ei " +
+            "LEFT JOIN FETCH ei.costItem ci " +
+            "LEFT JOIN FETCH ci.costType ct " +
+            "LEFT JOIN FETCH ct.costCategory cc " +
+            "LEFT JOIN FETCH ei.invoice i " +
+            "LEFT JOIN FETCH i.payee p " +
+            "LEFT JOIN FETCH ei.managedProject mp " +
+            "LEFT JOIN FETCH mp.bank b " +
+            "ORDER BY ei.id")
+    List<ExpendituresInvoice> findAllForExport();
 }

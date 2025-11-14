@@ -7,7 +7,8 @@ import { ConfigDrawer } from '@/components/config-drawer';
 import { ExpendituresInvoiceProvider } from './context/expenditures-invoice-provider';
 import { ExpendituresInvoiceTable } from './components/expenditures-invoice-table';
 import { ExpendituresInvoiceDrawer } from './components/expenditures-invoice-drawer';
-import { CreateExpenditureButton } from './components/create-expenditure-button';
+import { ExpendituresInvoicePrimaryButtons } from './components/expenditures-invoice-primary-buttons';
+import { ExpendituresInvoiceDialogs } from './components/expenditures-invoice-dialogs';
 import { columns } from './components/columns';
 
 export default function ExpendituresInvoicePage() {
@@ -29,13 +30,14 @@ export default function ExpendituresInvoicePage() {
               Manage expenditures linked to invoices
             </p>
           </div>
-          <CreateExpenditureButton />
+          <ExpendituresInvoicePrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
           <ExpendituresInvoiceTable columns={columns} />
         </div>
       </Main>
       <ExpendituresInvoiceDrawer />
+      <ExpendituresInvoiceDialogs />
     </ExpendituresInvoiceProvider>
   );
 }

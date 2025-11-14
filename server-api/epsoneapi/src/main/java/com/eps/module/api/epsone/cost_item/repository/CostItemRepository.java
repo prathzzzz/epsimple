@@ -42,6 +42,8 @@ public interface CostItemRepository extends JpaRepository<CostItem, Long> {
 
     // Bulk upload support
     boolean existsByCostItemForIgnoreCase(String costItemFor);
+    
+    Optional<CostItem> findByCostItemForIgnoreCase(String costItemFor);
 
     @Query("SELECT ci FROM CostItem ci LEFT JOIN FETCH ci.costType ct LEFT JOIN FETCH ct.costCategory ORDER BY ci.costItemFor ASC")
     List<CostItem> findAllForExport();
