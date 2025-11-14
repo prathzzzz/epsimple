@@ -76,4 +76,20 @@ public interface PayeeRepository extends JpaRepository<Payee, Long> {
      */
     @Query("SELECT p FROM Payee p WHERE p.payeeDetails.id = :payeeDetailsId")
     java.util.Optional<Payee> findByPayeeDetailsId(@Param("payeeDetailsId") Long payeeDetailsId);
+
+    /**
+     * Find payee by payee name (from payee details) - for voucher bulk upload
+     */
+    @Query("SELECT p FROM Payee p " +
+            "LEFT JOIN FETCH p.payeeDetails pd " +
+            "WHERE LOWER(pd.payeeName) = LOWER(:payeeName)")
+    java.util.Optional<Payee> findByPayeeNameIgnoreCase(@Param("payeeName") String payeeName);
+
+    /**
+     * Check if payee exists by payee name - for voucher bulk upload
+     */
+    @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END FROM Payee p " +
+            "JOIN p.payeeDetails pd " +
+            "WHERE LOWER(pd.payeeName) = LOWER(:payeeName)")
+    boolean existsByPayeeNameIgnoreCase(@Param("payeeName") String payeeName);
 }

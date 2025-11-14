@@ -3,6 +3,8 @@ package com.eps.module.api.epsone.voucher.controller;
 import com.eps.module.api.epsone.voucher.dto.VoucherRequestDto;
 import com.eps.module.api.epsone.voucher.dto.VoucherResponseDto;
 import com.eps.module.api.epsone.voucher.service.VoucherService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +13,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +29,7 @@ import java.util.Map;
 public class VoucherController {
 
     private final VoucherService voucherService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
     public ResponseEntity<?> createVoucher(@Valid @RequestBody VoucherRequestDto requestDto) {
@@ -119,5 +126,27 @@ public class VoucherController {
     public ResponseEntity<?> deleteVoucher(@PathVariable Long id) {
         voucherService.deleteVoucher(id);
         return ResponseBuilder.success(null, "Voucher deleted successfully");
+    }
+
+    // ==================== Bulk Upload Endpoints ====================
+
+    @PostMapping("/bulk-upload")
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
+        return bulkUploadControllerHelper.bulkUpload(file, voucherService);
+    }
+
+    @GetMapping("/bulk-upload/template")
+    public ResponseEntity<byte[]> downloadTemplate() throws IOException {
+        return bulkUploadControllerHelper.downloadTemplate(voucherService);
+    }
+
+    @PostMapping(value = "/bulk-upload/errors", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progressDto) throws IOException {
+        return bulkUploadControllerHelper.exportErrors(progressDto, voucherService);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        return bulkUploadControllerHelper.export(voucherService);
     }
 }

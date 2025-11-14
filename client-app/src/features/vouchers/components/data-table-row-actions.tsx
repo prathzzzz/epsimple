@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import type { Voucher } from "../api/schema";
-import { useVoucher } from "../context/voucher-provider";
+import { useVoucher } from "../hooks/use-voucher";
 
 interface DataTableRowActionsProps {
   row: Row<Voucher>;

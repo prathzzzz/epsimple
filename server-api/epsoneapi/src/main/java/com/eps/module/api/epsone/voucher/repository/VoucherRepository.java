@@ -38,4 +38,11 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long> {
     @Query("SELECT CASE WHEN COUNT(v) > 0 THEN true ELSE false END FROM Voucher v " +
            "WHERE LOWER(v.voucherNumber) = LOWER(:voucherNumber) AND v.id <> :id")
     boolean existsByVoucherNumberIgnoreCaseAndIdNot(@Param("voucherNumber") String voucherNumber, @Param("id") Long id);
+
+    @Query("SELECT v FROM Voucher v " +
+           "LEFT JOIN FETCH v.payee p " +
+           "LEFT JOIN FETCH p.payeeDetails pd " +
+           "LEFT JOIN FETCH v.paymentDetails pmd " +
+           "ORDER BY v.id")
+    List<Voucher> findAllForExport();
 }
