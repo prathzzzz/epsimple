@@ -19,7 +19,7 @@ export function ManagedProjectPrimaryButtons() {
 
   const { isExporting, handleExport } = useExport({
     entityName: 'ManagedProject',
-    exportEndpoint: '/api/managed-projects/bulk/export-data',
+    exportEndpoint: '/api/managed-projects/export',
   })
 
   const handleDownloadTemplate = async () => {
@@ -31,7 +31,6 @@ export function ManagedProjectPrimaryButtons() {
       )
       toast.success('Template downloaded successfully')
     } catch (error) {
-      console.error('Failed to download template:', error)
       toast.error('Failed to download template', {
         description: error instanceof Error ? error.message : 'An error occurred',
       })

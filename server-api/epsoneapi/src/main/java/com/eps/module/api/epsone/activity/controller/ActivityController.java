@@ -45,12 +45,6 @@ public class ActivityController {
         return bulkUploadControllerHelper.downloadTemplate(activityService);
     }
 
-    @GetMapping("/bulk-upload/export")
-    public ResponseEntity<byte[]> exportData() throws Exception {
-        log.info("GET /api/activity/bulk-upload/export - Exporting data");
-        return bulkUploadControllerHelper.export(activityService);
-    }
-
     @PostMapping("/bulk-upload/errors")
     public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/activity/bulk-upload/errors - Downloading error report");
@@ -100,6 +94,16 @@ public class ActivityController {
         List<ActivityResponseDto> activities = activityService.getActivityList();
         return ResponseBuilder.success(activities, "Activity list retrieved successfully");
     }
+
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        log.info("GET /api/activity/export - Exporting all activities");
+        return bulkUploadControllerHelper.export(activityService);
+    }
+
+    // ========== CRUD Endpoints ==========
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ActivityResponseDto>> getActivityById(@PathVariable Long id) {

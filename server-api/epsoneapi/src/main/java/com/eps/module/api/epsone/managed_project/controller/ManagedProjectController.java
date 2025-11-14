@@ -103,6 +103,16 @@ public class ManagedProjectController {
         return ResponseBuilder.success(managedProjects, "Managed projects list retrieved successfully");
     }
 
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/managed-projects/export - Exporting all managed projects");
+        return bulkUploadHelper.export(managedProjectService);
+    }
+
+    // ========== CRUD Endpoints ==========
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ManagedProjectResponseDto>> getManagedProjectById(@PathVariable Long id) {
         log.info("GET /api/managed-projects/{} - Fetching managed project by ID", id);
@@ -138,12 +148,6 @@ public class ManagedProjectController {
     public ResponseEntity<byte[]> exportTemplate() throws IOException {
         log.info("GET /api/managed-projects/bulk/export-template - Exporting template");
         return bulkUploadHelper.downloadTemplate(managedProjectService);
-    }
-
-    @GetMapping("/bulk/export-data")
-    public ResponseEntity<byte[]> exportData() throws IOException {
-        log.info("GET /api/managed-projects/bulk/export-data - Exporting data");
-        return bulkUploadHelper.export(managedProjectService);
     }
 
     @PostMapping("/bulk/export-error-report")

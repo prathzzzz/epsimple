@@ -17,7 +17,7 @@ export function LocationPrimaryButtons() {
   const { setSelectedLocation, setIsDrawerOpen, openBulkUploadDialog } = useLocation()
   const { isExporting, handleExport } = useExport({
     entityName: 'Location',
-    exportEndpoint: '/api/locations/bulk/export-data',
+    exportEndpoint: '/api/locations/export',
   })
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false)
 

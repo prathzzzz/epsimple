@@ -1,18 +1,6 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { useState } from "react";
+import { InvoiceContext } from "./invoice-context";
 import type { Invoice } from "../api/schema";
-
-interface InvoiceContextType {
-  selectedInvoice: Invoice | null;
-  setSelectedInvoice: (invoice: Invoice | null) => void;
-  isDrawerOpen: boolean;
-  setIsDrawerOpen: (open: boolean) => void;
-  isDeleteDialogOpen: boolean;
-  setIsDeleteDialogOpen: (open: boolean) => void;
-  isEditMode: boolean;
-  setIsEditMode: (mode: boolean) => void;
-}
-
-const InvoiceContext = createContext<InvoiceContextType | undefined>(undefined);
 
 export const InvoiceProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -21,6 +9,7 @@ export const InvoiceProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
 
   return (
     <InvoiceContext.Provider
@@ -33,17 +22,11 @@ export const InvoiceProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsDeleteDialogOpen,
         isEditMode,
         setIsEditMode,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
       }}
     >
       {children}
     </InvoiceContext.Provider>
   );
-};
-
-export const useInvoice = () => {
-  const context = useContext(InvoiceContext);
-  if (!context) {
-    throw new Error("useInvoice must be used within InvoiceProvider");
-  }
-  return context;
 };

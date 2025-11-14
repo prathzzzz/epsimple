@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.site.processor;
 import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTypeRepository;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
+import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
 import com.eps.module.api.epsone.site.dto.SiteBulkUploadDto;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
 import com.eps.module.api.epsone.site_category.repository.SiteCategoryRepository;
@@ -13,6 +14,7 @@ import com.eps.module.bank.ManagedProject;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.validator.BulkRowValidator;
 import com.eps.module.location.Location;
+import com.eps.module.person.PersonDetails;
 import com.eps.module.site.Site;
 import com.eps.module.site.SiteCategory;
 import com.eps.module.site.SiteType;
@@ -23,8 +25,10 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -37,6 +41,7 @@ public class SiteBulkUploadProcessor extends BulkUploadProcessor<SiteBulkUploadD
     private final SiteCategoryRepository siteCategoryRepository;
     private final SiteTypeRepository siteTypeRepository;
     private final GenericStatusTypeRepository genericStatusTypeRepository;
+    private final PersonDetailsRepository personDetailsRepository;
     private final SiteCodeGeneratorService siteCodeGeneratorService;
     private final SiteBulkUploadValidator validator;
 
@@ -197,8 +202,12 @@ public class SiteBulkUploadProcessor extends BulkUploadProcessor<SiteBulkUploadD
         builder.natIp(dto.getNatIp());
         builder.switchIp(dto.getSwitchIp());
 
-        // Note: Person contacts (channelManager, regionalManager, stateHead, bankPerson, masterFranchisee)
-        // are not included in bulk upload as they require complex person lookup logic
+        // Set person contacts by phone number
+        findPersonByContactNumber(dto.getChannelManagerContact()).ifPresent(person -> builder.channelManagerContact(person));
+        findPersonByContactNumber(dto.getRegionalManagerContact()).ifPresent(person -> builder.regionalManagerContact(person));
+        findPersonByContactNumber(dto.getStateHeadContact()).ifPresent(person -> builder.stateHeadContact(person));
+        findPersonByContactNumber(dto.getBankPersonContact()).ifPresent(person -> builder.bankPersonContact(person));
+        findPersonByContactNumber(dto.getMasterFranchiseeContact()).ifPresent(person -> builder.masterFranchiseeContact(person));
 
         return builder.build();
     }
@@ -236,6 +245,11 @@ public class SiteBulkUploadProcessor extends BulkUploadProcessor<SiteBulkUploadD
         rowData.put("Fixed Glass Width", dto.getFixedGlassWidth());
         rowData.put("Signboard Size", dto.getSignboardSize());
         rowData.put("Branding Size", dto.getBrandingSize());
+        rowData.put("Channel Manager Contact", dto.getChannelManagerContact());
+        rowData.put("Regional Manager Contact", dto.getRegionalManagerContact());
+        rowData.put("State Head Contact", dto.getStateHeadContact());
+        rowData.put("Bank Person Contact", dto.getBankPersonContact());
+        rowData.put("Master Franchisee Contact", dto.getMasterFranchiseeContact());
         rowData.put("Gateway IP", dto.getGatewayIp());
         rowData.put("ATM IP", dto.getAtmIp());
         rowData.put("Subnet Mask", dto.getSubnetMask());
@@ -275,24 +289,25 @@ public class SiteBulkUploadProcessor extends BulkUploadProcessor<SiteBulkUploadD
         for (DateTimeFormatter fmt : ACCEPTED_DATE_FORMATTERS) {
             try {
                 return LocalDate.parse(s, fmt);
-            } catch (Exception ignored) {
+            } catch (DateTimeParseException ignored) {
             }
         }
 
-        // Excel numeric serial (e.g. 44927)
+        // Try Excel numeric serial (e.g. 44927)
         if (s.matches("^\\d+(?:\\.\\d+)?$")) {
             try {
                 double serial = Double.parseDouble(s);
-                LocalDate excelEpoch = LocalDate.of(1899, 12, 30);
-                long days = (long) Math.floor(serial);
-                return excelEpoch.plusDays(days);
-            } catch (Exception e) {
+                if (serial >= 1 && serial < 100000) {
+                    // Excel's epoch is 1899-12-30 (due to Excel's leap year bug)
+                    return LocalDate.of(1899, 12, 30).plusDays((long) Math.floor(serial));
+                }
+            } catch (NumberFormatException e) {
                 log.warn("Failed to parse excel serial date: {}", dateStr);
-                return null;
             }
         }
 
-        log.warn("Failed to parse date: {}", dateStr);
+        // If all parsing fails, return null (validation already passed)
+        log.warn("Failed to parse date: {} - This should have been caught by validation", dateStr);
         return null;
     }
 
@@ -306,5 +321,28 @@ public class SiteBulkUploadProcessor extends BulkUploadProcessor<SiteBulkUploadD
             log.warn("Failed to parse decimal: {}", value);
             return null;
         }
+    }
+
+    private Optional<PersonDetails> findPersonByContactNumber(String contactNumber) {
+        if (contactNumber == null || contactNumber.trim().isEmpty()) {
+            return Optional.empty();
+        }
+
+        String trimmed = contactNumber.trim();
+        
+        // Validate format (10 digits)
+        if (!trimmed.matches("^[0-9]{10}$")) {
+            log.warn("Invalid phone number format: '{}', skipping assignment", trimmed);
+            return Optional.empty();
+        }
+        
+        // Find person by contact number (unique)
+        Optional<PersonDetails> person = personDetailsRepository.findByContactNumber(trimmed);
+        
+        if (person.isEmpty()) {
+            log.warn("No person found with contact number '{}', skipping assignment", trimmed);
+        }
+        
+        return person;
     }
 }

@@ -44,12 +44,6 @@ public class AssetController {
         return bulkUploadHelper.downloadTemplate(assetService);
     }
 
-    @GetMapping("/bulk/export-data")
-    public ResponseEntity<byte[]> exportData() throws IOException {
-        log.info("GET /api/assets/bulk/export-data - Exporting data");
-        return bulkUploadHelper.export(assetService);
-    }
-
     @PostMapping("/bulk/export-error-report")
     public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/assets/bulk/export-error-report - Exporting error report");
@@ -97,6 +91,16 @@ public class AssetController {
         List<AssetResponseDto> assets = assetService.listAssets();
         return ResponseBuilder.success(assets, "Assets list retrieved successfully");
     }
+
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/assets/export - Exporting all assets");
+        return bulkUploadHelper.export(assetService);
+    }
+
+    // ========== CRUD Endpoints ==========
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AssetResponseDto>> getAssetById(@PathVariable Long id) {

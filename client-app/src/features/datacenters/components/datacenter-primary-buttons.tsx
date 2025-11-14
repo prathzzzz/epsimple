@@ -19,7 +19,7 @@ export function DatacenterPrimaryButtons() {
 
   const { isExporting, handleExport } = useExport({
     entityName: 'Datacenter',
-    exportEndpoint: '/api/datacenters/bulk/export-data',
+    exportEndpoint: '/api/datacenters/export',
   });
 
   const handleDownloadTemplate = async () => {
@@ -31,7 +31,6 @@ export function DatacenterPrimaryButtons() {
       );
       toast.success('Template downloaded successfully');
     } catch (error) {
-      console.error('Failed to download template:', error);
       toast.error('Failed to download template', {
         description: error instanceof Error ? error.message : 'An error occurred',
       });

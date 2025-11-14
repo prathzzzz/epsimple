@@ -86,4 +86,10 @@ public interface PayeeDetailsRepository extends JpaRepository<PayeeDetails, Long
      */
     @Query("SELECT pd FROM PayeeDetails pd WHERE LOWER(pd.payeeName) = LOWER(:payeeName)")
     java.util.Optional<PayeeDetails> findByPayeeNameIgnoreCase(@Param("payeeName") String payeeName);
+
+    /**
+     * Check if payee name exists (case-insensitive) - for bulk upload validation
+     */
+    @Query("SELECT CASE WHEN COUNT(pd) > 0 THEN true ELSE false END FROM PayeeDetails pd WHERE LOWER(pd.payeeName) = LOWER(:payeeName)")
+    boolean existsByPayeeNameIgnoreCase(@Param("payeeName") String payeeName);
 }

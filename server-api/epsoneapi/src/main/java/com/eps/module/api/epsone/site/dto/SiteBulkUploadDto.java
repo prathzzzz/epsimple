@@ -87,20 +87,20 @@ public class SiteBulkUploadDto {
     @ExcelColumn(value = "Branding Size", order = 25, required = false, example = "6x4 feet")
     private String brandingSize;
 
-    @ExcelColumn(value = "Channel Manager Name", order = 26, required = false, example = "John Doe")
-    private String channelManagerName;
+    @ExcelColumn(value = "Channel Manager Contact", order = 26, required = false, example = "9876543210")
+    private String channelManagerContact;
 
-    @ExcelColumn(value = "Regional Manager Name", order = 27, required = false, example = "Jane Smith")
-    private String regionalManagerName;
+    @ExcelColumn(value = "Regional Manager Contact", order = 27, required = false, example = "9876543211")
+    private String regionalManagerContact;
 
-    @ExcelColumn(value = "State Head Name", order = 28, required = false, example = "Bob Johnson")
-    private String stateHeadName;
+    @ExcelColumn(value = "State Head Contact", order = 28, required = false, example = "9876543212")
+    private String stateHeadContact;
 
-    @ExcelColumn(value = "Bank Person Name", order = 29, required = false, example = "Alice Brown")
-    private String bankPersonName;
+    @ExcelColumn(value = "Bank Person Contact", order = 29, required = false, example = "9876543213")
+    private String bankPersonContact;
 
-    @ExcelColumn(value = "Master Franchisee Name", order = 30, required = false, example = "Charlie Davis")
-    private String masterFranchiseeName;
+    @ExcelColumn(value = "Master Franchisee Contact", order = 30, required = false, example = "9876543214")
+    private String masterFranchiseeContact;
 
     @ExcelColumn(value = "Gateway IP", order = 31, required = false, example = "192.168.1.1")
     private String gatewayIp;

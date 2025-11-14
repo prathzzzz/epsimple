@@ -33,4 +33,11 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     @Query("SELECT CASE WHEN COUNT(i) > 0 THEN true ELSE false END FROM Invoice i WHERE i.invoiceNumber = :invoiceNumber AND i.id != :id")
     boolean existsByInvoiceNumberAndIdNot(@Param("invoiceNumber") String invoiceNumber, @Param("id") Long id);
+
+    @Query("SELECT i FROM Invoice i " +
+            "LEFT JOIN FETCH i.payee p " +
+            "LEFT JOIN FETCH p.payeeDetails pd " +
+            "LEFT JOIN FETCH i.paymentDetails pmd " +
+            "ORDER BY i.id")
+    List<Invoice> findAllForExport();
 }

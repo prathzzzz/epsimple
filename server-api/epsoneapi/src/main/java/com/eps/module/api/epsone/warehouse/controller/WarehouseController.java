@@ -43,12 +43,6 @@ public class WarehouseController {
         return bulkUploadHelper.downloadTemplate(warehouseService);
     }
 
-    @GetMapping("/bulk/export-data")
-    public ResponseEntity<byte[]> exportData() throws IOException {
-        log.info("GET /api/warehouses/bulk/export-data - Exporting data");
-        return bulkUploadHelper.export(warehouseService);
-    }
-
     @PostMapping("/bulk/export-error-report")
     public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/warehouses/bulk/export-error-report - Exporting error report");
@@ -95,6 +89,16 @@ public class WarehouseController {
         List<WarehouseResponseDto> response = warehouseService.getAllWarehousesList();
         return ResponseBuilder.success(response, "Warehouses list retrieved successfully", HttpStatus.OK);
     }
+
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/warehouses/export - Exporting all warehouses");
+        return bulkUploadHelper.export(warehouseService);
+    }
+
+    // ========== CRUD Endpoints ==========
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<WarehouseResponseDto>> getWarehouseById(@PathVariable Long id) {

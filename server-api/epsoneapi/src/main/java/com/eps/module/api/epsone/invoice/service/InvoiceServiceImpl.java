@@ -1,11 +1,17 @@
 package com.eps.module.api.epsone.invoice.service;
 
+import com.eps.module.api.epsone.invoice.dto.InvoiceBulkUploadDto;
+import com.eps.module.api.epsone.invoice.dto.InvoiceErrorReportDto;
 import com.eps.module.api.epsone.invoice.dto.InvoiceRequestDto;
 import com.eps.module.api.epsone.invoice.dto.InvoiceResponseDto;
 import com.eps.module.api.epsone.invoice.mapper.InvoiceMapper;
+import com.eps.module.api.epsone.invoice.processor.InvoiceBulkUploadProcessor;
 import com.eps.module.api.epsone.invoice.repository.InvoiceRepository;
 import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.api.epsone.payment_details.repository.PaymentDetailsRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.payment.Invoice;
 import com.eps.module.payment.Payee;
 import com.eps.module.payment.PaymentDetails;
@@ -16,18 +22,151 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class InvoiceServiceImpl implements InvoiceService {
+public class InvoiceServiceImpl extends BaseBulkUploadService<InvoiceBulkUploadDto, Invoice> implements InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
     private final PayeeRepository payeeRepository;
     private final PaymentDetailsRepository paymentDetailsRepository;
     private final InvoiceMapper invoiceMapper;
+    private final InvoiceBulkUploadProcessor invoiceBulkUploadProcessor;
+
+    // ========== Bulk Upload Methods ==========
+
+    @Override
+    protected BulkUploadProcessor<InvoiceBulkUploadDto, Invoice> getProcessor() {
+        return invoiceBulkUploadProcessor;
+    }
+
+    @Override
+    public Class<InvoiceBulkUploadDto> getBulkUploadDtoClass() {
+        return InvoiceBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Invoice";
+    }
+
+    @Override
+    public List<Invoice> getAllEntitiesForExport() {
+        return invoiceRepository.findAllForExport();
+    }
+
+    @Override
+    public Function<Invoice, InvoiceBulkUploadDto> getEntityToDtoMapper() {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        
+        return invoice -> {
+            String payeeName = invoice.getPayee() != null && invoice.getPayee().getPayeeDetails() != null 
+                    ? invoice.getPayee().getPayeeDetails().getPayeeName() : "";
+            
+            String paymentTxnNumber = invoice.getPaymentDetails() != null 
+                    ? invoice.getPaymentDetails().getTransactionNumber() : "";
+
+            return InvoiceBulkUploadDto.builder()
+                    .invoiceNumber(invoice.getInvoiceNumber())
+                    .invoiceDate(invoice.getInvoiceDate() != null ? invoice.getInvoiceDate().format(dateFormatter) : "")
+                    .invoiceReceivedDate(invoice.getInvoiceReceivedDate() != null ? invoice.getInvoiceReceivedDate().format(dateFormatter) : "")
+                    .orderNumber(invoice.getOrderNumber())
+                    .vendorName(invoice.getVendorName())
+                    .payeeName(payeeName)
+                    .paymentTransactionNumber(paymentTxnNumber)
+                    .paymentDueDate(invoice.getPaymentDueDate() != null ? invoice.getPaymentDueDate().format(dateFormatter) : "")
+                    .paymentStatus(invoice.getPaymentStatus())
+                    .paidDate(invoice.getPaidDate() != null ? invoice.getPaidDate().format(dateFormatter) : "")
+                    .quantity(invoice.getQuantity() != null ? invoice.getQuantity().toString() : "")
+                    .unit(invoice.getUnit())
+                    .unitPrice(invoice.getUnitPrice() != null ? invoice.getUnitPrice().toString() : "")
+                    .taxCgstPercentage(invoice.getTaxCgstPercentage() != null ? invoice.getTaxCgstPercentage().toString() : "")
+                    .taxSgstPercentage(invoice.getTaxSgstPercentage() != null ? invoice.getTaxSgstPercentage().toString() : "")
+                    .taxIgstPercentage(invoice.getTaxIgstPercentage() != null ? invoice.getTaxIgstPercentage().toString() : "")
+                    .basicAmount(invoice.getBasicAmount() != null ? invoice.getBasicAmount().toString() : "")
+                    .cgst(invoice.getCgst() != null ? invoice.getCgst().toString() : "")
+                    .sgst(invoice.getSgst() != null ? invoice.getSgst().toString() : "")
+                    .igst(invoice.getIgst() != null ? invoice.getIgst().toString() : "")
+                    .amount1(invoice.getAmount1() != null ? invoice.getAmount1().toString() : "")
+                    .amount2(invoice.getAmount2() != null ? invoice.getAmount2().toString() : "")
+                    .discountPercentage(invoice.getDiscountPercentage() != null ? invoice.getDiscountPercentage().toString() : "")
+                    .discountAmount(invoice.getDiscountAmount() != null ? invoice.getDiscountAmount().toString() : "")
+                    .tds(invoice.getTds() != null ? invoice.getTds().toString() : "")
+                    .advanceAmount(invoice.getAdvanceAmount() != null ? invoice.getAdvanceAmount().toString() : "")
+                    .totalAmount(invoice.getTotalAmount() != null ? invoice.getTotalAmount().toString() : "")
+                    .totalInvoiceValue(invoice.getTotalInvoiceValue() != null ? invoice.getTotalInvoiceValue().toString() : "")
+                    .netPayable(invoice.getNetPayable() != null ? invoice.getNetPayable().toString() : "")
+                    .machineSerialNumber(invoice.getMachineSerialNumber())
+                    .masterPoNumber(invoice.getMasterPoNumber())
+                    .masterPoDate(invoice.getMasterPoDate() != null ? invoice.getMasterPoDate().format(dateFormatter) : "")
+                    .dispatchOrderNumber(invoice.getDispatchOrderNumber())
+                    .dispatchOrderDate(invoice.getDispatchOrderDate() != null ? invoice.getDispatchOrderDate().format(dateFormatter) : "")
+                    .utrDetail(invoice.getUtrDetail())
+                    .billedByVendorGst(invoice.getBilledByVendorGst())
+                    .billedToEpsGst(invoice.getBilledToEpsGst())
+                    .remarks(invoice.getRemarks())
+                    .build();
+        };
+    }
+
+    @Override
+    public InvoiceErrorReportDto buildErrorReportDto(BulkUploadErrorDto errorDto) {
+        return InvoiceErrorReportDto.builder()
+                .rowNumber(errorDto.getRowNumber())
+                .invoiceNumber((String) errorDto.getRowData().get("Invoice Number"))
+                .invoiceDate((String) errorDto.getRowData().get("Invoice Date"))
+                .invoiceReceivedDate((String) errorDto.getRowData().get("Invoice Received Date"))
+                .orderNumber((String) errorDto.getRowData().get("Order Number"))
+                .vendorName((String) errorDto.getRowData().get("Vendor Name"))
+                .payeeName((String) errorDto.getRowData().get("Payee Name"))
+                .paymentTransactionNumber((String) errorDto.getRowData().get("Payment Transaction Number"))
+                .paymentDueDate((String) errorDto.getRowData().get("Payment Due Date"))
+                .paymentStatus((String) errorDto.getRowData().get("Payment Status"))
+                .paidDate((String) errorDto.getRowData().get("Paid Date"))
+                .quantity((String) errorDto.getRowData().get("Quantity"))
+                .unit((String) errorDto.getRowData().get("Unit"))
+                .unitPrice((String) errorDto.getRowData().get("Unit Price"))
+                .taxCgstPercentage((String) errorDto.getRowData().get("Tax CGST Percentage"))
+                .taxSgstPercentage((String) errorDto.getRowData().get("Tax SGST Percentage"))
+                .taxIgstPercentage((String) errorDto.getRowData().get("Tax IGST Percentage"))
+                .basicAmount((String) errorDto.getRowData().get("Basic Amount"))
+                .cgst((String) errorDto.getRowData().get("CGST"))
+                .sgst((String) errorDto.getRowData().get("SGST"))
+                .igst((String) errorDto.getRowData().get("IGST"))
+                .amount1((String) errorDto.getRowData().get("Amount 1"))
+                .amount2((String) errorDto.getRowData().get("Amount 2"))
+                .discountPercentage((String) errorDto.getRowData().get("Discount Percentage"))
+                .discountAmount((String) errorDto.getRowData().get("Discount Amount"))
+                .tds((String) errorDto.getRowData().get("TDS"))
+                .advanceAmount((String) errorDto.getRowData().get("Advance Amount"))
+                .totalAmount((String) errorDto.getRowData().get("Total Amount"))
+                .totalInvoiceValue((String) errorDto.getRowData().get("Total Invoice Value"))
+                .netPayable((String) errorDto.getRowData().get("Net Payable"))
+                .machineSerialNumber((String) errorDto.getRowData().get("Machine Serial Number"))
+                .masterPoNumber((String) errorDto.getRowData().get("Master PO Number"))
+                .masterPoDate((String) errorDto.getRowData().get("Master PO Date"))
+                .dispatchOrderNumber((String) errorDto.getRowData().get("Dispatch Order Number"))
+                .dispatchOrderDate((String) errorDto.getRowData().get("Dispatch Order Date"))
+                .utrDetail((String) errorDto.getRowData().get("UTR Detail"))
+                .billedByVendorGst((String) errorDto.getRowData().get("Billed By Vendor GST"))
+                .billedToEpsGst((String) errorDto.getRowData().get("Billed To EPS GST"))
+                .remarks((String) errorDto.getRowData().get("Remarks"))
+                .error(errorDto.getErrorMessage())
+                .build();
+    }
+
+    @Override
+    public Class<InvoiceErrorReportDto> getErrorReportDtoClass() {
+        return InvoiceErrorReportDto.class;
+    }
+
+    // ========== CRUD Methods ==========
+
 
     @Override
     @Transactional

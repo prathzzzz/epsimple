@@ -10,6 +10,7 @@ import com.eps.module.api.epsone.activity_work.dto.ActivityWorkResponseDto;
 import com.eps.module.api.epsone.activity_work.mapper.ActivityWorkMapper;
 import com.eps.module.api.epsone.activity_work.processor.ActivityWorkBulkUploadProcessor;
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
+import com.eps.module.api.epsone.activity_work_remarks.repository.ActivityWorkRemarksRepository;
 import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTypeRepository;
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -40,6 +41,7 @@ public class ActivityWorkServiceImpl extends BaseBulkUploadService<ActivityWorkB
     private final ActivitiesRepository activitiesRepository;
     private final VendorRepository vendorRepository;
     private final GenericStatusTypeRepository genericStatusTypeRepository;
+    private final ActivityWorkRemarksRepository activityWorkRemarksRepository;
     private final ActivityWorkMapper activityWorkMapper;
     private final ActivityWorkBulkUploadProcessor activityWorkBulkUploadProcessor;
 
@@ -234,7 +236,11 @@ public class ActivityWorkServiceImpl extends BaseBulkUploadService<ActivityWorkB
         ActivityWork activityWork = activityWorkRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Activity work not found with id: " + id));
 
-        // TODO: Add dependency checks when activity work remarks module is implemented
+        // Check if activity work has remarks
+        long remarksCount = activityWorkRemarksRepository.countByActivityWorkId(id);
+        if (remarksCount > 0) {
+            throw new IllegalStateException("Cannot delete activity work. It has " + remarksCount + " remark(s) associated with it.");
+        }
 
         activityWorkRepository.delete(activityWork);
         log.info("Activity work deleted successfully with ID: {}", id);

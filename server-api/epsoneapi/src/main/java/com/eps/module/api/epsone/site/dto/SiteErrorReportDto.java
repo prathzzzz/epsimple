@@ -96,20 +96,20 @@ public class SiteErrorReportDto {
     @ExcelColumn(value = "Branding Size", order = 28)
     private String brandingSize;
 
-    @ExcelColumn(value = "Channel Manager Name", order = 29)
-    private String channelManagerName;
+    @ExcelColumn(value = "Channel Manager Contact", order = 29)
+    private String channelManagerContact;
 
-    @ExcelColumn(value = "Regional Manager Name", order = 30)
-    private String regionalManagerName;
+    @ExcelColumn(value = "Regional Manager Contact", order = 30)
+    private String regionalManagerContact;
 
-    @ExcelColumn(value = "State Head Name", order = 31)
-    private String stateHeadName;
+    @ExcelColumn(value = "State Head Contact", order = 31)
+    private String stateHeadContact;
 
-    @ExcelColumn(value = "Bank Person Name", order = 32)
-    private String bankPersonName;
+    @ExcelColumn(value = "Bank Person Contact", order = 32)
+    private String bankPersonContact;
 
-    @ExcelColumn(value = "Master Franchisee Name", order = 33)
-    private String masterFranchiseeName;
+    @ExcelColumn(value = "Master Franchisee Contact", order = 33)
+    private String masterFranchiseeContact;
 
     @ExcelColumn(value = "Gateway IP", order = 34)
     private String gatewayIp;

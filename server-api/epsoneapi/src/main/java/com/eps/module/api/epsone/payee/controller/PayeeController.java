@@ -95,6 +95,16 @@ public class PayeeController {
         return ResponseBuilder.success(response, "Payees list retrieved successfully", HttpStatus.OK);
     }
 
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        log.info("Received request to export all payees");
+        return bulkUploadControllerHelper.export(payeeService);
+    }
+
+    // ========== CRUD Endpoints ==========
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getPayeeById(@PathVariable Long id) {
         log.info("Received request to get payee by id: {}", id);
@@ -137,12 +147,6 @@ public class PayeeController {
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("Received request to download Payee bulk upload template");
         return bulkUploadControllerHelper.downloadTemplate(payeeService);
-    }
-
-    @GetMapping("/bulk-upload/export")
-    public ResponseEntity<byte[]> exportData() throws Exception {
-        log.info("Received request to export Payee data");
-        return bulkUploadControllerHelper.export(payeeService);
     }
 
     @PostMapping("/bulk-upload/errors")

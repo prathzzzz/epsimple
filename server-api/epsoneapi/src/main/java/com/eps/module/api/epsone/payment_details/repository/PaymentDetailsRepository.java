@@ -23,4 +23,16 @@ public interface PaymentDetailsRepository extends JpaRepository<PaymentDetails, 
 
     @Query("SELECT pd FROM PaymentDetails pd LEFT JOIN FETCH pd.paymentMethod ORDER BY pd.id")
     List<PaymentDetails> findAllForExport();
+
+    /**
+     * Find payment details by transaction number (case-insensitive) - for bulk upload
+     */
+    @Query("SELECT pd FROM PaymentDetails pd WHERE LOWER(pd.transactionNumber) = LOWER(:transactionNumber)")
+    java.util.Optional<PaymentDetails> findByTransactionNumberIgnoreCase(@Param("transactionNumber") String transactionNumber);
+
+    /**
+     * Check if transaction number exists (case-insensitive) - for bulk upload validation
+     */
+    @Query("SELECT CASE WHEN COUNT(pd) > 0 THEN true ELSE false END FROM PaymentDetails pd WHERE LOWER(pd.transactionNumber) = LOWER(:transactionNumber)")
+    boolean existsByTransactionNumberIgnoreCase(@Param("transactionNumber") String transactionNumber);
 }

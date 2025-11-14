@@ -240,6 +240,18 @@ public class AssetBulkUploadProcessor extends BulkUploadProcessor<AssetBulkUploa
 
         String s = dateStr.trim();
 
+        // Try Excel serial number first
+        if (s.matches("^\\d+(?:\\.\\d+)?$")) {
+            try {
+                double serial = Double.parseDouble(s);
+                if (serial >= 1 && serial < 100000) {
+                    return LocalDate.of(1899, 12, 30).plusDays((long) Math.floor(serial));
+                }
+            } catch (NumberFormatException e) {
+                // Not a number, try date formats
+            }
+        }
+
         // Try standard formatters
         for (DateTimeFormatter formatter : ACCEPTED_DATE_FORMATTERS) {
             try {
@@ -248,18 +260,7 @@ public class AssetBulkUploadProcessor extends BulkUploadProcessor<AssetBulkUploa
             }
         }
 
-        // Try Excel serial number
-        if (s.matches("^\\d+(?:\\.\\d+)?$")) {
-            try {
-                double serial = Double.parseDouble(s);
-                LocalDate excelEpoch = LocalDate.of(1899, 12, 30);
-                long days = (long) Math.floor(serial);
-                return excelEpoch.plusDays(days);
-            } catch (Exception ignored) {
-            }
-        }
-
-        log.warn("Could not parse date: {}", dateStr);
+        log.warn("Failed to parse date: {} - This should have been caught by validation", dateStr);
         return null;
     }
 }

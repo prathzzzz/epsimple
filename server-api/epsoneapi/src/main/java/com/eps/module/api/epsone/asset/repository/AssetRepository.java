@@ -82,4 +82,10 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
      */
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Asset a WHERE LOWER(a.assetTagId) = LOWER(:assetTagId)")
     boolean existsByAssetTagIdIgnoreCase(@Param("assetTagId") String assetTagId);
+    
+    /**
+     * Count assets by asset category ID
+     */
+    @Query("SELECT COUNT(a) FROM Asset a WHERE a.assetCategory.id = :categoryId")
+    long countByAssetCategoryId(@Param("categoryId") Long categoryId);
 }

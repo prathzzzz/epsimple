@@ -73,6 +73,15 @@ public class MovementTypeController {
         return ResponseBuilder.success(response, "Movement types list retrieved successfully");
     }
 
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        return bulkUploadControllerHelper.export(movementTypeService);
+    }
+
+    // ========== CRUD Endpoints ==========
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<MovementTypeResponseDto>> getMovementTypeById(@PathVariable Long id) {
         MovementTypeResponseDto response = movementTypeService.getMovementTypeById(id);
@@ -103,11 +112,6 @@ public class MovementTypeController {
     @GetMapping("/bulk-upload/template")
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         return bulkUploadControllerHelper.downloadTemplate(movementTypeService);
-    }
-
-    @GetMapping("/bulk-upload/export")
-    public ResponseEntity<byte[]> exportData() throws Exception {
-        return bulkUploadControllerHelper.export(movementTypeService);
     }
 
     @PostMapping("/bulk-upload/errors")

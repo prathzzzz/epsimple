@@ -95,7 +95,17 @@ public class BankController {
         return ResponseBuilder.success(banks, "Banks list retrieved successfully");
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/banks/export - Exporting all banks");
+        return bulkUploadHelper.export(bankService);
+    }
+
+    // ========== CRUD Endpoints ==========
+
+    @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<BankResponseDto>> updateBank(
             @PathVariable Long id,
             @Valid @ModelAttribute BankRequestDto bankRequestDto,
@@ -124,12 +134,6 @@ public class BankController {
     public ResponseEntity<byte[]> exportTemplate() throws IOException {
         log.info("GET /api/banks/bulk/export-template - Exporting template");
         return bulkUploadHelper.downloadTemplate(bankService);
-    }
-
-    @GetMapping("/bulk/export-data")
-    public ResponseEntity<byte[]> exportData() throws IOException {
-        log.info("GET /api/banks/bulk/export-data - Exporting data");
-        return bulkUploadHelper.export(bankService);
     }
 
     @PostMapping("/bulk/export-error-report")

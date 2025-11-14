@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { useInvoice } from "../context/invoice-provider";
+import { useInvoice } from "../hooks/use-invoice";
 import type { Invoice } from "../api/schema";
 
 interface DataTableRowActionsProps {

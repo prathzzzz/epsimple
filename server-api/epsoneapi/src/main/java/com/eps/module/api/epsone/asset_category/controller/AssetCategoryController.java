@@ -86,6 +86,16 @@ public class AssetCategoryController {
         return ResponseBuilder.success(assetCategories, "Asset categories list retrieved successfully");
     }
 
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        log.info("GET /api/asset-categories/export - Exporting all asset categories");
+        return bulkUploadControllerHelper.export(assetCategoryService);
+    }
+
+    // ========== CRUD Endpoints ==========
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AssetCategoryResponseDto>> getAssetCategoryById(@PathVariable Long id) {
         log.info("GET /api/asset-categories/{} - Fetching asset category by ID", id);
@@ -121,12 +131,6 @@ public class AssetCategoryController {
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("GET /api/asset-categories/bulk-upload/template - Downloading template");
         return bulkUploadControllerHelper.downloadTemplate(assetCategoryService);
-    }
-
-    @GetMapping("/bulk-upload/export")
-    public ResponseEntity<byte[]> exportData() throws Exception {
-        log.info("GET /api/asset-categories/bulk-upload/export - Exporting data");
-        return bulkUploadControllerHelper.export(assetCategoryService);
     }
 
     @PostMapping("/bulk-upload/errors")

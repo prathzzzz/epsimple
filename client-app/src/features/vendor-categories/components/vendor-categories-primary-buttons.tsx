@@ -43,7 +43,7 @@ export function VendorCategoriesPrimaryButtons() {
     setIsExporting(true);
     try {
       await downloadFile(
-        '/api/vendor-categories/bulk/export-data',
+        '/api/vendor-categories/export',
         'VendorCategories_Export.xlsx'
       );
       toast.success('Data exported successfully');

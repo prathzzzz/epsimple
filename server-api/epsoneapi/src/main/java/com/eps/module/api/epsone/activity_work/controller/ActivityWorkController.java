@@ -43,12 +43,6 @@ public class ActivityWorkController {
         return bulkUploadControllerHelper.downloadTemplate(activityWorkService);
     }
 
-    @GetMapping("/bulk-upload/export")
-    public ResponseEntity<byte[]> exportData() throws Exception {
-        log.info("GET /api/activity-works/bulk-upload/export - Exporting data");
-        return bulkUploadControllerHelper.export(activityWorkService);
-    }
-
     @PostMapping("/bulk-upload/errors")
     public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/activity-works/bulk-upload/errors - Downloading error report");
@@ -94,6 +88,16 @@ public class ActivityWorkController {
         List<ActivityWorkResponseDto> activityWorks = activityWorkService.getAllActivityWorksList();
         return ResponseBuilder.success(activityWorks, "Activity works list fetched successfully", HttpStatus.OK);
     }
+
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        log.info("GET /api/activity-works/export - Exporting all activity works");
+        return bulkUploadControllerHelper.export(activityWorkService);
+    }
+
+    // ========== CRUD Endpoints ==========
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ActivityWorkResponseDto>> getActivityWorkById(@PathVariable Long id) {

@@ -116,6 +116,19 @@ public class ActivityWorkBulkUploadProcessor extends BulkUploadProcessor<Activit
         }
 
         String trimmed = dateStr.trim();
+        
+        // Try to parse as Excel serial number first
+        try {
+            double excelSerialNumber = Double.parseDouble(trimmed);
+            if (excelSerialNumber >= 1 && excelSerialNumber < 100000) {
+                // Excel's epoch is 1899-12-30 (due to Excel's leap year bug)
+                return LocalDate.of(1899, 12, 30).plusDays((long) excelSerialNumber);
+            }
+        } catch (NumberFormatException e) {
+            // Not a number, try date formats
+        }
+        
+        // Try standard date formats
         for (DateTimeFormatter formatter : DATE_FORMATTERS) {
             try {
                 return LocalDate.parse(trimmed, formatter);
@@ -123,6 +136,9 @@ public class ActivityWorkBulkUploadProcessor extends BulkUploadProcessor<Activit
                 // Try next formatter
             }
         }
+        
+        // If all parsing fails, return null (validation already passed, so this shouldn't happen)
+        log.warn("Failed to parse date: {} - This should have been caught by validation", dateStr);
         return null;
     }
 }

@@ -83,6 +83,16 @@ public class LocationController {
         return ResponseBuilder.success(response, "Locations list fetched successfully", HttpStatus.OK);
     }
 
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/locations/export - Exporting all locations");
+        return bulkUploadHelper.export(locationService);
+    }
+
+    // ========== CRUD Endpoints ==========
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<LocationResponseDto>> getLocationById(@PathVariable Long id) {
         log.info("GET /api/locations/{} - Fetching location by ID", id);
@@ -118,12 +128,6 @@ public class LocationController {
     public ResponseEntity<byte[]> exportTemplate() throws IOException {
         log.info("GET /api/locations/bulk/export-template - Exporting template");
         return bulkUploadHelper.downloadTemplate(locationService);
-    }
-
-    @GetMapping("/bulk/export-data")
-    public ResponseEntity<byte[]> exportData() throws IOException {
-        log.info("GET /api/locations/bulk/export-data - Exporting data");
-        return bulkUploadHelper.export(locationService);
     }
 
     @PostMapping("/bulk/export-error-report")

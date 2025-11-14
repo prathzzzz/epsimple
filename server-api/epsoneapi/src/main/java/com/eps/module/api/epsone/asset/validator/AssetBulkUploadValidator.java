@@ -233,13 +233,10 @@ public class AssetBulkUploadValidator implements BulkRowValidator<AssetBulkUploa
             if (s.matches("^\\d+(?:\\.\\d+)?$")) {
                 try {
                     double serial = Double.parseDouble(s);
-                    LocalDate excelEpoch = LocalDate.of(1899, 12, 30);
-                    long days = (long) Math.floor(serial);
-                    LocalDate parsed = excelEpoch.plusDays(days);
-                    if (parsed != null) {
-                        return; // valid
+                    if (serial >= 1 && serial < 100000) {
+                        return; // valid Excel serial number
                     }
-                } catch (Exception ignored) {
+                } catch (NumberFormatException ignored) {
                 }
             }
 

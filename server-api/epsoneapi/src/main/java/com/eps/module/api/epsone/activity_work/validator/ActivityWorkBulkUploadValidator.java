@@ -164,6 +164,16 @@ public class ActivityWorkBulkUploadValidator implements BulkRowValidator<Activit
     }
 
     private boolean isValidDate(String dateStr) {
+        // First, try to parse as Excel serial number
+        try {
+            double excelSerialNumber = Double.parseDouble(dateStr);
+            // Excel dates are typically between 1 (1900-01-01) and 60000 (2064-01-06)
+            return excelSerialNumber >= 1 && excelSerialNumber < 100000;
+        } catch (NumberFormatException e) {
+            // Not a number, try date formats
+        }
+        
+        // Try standard date formats
         for (DateTimeFormatter formatter : DATE_FORMATTERS) {
             try {
                 LocalDate.parse(dateStr, formatter);

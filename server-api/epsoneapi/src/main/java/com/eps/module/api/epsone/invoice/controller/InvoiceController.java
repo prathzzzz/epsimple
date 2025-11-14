@@ -1,8 +1,12 @@
 package com.eps.module.api.epsone.invoice.controller;
 
+import com.eps.module.api.epsone.invoice.dto.InvoiceBulkUploadDto;
+import com.eps.module.api.epsone.invoice.dto.InvoiceErrorReportDto;
 import com.eps.module.api.epsone.invoice.dto.InvoiceRequestDto;
 import com.eps.module.api.epsone.invoice.dto.InvoiceResponseDto;
 import com.eps.module.api.epsone.invoice.service.InvoiceService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +17,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +29,27 @@ import java.util.Map;
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
+    private final BulkUploadControllerHelper bulkUploadControllerHelper;
+
+    // ========== Bulk Upload Endpoints ==========
+
+    @PostMapping("/bulk-upload")
+    public SseEmitter bulkUploadInvoices(@RequestParam("file") MultipartFile file) throws Exception {
+        return bulkUploadControllerHelper.bulkUpload(file, invoiceService);
+    }
+
+    @GetMapping("/bulk-upload/template")
+    public ResponseEntity<byte[]> downloadTemplate() throws Exception {
+        return bulkUploadControllerHelper.downloadTemplate(invoiceService);
+    }
+
+    @PostMapping("/bulk-upload/errors")
+    public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
+        return bulkUploadControllerHelper.exportErrors(progressData, invoiceService);
+    }
+
+    // ========== CRUD Endpoints ==========
+
 
     @PostMapping
     public ResponseEntity<?> createInvoice(@Valid @RequestBody InvoiceRequestDto requestDto) {
@@ -70,6 +97,15 @@ public class InvoiceController {
         List<InvoiceResponseDto> invoices = invoiceService.getInvoicesList();
         return ResponseBuilder.success(invoices, "Invoices list retrieved successfully");
     }
+
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        return bulkUploadControllerHelper.export(invoiceService);
+    }
+
+    // ========== CRUD Endpoints ==========
 
     @GetMapping("/payee/{payeeId}")
     public ResponseEntity<?> getInvoicesByPayeeId(@PathVariable Long payeeId) {

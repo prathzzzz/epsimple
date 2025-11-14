@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.asset_category.service;
 
+import com.eps.module.api.epsone.asset.repository.AssetRepository;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryBulkUploadDto;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryErrorReportDto;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryRequestDto;
@@ -31,6 +32,7 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
 
     private final AssetCategoryRepository assetCategoryRepository;
     private final AssetTypeRepository assetTypeRepository;
+    private final AssetRepository assetRepository;
     private final AssetCategoryMapper assetCategoryMapper;
     private final AssetCategoryBulkUploadProcessor assetCategoryBulkUploadProcessor;
 
@@ -139,8 +141,11 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
         AssetCategory assetCategory = assetCategoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Asset category not found with id: " + id));
 
-        // TODO: Add dependency check for Assets when Asset module is implemented
         // Check if this asset category is being used by any assets
+        long assetCount = assetRepository.countByAssetCategoryId(id);
+        if (assetCount > 0) {
+            throw new IllegalStateException("Cannot delete asset category. It is referenced in " + assetCount + " asset(s).");
+        }
 
         assetCategoryRepository.deleteById(id);
         log.info("Asset category deleted successfully with ID: {}", id);

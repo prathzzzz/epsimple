@@ -4,15 +4,21 @@ import { ProfileDropdown } from "@/components/profile-dropdown";
 import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { ConfigDrawer } from "@/components/config-drawer";
+import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
 import { InvoiceProvider } from "./context/invoice-provider";
+import { useInvoice } from "./hooks/use-invoice";
 import { InvoiceTable } from "./components/invoice-table";
 import { invoiceColumns } from "./components/invoice-columns";
 import { InvoiceDialogs } from "./components/invoice-dialogs";
 import { InvoicePrimaryButtons } from "./components/invoice-primary-buttons";
+import { useQueryClient } from "@tanstack/react-query";
 
-export default function Invoices() {
+function InvoicesContent() {
+  const { isBulkUploadDialogOpen, setIsBulkUploadDialogOpen } = useInvoice();
+  const queryClient = useQueryClient();
+
   return (
-    <InvoiceProvider>
+    <>
       <Header fixed>
         <Search />
         <div className="ml-auto flex items-center space-x-4">
@@ -36,6 +42,26 @@ export default function Invoices() {
         </div>
       </Main>
       <InvoiceDialogs />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: "/api/invoices/bulk-upload",
+          errorReportEndpoint: "/api/invoices/bulk-upload/errors",
+          entityName: "Invoice",
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["invoices"] });
+          },
+        }}
+      />
+    </>
+  );
+}
+
+export default function Invoices() {
+  return (
+    <InvoiceProvider>
+      <InvoicesContent />
     </InvoiceProvider>
   );
 }

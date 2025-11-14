@@ -19,7 +19,7 @@ export function AssetTypesPrimaryButtons() {
 
   const { isExporting, handleExport } = useExport({
     entityName: 'AssetTypes',
-    exportEndpoint: '/api/asset-types/bulk-upload/export',
+    exportEndpoint: '/api/asset-types/export',
   });
 
   const handleCreate = () => {

@@ -86,6 +86,16 @@ public class VendorCategoryController {
         return ResponseBuilder.success(vendorCategories, "Vendor categories list retrieved successfully");
     }
 
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws java.io.IOException {
+        log.info("GET /api/vendor-categories/export - Exporting all vendor categories");
+        return bulkUploadHelper.export(vendorCategoryService);
+    }
+
+    // ========== CRUD Endpoints ==========
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<VendorCategoryResponseDto>> getVendorCategoryById(@PathVariable Long id) {
         log.info("GET /api/vendor-categories/{} - Fetching vendor category by ID", id);
@@ -121,12 +131,6 @@ public class VendorCategoryController {
     public ResponseEntity<byte[]> downloadBulkUploadTemplate() throws java.io.IOException {
         log.info("GET /api/vendor-categories/bulk/export-template - Downloading bulk upload template");
         return bulkUploadHelper.downloadTemplate(vendorCategoryService);
-    }
-
-    @GetMapping("/bulk/export-data")
-    public ResponseEntity<byte[]> exportVendorCategories() throws java.io.IOException {
-        log.info("GET /api/vendor-categories/bulk/export-data - Exporting vendor categories");
-        return bulkUploadHelper.export(vendorCategoryService);
     }
 
     @PostMapping("/bulk/export-error-report")

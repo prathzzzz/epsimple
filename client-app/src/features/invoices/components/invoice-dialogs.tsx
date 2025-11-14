@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
 import { InvoiceMutateDrawer } from "./invoice-mutate-drawer";
-import { useInvoice } from "../context/invoice-provider";
+import { useInvoice } from "../hooks/use-invoice";
 import { invoicesApi } from "../api/invoices-api";
 
 export function InvoiceDialogs() {
@@ -14,6 +15,8 @@ export function InvoiceDialogs() {
     setIsDrawerOpen,
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
+    isBulkUploadDialogOpen,
+    setIsBulkUploadDialogOpen,
   } = useInvoice();
 
   const deleteMutation = useMutation({
@@ -47,6 +50,19 @@ export function InvoiceDialogs() {
         handleConfirm={handleDelete}
         isLoading={deleteMutation.isPending}
         destructive
+      />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          entityName: "Invoice",
+          uploadEndpoint: "/api/invoices/bulk-upload",
+          errorReportEndpoint: "/api/invoices/bulk-upload/errors",
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["invoices"] });
+            toast.success("Invoice bulk upload completed successfully");
+          },
+        }}
       />
     </>
   );

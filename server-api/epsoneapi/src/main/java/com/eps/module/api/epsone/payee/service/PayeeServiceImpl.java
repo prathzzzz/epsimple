@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.payee.service;
 
+import com.eps.module.api.epsone.invoice.repository.InvoiceRepository;
 import com.eps.module.api.epsone.landlord.repository.LandlordRepository;
 import com.eps.module.api.epsone.payee.dto.PayeeBulkUploadDto;
 import com.eps.module.api.epsone.payee.dto.PayeeErrorReportDto;
@@ -11,6 +12,7 @@ import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.api.epsone.payee_details.repository.PayeeDetailsRepository;
 import com.eps.module.api.epsone.payee_type.repository.PayeeTypeRepository;
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
+import com.eps.module.api.epsone.voucher.repository.VoucherRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
@@ -39,6 +41,8 @@ public class PayeeServiceImpl extends BaseBulkUploadService<PayeeBulkUploadDto, 
     private final PayeeTypeRepository payeeTypeRepository;
     private final PayeeDetailsRepository payeeDetailsRepository;
     private final VendorRepository vendorRepository;
+    private final InvoiceRepository invoiceRepository;
+    private final VoucherRepository voucherRepository;
     private final LandlordRepository landlordRepository;
     private final PayeeMapper payeeMapper;
     private final PayeeBulkUploadProcessor payeeBulkUploadProcessor;
@@ -180,7 +184,17 @@ public class PayeeServiceImpl extends BaseBulkUploadService<PayeeBulkUploadDto, 
             throw new IllegalArgumentException("Payee not found with id: " + id);
         }
 
-        // TODO: Add dependency checks when invoice/voucher modules are implemented
+        // Check if payee is used in invoices
+        var invoices = invoiceRepository.findByPayeeId(id);
+        if (!invoices.isEmpty()) {
+            throw new IllegalStateException("Cannot delete payee. It is referenced in " + invoices.size() + " invoice(s).");
+        }
+
+        // Check if payee is used in vouchers
+        var vouchers = voucherRepository.findByPayeeId(id, Pageable.unpaged());
+        if (vouchers.hasContent()) {
+            throw new IllegalStateException("Cannot delete payee. It is referenced in " + vouchers.getTotalElements() + " voucher(s).");
+        }
 
         payeeRepository.deleteById(id);
         log.info("Payee deleted successfully with id: {}", id);

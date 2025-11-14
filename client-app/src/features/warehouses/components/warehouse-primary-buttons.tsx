@@ -19,7 +19,7 @@ export function WarehousePrimaryButtons() {
 
   const { isExporting, handleExport } = useExport({
     entityName: 'Warehouse',
-    exportEndpoint: '/api/warehouses/bulk/export-data',
+    exportEndpoint: '/api/warehouses/export',
   });
 
   const handleDownloadTemplate = async () => {

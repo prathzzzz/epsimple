@@ -19,7 +19,7 @@ export function BanksPrimaryButtons() {
 
   const { isExporting, handleExport } = useExport({
     entityName: 'Bank',
-    exportEndpoint: '/api/banks/bulk/export-data',
+    exportEndpoint: '/api/banks/export',
   })
 
   const handleDownloadTemplate = async () => {
@@ -31,7 +31,6 @@ export function BanksPrimaryButtons() {
       )
       toast.success('Template downloaded successfully')
     } catch (error) {
-      console.error('Failed to download template:', error)
       toast.error('Failed to download template', {
         description: error instanceof Error ? error.message : 'An error occurred',
       })

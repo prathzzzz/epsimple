@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.site.validator;
 import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTypeRepository;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
+import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
 import com.eps.module.api.epsone.site.dto.SiteBulkUploadDto;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
 import com.eps.module.api.epsone.site_category.repository.SiteCategoryRepository;
@@ -31,6 +32,7 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
     private final SiteCategoryRepository siteCategoryRepository;
     private final SiteTypeRepository siteTypeRepository;
     private final GenericStatusTypeRepository genericStatusTypeRepository;
+    private final PersonDetailsRepository personDetailsRepository;
 
     private static final Pattern SITE_CODE_PATTERN = Pattern.compile("^[A-Z0-9]{5,50}$");
     private static final Pattern IP_PATTERN = Pattern.compile(
@@ -154,6 +156,13 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
         validateLength(rowData.getCassetteType3(), "Cassette Type 3", 50, rowNumber, errors);
         validateLength(rowData.getCassetteType4(), "Cassette Type 4", 50, rowNumber, errors);
 
+        // Validate person contacts by phone number (optional)
+        validatePersonContact(rowData.getChannelManagerContact(), "Channel Manager Contact", rowNumber, errors);
+        validatePersonContact(rowData.getRegionalManagerContact(), "Regional Manager Contact", rowNumber, errors);
+        validatePersonContact(rowData.getStateHeadContact(), "State Head Contact", rowNumber, errors);
+        validatePersonContact(rowData.getBankPersonContact(), "Bank Person Contact", rowNumber, errors);
+        validatePersonContact(rowData.getMasterFranchiseeContact(), "Master Franchisee Contact", rowNumber, errors);
+
         return errors;
     }
 
@@ -184,14 +193,10 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
             if (s.matches("^\\d+(?:\\.\\d+)?$")) {
                 try {
                     double serial = Double.parseDouble(s);
-                    // Excel epoch: 1899-12-30 accounts for Excel leap-year bug
-                    LocalDate excelEpoch = LocalDate.of(1899, 12, 30);
-                    long days = (long) Math.floor(serial);
-                    LocalDate parsed = excelEpoch.plusDays(days);
-                    if (parsed != null) {
-                        return; // valid
+                    if (serial >= 1 && serial < 100000) {
+                        return; // valid Excel serial number
                     }
-                } catch (Exception ignored) {
+                } catch (NumberFormatException ignored) {
                 }
             }
 
@@ -228,6 +233,25 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
         if (value != null && value.length() > maxLength) {
             errors.add(createError(rowNumber, "VALIDATION_ERROR", 
                     fieldName + " cannot exceed " + maxLength + " characters"));
+        }
+    }
+
+    private void validatePersonContact(String contactNumber, String fieldName, int rowNumber, List<BulkUploadErrorDto> errors) {
+        if (contactNumber != null && !contactNumber.trim().isEmpty()) {
+            String trimmed = contactNumber.trim();
+            
+            // Validate phone number format (10 digits)
+            if (!trimmed.matches("^[0-9]{10}$")) {
+                errors.add(createError(rowNumber, "VALIDATION_ERROR", 
+                        fieldName + " must be a 10-digit phone number"));
+                return;
+            }
+            
+            // Check if person exists with this contact number
+            if (!personDetailsRepository.findByContactNumber(trimmed).isPresent()) {
+                errors.add(createError(rowNumber, "REFERENCE_ERROR", 
+                        fieldName + " '" + trimmed + "' not found in person details. Please ensure the person is registered first."));
+            }
         }
     }
 

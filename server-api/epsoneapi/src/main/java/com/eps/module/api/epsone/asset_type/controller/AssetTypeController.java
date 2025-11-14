@@ -73,6 +73,15 @@ public class AssetTypeController {
         return ResponseBuilder.success(response, "Asset types list retrieved successfully");
     }
 
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        return bulkUploadControllerHelper.export(assetTypeService);
+    }
+
+    // ========== CRUD Endpoints ==========
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AssetTypeResponseDto>> getAssetTypeById(@PathVariable Long id) {
         AssetTypeResponseDto response = assetTypeService.getAssetTypeById(id);
@@ -103,11 +112,6 @@ public class AssetTypeController {
     @GetMapping("/bulk-upload/template")
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         return bulkUploadControllerHelper.downloadTemplate(assetTypeService);
-    }
-
-    @GetMapping("/bulk-upload/export")
-    public ResponseEntity<byte[]> exportData() throws Exception {
-        return bulkUploadControllerHelper.export(assetTypeService);
     }
 
     @PostMapping("/bulk-upload/errors")

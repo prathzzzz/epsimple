@@ -40,4 +40,14 @@ public interface PersonDetailsRepository extends JpaRepository<PersonDetails, Lo
     boolean existsByContactNumber(String contactNumber);
     
     Optional<PersonDetails> findByContactNumber(String contactNumber);
+    
+    @Query("SELECT pd FROM PersonDetails pd WHERE " +
+           "LOWER(CONCAT(COALESCE(pd.firstName, ''), ' ', COALESCE(pd.middleName, ''), ' ', COALESCE(pd.lastName, ''))) " +
+           "LIKE LOWER(CONCAT('%', :fullName, '%'))")
+    List<PersonDetails> findByFullNameContaining(@Param("fullName") String fullName);
+    
+    @Query("SELECT pd FROM PersonDetails pd WHERE " +
+           "LOWER(TRIM(CONCAT(COALESCE(pd.firstName, ''), ' ', COALESCE(pd.middleName, ''), ' ', COALESCE(pd.lastName, '')))) " +
+           "= LOWER(TRIM(:fullName))")
+    Optional<PersonDetails> findByFullNameExact(@Param("fullName") String fullName);
 }

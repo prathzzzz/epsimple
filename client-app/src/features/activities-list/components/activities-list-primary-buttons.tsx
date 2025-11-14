@@ -21,7 +21,7 @@ export function ActivitiesListPrimaryButtons() {
 
   const { isExporting, handleExport } = useExport({
     entityName: 'Activities',
-    exportEndpoint: '/api/activities/bulk-upload/export',
+    exportEndpoint: '/api/activities/export',
   });
 
   const handleCreate = () => {

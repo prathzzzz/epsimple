@@ -95,6 +95,16 @@ public class SiteController {
         return ResponseBuilder.success(sites, "Sites list retrieved successfully");
     }
 
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        log.info("GET /api/sites/export - Exporting all sites");
+        return bulkUploadControllerHelper.export(siteService);
+    }
+
+    // ========== CRUD Endpoints ==========
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<SiteResponseDto>> getSiteById(@PathVariable Long id) {
         log.info("GET /api/sites/{} - Fetching site by ID", id);
@@ -130,12 +140,6 @@ public class SiteController {
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("GET /api/sites/bulk-upload/template - Downloading template");
         return bulkUploadControllerHelper.downloadTemplate(siteService);
-    }
-
-    @GetMapping("/bulk-upload/export")
-    public ResponseEntity<byte[]> exportData() throws Exception {
-        log.info("GET /api/sites/bulk-upload/export - Exporting data");
-        return bulkUploadControllerHelper.export(siteService);
     }
 
     @PostMapping("/bulk-upload/errors")

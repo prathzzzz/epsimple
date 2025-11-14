@@ -67,6 +67,16 @@ public class DatacenterController {
         return ResponseBuilder.success(datacenters, "Datacenters list fetched successfully", HttpStatus.OK);
     }
 
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws IOException {
+        log.info("GET /api/datacenters/export - Exporting all datacenters");
+        return bulkUploadHelper.export(datacenterService);
+    }
+
+    // ========== CRUD Endpoints ==========
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<DatacenterResponseDto>> getDatacenterById(@PathVariable Long id) {
         log.info("GET /api/datacenters/{} - Fetching datacenter", id);
@@ -102,12 +112,6 @@ public class DatacenterController {
     public ResponseEntity<byte[]> exportTemplate() throws IOException {
         log.info("GET /api/datacenters/bulk/export-template - Exporting template");
         return bulkUploadHelper.downloadTemplate(datacenterService);
-    }
-
-    @GetMapping("/bulk/export-data")
-    public ResponseEntity<byte[]> exportData() throws IOException {
-        log.info("GET /api/datacenters/bulk/export-data - Exporting data");
-        return bulkUploadHelper.export(datacenterService);
     }
 
     @PostMapping("/bulk/export-error-report")

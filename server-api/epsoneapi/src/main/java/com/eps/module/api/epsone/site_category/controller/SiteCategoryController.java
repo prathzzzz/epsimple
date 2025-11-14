@@ -76,6 +76,16 @@ public class SiteCategoryController {
         return ResponseBuilder.success(siteCategories, "Site categories list retrieved successfully");
     }
 
+    // ========== Export Endpoint (must be before /{id}) ==========
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData() throws Exception {
+        log.info("GET /api/site-categories/export - Exporting all site categories");
+        return bulkUploadControllerHelper.export(siteCategoryService);
+    }
+
+    // ========== CRUD Endpoints ==========
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<SiteCategoryResponseDto>> getSiteCategoryById(@PathVariable Long id) {
         log.info("GET /api/site-categories/{} - Fetching site category by ID", id);
@@ -111,12 +121,6 @@ public class SiteCategoryController {
     public ResponseEntity<byte[]> downloadBulkUploadTemplate() throws Exception {
         log.info("GET /api/site-categories/bulk-upload/template - Downloading bulk upload template");
         return bulkUploadControllerHelper.downloadTemplate(siteCategoryService);
-    }
-
-    @GetMapping("/bulk-upload/export")
-    public ResponseEntity<byte[]> exportSiteCategories() throws Exception {
-        log.info("GET /api/site-categories/bulk-upload/export - Exporting all site categories");
-        return bulkUploadControllerHelper.export(siteCategoryService);
     }
 
     @PostMapping("/bulk-upload/errors")

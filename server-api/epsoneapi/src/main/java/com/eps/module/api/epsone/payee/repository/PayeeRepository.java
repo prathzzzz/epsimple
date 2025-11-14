@@ -70,4 +70,10 @@ public interface PayeeRepository extends JpaRepository<Payee, Long> {
             "LEFT JOIN FETCH l.landlordDetails " +
             "ORDER BY p.id")
     java.util.List<Payee> findAllForExport();
+
+    /**
+     * Find payee by payee details ID - for bulk upload
+     */
+    @Query("SELECT p FROM Payee p WHERE p.payeeDetails.id = :payeeDetailsId")
+    java.util.Optional<Payee> findByPayeeDetailsId(@Param("payeeDetailsId") Long payeeDetailsId);
 }
