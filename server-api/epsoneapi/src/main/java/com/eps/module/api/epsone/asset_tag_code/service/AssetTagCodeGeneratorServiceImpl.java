@@ -12,7 +12,9 @@ import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.asset.AssetCategory;
 import com.eps.module.asset.AssetTagCodeGenerator;
 import com.eps.module.bank.Bank;
+import com.eps.module.common.constants.ErrorMessages;
 import com.eps.module.common.exception.ResourceNotFoundException;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.vendor.Vendor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,23 +50,24 @@ public class AssetTagCodeGeneratorServiceImpl implements AssetTagCodeGeneratorSe
         if (generatorRepository.existsByAssetCategoryIdAndVendorIdAndBankId(
                 dto.getAssetCategoryId(), dto.getVendorId(), dto.getBankId())) {
             throw new IllegalArgumentException(
-                "Asset tag code generator already exists for this category-vendor-bank combination"
+                String.format(ErrorMessages.CODE_GENERATOR_ALREADY_EXISTS, 
+                    "Asset tag", "category-vendor-bank")
             );
         }
 
         AssetCategory category = assetCategoryRepository.findById(dto.getAssetCategoryId())
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Asset category not found with id: " + dto.getAssetCategoryId()
+                String.format(ErrorMessages.ASSET_CATEGORY_NOT_FOUND, dto.getAssetCategoryId())
             ));
 
         Vendor vendor = vendorRepository.findById(dto.getVendorId())
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Vendor not found with id: " + dto.getVendorId()
+                String.format(ErrorMessages.VENDOR_NOT_FOUND, dto.getVendorId())
             ));
 
         Bank bank = bankRepository.findById(dto.getBankId())
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Bank not found with id: " + dto.getBankId()
+                String.format(ErrorMessages.BANK_NOT_FOUND_WITH_ID, dto.getBankId())
             ));
 
         AssetTagCodeGenerator generator = mapper.toEntity(dto, category, vendor, bank);

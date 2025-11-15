@@ -13,6 +13,8 @@ import com.eps.module.bank.Bank;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.payment.PayeeDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -43,14 +45,14 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
         if (requestDto.getBankId() != null) {
             bank = bankRepository.findById(requestDto.getBankId())
                     .orElseThrow(() -> new IllegalArgumentException(
-                            "Bank with ID " + requestDto.getBankId() + " not found"));
+                            String.format(ErrorMessages.BANK_NOT_FOUND, requestDto.getBankId())));
         }
 
         // Validate PAN uniqueness if provided
         if (requestDto.getPanNumber() != null && !requestDto.getPanNumber().isEmpty()) {
             if (payeeDetailsRepository.existsByPanNumber(requestDto.getPanNumber())) {
                 throw new IllegalArgumentException(
-                        "PAN number '" + requestDto.getPanNumber() + "' is already registered");
+                        ValidationUtils.formatAlreadyExistsError("PAN number", requestDto.getPanNumber()));
             }
         }
 
@@ -58,7 +60,7 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
         if (requestDto.getAadhaarNumber() != null && !requestDto.getAadhaarNumber().isEmpty()) {
             if (payeeDetailsRepository.existsByAadhaarNumber(requestDto.getAadhaarNumber())) {
                 throw new IllegalArgumentException(
-                        "Aadhaar number '" + requestDto.getAadhaarNumber() + "' is already registered");
+                        ValidationUtils.formatAlreadyExistsError("Aadhaar number", requestDto.getAadhaarNumber()));
             }
         }
 
@@ -107,7 +109,8 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
     @Transactional(readOnly = true)
     public PayeeDetailsResponseDto getPayeeDetailsById(Long id) {
         PayeeDetails payeeDetails = payeeDetailsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payee details with ID " + id + " not found"));
+                .orElseThrow(() -> new IllegalArgumentException(
+                    String.format(ErrorMessages.PAYEE_DETAILS_NOT_FOUND, id)));
         return payeeDetailsMapper.toDto(payeeDetails);
     }
 
@@ -115,14 +118,15 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
     @Transactional
     public PayeeDetailsResponseDto updatePayeeDetails(Long id, PayeeDetailsRequestDto requestDto) {
         PayeeDetails existingPayeeDetails = payeeDetailsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payee details with ID " + id + " not found"));
+                .orElseThrow(() -> new IllegalArgumentException(
+                    String.format(ErrorMessages.PAYEE_DETAILS_NOT_FOUND, id)));
 
         // Validate bank if provided
         Bank bank = null;
         if (requestDto.getBankId() != null) {
             bank = bankRepository.findById(requestDto.getBankId())
                     .orElseThrow(() -> new IllegalArgumentException(
-                            "Bank with ID " + requestDto.getBankId() + " not found"));
+                            String.format(ErrorMessages.BANK_NOT_FOUND, requestDto.getBankId())));
         }
 
         // Validate PAN uniqueness if changed
@@ -169,13 +173,15 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
     @Transactional
     public void deletePayeeDetails(Long id) {
         if (!payeeDetailsRepository.existsById(id)) {
-            throw new IllegalArgumentException("Payee details with ID " + id + " not found");
+            throw new IllegalArgumentException(
+                String.format(ErrorMessages.PAYEE_DETAILS_NOT_FOUND, id));
         }
 
         // Check for dependencies - payees
         long payeeCount = payeeRepository.countByPayeeDetailsId(id);
         if (payeeCount > 0) {
-            throw new IllegalStateException("Cannot delete payee details as it has " + payeeCount + " associated payees");
+            throw new IllegalStateException(
+                ValidationUtils.formatCannotDeleteError("payee details", payeeCount, "payees"));
         }
         
         payeeDetailsRepository.deleteById(id);
