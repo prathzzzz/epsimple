@@ -11,6 +11,8 @@ import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.payment.PayeeType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +42,9 @@ public class PayeeTypeServiceImpl extends BaseBulkUploadService<PayeeTypeBulkUpl
         log.info("Creating payee type: {}", requestDto.getPayeeType());
 
         if (payeeTypeRepository.existsByPayeeTypeIgnoreCase(requestDto.getPayeeType())) {
-            throw new IllegalArgumentException("Payee type '" + requestDto.getPayeeType() + "' already exists");
+            throw new IllegalArgumentException(
+                ValidationUtils.formatAlreadyExistsError("Payee type", requestDto.getPayeeType())
+            );
         }
 
         PayeeType payeeType = payeeTypeMapper.toEntity(requestDto);
@@ -80,7 +84,9 @@ public class PayeeTypeServiceImpl extends BaseBulkUploadService<PayeeTypeBulkUpl
     public PayeeTypeResponseDto getPayeeTypeById(Long id) {
         log.info("Fetching payee type with ID: {}", id);
         PayeeType payeeType = payeeTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payee type not found with ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(
+                    String.format(ErrorMessages.PAYEE_TYPE_NOT_FOUND, id)
+                ));
         return payeeTypeMapper.toResponseDto(payeeType);
     }
 
@@ -90,10 +96,14 @@ public class PayeeTypeServiceImpl extends BaseBulkUploadService<PayeeTypeBulkUpl
         log.info("Updating payee type with ID: {}", id);
 
         PayeeType payeeType = payeeTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payee type not found with ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(
+                    String.format(ErrorMessages.PAYEE_TYPE_NOT_FOUND, id)
+                ));
 
         if (payeeTypeRepository.existsByPayeeTypeAndIdNot(requestDto.getPayeeType(), id)) {
-            throw new IllegalArgumentException("Payee type '" + requestDto.getPayeeType() + "' already exists");
+            throw new IllegalArgumentException(
+                ValidationUtils.formatAlreadyExistsError("Payee type", requestDto.getPayeeType())
+            );
         }
 
         payeeTypeMapper.updateEntityFromDto(requestDto, payeeType);
@@ -109,13 +119,17 @@ public class PayeeTypeServiceImpl extends BaseBulkUploadService<PayeeTypeBulkUpl
         log.info("Deleting payee type with ID: {}", id);
 
         if (!payeeTypeRepository.existsById(id)) {
-            throw new IllegalArgumentException("Payee type not found with ID: " + id);
+            throw new IllegalArgumentException(
+                String.format(ErrorMessages.PAYEE_TYPE_NOT_FOUND, id)
+            );
         }
 
         // Check for dependencies - payees
         long payeeCount = payeeRepository.countByPayeeTypeId(id);
         if (payeeCount > 0) {
-            throw new IllegalStateException("Cannot delete payee type as it has " + payeeCount + " associated payees");
+            throw new IllegalStateException(
+                ValidationUtils.formatCannotDeleteError("payee type", payeeCount, "payees")
+            );
         }
 
         payeeTypeRepository.deleteById(id);
