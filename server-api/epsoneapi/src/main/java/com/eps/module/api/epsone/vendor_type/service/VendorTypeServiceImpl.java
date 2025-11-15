@@ -10,6 +10,8 @@ import com.eps.module.api.epsone.vendor_type.mapper.VendorTypeMapper;
 import com.eps.module.api.epsone.vendor_type.processor.VendorTypeBulkUploadProcessor;
 import com.eps.module.api.epsone.vendor_type.repository.VendorTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.person.PersonDetails;
@@ -59,7 +61,7 @@ public class VendorTypeServiceImpl extends BaseBulkUploadService<VendorTypeBulkU
     @Transactional
     public VendorTypeResponseDto updateVendorType(Long id, VendorTypeRequestDto requestDto) {
         VendorType existingVendorType = vendorTypeRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Vendor type not found with id: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Vendor type", id)));
         
         // Check if vendor type name already exists for another vendor type
         if (vendorTypeRepository.existsByTypeNameAndIdNot(requestDto.getTypeName(), id)) {
@@ -80,7 +82,7 @@ public class VendorTypeServiceImpl extends BaseBulkUploadService<VendorTypeBulkU
     @Transactional
     public void deleteVendorType(Long id) {
         VendorType vendorType = vendorTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vendor type not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Vendor type", id)));
 
         // Check for dependent vendors
         long vendorCount = vendorRepository.countByVendorTypeId(id);
@@ -112,7 +114,7 @@ public class VendorTypeServiceImpl extends BaseBulkUploadService<VendorTypeBulkU
     @Transactional(readOnly = true)
     public VendorTypeResponseDto getVendorTypeById(Long id) {
         VendorType vendorType = vendorTypeRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Vendor type not found with id: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Vendor type", id)));
         return vendorTypeMapper.toResponseDto(vendorType);
     }
 

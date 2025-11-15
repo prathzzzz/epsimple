@@ -8,6 +8,8 @@ import com.eps.module.api.epsone.activity_work_remarks.dto.ActivityWorkRemarksRe
 import com.eps.module.api.epsone.activity_work_remarks.mapper.ActivityWorkRemarksMapper;
 import com.eps.module.api.epsone.activity_work_remarks.repository.ActivityWorkRemarksRepository;
 import com.eps.module.common.exception.ResourceNotFoundException;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -53,7 +55,7 @@ public class ActivityWorkRemarksServiceImpl implements ActivityWorkRemarksServic
 
         // Validate activity work exists
         if (!activityWorkRepository.existsById(activityWorkId)) {
-            throw new ResourceNotFoundException("Activity work not found with id: " + activityWorkId);
+            throw new ResourceNotFoundException(String.format(ErrorMessages.ACTIVITY_WORK_NOT_FOUND, activityWorkId));
         }
 
         return remarksRepository.findByActivityWorkId(activityWorkId, pageable)
@@ -67,7 +69,7 @@ public class ActivityWorkRemarksServiceImpl implements ActivityWorkRemarksServic
 
         // Validate activity work exists
         if (!activityWorkRepository.existsById(activityWorkId)) {
-            throw new ResourceNotFoundException("Activity work not found with id: " + activityWorkId);
+            throw new ResourceNotFoundException(String.format(ErrorMessages.ACTIVITY_WORK_NOT_FOUND, activityWorkId));
         }
 
         return remarksRepository.findAllByActivityWorkId(activityWorkId).stream()

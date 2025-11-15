@@ -14,6 +14,8 @@ import com.eps.module.api.epsone.payee_type.repository.PayeeTypeRepository;
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.api.epsone.voucher.repository.VoucherRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.payment.Payee;
@@ -123,7 +125,7 @@ public class PayeeServiceImpl extends BaseBulkUploadService<PayeeBulkUploadDto, 
     public PayeeResponseDto getPayeeById(Long id) {
         log.info("Fetching payee by id: {}", id);
         Payee payee = payeeRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payee not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Payee", id)));
         return payeeMapper.toDto(payee);
     }
 
@@ -133,7 +135,7 @@ public class PayeeServiceImpl extends BaseBulkUploadService<PayeeBulkUploadDto, 
         log.info("Updating payee with id: {}", id);
 
         Payee payee = payeeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payee not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Payee", id)));
 
         // Validate payee type exists
         PayeeType payeeType = payeeTypeRepository.findById(requestDto.getPayeeTypeId())
@@ -181,7 +183,7 @@ public class PayeeServiceImpl extends BaseBulkUploadService<PayeeBulkUploadDto, 
         log.info("Deleting payee with id: {}", id);
 
         if (!payeeRepository.existsById(id)) {
-            throw new IllegalArgumentException("Payee not found with id: " + id);
+            throw new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Payee", id));
         }
 
         // Check if payee is used in invoices

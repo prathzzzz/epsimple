@@ -9,6 +9,8 @@ import com.eps.module.api.epsone.vendor_category.processor.VendorCategoryBulkUpl
 import com.eps.module.api.epsone.vendor_category.repository.VendorCategoryRepository;
 import com.eps.module.api.epsone.vendor_type.repository.VendorTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.ForeignKeyConstraintException;
@@ -50,7 +52,7 @@ public class VendorCategoryServiceImpl extends BaseBulkUploadService<VendorCateg
     @Transactional
     public VendorCategoryResponseDto updateVendorCategory(Long id, VendorCategoryRequestDto requestDto) {
         VendorCategory existingVendorCategory = vendorCategoryRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Vendor category not found with id: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Vendor category", id)));
         
         // Check if category name already exists for another category
         if (vendorCategoryRepository.existsByCategoryNameAndIdNot(requestDto.getCategoryName(), id)) {
@@ -66,7 +68,7 @@ public class VendorCategoryServiceImpl extends BaseBulkUploadService<VendorCateg
     @Transactional
     public void deleteVendorCategory(Long id) {
         VendorCategory vendorCategory = vendorCategoryRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Vendor category not found with id: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Vendor category", id)));
         
         // Check if this category is being used by any vendor types
         List<VendorType> dependentTypes = vendorTypeRepository.findByVendorCategoryId(id);
@@ -96,7 +98,7 @@ public class VendorCategoryServiceImpl extends BaseBulkUploadService<VendorCateg
     @Transactional(readOnly = true)
     public VendorCategoryResponseDto getVendorCategoryById(Long id) {
         VendorCategory vendorCategory = vendorCategoryRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Vendor category not found with id: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Vendor category", id)));
         return vendorCategoryMapper.toResponseDto(vendorCategory);
     }
 

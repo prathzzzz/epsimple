@@ -16,6 +16,8 @@ import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.status.GenericStatusType;
 import com.eps.module.vendor.Vendor;
@@ -190,7 +192,7 @@ public class ActivityWorkServiceImpl extends BaseBulkUploadService<ActivityWorkB
     public ActivityWorkResponseDto getActivityWorkById(Long id) {
         log.info("Fetching activity work with ID: {}", id);
         ActivityWork activityWork = activityWorkRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Activity work not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.ACTIVITY_WORK_NOT_FOUND, id)));
         return activityWorkMapper.toDto(activityWork);
     }
 
@@ -200,7 +202,7 @@ public class ActivityWorkServiceImpl extends BaseBulkUploadService<ActivityWorkB
         log.info("Updating activity work with ID: {}", id);
         
         ActivityWork activityWork = activityWorkRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Activity work not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.ACTIVITY_WORK_NOT_FOUND, id)));
 
         // Validate activity exists
         Activities activities = activitiesRepository.findById(requestDto.getActivitiesId())
@@ -234,12 +236,12 @@ public class ActivityWorkServiceImpl extends BaseBulkUploadService<ActivityWorkB
         log.info("Deleting activity work with ID: {}", id);
         
         ActivityWork activityWork = activityWorkRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Activity work not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.ACTIVITY_WORK_NOT_FOUND, id)));
 
         // Check if activity work has remarks
         long remarksCount = activityWorkRemarksRepository.countByActivityWorkId(id);
         if (remarksCount > 0) {
-            throw new IllegalStateException("Cannot delete activity work. It has " + remarksCount + " remark(s) associated with it.");
+            throw new IllegalStateException(String.format(ErrorMessages.ACTIVITY_WORK_HAS_REMARKS, remarksCount));
         }
 
         activityWorkRepository.delete(activityWork);

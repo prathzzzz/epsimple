@@ -9,6 +9,8 @@ import com.eps.module.api.epsone.cost_category.processor.CostCategoryBulkUploadP
 import com.eps.module.api.epsone.cost_category.repository.CostCategoryRepository;
 import com.eps.module.api.epsone.cost_type.repository.CostTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.cost.CostCategory;
@@ -80,7 +82,7 @@ public class CostCategoryServiceImpl extends BaseBulkUploadService<CostCategoryB
     public CostCategoryResponseDto getCostCategoryById(Long id) {
         log.info("Fetching cost category by ID: {}", id);
         CostCategory entity = costCategoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Cost category", id)));
         return costCategoryMapper.toResponseDto(entity);
     }
 
@@ -90,7 +92,7 @@ public class CostCategoryServiceImpl extends BaseBulkUploadService<CostCategoryB
         log.info("Updating cost category with ID: {}", id);
 
         CostCategory existing = costCategoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Cost category", id)));
 
         if (costCategoryRepository.existsByCategoryNameAndIdNot(requestDto.getCategoryName(), id)) {
             throw new IllegalArgumentException("Cost category '" + requestDto.getCategoryName() + "' already exists");
@@ -108,7 +110,7 @@ public class CostCategoryServiceImpl extends BaseBulkUploadService<CostCategoryB
         log.info("Deleting cost category with ID: {}", id);
 
         CostCategory costCategory = costCategoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Cost category", id)));
 
         Page<CostType> dependentCostTypes = costTypeRepository.findByCostCategoryId(id, PageRequest.of(0, 6));
 

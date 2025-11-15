@@ -13,6 +13,8 @@ import com.eps.module.bank.ManagedProject;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.site.Site;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +64,7 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
     @Transactional
     public ManagedProjectResponseDto updateManagedProject(Long id, ManagedProjectRequestDto requestDto) {
         ManagedProject existingManagedProject = managedProjectRepository.findByIdWithBank(id)
-            .orElseThrow(() -> new IllegalArgumentException("Managed project not found with id: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.MANAGED_PROJECT_NOT_FOUND, id)));
 
         // Validate bank exists
         Bank bank = bankRepository.findById(requestDto.getBankId())
@@ -88,7 +90,7 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
         log.info("Deleting managed project with ID: {}", id);
         
         ManagedProject managedProject = managedProjectRepository.findByIdWithBank(id)
-            .orElseThrow(() -> new IllegalArgumentException("Managed project not found with id: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.MANAGED_PROJECT_NOT_FOUND, id)));
         
         // Check for dependent sites
         Page<Site> dependentSites = managedProjectRepository.findSitesByProjectId(id, PageRequest.of(0, 6));
@@ -100,13 +102,12 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
                     .map(Site::getSiteCode)
                     .collect(Collectors.toList());
             
-            String siteCodesList = String.join(", ", siteCodes);
-            String errorMessage = String.format(
-                    "Cannot delete '%s' managed project because it is being used by %d site%s: %s. Please delete or reassign these sites first.",
+            String errorMessage = ValidationUtils.formatCannotDeleteWithNamesError(
+                    "managed project",
                     managedProject.getProjectName(),
                     totalCount,
-                    totalCount > 1 ? "s" : "",
-                    siteCodesList
+                    siteCodes,
+                    "site"
             );
             log.warn("Failed to delete managed project with ID {}: {}", id, errorMessage);
             throw new IllegalStateException(errorMessage);
@@ -120,7 +121,7 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
     @Transactional(readOnly = true)
     public ManagedProjectResponseDto getManagedProjectById(Long id) {
         ManagedProject managedProject = managedProjectRepository.findByIdWithBank(id)
-            .orElseThrow(() -> new IllegalArgumentException("Managed project not found with id: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.MANAGED_PROJECT_NOT_FOUND, id)));
         return managedProjectMapper.toResponseDto(managedProject);
     }
 

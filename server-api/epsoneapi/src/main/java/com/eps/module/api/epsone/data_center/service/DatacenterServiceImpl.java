@@ -12,6 +12,8 @@ import com.eps.module.api.epsone.asset_placement.repository.AssetsOnDatacenterRe
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.Location;
 import com.eps.module.warehouse.Datacenter;
@@ -35,7 +37,6 @@ import java.util.stream.Collectors;
 public class DatacenterServiceImpl extends BaseBulkUploadService<DatacenterBulkUploadDto, Datacenter> 
         implements DatacenterService {
 
-    private static final String DATACENTER_NOT_FOUND_WITH_ID_MSG = "Datacenter not found with id: ";
 
     private final DatacenterRepository datacenterRepository;
     private final LocationRepository locationRepository;
@@ -112,7 +113,7 @@ public class DatacenterServiceImpl extends BaseBulkUploadService<DatacenterBulkU
     public DatacenterResponseDto getDatacenterById(Long id) {
         log.info("Fetching datacenter with ID: {}", id);
         Datacenter datacenter = datacenterRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new ResourceNotFoundException(DATACENTER_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.DATACENTER_NOT_FOUND, id)));
         return datacenterMapper.toDto(datacenter);
     }
 
@@ -122,7 +123,7 @@ public class DatacenterServiceImpl extends BaseBulkUploadService<DatacenterBulkU
         log.info("Updating datacenter with ID: {}", id);
         
         Datacenter datacenter = datacenterRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(DATACENTER_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.DATACENTER_NOT_FOUND, id)));
 
         // Validate location exists
         Location location = locationRepository.findById(requestDto.getLocationId())
@@ -153,15 +154,14 @@ public class DatacenterServiceImpl extends BaseBulkUploadService<DatacenterBulkU
         log.info("Deleting datacenter with ID: {}", id);
         
         Datacenter datacenter = datacenterRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(DATACENTER_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.DATACENTER_NOT_FOUND, id)));
 
         // Check if datacenter has assets
         long assetCount = assetsOnDatacenterRepository.countByDatacenterId(id);
         if (assetCount > 0) {
-            throw new IllegalStateException(String.format(
-                "Cannot delete datacenter '%s' because it has %d asset%s. Please remove the assets from this datacenter first.",
-                datacenter.getDatacenterName(), assetCount, assetCount > 1 ? "s" : ""
-            ));
+            throw new IllegalStateException(
+                ValidationUtils.formatCannotDeleteAssetError("datacenter", datacenter.getDatacenterName(), assetCount)
+            );
         }
 
         datacenterRepository.delete(datacenter);

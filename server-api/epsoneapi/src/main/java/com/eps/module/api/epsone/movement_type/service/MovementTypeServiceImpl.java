@@ -11,6 +11,8 @@ import com.eps.module.asset.AssetMovementType;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -78,7 +80,7 @@ public class MovementTypeServiceImpl extends BaseBulkUploadService<MovementTypeB
     public MovementTypeResponseDto getMovementTypeById(Long id) {
         log.info("Fetching movement type by ID: {}", id);
         AssetMovementType entity = movementTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Movement type not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Movement type", id)));
         return movementTypeMapper.toResponseDto(entity);
     }
     
@@ -88,7 +90,7 @@ public class MovementTypeServiceImpl extends BaseBulkUploadService<MovementTypeB
         log.info("Updating movement type with ID: {}", id);
         
         AssetMovementType existing = movementTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Movement type not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Movement type", id)));
         
         // Check for duplicate (excluding current record)
         if (movementTypeRepository.existsByMovementTypeAndIdNot(requestDto.getMovementType(), id)) {
@@ -108,7 +110,7 @@ public class MovementTypeServiceImpl extends BaseBulkUploadService<MovementTypeB
         log.info("Deleting movement type with ID: {}", id);
         
         if (!movementTypeRepository.existsById(id)) {
-            throw new IllegalArgumentException("Movement type not found with id: " + id);
+            throw new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Movement type", id));
         }
         
         movementTypeRepository.deleteById(id);

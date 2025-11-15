@@ -12,6 +12,8 @@ import com.eps.module.api.epsone.cost_type.repository.CostTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.cost.CostCategory;
 import com.eps.module.cost.CostType;
 import lombok.RequiredArgsConstructor;
@@ -86,7 +88,7 @@ public class CostTypeServiceImpl extends BaseBulkUploadService<CostTypeBulkUploa
     public CostTypeResponseDto getCostTypeById(Long id) {
         log.info("Fetching cost type by ID: {}", id);
         CostType entity = costTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost type not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Cost type", id)));
         return costTypeMapper.toResponseDto(entity);
     }
     
@@ -96,7 +98,7 @@ public class CostTypeServiceImpl extends BaseBulkUploadService<CostTypeBulkUploa
         log.info("Updating cost type with ID: {}", id);
         
         CostType existing = costTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost type not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Cost type", id)));
         
         CostCategory costCategory = costCategoryRepository.findById(requestDto.getCostCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + requestDto.getCostCategoryId()));
@@ -117,7 +119,7 @@ public class CostTypeServiceImpl extends BaseBulkUploadService<CostTypeBulkUploa
         log.info("Deleting cost type with ID: {}", id);
         
         CostType costType = costTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost type not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Cost type", id)));
         
         // Check if cost type is being used by any cost items
         long costItemCount = costItemRepository.countByCostTypeId(id);

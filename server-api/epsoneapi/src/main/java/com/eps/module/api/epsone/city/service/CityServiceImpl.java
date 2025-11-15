@@ -12,6 +12,8 @@ import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.api.epsone.city.dto.CityErrorReportDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.location.City;
 import com.eps.module.location.Location;
 import com.eps.module.location.State;
@@ -97,13 +99,17 @@ public class CityServiceImpl extends BaseBulkUploadService<CityBulkUploadDto, Ci
 
         // Validate state exists
         State state = stateRepository.findById(requestDto.getStateId())
-                .orElseThrow(() -> new EntityNotFoundException("State not found with ID: " + requestDto.getStateId()));
+                .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(ErrorMessages.STATE_NOT_FOUND, requestDto.getStateId())
+                ));
 
         // Check for duplicate city code if provided
         if (requestDto.getCityCode() != null && !requestDto.getCityCode().isEmpty()) {
             cityRepository.findByCityCode(requestDto.getCityCode())
                     .ifPresent(existingCity -> {
-                        throw new IllegalArgumentException("City code already exists: " + requestDto.getCityCode());
+                        throw new IllegalArgumentException(
+                            String.format(ErrorMessages.CITY_CODE_ALREADY_EXISTS, requestDto.getCityCode())
+                        );
                     });
         }
 
@@ -139,7 +145,9 @@ public class CityServiceImpl extends BaseBulkUploadService<CityBulkUploadDto, Ci
         
         // Validate state exists
         stateRepository.findById(stateId)
-                .orElseThrow(() -> new EntityNotFoundException("State not found with ID: " + stateId));
+                .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(ErrorMessages.STATE_NOT_FOUND, stateId)
+                ));
 
         Page<City> cities = cityRepository.findByStateId(stateId, pageable);
         return cities.map(cityMapper::toResponseDto);
@@ -160,7 +168,9 @@ public class CityServiceImpl extends BaseBulkUploadService<CityBulkUploadDto, Ci
     public CityResponseDto getCityById(Long id) {
         log.info("Fetching city with ID: {}", id);
         City city = cityRepository.findByIdWithState(id)
-                .orElseThrow(() -> new EntityNotFoundException("City not found with ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(ErrorMessages.CITY_NOT_FOUND, id)
+                ));
         return cityMapper.toResponseDto(city);
     }
 
@@ -170,18 +180,24 @@ public class CityServiceImpl extends BaseBulkUploadService<CityBulkUploadDto, Ci
         log.info("Updating city with ID: {}", id);
 
         City city = cityRepository.findByIdWithState(id)
-                .orElseThrow(() -> new EntityNotFoundException("City not found with ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(ErrorMessages.CITY_NOT_FOUND, id)
+                ));
 
         // Validate state exists
         State state = stateRepository.findById(requestDto.getStateId())
-                .orElseThrow(() -> new EntityNotFoundException("State not found with ID: " + requestDto.getStateId()));
+                .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(ErrorMessages.STATE_NOT_FOUND, requestDto.getStateId())
+                ));
 
         // Check for duplicate city code if changed
         if (requestDto.getCityCode() != null && !requestDto.getCityCode().isEmpty() &&
                 !requestDto.getCityCode().equals(city.getCityCode())) {
             cityRepository.findByCityCode(requestDto.getCityCode())
                     .ifPresent(existingCity -> {
-                        throw new IllegalArgumentException("City code already exists: " + requestDto.getCityCode());
+                        throw new IllegalArgumentException(
+                            String.format(ErrorMessages.CITY_CODE_ALREADY_EXISTS, requestDto.getCityCode())
+                        );
                     });
         }
 
@@ -200,7 +216,9 @@ public class CityServiceImpl extends BaseBulkUploadService<CityBulkUploadDto, Ci
         log.info("Deleting city with ID: {}", id);
 
         City city = cityRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("City not found with ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(ErrorMessages.CITY_NOT_FOUND, id)
+                ));
 
         // Check if this city is being used by any locations
         log.debug("Checking for dependent locations for city ID: {}", id);
@@ -214,14 +232,12 @@ public class CityServiceImpl extends BaseBulkUploadService<CityBulkUploadDto, Ci
                     .map(Location::getLocationName)
                     .collect(Collectors.toList());
             
-            String locationNamesList = String.join(", ", locationNames);
-            String errorMessage = String.format(
-                    "Cannot delete '%s' city because it is being used by %d location%s: %s%s. Please delete or reassign these locations first.",
+            String errorMessage = ValidationUtils.formatCannotDeleteWithNamesError(
+                    "city",
                     city.getCityName(),
                     totalCount,
-                    totalCount > 1 ? "s" : "",
-                    locationNamesList,
-                    totalCount > 5 ? " and " + (totalCount - 5) + " more" : ""
+                    locationNames,
+                    "location"
             );
             
             log.warn("Attempted to delete city '{}' which is referenced by {} locations", city.getCityName(), totalCount);

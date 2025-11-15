@@ -12,6 +12,8 @@ import com.eps.module.api.epsone.asset_type.repository.AssetTypeRepository;
 import com.eps.module.asset.AssetCategory;
 import com.eps.module.asset.AssetType;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import lombok.RequiredArgsConstructor;
@@ -96,7 +98,7 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
     public AssetCategoryResponseDto getAssetCategoryById(Long id) {
         log.info("Fetching asset category by ID: {}", id);
         AssetCategory assetCategory = assetCategoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asset category not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ASSET_CATEGORY_NOT_FOUND, id)));
         return assetCategoryMapper.toResponseDto(assetCategory);
     }
 
@@ -106,7 +108,7 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
         log.info("Updating asset category with ID: {}", id);
 
         AssetCategory existing = assetCategoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asset category not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ASSET_CATEGORY_NOT_FOUND, id)));
 
         // Validate asset type exists
         AssetType assetType = assetTypeRepository.findById(requestDto.getAssetTypeId())
@@ -139,7 +141,7 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
         log.info("Deleting asset category with ID: {}", id);
 
         AssetCategory assetCategory = assetCategoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asset category not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ASSET_CATEGORY_NOT_FOUND, id)));
 
         // Check if this asset category is being used by any assets
         long assetCount = assetRepository.countByAssetCategoryId(id);

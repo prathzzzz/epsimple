@@ -15,6 +15,8 @@ import com.eps.module.api.epsone.site_category.repository.SiteCategoryRepository
 import com.eps.module.api.epsone.site_type.repository.SiteTypeRepository;
 import com.eps.module.bank.ManagedProject;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.ResourceNotFoundException;
@@ -81,7 +83,7 @@ public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Si
         log.info("Updating site with ID: {}", id);
 
         Site existingSite = siteRepository.findByIdWithDetails(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Site not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.SITE_NOT_FOUND, id)));
 
         // Check if site code is being changed and if it already exists
         if (!existingSite.getSiteCode().equals(requestDto.getSiteCode())) {
@@ -111,7 +113,7 @@ public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Si
         log.info("Deleting site with ID: {}", id);
 
         Site site = siteRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Site not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.SITE_NOT_FOUND, id)));
 
         // Check for dependent AssetsOnSite
         long assetsOnSiteCount = siteRepository.countAssetsOnSiteBySiteId(id);
@@ -147,7 +149,7 @@ public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Si
     @Transactional(readOnly = true)
     public SiteResponseDto getSiteById(Long id) {
         Site site = siteRepository.findByIdWithDetails(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Site not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.SITE_NOT_FOUND, id)));
         return siteMapper.toResponseDto(site);
     }
 

@@ -11,6 +11,8 @@ import com.eps.module.api.epsone.person_type.repository.PersonTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.person.PersonType;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +40,9 @@ public class PersonTypeServiceImpl extends BaseBulkUploadService<PersonTypeBulkU
     public PersonTypeResponseDto createPersonType(PersonTypeRequestDto requestDto) {
         // Check if person type name already exists
         if (personTypeRepository.existsByTypeNameIgnoreCase(requestDto.getTypeName())) {
-            throw new IllegalArgumentException("Person type with name '" + requestDto.getTypeName() + "' already exists");
+            throw new IllegalArgumentException(
+                ValidationUtils.formatAlreadyExistsError("Person type with name", requestDto.getTypeName())
+            );
         }
         
         PersonType personType = personTypeMapper.toEntity(requestDto);
@@ -50,11 +54,15 @@ public class PersonTypeServiceImpl extends BaseBulkUploadService<PersonTypeBulkU
     @Transactional
     public PersonTypeResponseDto updatePersonType(Long id, PersonTypeRequestDto requestDto) {
         PersonType existingPersonType = personTypeRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Person type not found with id: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(
+                String.format(ErrorMessages.PERSON_TYPE_NOT_FOUND, id)
+            ));
         
         // Check if person type name already exists for another person type
         if (personTypeRepository.existsByTypeNameAndIdNot(requestDto.getTypeName(), id)) {
-            throw new IllegalArgumentException("Person type with name '" + requestDto.getTypeName() + "' already exists");
+            throw new IllegalArgumentException(
+                ValidationUtils.formatAlreadyExistsError("Person type with name", requestDto.getTypeName())
+            );
         }
         
         personTypeMapper.updateEntityFromDto(requestDto, existingPersonType);
@@ -66,7 +74,9 @@ public class PersonTypeServiceImpl extends BaseBulkUploadService<PersonTypeBulkU
     @Transactional
     public void deletePersonType(Long id) {
         PersonType personType = personTypeRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Person type not found with id: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(
+                String.format(ErrorMessages.PERSON_TYPE_NOT_FOUND, id)
+            ));
         
         // Check if this person type is being used by any person details
         Page<PersonDetails> personDetailsPage = personDetailsRepository.findByPersonTypeId(id, PageRequest.of(0, 6));
@@ -78,46 +88,25 @@ public class PersonTypeServiceImpl extends BaseBulkUploadService<PersonTypeBulkU
             // Build full names for the first 5 person details
             List<String> personNames = personDetailsList.stream()
                 .limit(5)
-                .map(this::buildFullName)
+                .map(pd -> ValidationUtils.buildFullName(
+                    pd.getFirstName(), 
+                    pd.getMiddleName(), 
+                    pd.getLastName()
+                ))
                 .collect(Collectors.toList());
             
-            StringBuilder errorMessage = new StringBuilder();
-            errorMessage.append("Cannot delete '").append(personType.getTypeName())
-                       .append("' person type because it is being used by ")
-                       .append(totalCount).append(" person detail")
-                       .append(totalCount > 1 ? "s" : "").append(": ")
-                       .append(String.join(", ", personNames));
+            String errorMessage = ValidationUtils.formatCannotDeleteWithNamesError(
+                "person type",
+                personType.getTypeName(),
+                totalCount,
+                personNames,
+                "person detail"
+            );
             
-            if (totalCount > 5) {
-                errorMessage.append(" and ").append(totalCount - 5).append(" more");
-            }
-            
-            errorMessage.append(". Please delete or reassign these person details first.");
-            
-            throw new IllegalStateException(errorMessage.toString());
+            throw new IllegalStateException(errorMessage);
         }
         
         personTypeRepository.deleteById(id);
-    }
-    
-    private String buildFullName(PersonDetails personDetails) {
-        StringBuilder fullName = new StringBuilder();
-        
-        if (personDetails.getFirstName() != null && !personDetails.getFirstName().trim().isEmpty()) {
-            fullName.append(personDetails.getFirstName().trim());
-        }
-        
-        if (personDetails.getMiddleName() != null && !personDetails.getMiddleName().trim().isEmpty()) {
-            if (fullName.length() > 0) fullName.append(" ");
-            fullName.append(personDetails.getMiddleName().trim());
-        }
-        
-        if (personDetails.getLastName() != null && !personDetails.getLastName().trim().isEmpty()) {
-            if (fullName.length() > 0) fullName.append(" ");
-            fullName.append(personDetails.getLastName().trim());
-        }
-        
-        return fullName.length() > 0 ? fullName.toString() : "Unknown";
     }
 
     @Override
