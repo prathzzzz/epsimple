@@ -2,6 +2,7 @@ package com.eps.module.api.epsone.storage.service;
 
 import com.eps.module.api.epsone.storage.dto.FileUploadResponseDto;
 import com.eps.module.common.exception.CustomException;
+import com.eps.module.common.constants.ErrorMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

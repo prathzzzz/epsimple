@@ -10,6 +10,8 @@ import com.eps.module.api.epsone.landlord.repository.LandlordRepository;
 import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
 import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.person.PersonDetails;
@@ -82,7 +84,7 @@ public class LandlordServiceImpl extends BaseBulkUploadService<LandlordBulkUploa
     @Transactional(readOnly = true)
     public LandlordResponseDto getLandlordById(Long id) {
         Landlord landlord = landlordRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Landlord not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Landlord", id)));
         return landlordMapper.toDto(landlord);
     }
 
@@ -90,7 +92,7 @@ public class LandlordServiceImpl extends BaseBulkUploadService<LandlordBulkUploa
     @Transactional
     public LandlordResponseDto updateLandlord(Long id, LandlordRequestDto requestDto) {
         Landlord landlord = landlordRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Landlord not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Landlord", id)));
 
         // Validate person details exists
         PersonDetails personDetails = personDetailsRepository.findById(requestDto.getLandlordDetailsId())
@@ -118,7 +120,7 @@ public class LandlordServiceImpl extends BaseBulkUploadService<LandlordBulkUploa
     @Transactional
     public void deleteLandlord(Long id) {
         if (!landlordRepository.existsById(id)) {
-            throw new IllegalArgumentException("Landlord not found with id: " + id);
+            throw new IllegalArgumentException(String.format(ErrorMessages.ENTITY_NOT_FOUND_SIMPLE, "Landlord", id));
         }
 
         // Check for dependencies - payees

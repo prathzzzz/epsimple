@@ -12,6 +12,8 @@ import com.eps.module.api.epsone.asset_placement.repository.AssetsOnWarehouseRep
 import com.eps.module.api.epsone.movement_type.repository.MovementTypeRepository;
 import com.eps.module.asset.*;
 import com.eps.module.common.exception.ResourceNotFoundException;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.site.Site;
 import com.eps.module.warehouse.Datacenter;
 import com.eps.module.warehouse.Warehouse;
