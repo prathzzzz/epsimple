@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { Warehouse } from '../api/schema';
-import { useWarehouse } from '../context/warehouse-provider';
+import { useWarehouse } from '../hooks/use-warehouse';
 
 interface WarehouseRowActionsProps {
   row: Row<Warehouse>;

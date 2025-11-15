@@ -23,7 +23,7 @@ import {
 
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table';
 import { payeeApi } from '../api/payee-api';
-import { usePayee } from '../context/payee-provider';
+import { usePayee } from '../hooks/use-payee';
 import { payeeColumns } from './payee-columns';
 
 export function PayeeTable() {

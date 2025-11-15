@@ -1,30 +1,6 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { AssetContext } from './asset-context'
 import type { Asset } from '../api/schema'
-
-interface AssetContextType {
-  isDrawerOpen: boolean
-  setIsDrawerOpen: (open: boolean) => void
-  editingAsset: Asset | null
-  setEditingAsset: (asset: Asset | null) => void
-  isDeleteDialogOpen: boolean
-  setIsDeleteDialogOpen: (open: boolean) => void
-  assetToDelete: Asset | null
-  setAssetToDelete: (asset: Asset | null) => void
-  isMovementDialogOpen: boolean
-  setIsMovementDialogOpen: (open: boolean) => void
-  assetForMovement: Asset | null
-  setAssetForMovement: (asset: Asset | null) => void
-  isPlacementDialogOpen: boolean
-  setIsPlacementDialogOpen: (open: boolean) => void
-  assetForPlacement: Asset | null
-  setAssetForPlacement: (asset: Asset | null) => void
-  isBulkUploadDialogOpen: boolean
-  setIsBulkUploadDialogOpen: (open: boolean) => void
-  isPlacementBulkUploadDialogOpen: boolean
-  setIsPlacementBulkUploadDialogOpen: (open: boolean) => void
-}
-
-const AssetContext = createContext<AssetContextType | undefined>(undefined)
 
 export function AssetProvider({ children }: { children: ReactNode }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -66,12 +42,4 @@ export function AssetProvider({ children }: { children: ReactNode }) {
       {children}
     </AssetContext.Provider>
   )
-}
-
-export function useAssetContext() {
-  const context = useContext(AssetContext)
-  if (!context) {
-    throw new Error('useAssetContext must be used within AssetProvider')
-  }
-  return context
 }

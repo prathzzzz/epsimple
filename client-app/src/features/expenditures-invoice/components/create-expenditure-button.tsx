@@ -1,9 +1,9 @@
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useExpendituresInvoiceContext } from '../hooks/use-expenditures-invoice-context';
+import { useExpendituresInvoice } from '../hooks/use-expenditures-invoice';
 
 export const CreateExpenditureButton = () => {
-  const { openDrawer } = useExpendituresInvoiceContext();
+  const { openDrawer } = useExpendituresInvoice();
 
   return (
     <Button onClick={() => openDrawer()}>

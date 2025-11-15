@@ -8,7 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { usePayee } from '../context/payee-provider';
+import { usePayee } from '../hooks/use-payee';
 import { payeeApi } from '../api/payee-api';
 
 export function PayeeDeleteDialog() {

@@ -24,7 +24,7 @@ import {
 
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table';
 import { datacenterApi } from '../api/datacenter-api';
-import { useDatacenter } from '../context/datacenter-provider';
+import { useDatacenter } from '../hooks/use-datacenter';
 
 interface DatacenterTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

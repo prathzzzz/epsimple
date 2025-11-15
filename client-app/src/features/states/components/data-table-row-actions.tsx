@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import type { State } from '../data/schema'
-import { useStates } from './states-provider'
+import { useStates } from '../hooks/use-states'
 
 interface DataTableRowActionsProps {
   row: Row<State>

@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { usePayee } from '../context/payee-provider';
+import { usePayee } from '../hooks/use-payee';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { downloadFile } from '@/lib/api-utils';

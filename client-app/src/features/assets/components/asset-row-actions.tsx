@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useAssetContext } from '../context/asset-provider'
+import { useAsset } from '../hooks/use-asset'
 import type { Asset } from '../api/schema'
 
 interface AssetRowActionsProps {
@@ -28,7 +28,7 @@ export function AssetRowActions({ row }: AssetRowActionsProps) {
     setAssetForMovement,
     setIsPlacementDialogOpen,
     setAssetForPlacement,
-  } = useAssetContext()
+  } = useAsset()
 
   const handleEdit = () => {
     setEditingAsset(asset)

@@ -1,32 +1,6 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { StatesContext } from './states-context'
 import type { State } from '../data/schema'
-
-export interface StatesContextType {
-  // Drawer state
-  isDrawerOpen: boolean
-  openDrawer: () => void
-  closeDrawer: () => void
-
-  // Delete dialog state
-  isDeleteDialogOpen: boolean
-  openDeleteDialog: () => void
-  closeDeleteDialog: () => void
-  
-  // Bulk upload dialog state
-  isBulkUploadDialogOpen: boolean
-  openBulkUploadDialog: () => void
-  closeBulkUploadDialog: () => void
-
-  // Selected state for edit/delete
-  selectedState: State | null
-  setSelectedState: (state: State | null) => void
-
-  // Edit mode
-  isEditMode: boolean
-  setIsEditMode: (isEdit: boolean) => void
-}
-
-const StatesContext = createContext<StatesContextType | undefined>(undefined)
 
 export function StatesProvider({ children }: { children: ReactNode }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -72,12 +46,4 @@ export function StatesProvider({ children }: { children: ReactNode }) {
       {children}
     </StatesContext.Provider>
   )
-}
-
-export function useStates() {
-  const context = useContext(StatesContext)
-  if (context === undefined) {
-    throw new Error('useStates must be used within a StatesProvider')
-  }
-  return context
 }

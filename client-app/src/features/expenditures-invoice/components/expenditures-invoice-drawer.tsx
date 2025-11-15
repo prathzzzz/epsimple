@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { useExpendituresInvoiceContext } from '../hooks/use-expenditures-invoice-context';
+import { useExpendituresInvoice } from '../hooks/use-expenditures-invoice';
 import { expendituresInvoiceFormSchema, type ExpendituresInvoiceFormData } from '../api/schema';
 import { expendituresInvoiceApi } from '../api/expenditures-invoice-api';
 import type { CostItem } from '@/features/cost-items/api/cost-items-api';
@@ -46,7 +46,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { useQuery } from '@tanstack/react-query';
 
 export const ExpendituresInvoiceDrawer = () => {
-  const { isDrawerOpen, closeDrawer, editingExpenditure } = useExpendituresInvoiceContext();
+  const { isDrawerOpen, closeDrawer, editingExpenditure } = useExpendituresInvoice();
   const [costItemSearch, setCostItemSearch] = useState('');
   const [costItemOpen, setCostItemOpen] = useState(false);
   const [invoiceSearch, setInvoiceSearch] = useState('');

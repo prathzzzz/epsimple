@@ -1,6 +1,6 @@
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { usePayee } from '../context/payee-provider';
+import { usePayee } from '../hooks/use-payee';
 
 export function CreatePayeeButton() {
   const { openDrawer } = usePayee();

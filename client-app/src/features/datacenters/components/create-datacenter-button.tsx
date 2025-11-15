@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { useDatacenter } from '../context/datacenter-provider';
+import { useDatacenter } from '../hooks/use-datacenter';
 
 export function CreateDatacenterButton() {
   const { openDrawer } = useDatacenter();

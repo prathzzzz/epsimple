@@ -13,7 +13,7 @@ import { siteApi } from "../api/site-api";
 
 export function SiteDeleteDialog() {
   const { isDeleteDialogOpen, setIsDeleteDialogOpen, deletingSiteId, setDeletingSiteId } =
-    useSiteContext();
+    useSite();
 
   const deleteMutation = siteApi.useDelete();
 

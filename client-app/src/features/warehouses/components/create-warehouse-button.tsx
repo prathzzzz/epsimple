@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { useWarehouse } from '../context/warehouse-provider';
+import { useWarehouse } from '../hooks/use-warehouse';
 
 export function CreateWarehouseButton() {
   const { openDrawer } = useWarehouse();

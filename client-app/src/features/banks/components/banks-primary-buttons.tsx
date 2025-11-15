@@ -4,7 +4,7 @@ import { downloadFile } from '@/lib/api-utils'
 import { useExport } from '@/hooks/useExport'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { useBanks } from './banks-provider'
+import { useBanks } from '../hooks/use-banks'
 import {
   DropdownMenu,
   DropdownMenuContent,

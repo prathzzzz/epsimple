@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog';
-import { useDatacenter } from '../context/datacenter-provider';
+import { useDatacenter } from '../hooks/use-datacenter';
 import { DatacenterDrawer } from './datacenter-drawer';
 import { DatacenterDeleteDialog } from './datacenter-delete-dialog';
 

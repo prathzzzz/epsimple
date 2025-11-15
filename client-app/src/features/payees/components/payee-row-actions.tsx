@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { usePayee } from '../context/payee-provider';
+import { usePayee } from '../hooks/use-payee';
 import type { Payee } from '../api/schema';
 
 interface PayeeRowActionsProps {

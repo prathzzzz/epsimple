@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSiteContext } from "../context/site-provider";
+import { useSite } from "../hooks/use-site";
 import type { Site } from "../api/schema";
 
 interface SiteRowActionsProps {

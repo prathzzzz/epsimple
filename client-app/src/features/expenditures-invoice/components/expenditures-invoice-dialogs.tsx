@@ -1,13 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog';
-import { useExpendituresInvoiceContext } from '../hooks/use-expenditures-invoice-context';
+import { useExpendituresInvoice } from '../hooks/use-expenditures-invoice';
 
 export function ExpendituresInvoiceDialogs() {
   const queryClient = useQueryClient();
   const {
     isBulkUploadDialogOpen,
     setIsBulkUploadDialogOpen,
-  } = useExpendituresInvoiceContext();
+  } = useExpendituresInvoice();
 
   return (
     <>

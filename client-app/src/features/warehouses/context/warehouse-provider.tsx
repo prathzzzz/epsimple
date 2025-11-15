@@ -1,28 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { useState } from 'react';
+import { WarehouseContext } from './warehouse-context';
 import type { Warehouse } from '../api/schema';
-
-interface WarehouseContextType {
-  selectedWarehouse: Warehouse | null;
-  setSelectedWarehouse: (warehouse: Warehouse | null) => void;
-  isDrawerOpen: boolean;
-  setIsDrawerOpen: (show: boolean) => void;
-  isDeleteDialogOpen: boolean;
-  setIsDeleteDialogOpen: (show: boolean) => void;
-  isBulkUploadDialogOpen: boolean;
-  setIsBulkUploadDialogOpen: (show: boolean) => void;
-  globalFilter: string;
-  setGlobalFilter: (filter: string) => void;
-  openDrawer: () => void;
-  closeDrawer: () => void;
-  openDeleteDialog: () => void;
-  closeDeleteDialog: () => void;
-  openBulkUploadDialog: () => void;
-  closeBulkUploadDialog: () => void;
-}
-
-const WarehouseContext = createContext<WarehouseContextType | undefined>(
-  undefined
-);
 
 export function WarehouseProvider({ children }: { children: React.ReactNode }) {
   const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(null);
@@ -70,12 +48,4 @@ export function WarehouseProvider({ children }: { children: React.ReactNode }) {
       {children}
     </WarehouseContext.Provider>
   );
-}
-
-export function useWarehouse() {
-  const context = useContext(WarehouseContext);
-  if (!context) {
-    throw new Error('useWarehouse must be used within WarehouseProvider');
-  }
-  return context;
 }

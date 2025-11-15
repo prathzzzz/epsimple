@@ -1,22 +1,6 @@
-import React, { createContext, useContext, useState } from "react";
-import type { Site } from "../api/schema";
-
-interface SiteContextType {
-  isDrawerOpen: boolean;
-  setIsDrawerOpen: (open: boolean) => void;
-  isDeleteDialogOpen: boolean;
-  setIsDeleteDialogOpen: (open: boolean) => void;
-  editingSite: Site | null;
-  setEditingSite: (site: Site | null) => void;
-  deletingSiteId: number | null;
-  setDeletingSiteId: (id: number | null) => void;
-  globalFilter: string;
-  setGlobalFilter: (filter: string) => void;
-  isBulkUploadDialogOpen: boolean;
-  setIsBulkUploadDialogOpen: (open: boolean) => void;
-}
-
-const SiteContext = createContext<SiteContextType | undefined>(undefined);
+import React, { useState } from "react";
+import { SiteContext } from './site-context';
+import type { Site } from '../api/schema';
 
 export function SiteProvider({ children }: { children: React.ReactNode }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -47,14 +31,3 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
     </SiteContext.Provider>
   );
 }
-
-export function useSiteContext() {
-  const context = useContext(SiteContext);
-  if (!context) {
-    throw new Error("useSiteContext must be used within SiteProvider");
-  }
-  return context;
-}
-
-// Export alias for consistency with other features
-export const useSite = useSiteContext;

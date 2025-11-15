@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { type Bank } from '../data/schema'
-import { useBanks } from './banks-provider'
+import { useBanks } from '../hooks/use-banks'
 
 interface DataTableRowActionsProps {
   row: Row<Bank>

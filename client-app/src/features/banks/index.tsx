@@ -8,7 +8,7 @@ import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { BanksDialogs } from './components/banks-dialogs'
 import { BanksPrimaryButtons } from './components/banks-primary-buttons'
-import { BanksProvider } from './components/banks-provider'
+import { BanksProvider } from './context/banks-provider'
 import { BanksTable } from './components/banks-table'
 
 export function Banks() {

@@ -24,7 +24,7 @@ import {
 
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table';
 import { warehouseApi } from '../api/warehouse-api';
-import { useWarehouse } from '../context/warehouse-provider';
+import { useWarehouse } from '../hooks/use-warehouse';
 
 interface WarehouseTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

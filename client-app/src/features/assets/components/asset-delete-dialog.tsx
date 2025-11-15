@@ -8,12 +8,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { useAssetContext } from '../context/asset-provider'
+import { useAsset } from '../hooks/use-asset'
 import { assetsApi } from '../api/assets-api'
 
 export function AssetDeleteDialog() {
   const { isDeleteDialogOpen, setIsDeleteDialogOpen, assetToDelete, setAssetToDelete } =
-    useAssetContext()
+    useAsset()
   const deleteAsset = assetsApi.useDelete()
 
   const handleDelete = () => {

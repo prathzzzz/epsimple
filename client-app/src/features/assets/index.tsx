@@ -27,7 +27,7 @@ function AssetsContent() {
     setIsBulkUploadDialogOpen,
     isPlacementBulkUploadDialogOpen,
     setIsPlacementBulkUploadDialogOpen,
-  } = useAssetContext();
+  } = useAsset();
   const queryClient = useQueryClient();
 
   return (

@@ -1,27 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { useState } from 'react';
+import { DatacenterContext } from './datacenter-context';
 import type { Datacenter } from '../api/schema';
-
-interface DatacenterContextType {
-  selectedDatacenter: Datacenter | null;
-  setSelectedDatacenter: (datacenter: Datacenter | null) => void;
-  isDrawerOpen: boolean;
-  setIsDrawerOpen: (show: boolean) => void;
-  isDeleteDialogOpen: boolean;
-  setIsDeleteDialogOpen: (show: boolean) => void;
-  isBulkUploadDialogOpen: boolean;
-  globalFilter: string;
-  setGlobalFilter: (filter: string) => void;
-  openDrawer: () => void;
-  closeDrawer: () => void;
-  openDeleteDialog: () => void;
-  closeDeleteDialog: () => void;
-  openBulkUploadDialog: () => void;
-  closeBulkUploadDialog: () => void;
-}
-
-const DatacenterContext = createContext<DatacenterContextType | undefined>(
-  undefined
-);
 
 export function DatacenterProvider({ children }: { children: React.ReactNode }) {
   const [selectedDatacenter, setSelectedDatacenter] = useState<Datacenter | null>(null);
@@ -68,12 +47,4 @@ export function DatacenterProvider({ children }: { children: React.ReactNode }) 
       {children}
     </DatacenterContext.Provider>
   );
-}
-
-export function useDatacenter() {
-  const context = useContext(DatacenterContext);
-  if (!context) {
-    throw new Error('useDatacenter must be used within DatacenterProvider');
-  }
-  return context;
 }

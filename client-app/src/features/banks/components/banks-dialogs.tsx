@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog'
 import { BanksMutateDrawer } from './banks-mutate-drawer'
-import { useBanks } from './banks-provider'
+import { useBanks } from '../hooks/use-banks'
 import { deleteBank } from '@/features/banks/api/banks-api'
 import { toast } from 'sonner'
 

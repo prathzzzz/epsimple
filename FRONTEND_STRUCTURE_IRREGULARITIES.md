@@ -381,55 +381,56 @@ import { EntityProvider, useEntity } from './context/entity-provider';
 
 ## 🔧 MIGRATION CHECKLIST
 
-### **Phase 1: High Priority (Bulk Upload Features)**
+### **Phase 1: High Priority (Bulk Upload Features)** ✅ COMPLETE
 
 Need immediate migration (for consistency with vouchers/invoices):
 
-1. ⬜ **expenditures-invoice**
-   - Rename: `use-expenditures-invoice-context.ts` → `use-expenditures-invoice.ts`
-   - Update all imports
+1. ✅ **expenditures-invoice** - COMPLETE
+   - Already renamed to `use-expenditures-invoice.ts`
 
-2. ⬜ **payees**
-   - Move: `context/payee-provider.tsx` → proper 3-file split
-   - Create: `context/payee-context.ts`, `hooks/use-payee.ts`
-   - Update all imports
+2. ✅ **payees** - COMPLETE
+   - Already migrated to proper 3-file split
+   - Has: `context/payee-context.ts`, `context/payee-provider.tsx`, `hooks/use-payee.ts`
 
-3. ⬜ **assets**
-   - Move: `context/asset-provider.tsx` → proper 3-file split
-   - Create: `context/asset-context.ts`, `hooks/use-asset.ts`
-   - Update all imports
-   - Keep `lib/` folder (investigate purpose)
+3. ✅ **assets** - COMPLETE
+   - Migrated to 3-file split
+   - Created: `context/asset-context.ts`, `hooks/use-asset.ts`
+   - Updated: `context/asset-provider.tsx` (removed hook export)
+   - Updated all imports in 12 component files
+   - Status: All components now use `useAsset` from `../hooks/use-asset`
 
-4. ⬜ **sites**
-   - Move: `context/site-provider.tsx` → proper 3-file split
-   - Create: `context/site-context.ts`, `hooks/use-site.ts`
-   - Update all imports
+4. ✅ **sites** - COMPLETE
+   - Migrated to 3-file split
+   - Created: `context/site-context.ts`, `hooks/use-site.ts`
+   - Updated: `context/site-provider.tsx` (removed hook exports)
+   - Updated all imports in 7 component files
+   - Status: All components now use `useSite` from `../hooks/use-site`
 
 ---
 
-### **Phase 2: Medium Priority (Master Data)**
+### **Phase 2: Medium Priority (Master Data)** ✅ COMPLETE
 
-5. ⬜ **states**
-   - Move: `components/states-provider.tsx` → `context/` (3-file split)
-   - Create: `hooks/use-states.ts`
-   - Update all imports
-   - Investigate `data/` folder purpose
+5. ✅ **states** - COMPLETE
+   - Moved from `components/` to `context/` (3-file split)
+   - Created: `context/states-context.ts`, `hooks/use-states.ts`
+   - Updated all imports in 4 component files
+   - Deleted old provider in components/
 
-6. ⬜ **banks**
-   - Move: `components/banks-provider.tsx` → `context/` (3-file split)
-   - Create: `hooks/use-banks.ts`
-   - Update all imports
-   - Investigate `data/` folder purpose
+6. ✅ **banks** - COMPLETE
+   - Moved from `components/` to `context/` (3-file split)
+   - Created: `context/banks-context.ts`, `hooks/use-banks.ts`
+   - Updated all imports in 4 component files
+   - Deleted old provider in components/
 
-7. ⬜ **warehouses**
-   - Move: `components/warehouse-provider.tsx` → `context/` (3-file split)
-   - Create: `hooks/use-warehouse.ts`
-   - Update all imports
+7. ✅ **warehouses** - COMPLETE
+   - Split existing provider in `context/` (3-file split)
+   - Created: `context/warehouse-context.ts`, `hooks/use-warehouse.ts`
+   - Updated all imports in 7 component files
 
-8. ⬜ **datacenters**
-   - Move: `components/datacenter-provider.tsx` → `context/` (3-file split)
-   - Create: `hooks/use-datacenter.ts`
-   - Update all imports
+8. ✅ **datacenters** - COMPLETE
+   - Split existing provider in `context/` (3-file split)
+   - Created: `context/datacenter-context.ts`, `hooks/use-datacenter.ts`
+   - Updated all imports in 7 component files
 
 ---
 
@@ -458,27 +459,32 @@ Need immediate migration (for consistency with vouchers/invoices):
 ### **Currently Compliant** ✅
 - [x] vouchers (3-file split, proper hooks)
 - [x] invoices (3-file split, proper hooks)
+- [x] expenditures-invoice (3-file split, proper hooks)
+- [x] payees (3-file split, proper hooks)
+- [x] assets (3-file split, proper hooks)
+- [x] sites (3-file split, proper hooks)
+- [x] states (3-file split, proper hooks) 
+- [x] banks (3-file split, proper hooks)
+- [x] warehouses (3-file split, proper hooks)
+- [x] datacenters (3-file split, proper hooks)
 
 ### **Needs Hook Rename Only** ⚠️
-- [ ] expenditures-invoice (rename hook file)
+- None remaining!
 
 ### **Needs Full Migration** ❌
-**Priority 1 (Bulk Upload)**:
-- [ ] payees
-- [ ] assets  
-- [ ] sites
-
-**Priority 2 (Master Data)**:
-- [ ] states
-- [ ] banks
-- [ ] warehouses
-- [ ] datacenters
-
 **Priority 3 (Vendor Module)**:
-- [ ] vendors (full restructure)
+- [ ] vendors (full restructure - provider in root!)
+- [ ] vendor-types
+- [ ] vendor-categories
 
 **Priority 4 (Remaining)**:
-- [ ] 30+ other features
+- [ ] users
+- [ ] tasks  
+- [ ] payment-methods
+- [ ] cost-categories
+- [ ] site-types
+- [ ] site-categories
+- [ ] 20+ other features
 
 ---
 

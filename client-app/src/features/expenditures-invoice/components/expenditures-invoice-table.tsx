@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useExpendituresInvoiceContext } from '../hooks/use-expenditures-invoice-context';
+import { useExpendituresInvoice } from '../hooks/use-expenditures-invoice';
 import { expendituresInvoiceApi } from '../api/expenditures-invoice-api';
 import {
   flexRender,
@@ -30,7 +30,7 @@ interface ExpendituresInvoiceTableProps {
 }
 
 export const ExpendituresInvoiceTable = ({ columns }: ExpendituresInvoiceTableProps) => {
-  const { globalFilter, setGlobalFilter } = useExpendituresInvoiceContext();
+  const { globalFilter, setGlobalFilter } = useExpendituresInvoice();
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [sorting, setSorting] = useState<SortingState>([{ id: 'id', desc: true }]);

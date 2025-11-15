@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Row } from '@tanstack/react-table';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useExpendituresInvoiceContext } from '../hooks/use-expenditures-invoice-context';
+import { useExpendituresInvoice } from '../hooks/use-expenditures-invoice';
 import { expendituresInvoiceApi } from '../api/expenditures-invoice-api';
 import type { ExpendituresInvoice } from '../api/schema';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
@@ -31,7 +31,7 @@ interface DataTableRowActionsProps {
 }
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
-  const { openDrawer, setEditingExpenditure } = useExpendituresInvoiceContext();
+  const { openDrawer, setEditingExpenditure } = useExpendituresInvoice();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const queryClient = useQueryClient();
 

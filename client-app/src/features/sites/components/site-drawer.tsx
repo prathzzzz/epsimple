@@ -16,7 +16,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useSiteContext } from "../context/site-provider";
+import { useSite } from "../hooks/use-site";
 import { siteApi } from "../api/site-api";
 import { siteSchema, type SiteFormData } from "../api/schema";
 import { statesApi } from "@/features/states/api/states-api";
@@ -30,7 +30,7 @@ import {
 } from "./site-drawer-tabs";
 
 export function SiteDrawer() {
-  const { isDrawerOpen, setIsDrawerOpen, editingSite, setEditingSite } = useSiteContext();
+  const { isDrawerOpen, setIsDrawerOpen, editingSite, setEditingSite } = useSite();
   const [activeTab, setActiveTab] = useState("basic");
 
   const createMutation = siteApi.useCreate();

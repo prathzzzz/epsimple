@@ -37,7 +37,7 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { cn } from '@/lib/utils'
-import { useAssetContext } from '../context/asset-provider'
+import { useAsset } from '../hooks/use-asset'
 import { assetsApi } from '../api/assets-api'
 import { assetSchema, type AssetFormData } from '../api/schema'
 import { assetCategoryApi } from '@/features/asset-categories/api/asset-categories-api'
@@ -56,7 +56,7 @@ export function AssetDrawer() {
     setEditingAsset,
     setIsPlacementDialogOpen,
     setAssetForPlacement 
-  } = useAssetContext()
+  } = useAsset()
 
   const [categorySearch, setCategorySearch] = useState('')
   const [categoryOpen, setCategoryOpen] = useState(false)

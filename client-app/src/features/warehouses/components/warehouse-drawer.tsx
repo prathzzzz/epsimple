@@ -24,7 +24,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { useWarehouse } from '../context/warehouse-provider';
+import { useWarehouse } from '../hooks/use-warehouse';
 import { warehouseApi } from '../api/warehouse-api';
 import { warehouseFormSchema, type WarehouseFormData } from '../api/schema';
 import { locationApi } from '@/features/locations/api/location-api';

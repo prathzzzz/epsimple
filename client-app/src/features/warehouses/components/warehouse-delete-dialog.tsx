@@ -8,7 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useWarehouse } from '../context/warehouse-provider';
+import { useWarehouse } from '../hooks/use-warehouse';
 import { warehouseApi } from '../api/warehouse-api';
 
 export function WarehouseDeleteDialog() {

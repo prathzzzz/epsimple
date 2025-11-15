@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useSiteContext } from "../context/site-provider";
 
 export function CreateSiteButton() {
-  const { setIsDrawerOpen, setEditingSite } = useSiteContext();
+  const { setIsDrawerOpen, setEditingSite } = useSite();
 
   const handleClick = () => {
     setEditingSite(null);

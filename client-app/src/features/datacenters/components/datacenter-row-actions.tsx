@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { Datacenter } from '../api/schema';
-import { useDatacenter } from '../context/datacenter-provider';
+import { useDatacenter } from '../hooks/use-datacenter';
 
 interface DatacenterRowActionsProps {
   row: Row<Datacenter>;

@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DataTablePagination, DataTableToolbar } from "@/components/data-table";
-import { useSiteContext } from "../context/site-provider";
+import { useSite } from "../hooks/use-site";
 import { siteApi } from "../api/site-api";
 import { SiteRowActions } from "./site-row-actions";
 
@@ -32,7 +32,7 @@ interface SiteTableProps<TData, TValue> {
 export function SiteTable<TData, TValue>({
   columns,
 }: SiteTableProps<TData, TValue>) {
-  const { globalFilter, setGlobalFilter } = useSiteContext();
+  const { globalFilter, setGlobalFilter } = useSite();
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

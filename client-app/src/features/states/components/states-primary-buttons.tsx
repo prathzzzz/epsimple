@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Plus, Upload, FileSpreadsheet, Loader2, Download, ChevronDown } from 'lucide-react'
-import { useStates } from './states-provider'
+import { useStates } from '../hooks/use-states'
 import { useExport } from '@/hooks/useExport'
 import { useState } from 'react'
 import { toast } from 'sonner'

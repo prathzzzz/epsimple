@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
-import { useAssetContext } from '../context/asset-provider'
+import { PlusCircle } from 'lucide-react'
+import { useAsset } from '../hooks/use-asset'
 
 export function CreateAssetButton() {
-  const { setIsDrawerOpen, setEditingAsset } = useAssetContext()
+  const { setIsDrawerOpen, setEditingAsset } = useAsset()
 
   const handleClick = () => {
     setEditingAsset(null)

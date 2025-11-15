@@ -19,8 +19,8 @@ export function AssetPrimaryButtons() {
     setIsDrawerOpen, 
     setEditingAsset, 
     setIsBulkUploadDialogOpen,
-    setIsPlacementBulkUploadDialogOpen 
-  } = useAssetContext();
+    setIsPlacementBulkUploadDialogOpen,
+  } = useAsset();
 
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
   const [isDownloadingPlacementTemplate, setIsDownloadingPlacementTemplate] = useState(false);

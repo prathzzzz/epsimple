@@ -8,7 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useDatacenter } from '../context/datacenter-provider';
+import { useDatacenter } from '../hooks/use-datacenter';
 import { datacenterApi } from '../api/datacenter-api';
 
 export function DatacenterDeleteDialog() {

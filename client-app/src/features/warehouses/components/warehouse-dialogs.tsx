@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog';
-import { useWarehouse } from '../context/warehouse-provider';
+import { useWarehouse } from '../hooks/use-warehouse';
 import { WarehouseDrawer } from './warehouse-drawer';
 import { WarehouseDeleteDialog } from './warehouse-delete-dialog';
 

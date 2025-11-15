@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useExpendituresInvoiceContext } from '../hooks/use-expenditures-invoice-context';
+import { useExpendituresInvoice } from '../hooks/use-expenditures-invoice';
 import { downloadFile } from '@/lib/api-utils';
 import { useExport } from '@/hooks/useExport';
 import { toast } from 'sonner';
@@ -25,7 +25,7 @@ export function ExpendituresInvoicePrimaryButtons() {
   const {
     openDrawer,
     setIsBulkUploadDialogOpen,
-  } = useExpendituresInvoiceContext();
+  } = useExpendituresInvoice();
 
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
 

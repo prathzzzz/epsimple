@@ -34,7 +34,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { usePayee } from '../context/payee-provider';
+import { usePayee } from '../hooks/use-payee';
 import { payeeApi } from '../api/payee-api';
 import { payeeSchema, type PayeeFormData } from '../api/schema';
 import { payeeTypesApi } from '@/features/payee-types/api/payee-types-api';

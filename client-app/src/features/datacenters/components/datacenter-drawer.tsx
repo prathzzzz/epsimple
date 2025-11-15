@@ -24,7 +24,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { useDatacenter } from '../context/datacenter-provider';
+import { useDatacenter } from '../hooks/use-datacenter';
 import { datacenterApi } from '../api/datacenter-api';
 import { datacenterSchema, type DatacenterFormData } from '../api/schema';
 import { locationApi } from '@/features/locations/api/location-api';

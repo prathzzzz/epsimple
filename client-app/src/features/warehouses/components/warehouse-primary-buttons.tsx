@@ -2,7 +2,7 @@ import { Download, Upload, FileSpreadsheet, Plus, Loader2, ChevronDown, FileUp }
 import { Button } from '@/components/ui/button';
 import { downloadFile } from '@/lib/api-utils';
 import { useExport } from '@/hooks/useExport';
-import { useWarehouse } from '../context/warehouse-provider';
+import { useWarehouse } from '../hooks/use-warehouse';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import {
