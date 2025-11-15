@@ -13,6 +13,8 @@ import com.eps.module.api.epsone.vendor_type.repository.VendorTypeRepository;
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
 import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.person.PersonDetails;
@@ -114,7 +116,7 @@ public class VendorServiceImpl extends BaseBulkUploadService<VendorBulkUploadDto
     @Transactional(readOnly = true)
     public VendorResponseDto getVendorById(Long id) {
         Vendor vendor = vendorRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vendor not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.VENDOR_NOT_FOUND, id)));
         return vendorMapper.toDto(vendor);
     }
 
@@ -122,7 +124,7 @@ public class VendorServiceImpl extends BaseBulkUploadService<VendorBulkUploadDto
     @Transactional
     public VendorResponseDto updateVendor(Long id, VendorRequestDto requestDto) {
         Vendor vendor = vendorRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vendor not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.VENDOR_NOT_FOUND, id)));
 
         // Validate vendor type exists
         VendorType vendorType = vendorTypeRepository.findById(requestDto.getVendorTypeId())
@@ -164,7 +166,7 @@ public class VendorServiceImpl extends BaseBulkUploadService<VendorBulkUploadDto
     @Transactional
     public void deleteVendor(Long id) {
         if (!vendorRepository.existsById(id)) {
-            throw new IllegalArgumentException("Vendor not found with id: " + id);
+            throw new IllegalArgumentException(String.format(ErrorMessages.VENDOR_NOT_FOUND, id));
         }
 
         // Check for dependencies - activity work orders

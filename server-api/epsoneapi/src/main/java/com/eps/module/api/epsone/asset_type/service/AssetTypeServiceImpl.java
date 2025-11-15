@@ -11,6 +11,8 @@ import com.eps.module.api.epsone.asset_type.repository.AssetTypeRepository;
 import com.eps.module.asset.AssetCategory;
 import com.eps.module.asset.AssetType;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.constants.ErrorMessages;
+import com.eps.module.common.util.ValidationUtils;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +59,7 @@ public class AssetTypeServiceImpl extends BaseBulkUploadService<AssetTypeBulkUpl
     @Transactional
     public AssetTypeResponseDto updateAssetType(Long id, AssetTypeRequestDto requestDto) {
         AssetType existingAssetType = assetTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asset type not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ASSET_TYPE_NOT_FOUND, id)));
 
         // Check if type name already exists for another asset type
         if (assetTypeRepository.existsByTypeNameAndIdNot(requestDto.getTypeName(), id)) {
@@ -80,7 +82,7 @@ public class AssetTypeServiceImpl extends BaseBulkUploadService<AssetTypeBulkUpl
         log.info("Deleting asset type with ID: {}", id);
 
         AssetType assetType = assetTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asset type not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ASSET_TYPE_NOT_FOUND, id)));
 
         // Check for dependent asset categories
         Page<AssetCategory> dependentCategories = assetCategoryRepository.findByAssetTypeId(id, PageRequest.of(0, 6));
@@ -113,7 +115,7 @@ public class AssetTypeServiceImpl extends BaseBulkUploadService<AssetTypeBulkUpl
     @Transactional(readOnly = true)
     public AssetTypeResponseDto getAssetTypeById(Long id) {
         AssetType assetType = assetTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asset type not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(String.format(ErrorMessages.ASSET_TYPE_NOT_FOUND, id)));
         return assetTypeMapper.toResponseDto(assetType);
     }
 
