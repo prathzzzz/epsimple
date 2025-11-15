@@ -9,6 +9,7 @@ import com.eps.module.api.epsone.site_code.mapper.SiteCodeGeneratorMapper;
 import com.eps.module.api.epsone.site_code.repository.SiteCodeGeneratorRepository;
 import com.eps.module.api.epsone.state.repository.StateRepository;
 import com.eps.module.bank.ManagedProject;
+import com.eps.module.common.constants.ErrorMessages;
 import com.eps.module.location.State;
 import com.eps.module.site.SiteCodeGenerator;
 import jakarta.persistence.EntityNotFoundException;
@@ -46,17 +47,18 @@ public class SiteCodeGeneratorServiceImpl implements SiteCodeGeneratorService {
         if (siteCodeGeneratorRepository.existsByProjectIdAndStateId(
                 requestDto.getProjectId(), requestDto.getStateId())) {
             throw new IllegalArgumentException(
-                    "Site code generator already exists for this project and state combination");
+                    String.format(ErrorMessages.CODE_GENERATOR_ALREADY_EXISTS, 
+                        "Site", "project-state"));
         }
 
         // Validate foreign keys
         ManagedProject project = managedProjectRepository.findById(requestDto.getProjectId())
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "Managed project not found with id: " + requestDto.getProjectId()));
+                        String.format(ErrorMessages.MANAGED_PROJECT_NOT_FOUND, requestDto.getProjectId())));
 
         State state = stateRepository.findById(requestDto.getStateId())
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "State not found with id: " + requestDto.getStateId()));
+                        String.format(ErrorMessages.STATE_NOT_FOUND, requestDto.getStateId())));
 
         // Create entity
         SiteCodeGenerator generator = mapper.toEntity(requestDto);
@@ -109,7 +111,8 @@ public class SiteCodeGeneratorServiceImpl implements SiteCodeGeneratorService {
     public SiteCodeGeneratorResponseDto getSiteCodeGeneratorById(Long id) {
         log.info("Fetching site code generator by id: {}", id);
         SiteCodeGenerator generator = siteCodeGeneratorRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new EntityNotFoundException("Site code generator not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(ErrorMessages.CODE_GENERATOR_NOT_FOUND, "Site", id)));
         return mapper.toDto(generator);
     }
 
@@ -119,7 +122,8 @@ public class SiteCodeGeneratorServiceImpl implements SiteCodeGeneratorService {
         log.info("Updating site code generator with id: {}", id);
 
         SiteCodeGenerator existingGenerator = siteCodeGeneratorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Site code generator not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(ErrorMessages.CODE_GENERATOR_NOT_FOUND, "Site", id)));
 
         // Check if updating to a combination that already exists (excluding current record)
         if (!existingGenerator.getProject().getId().equals(requestDto.getProjectId()) ||
@@ -128,7 +132,8 @@ public class SiteCodeGeneratorServiceImpl implements SiteCodeGeneratorService {
             if (siteCodeGeneratorRepository.existsByProjectIdAndStateIdAndIdNot(
                     requestDto.getProjectId(), requestDto.getStateId(), id)) {
                 throw new IllegalArgumentException(
-                        "Site code generator already exists for this project and state combination");
+                        String.format(ErrorMessages.CODE_GENERATOR_ALREADY_EXISTS, 
+                            "Site", "project-state"));
             }
         }
 
@@ -136,14 +141,14 @@ public class SiteCodeGeneratorServiceImpl implements SiteCodeGeneratorService {
         if (!existingGenerator.getProject().getId().equals(requestDto.getProjectId())) {
             ManagedProject project = managedProjectRepository.findById(requestDto.getProjectId())
                     .orElseThrow(() -> new EntityNotFoundException(
-                            "Managed project not found with id: " + requestDto.getProjectId()));
+                            String.format(ErrorMessages.MANAGED_PROJECT_NOT_FOUND, requestDto.getProjectId())));
             existingGenerator.setProject(project);
         }
 
         if (!existingGenerator.getState().getId().equals(requestDto.getStateId())) {
             State state = stateRepository.findById(requestDto.getStateId())
                     .orElseThrow(() -> new EntityNotFoundException(
-                            "State not found with id: " + requestDto.getStateId()));
+                            String.format(ErrorMessages.STATE_NOT_FOUND, requestDto.getStateId())));
             existingGenerator.setState(state);
         }
 
@@ -162,7 +167,8 @@ public class SiteCodeGeneratorServiceImpl implements SiteCodeGeneratorService {
         log.info("Deleting site code generator with id: {}", id);
 
         if (!siteCodeGeneratorRepository.existsById(id)) {
-            throw new EntityNotFoundException("Site code generator not found with id: " + id);
+            throw new EntityNotFoundException(
+                String.format(ErrorMessages.CODE_GENERATOR_NOT_FOUND, "Site", id));
         }
 
         siteCodeGeneratorRepository.deleteById(id);
@@ -275,10 +281,12 @@ public class SiteCodeGeneratorServiceImpl implements SiteCodeGeneratorService {
                 projectId, stateId);
 
         ManagedProject project = managedProjectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Managed project not found with id: " + projectId));
+                .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(ErrorMessages.MANAGED_PROJECT_NOT_FOUND, projectId)));
 
         State state = stateRepository.findById(stateId)
-                .orElseThrow(() -> new EntityNotFoundException("State not found with id: " + stateId));
+                .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(ErrorMessages.STATE_NOT_FOUND, stateId)));
 
         SiteCodeGenerator generator = SiteCodeGenerator.builder()
                 .project(project)
@@ -292,10 +300,12 @@ public class SiteCodeGeneratorServiceImpl implements SiteCodeGeneratorService {
 
     private SiteCodeGenerator createTemporaryGenerator(Long projectId, Long stateId) {
         ManagedProject project = managedProjectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Managed project not found with id: " + projectId));
+                .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(ErrorMessages.MANAGED_PROJECT_NOT_FOUND, projectId)));
 
         State state = stateRepository.findById(stateId)
-                .orElseThrow(() -> new EntityNotFoundException("State not found with id: " + stateId));
+                .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(ErrorMessages.STATE_NOT_FOUND, stateId)));
 
         return SiteCodeGenerator.builder()
                 .project(project)
