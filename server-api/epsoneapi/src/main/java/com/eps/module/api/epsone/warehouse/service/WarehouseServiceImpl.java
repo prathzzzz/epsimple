@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 public class WarehouseServiceImpl extends BaseBulkUploadService<WarehouseBulkUploadDto, Warehouse> 
         implements WarehouseService {
 
-    private static final String WAREHOUSE_NOT_FOUND_WITH_ID_MSG = "Warehouse not found with id: ";
 
     private final WarehouseRepository warehouseRepository;
     private final LocationRepository locationRepository;
@@ -171,7 +170,7 @@ public class WarehouseServiceImpl extends BaseBulkUploadService<WarehouseBulkUpl
     public WarehouseResponseDto getWarehouseById(Long id) {
         log.info("Fetching warehouse with ID: {}", id);
         Warehouse warehouse = warehouseRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new ResourceNotFoundException(WAREHOUSE_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.WAREHOUSE_NOT_FOUND, id)));
         return warehouseMapper.toDto(warehouse);
     }
 
@@ -181,7 +180,7 @@ public class WarehouseServiceImpl extends BaseBulkUploadService<WarehouseBulkUpl
         log.info("Updating warehouse with ID: {}", id);
         
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(WAREHOUSE_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.WAREHOUSE_NOT_FOUND, id)));
 
         // Validate location exists
         Location location = locationRepository.findById(requestDto.getLocationId())
@@ -212,15 +211,14 @@ public class WarehouseServiceImpl extends BaseBulkUploadService<WarehouseBulkUpl
         log.info("Deleting warehouse with ID: {}", id);
         
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(WAREHOUSE_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.WAREHOUSE_NOT_FOUND, id)));
 
         // Check if warehouse has assets
         long assetCount = assetsOnWarehouseRepository.countByWarehouseId(id);
         if (assetCount > 0) {
-            throw new IllegalStateException(String.format(
-                "Cannot delete warehouse '%s' because it has %d asset%s. Please remove the assets from this warehouse first.",
-                warehouse.getWarehouseName(), assetCount, assetCount > 1 ? "s" : ""
-            ));
+            throw new IllegalStateException(
+                ValidationUtils.formatCannotDeleteAssetError("warehouse", warehouse.getWarehouseName(), assetCount)
+            );
         }
 
         warehouseRepository.delete(warehouse);
