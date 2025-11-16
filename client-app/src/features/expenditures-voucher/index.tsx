@@ -7,12 +7,18 @@ import { ConfigDrawer } from '@/components/config-drawer';
 import { ExpendituresVoucherProvider } from './context/expenditures-voucher-provider';
 import { ExpendituresVoucherTable } from './components/expenditures-voucher-table';
 import { ExpendituresVoucherDrawer } from './components/expenditures-voucher-drawer';
-import { CreateExpenditureButton } from './components/create-expenditure-button';
+import { ExpendituresVoucherPrimaryButtons } from './components/expenditures-voucher-primary-buttons';
+import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog';
+import { useExpendituresVoucherContext } from './context/expenditures-voucher-provider';
+import { useQueryClient } from '@tanstack/react-query';
 import { columns } from './components/columns';
 
-export default function ExpendituresVoucherPage() {
+function ExpendituresVoucherContent() {
+  const { isBulkUploadDialogOpen, setIsBulkUploadDialogOpen } = useExpendituresVoucherContext();
+  const queryClient = useQueryClient();
+
   return (
-    <ExpendituresVoucherProvider>
+    <>
       <Header fixed>
         <Search />
         <div className="ml-auto flex items-center space-x-4">
@@ -29,13 +35,33 @@ export default function ExpendituresVoucherPage() {
               Manage expenditures linked to vouchers
             </p>
           </div>
-          <CreateExpenditureButton />
+          <ExpendituresVoucherPrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
           <ExpendituresVoucherTable columns={columns} />
         </div>
       </Main>
       <ExpendituresVoucherDrawer />
+      <GenericBulkUploadDialog
+        open={isBulkUploadDialogOpen}
+        onOpenChange={setIsBulkUploadDialogOpen}
+        config={{
+          uploadEndpoint: '/api/expenditures/vouchers/bulk-upload',
+          errorReportEndpoint: '/api/expenditures/vouchers/bulk-upload/errors',
+          entityName: 'Expenditures Voucher',
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['expenditures-vouchers'] });
+          },
+        }}
+      />
+    </>
+  );
+}
+
+export default function ExpendituresVoucherPage() {
+  return (
+    <ExpendituresVoucherProvider>
+      <ExpendituresVoucherContent />
     </ExpendituresVoucherProvider>
   );
 }

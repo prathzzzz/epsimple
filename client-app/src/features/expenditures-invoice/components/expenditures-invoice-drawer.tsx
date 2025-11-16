@@ -98,7 +98,6 @@ export const ExpendituresInvoiceDrawer = () => {
       managedProjectId: 0,
       incurredDate: '',
       description: '',
-      claimAmount: 0,
     },
   });
 
@@ -110,7 +109,6 @@ export const ExpendituresInvoiceDrawer = () => {
         managedProjectId: editingExpenditure.managedProjectId,
         incurredDate: editingExpenditure.incurredDate || '',
         description: editingExpenditure.description || '',
-        claimAmount: editingExpenditure.claimAmount || 0,
       });
     } else {
       form.reset({
@@ -119,7 +117,6 @@ export const ExpendituresInvoiceDrawer = () => {
         managedProjectId: 0,
         incurredDate: '',
         description: '',
-        claimAmount: 0,
       });
     }
   }, [editingExpenditure, form]);
@@ -403,26 +400,6 @@ export const ExpendituresInvoiceDrawer = () => {
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="claimAmount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Claim Amount *</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="Enter amount"
-                      {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                    />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

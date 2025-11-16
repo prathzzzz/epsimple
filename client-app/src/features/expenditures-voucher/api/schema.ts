@@ -16,7 +16,7 @@ export const expendituresVoucherSchema = z.object({
   bankName: z.string(),
   incurredDate: z.string().optional(),
   description: z.string().optional(),
-  claimAmount: z.number().optional(),
+  // claimAmount removed
   createdAt: z.string(),
   updatedAt: z.string(),
   createdBy: z.string().optional(),
@@ -35,7 +35,7 @@ export const expendituresVoucherFormSchema = z.object({
   }),
   incurredDate: z.string().optional().or(z.literal("")),
   description: z.string().max(5000).optional().or(z.literal("")),
-  claimAmount: z.number().min(0, "Amount must be a positive number").optional(),
+  // claimAmount removed
 });
 
 export type ExpendituresVoucher = z.infer<typeof expendituresVoucherSchema>;

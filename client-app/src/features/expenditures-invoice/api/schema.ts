@@ -16,7 +16,6 @@ export const expendituresInvoiceSchema = z.object({
   bankName: z.string(),
   incurredDate: z.string().optional(),
   description: z.string().optional(),
-  claimAmount: z.number().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
   createdBy: z.string().optional(),
@@ -35,7 +34,6 @@ export const expendituresInvoiceFormSchema = z.object({
   }),
   incurredDate: z.string().optional().or(z.literal("")),
   description: z.string().max(5000).optional().or(z.literal("")),
-  claimAmount: z.number().min(0, "Amount must be a positive number").optional(),
 });
 
 export type ExpendituresInvoice = z.infer<typeof expendituresInvoiceSchema>;

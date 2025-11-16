@@ -15,6 +15,7 @@ import { expendituresVoucherApi } from '../api/expenditures-voucher-api';
 import { useExpendituresVoucherContext } from '../context/expenditures-voucher-provider';
 import { DataTableRowActions } from './data-table-row-actions';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -36,17 +37,17 @@ interface ExpendituresVoucherTableProps {
 }
 
 export function ExpendituresVoucherTable({ columns }: ExpendituresVoucherTableProps) {
-  const { globalFilter } = useExpendituresVoucherContext();
+  const { globalFilter, setGlobalFilter } = useExpendituresVoucherContext();
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'id', desc: true }]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const hasSearch = globalFilter && globalFilter.trim().length > 0;
 
   // Query for all data
   const { data: allData, isLoading: isAllLoading } = useQuery({
-    queryKey: ['expenditures-vouchers', page, pageSize, sorting],
+    queryKey: ['expenditures-vouchers', page, pageSize, sorting[0]?.id, sorting[0]?.desc],
     queryFn: () =>
       expendituresVoucherApi.getAll(
         page,
@@ -59,7 +60,7 @@ export function ExpendituresVoucherTable({ columns }: ExpendituresVoucherTablePr
 
   // Query for search data
   const { data: searchData, isLoading: isSearchLoading } = useQuery({
-    queryKey: ['expenditures-vouchers', 'search', globalFilter, page, pageSize, sorting],
+    queryKey: ['expenditures-vouchers', 'search', globalFilter, page, pageSize, sorting[0]?.id, sorting[0]?.desc],
     queryFn: () =>
       expendituresVoucherApi.search(
         globalFilter,
@@ -101,6 +102,20 @@ export function ExpendituresVoucherTable({ columns }: ExpendituresVoucherTablePr
 
   return (
     <div className="space-y-4">
+      {/* Search */}
+      <div className="flex items-center gap-2">
+        <Input
+          placeholder="Search expenditures..."
+          value={globalFilter}
+          onChange={(e) => {
+            setGlobalFilter(e.target.value);
+            setPage(0);
+          }}
+          className="max-w-sm"
+        />
+      </div>
+
+      {/* Table */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>

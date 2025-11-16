@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import type { ExpendituresInvoice } from '../api/schema';
 import { DataTableRowActions } from './data-table-row-actions';
 
@@ -34,7 +34,6 @@ export const ExpendituresInvoiceTable = ({ columns }: ExpendituresInvoiceTablePr
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [sorting, setSorting] = useState<SortingState>([{ id: 'id', desc: true }]);
-  const [searchInput, setSearchInput] = useState('');
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const hasSearch = globalFilter && globalFilter.trim().length > 0;
@@ -94,31 +93,19 @@ export const ExpendituresInvoiceTable = ({ columns }: ExpendituresInvoiceTablePr
     pageCount: data?.data?.page?.totalPages || 0,
   });
 
-  const handleSearch = () => {
-    setGlobalFilter(searchInput);
-    setPage(0);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
   return (
     <div className="space-y-4">
       {/* Search */}
       <div className="flex items-center gap-2">
         <Input
           placeholder="Search expenditures..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          onKeyPress={handleKeyPress}
+          value={globalFilter}
+          onChange={(e) => {
+            setGlobalFilter(e.target.value);
+            setPage(0);
+          }}
           className="max-w-sm"
         />
-        <Button onClick={handleSearch} size="icon" variant="outline">
-          <Search className="h-4 w-4" />
-        </Button>
       </div>
 
       {/* Table */}

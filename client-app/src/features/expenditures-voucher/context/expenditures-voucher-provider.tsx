@@ -9,6 +9,8 @@ interface ExpendituresVoucherContextType {
   setEditingExpenditure: (expenditure: ExpendituresVoucher | null) => void;
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (open: boolean) => void;
 }
 
 const ExpendituresVoucherContext = createContext<ExpendituresVoucherContextType | undefined>(
@@ -29,6 +31,7 @@ export const ExpendituresVoucherProvider = ({ children }: { children: ReactNode 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingExpenditure, setEditingExpenditure] = useState<ExpendituresVoucher | null>(null);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
 
   const openDrawer = (expenditure?: ExpendituresVoucher) => {
     if (expenditure) {
@@ -54,6 +57,8 @@ export const ExpendituresVoucherProvider = ({ children }: { children: ReactNode 
         setEditingExpenditure,
         globalFilter,
         setGlobalFilter,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
       }}
     >
       {children}
