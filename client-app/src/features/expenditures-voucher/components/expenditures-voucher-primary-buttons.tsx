@@ -46,7 +46,7 @@ export function ExpendituresVoucherPrimaryButtons() {
         'Expenditures_Voucher_Upload_Template.xlsx'
       );
       toast.success('Template downloaded successfully');
-    } catch (_error) {
+    } catch {
       toast.error('Failed to download template');
     } finally {
       setIsDownloadingTemplate(false);

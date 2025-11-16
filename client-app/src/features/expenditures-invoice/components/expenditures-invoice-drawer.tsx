@@ -40,7 +40,6 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { useQuery } from '@tanstack/react-query';
@@ -133,7 +132,7 @@ export const ExpendituresInvoiceDrawer = () => {
       }
       closeDrawer();
       form.reset();
-    } catch (_error) {
+    } catch {
       // Error already handled by mutation callbacks
     }
   };
@@ -396,7 +395,6 @@ export const ExpendituresInvoiceDrawer = () => {
                         disabled={(date) =>
                           date > new Date() || date < new Date('1900-01-01')
                         }
-                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>

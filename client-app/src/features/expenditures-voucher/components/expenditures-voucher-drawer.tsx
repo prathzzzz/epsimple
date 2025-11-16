@@ -40,13 +40,12 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { useQuery } from '@tanstack/react-query';
 
 export const ExpendituresVoucherDrawer = () => {
-  const { isDrawerOpen, closeDrawer, editingExpenditure } = useExpendituresVoucherContext();
+  const { isDrawerOpen, closeDrawer, editingExpenditure} = useExpendituresVoucherContext();
   const [costItemSearch, setCostItemSearch] = useState('');
   const [costItemOpen, setCostItemOpen] = useState(false);
   const [voucherSearch, setVoucherSearch] = useState('');
@@ -133,8 +132,8 @@ export const ExpendituresVoucherDrawer = () => {
       }
       closeDrawer();
       form.reset();
-    } catch (error) {
-      console.error('Failed to save expenditure:', error);
+    } catch {
+      // Error already handled by mutation callbacks
     }
   };
 
@@ -191,14 +190,18 @@ export const ExpendituresVoucherDrawer = () => {
                           onValueChange={setCostItemSearch}
                         />
                         <CommandList>
-                          {costItemsLoading ? (
-                            <div className="flex items-center justify-center py-6">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            </div>
-                          ) : costItems.length === 0 ? (
-                            <CommandEmpty>No cost item found.</CommandEmpty>
-                          ) : (
-                            costItems.map((item: CostItem) => (
+                          {(() => {
+                            if (costItemsLoading) {
+                              return (
+                                <div className="flex items-center justify-center py-6">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                </div>
+                              );
+                            }
+                            if (costItems.length === 0) {
+                              return <CommandEmpty>No cost item found.</CommandEmpty>;
+                            }
+                            return costItems.map((item: CostItem) => (
                               <CommandItem
                                 key={item.id}
                                 value={String(item.id)}
@@ -215,8 +218,8 @@ export const ExpendituresVoucherDrawer = () => {
                                 />
                                 {item.costItemFor}
                               </CommandItem>
-                            ))
-                          )}
+                            ));
+                          })()}
                         </CommandList>
                       </Command>
                     </PopoverContent>
@@ -259,14 +262,18 @@ export const ExpendituresVoucherDrawer = () => {
                           onValueChange={setVoucherSearch}
                         />
                         <CommandList>
-                          {vouchersLoading ? (
-                            <div className="flex items-center justify-center py-6">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            </div>
-                          ) : vouchers.length === 0 ? (
-                            <CommandEmpty>No voucher found.</CommandEmpty>
-                          ) : (
-                            vouchers.map((voucher: Voucher) => (
+                          {(() => {
+                            if (vouchersLoading) {
+                              return (
+                                <div className="flex items-center justify-center py-6">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                </div>
+                              );
+                            }
+                            if (vouchers.length === 0) {
+                              return <CommandEmpty>No voucher found.</CommandEmpty>;
+                            }
+                            return vouchers.map((voucher: Voucher) => (
                               <CommandItem
                                 key={voucher.id}
                                 value={String(voucher.id)}
@@ -283,8 +290,8 @@ export const ExpendituresVoucherDrawer = () => {
                                 />
                                 {voucher.voucherNumber}
                               </CommandItem>
-                            ))
-                          )}
+                            ));
+                          })()}
                         </CommandList>
                       </Command>
                     </PopoverContent>
@@ -327,14 +334,18 @@ export const ExpendituresVoucherDrawer = () => {
                           onValueChange={setProjectSearch}
                         />
                         <CommandList>
-                          {projectsLoading ? (
-                            <div className="flex items-center justify-center py-6">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            </div>
-                          ) : projects.length === 0 ? (
-                            <CommandEmpty>No project found.</CommandEmpty>
-                          ) : (
-                            projects.map((proj: ManagedProject) => (
+                          {(() => {
+                            if (projectsLoading) {
+                              return (
+                                <div className="flex items-center justify-center py-6">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                </div>
+                              );
+                            }
+                            if (projects.length === 0) {
+                              return <CommandEmpty>No project found.</CommandEmpty>;
+                            }
+                            return projects.map((proj: ManagedProject) => (
                               <CommandItem
                                 key={proj.id}
                                 value={String(proj.id)}
@@ -351,8 +362,8 @@ export const ExpendituresVoucherDrawer = () => {
                                 />
                                 {proj.projectName}
                               </CommandItem>
-                            ))
-                          )}
+                            ));
+                          })()}
                         </CommandList>
                       </Command>
                     </PopoverContent>
@@ -396,7 +407,6 @@ export const ExpendituresVoucherDrawer = () => {
                         disabled={(date) =>
                           date > new Date() || date < new Date('1900-01-01')
                         }
-                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
