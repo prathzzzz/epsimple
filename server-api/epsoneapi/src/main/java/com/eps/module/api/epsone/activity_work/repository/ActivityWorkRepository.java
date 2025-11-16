@@ -64,4 +64,24 @@ public interface ActivityWorkRepository extends JpaRepository<ActivityWork, Long
             "LEFT JOIN FETCH aw.statusType st " +
             "ORDER BY aw.id")
     List<ActivityWork> findAllForExport();
+
+    // Bulk upload support methods
+    @Query("SELECT aw FROM ActivityWork aw " +
+            "LEFT JOIN FETCH aw.activities a " +
+            "LEFT JOIN FETCH aw.vendor v " +
+            "LEFT JOIN FETCH aw.statusType st " +
+            "WHERE LOWER(aw.vendorOrderNumber) = LOWER(:vendorOrderNumber)")
+    Optional<ActivityWork> findByVendorOrderNumberIgnoreCase(@Param("vendorOrderNumber") String vendorOrderNumber);
+
+    boolean existsByVendorOrderNumberIgnoreCase(String vendorOrderNumber);
+
+    @Query("SELECT aw FROM ActivityWork aw " +
+            "LEFT JOIN FETCH aw.activities a " +
+            "LEFT JOIN FETCH aw.vendor v " +
+            "LEFT JOIN FETCH aw.statusType st " +
+            "WHERE LOWER(a.activityName) = LOWER(:activityName) " +
+            "AND LOWER(aw.vendorOrderNumber) = LOWER(:vendorOrderNumber)")
+    Optional<ActivityWork> findByActivityNameAndVendorOrderNumber(
+            @Param("activityName") String activityName,
+            @Param("vendorOrderNumber") String vendorOrderNumber);
 }

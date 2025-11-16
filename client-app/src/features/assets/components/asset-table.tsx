@@ -88,12 +88,12 @@ export function AssetTable<TData, TValue>({
   })
 
   return (
-    <div className="space-y-4">
+    <div className="flex h-full flex-col space-y-4">
       <DataTableToolbar
         table={table}
         searchPlaceholder="Search assets..."
       />
-      <div className="rounded-md border">
+      <div className="flex-1 overflow-auto rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

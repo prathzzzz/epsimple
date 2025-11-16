@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -82,6 +83,18 @@ public interface SiteActivityWorkExpenditureRepository extends JpaRepository<Sit
      * Count expenditures for an activity work
      */
     long countByActivityWorkId(Long activityWorkId);
+
+    /**
+     * Find all records with all relationships fetched for export
+     */
+    @Query("SELECT sawe FROM SiteActivityWorkExpenditure sawe " +
+           "LEFT JOIN FETCH sawe.site s " +
+           "LEFT JOIN FETCH sawe.activityWork aw " +
+           "LEFT JOIN FETCH aw.activities a " +
+           "LEFT JOIN FETCH sawe.expendituresInvoice ei " +
+           "LEFT JOIN FETCH ei.invoice i " +
+           "LEFT JOIN FETCH ei.costItem ci")
+    List<SiteActivityWorkExpenditure> findAllForExport();
 
     /**
      * Search expenditures by site code or activity name

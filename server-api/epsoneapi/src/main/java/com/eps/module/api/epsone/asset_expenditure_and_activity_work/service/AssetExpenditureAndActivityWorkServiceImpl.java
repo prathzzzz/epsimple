@@ -3,13 +3,19 @@ package com.eps.module.api.epsone.asset_expenditure_and_activity_work.service;
 import com.eps.module.activity.ActivityWork;
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
+import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkBulkUploadDto;
+import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkErrorReportDto;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkRequestDto;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkResponseDto;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.mapper.AssetExpenditureAndActivityWorkMapper;
+import com.eps.module.api.epsone.asset_expenditure_and_activity_work.processor.AssetExpenditureAndActivityWorkBulkUploadProcessor;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.repository.AssetExpenditureAndActivityWorkRepository;
 import com.eps.module.api.epsone.expenditures_invoice.repository.ExpendituresInvoiceRepository;
 import com.eps.module.asset.Asset;
 import com.eps.module.asset.AssetExpenditureAndActivityWork;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.ExpendituresInvoice;
 import lombok.RequiredArgsConstructor;
@@ -21,16 +27,80 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.function.Function;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AssetExpenditureAndActivityWorkServiceImpl implements AssetExpenditureAndActivityWorkService {
+public class AssetExpenditureAndActivityWorkServiceImpl extends BaseBulkUploadService<AssetExpenditureAndActivityWorkBulkUploadDto, AssetExpenditureAndActivityWork> implements AssetExpenditureAndActivityWorkService {
 
     private final AssetExpenditureAndActivityWorkRepository repository;
     private final AssetRepository assetRepository;
     private final ActivityWorkRepository activityWorkRepository;
     private final ExpendituresInvoiceRepository expendituresInvoiceRepository;
     private final AssetExpenditureAndActivityWorkMapper mapper;
+    private final AssetExpenditureAndActivityWorkBulkUploadProcessor bulkUploadProcessor;
+
+    // ========== Bulk Upload Methods ==========
+
+    @Override
+    protected BulkUploadProcessor<AssetExpenditureAndActivityWorkBulkUploadDto, AssetExpenditureAndActivityWork> getProcessor() {
+        return bulkUploadProcessor;
+    }
+
+    @Override
+    public Class<AssetExpenditureAndActivityWorkBulkUploadDto> getBulkUploadDtoClass() {
+        return AssetExpenditureAndActivityWorkBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Asset Expenditure And Activity Work";
+    }
+
+    @Override
+    public List<AssetExpenditureAndActivityWork> getAllEntitiesForExport() {
+        return repository.findAllForExport();
+    }
+
+    @Override
+    public Function<AssetExpenditureAndActivityWork, AssetExpenditureAndActivityWorkBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> {
+            String assetTagId = entity.getAsset() != null ? entity.getAsset().getAssetTagId() : "";
+            
+            String invoiceNumber = "";
+            if (entity.getExpendituresInvoice() != null && entity.getExpendituresInvoice().getInvoice() != null) {
+                invoiceNumber = entity.getExpendituresInvoice().getInvoice().getInvoiceNumber();
+            }
+            
+            String activityWorkId = entity.getActivityWork() != null ? String.valueOf(entity.getActivityWork().getId()) : "";
+
+            return AssetExpenditureAndActivityWorkBulkUploadDto.builder()
+                    .assetTagId(assetTagId)
+                    .invoiceNumber(invoiceNumber)
+                    .activityWorkId(activityWorkId)
+                    .build();
+        };
+    }
+
+    @Override
+    public AssetExpenditureAndActivityWorkErrorReportDto buildErrorReportDto(BulkUploadErrorDto errorDto) {
+        return AssetExpenditureAndActivityWorkErrorReportDto.builder()
+                .rowNumber(errorDto.getRowNumber())
+                .assetTagId((String) errorDto.getRowData().get("Asset Tag ID"))
+                .invoiceNumber((String) errorDto.getRowData().get("Invoice Number"))
+                .activityWorkId((String) errorDto.getRowData().get("Activity Work ID"))
+                .error(errorDto.getErrorMessage())
+                .build();
+    }
+
+    @Override
+    public Class<AssetExpenditureAndActivityWorkErrorReportDto> getErrorReportDtoClass() {
+        return AssetExpenditureAndActivityWorkErrorReportDto.class;
+    }
+
+    // ========== CRUD Methods ==========
 
     @Override
     @Transactional

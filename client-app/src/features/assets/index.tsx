@@ -40,7 +40,7 @@ function AssetsContent() {
           <ProfileDropdown />
         </div>
       </Header>
-      <Main fixed>
+      <Main fixed fluid>
         <div className="mb-2 flex items-center justify-between space-y-2">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Assets</h2>
@@ -50,7 +50,7 @@ function AssetsContent() {
           </div>
           <AssetPrimaryButtons />
         </div>
-        <div className="-mx-4 flex-1 overflow-auto px-4 py-1">
+        <div className="-mx-4 flex-1 overflow-hidden px-4 py-1">
           <AssetTable columns={assetColumns} />
         </div>
       </Main>

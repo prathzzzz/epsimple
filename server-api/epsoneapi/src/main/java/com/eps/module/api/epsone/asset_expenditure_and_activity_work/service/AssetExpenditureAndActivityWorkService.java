@@ -1,10 +1,13 @@
 package com.eps.module.api.epsone.asset_expenditure_and_activity_work.service;
 
+import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkBulkUploadDto;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkRequestDto;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkResponseDto;
+import com.eps.module.asset.AssetExpenditureAndActivityWork;
+import com.eps.module.common.bulk.service.BulkUploadService;
 import org.springframework.data.domain.Page;
 
-public interface AssetExpenditureAndActivityWorkService {
+public interface AssetExpenditureAndActivityWorkService extends BulkUploadService<AssetExpenditureAndActivityWorkBulkUploadDto, AssetExpenditureAndActivityWork> {
 
     AssetExpenditureAndActivityWorkResponseDto createAssetExpenditureAndActivityWork(AssetExpenditureAndActivityWorkRequestDto requestDto);
 

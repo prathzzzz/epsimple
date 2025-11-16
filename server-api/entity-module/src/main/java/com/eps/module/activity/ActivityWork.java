@@ -32,8 +32,9 @@ public class ActivityWork extends BaseEntity {
     @JoinColumn(name = "vendor_id", nullable = false)
     private Vendor vendor;
 
+    @NotBlank(message = "Vendor order number is required")
     @Size(max = 100, message = "Vendor order number cannot exceed 100 characters")
-    @Column(name = "vendor_order_number", length = 100)
+    @Column(name = "vendor_order_number", length = 100, nullable = false)
     private String vendorOrderNumber;
 
     @Column(name = "work_order_date")

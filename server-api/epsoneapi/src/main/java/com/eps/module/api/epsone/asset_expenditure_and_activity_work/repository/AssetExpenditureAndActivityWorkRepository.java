@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -98,4 +99,17 @@ public interface AssetExpenditureAndActivityWorkRepository extends JpaRepository
            "OR LOWER(act.activityName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(i.invoiceNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<AssetExpenditureAndActivityWork> searchExpenditures(@Param("searchTerm") String searchTerm, Pageable pageable);
+
+    /**
+     * Find all with details for bulk export
+     */
+    @Query("SELECT aeaw FROM AssetExpenditureAndActivityWork aeaw " +
+           "LEFT JOIN FETCH aeaw.asset a " +
+           "LEFT JOIN FETCH aeaw.activityWork aw " +
+           "LEFT JOIN FETCH aw.activities act " +
+           "LEFT JOIN FETCH aeaw.expendituresInvoice ei " +
+           "LEFT JOIN FETCH ei.invoice i " +
+           "LEFT JOIN FETCH ei.costItem ci " +
+           "ORDER BY aeaw.id")
+    List<AssetExpenditureAndActivityWork> findAllForExport();
 }

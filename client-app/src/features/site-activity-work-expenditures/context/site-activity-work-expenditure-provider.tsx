@@ -8,6 +8,8 @@ interface SiteActivityWorkExpenditureContextType {
   setIsDrawerOpen: (show: boolean) => void;
   isDeleteDialogOpen: boolean;
   setIsDeleteDialogOpen: (show: boolean) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (show: boolean) => void;
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
   siteId: number | undefined;
@@ -32,6 +34,7 @@ export function SiteActivityWorkExpenditureProvider({
     useState<SiteActivityWorkExpenditure | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
   const [globalFilter, setGlobalFilter] = useState('');
 
   const openDrawer = () => setIsDrawerOpen(true);
@@ -55,6 +58,8 @@ export function SiteActivityWorkExpenditureProvider({
         setIsDrawerOpen,
         isDeleteDialogOpen,
         setIsDeleteDialogOpen,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
         globalFilter,
         setGlobalFilter,
         siteId,

@@ -1,17 +1,27 @@
 package com.eps.module.api.epsone.site_activity_work_expenditure.controller;
 
+import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureBulkUploadDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureRequestDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureResponseDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.service.SiteActivityWorkExpenditureService;
+import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
+import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
+import com.eps.module.site.SiteActivityWorkExpenditure;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -20,6 +30,36 @@ import org.springframework.web.bind.annotation.*;
 public class SiteActivityWorkExpenditureController {
 
     private final SiteActivityWorkExpenditureService service;
+    private final BulkUploadControllerHelper bulkUploadHelper;
+
+    // ============== Bulk Upload Endpoints ==============
+
+    @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws Exception {
+        log.info("POST /api/site-activity-work-expenditures/bulk-upload - Starting bulk upload");
+        return bulkUploadHelper.bulkUpload(file, service);
+    }
+
+    @GetMapping("/bulk-upload/template")
+    public ResponseEntity<byte[]> downloadTemplate() throws Exception {
+        log.info("GET /api/site-activity-work-expenditures/bulk-upload/template - Downloading template");
+        return bulkUploadHelper.downloadTemplate(service);
+    }
+
+    @GetMapping("/bulk-upload/export")
+    public ResponseEntity<byte[]> export() throws Exception {
+        log.info("GET /api/site-activity-work-expenditures/bulk-upload/export - Exporting all data");
+        return bulkUploadHelper.export(service);
+    }
+
+    @PostMapping("/bulk-upload/errors")
+    public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progressData) throws Exception {
+        log.info("POST /api/site-activity-work-expenditures/bulk-upload/errors - Exporting error report");
+        return bulkUploadHelper.exportErrors(progressData, service);
+    }
+
+    // ============== Regular CRUD Endpoints ==============
+
 
     @PostMapping
     public ResponseEntity<ApiResponse<SiteActivityWorkExpenditureResponseDto>> createSiteActivityWorkExpenditure(

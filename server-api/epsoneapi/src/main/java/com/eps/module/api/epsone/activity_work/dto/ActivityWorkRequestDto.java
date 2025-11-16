@@ -20,6 +20,7 @@ public class ActivityWorkRequestDto {
     @NotNull(message = "Vendor is required")
     private Long vendorId;
 
+    @NotBlank(message = "Vendor order number is required")
     @Size(max = 100, message = "Vendor order number cannot exceed 100 characters")
     private String vendorOrderNumber;
 

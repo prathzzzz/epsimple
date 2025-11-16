@@ -35,8 +35,8 @@ export const assetExpenditureAndActivityWorkApi = {
             params: {
               page: params.page,
               size: params.size,
-              ...(params.sortBy && { sortBy: params.sortBy }),
-              ...(params.sortOrder && { sortDirection: params.sortOrder }),
+              sortBy: params.sortBy || 'id',
+              sortOrder: params.sortOrder || 'asc',
             },
           }
         );
@@ -80,8 +80,8 @@ export const assetExpenditureAndActivityWorkApi = {
             params: {
               page: params.page,
               size: params.size,
-              ...(params.sortBy && { sortBy: params.sortBy }),
-              ...(params.sortOrder && { sortDirection: params.sortOrder }),
+              sortBy: params.sortBy || 'id',
+              sortOrder: params.sortOrder || 'asc',
             },
           }
         );
@@ -106,8 +106,8 @@ export const assetExpenditureAndActivityWorkApi = {
             params: {
               page: params.page,
               size: params.size,
-              ...(params.sortBy && { sortBy: params.sortBy }),
-              ...(params.sortOrder && { sortDirection: params.sortOrder }),
+              sortBy: params.sortBy || 'id',
+              sortOrder: params.sortOrder || 'asc',
             },
           }
         );

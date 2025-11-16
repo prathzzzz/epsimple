@@ -79,8 +79,12 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
     List<Site> findAllSitesList();
 
     Optional<Site> findBySiteCode(String siteCode);
+    
+    Optional<Site> findBySiteCodeIgnoreCase(String siteCode);
 
     boolean existsBySiteCode(String siteCode);
+    
+    boolean existsBySiteCodeIgnoreCase(String siteCode);
 
     boolean existsBySiteCodeAndIdNot(String siteCode, Long id);
 

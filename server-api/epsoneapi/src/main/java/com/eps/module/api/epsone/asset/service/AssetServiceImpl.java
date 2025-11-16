@@ -78,7 +78,7 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
             String scrappedOn = null;
 
             // Check Site placement
-            var sitePlacement = assetsOnSiteRepository.findByAssetId(asset.getId());
+            var sitePlacement = assetsOnSiteRepository.findActiveByAssetId(asset.getId());
             if (sitePlacement.isPresent()) {
                 var placement = sitePlacement.get();
                 locationCode = placement.getSite() != null ? placement.getSite().getSiteCode() : null;
@@ -94,7 +94,7 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
 
             // Check Datacenter placement if no site placement
             if (locationCode == null) {
-                var datacenterPlacement = assetsOnDatacenterRepository.findByAssetId(asset.getId());
+                var datacenterPlacement = assetsOnDatacenterRepository.findActiveByAssetId(asset.getId());
                 if (datacenterPlacement.isPresent()) {
                     var placement = datacenterPlacement.get();
                     locationCode = placement.getDatacenter() != null ? placement.getDatacenter().getDatacenterCode() : null;
@@ -111,7 +111,7 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
 
             // Check Warehouse placement if no site or datacenter placement
             if (locationCode == null) {
-                var warehousePlacement = assetsOnWarehouseRepository.findByAssetId(asset.getId());
+                var warehousePlacement = assetsOnWarehouseRepository.findActiveByAssetId(asset.getId());
                 if (warehousePlacement.isPresent()) {
                     var placement = warehousePlacement.get();
                     locationCode = placement.getWarehouse() != null ? placement.getWarehouse().getWarehouseCode() : null;

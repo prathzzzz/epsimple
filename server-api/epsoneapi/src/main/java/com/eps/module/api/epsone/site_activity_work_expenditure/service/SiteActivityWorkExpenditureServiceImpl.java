@@ -4,15 +4,20 @@ import com.eps.module.activity.ActivityWork;
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
 import com.eps.module.api.epsone.expenditures_invoice.repository.ExpendituresInvoiceRepository;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
+import com.eps.module.api.epsone.site_activity_work_expenditure.bulk.SiteActivityWorkExpenditureBulkUploadProcessor;
+import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureBulkUploadDto;
+import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureErrorReportDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureRequestDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureResponseDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.mapper.SiteActivityWorkExpenditureMapper;
 import com.eps.module.api.epsone.site_activity_work_expenditure.repository.SiteActivityWorkExpenditureRepository;
+import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
+import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.ExpendituresInvoice;
 import com.eps.module.site.Site;
 import com.eps.module.site.SiteActivityWorkExpenditure;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,16 +26,103 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.function.Function;
+
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class SiteActivityWorkExpenditureServiceImpl implements SiteActivityWorkExpenditureService {
+public class SiteActivityWorkExpenditureServiceImpl 
+        extends BaseBulkUploadService<SiteActivityWorkExpenditureBulkUploadDto, SiteActivityWorkExpenditure>
+        implements SiteActivityWorkExpenditureService {
 
     private final SiteActivityWorkExpenditureRepository repository;
     private final SiteRepository siteRepository;
     private final ActivityWorkRepository activityWorkRepository;
     private final ExpendituresInvoiceRepository expendituresInvoiceRepository;
     private final SiteActivityWorkExpenditureMapper mapper;
+    private final SiteActivityWorkExpenditureBulkUploadProcessor processor;
+
+    public SiteActivityWorkExpenditureServiceImpl(
+            SiteActivityWorkExpenditureRepository repository,
+            SiteRepository siteRepository,
+            ActivityWorkRepository activityWorkRepository,
+            ExpendituresInvoiceRepository expendituresInvoiceRepository,
+            SiteActivityWorkExpenditureMapper mapper,
+            SiteActivityWorkExpenditureBulkUploadProcessor processor) {
+        this.repository = repository;
+        this.siteRepository = siteRepository;
+        this.activityWorkRepository = activityWorkRepository;
+        this.expendituresInvoiceRepository = expendituresInvoiceRepository;
+        this.mapper = mapper;
+        this.processor = processor;
+    }
+
+    @Override
+    protected BulkUploadProcessor<SiteActivityWorkExpenditureBulkUploadDto, SiteActivityWorkExpenditure> getProcessor() {
+        return processor;
+    }
+
+    @Override
+    public Class<SiteActivityWorkExpenditureBulkUploadDto> getBulkUploadDtoClass() {
+        return SiteActivityWorkExpenditureBulkUploadDto.class;
+    }
+
+    @Override
+    public String getEntityName() {
+        return "Site Activity Work Expenditure";
+    }
+
+    @Override
+    public List<SiteActivityWorkExpenditure> getAllEntitiesForExport() {
+        return repository.findAllForExport();
+    }
+
+    @Override
+    public Function<SiteActivityWorkExpenditure, SiteActivityWorkExpenditureBulkUploadDto> getEntityToDtoMapper() {
+        return entity -> {
+            String siteCode = entity.getSite() != null ? entity.getSite().getSiteCode() : "";
+            
+            String activityName = "";
+            String vendorOrderNumber = "";
+            if (entity.getActivityWork() != null) {
+                if (entity.getActivityWork().getActivities() != null) {
+                    activityName = entity.getActivityWork().getActivities().getActivityName() != null ?
+                        entity.getActivityWork().getActivities().getActivityName() : "";
+                }
+                vendorOrderNumber = entity.getActivityWork().getVendorOrderNumber() != null ? 
+                    entity.getActivityWork().getVendorOrderNumber() : "";
+            }
+            
+            String invoiceNumber = "";
+            if (entity.getExpendituresInvoice() != null && entity.getExpendituresInvoice().getInvoice() != null) {
+                invoiceNumber = entity.getExpendituresInvoice().getInvoice().getInvoiceNumber();
+            }
+            
+            return SiteActivityWorkExpenditureBulkUploadDto.builder()
+                    .siteCode(siteCode)
+                    .activityName(activityName)
+                    .vendorOrderNumber(vendorOrderNumber)
+                    .invoiceNumber(invoiceNumber)
+                    .build();
+        };
+    }
+
+    @Override
+    protected SiteActivityWorkExpenditureErrorReportDto buildErrorReportDto(BulkUploadErrorDto errorDto) {
+        return SiteActivityWorkExpenditureErrorReportDto.builder()
+                .rowNumber(errorDto.getRowNumber())
+                .siteCode((String) errorDto.getRowData().get("Site Code"))
+                .activityName((String) errorDto.getRowData().get("Activity Name"))
+                .vendorOrderNumber((String) errorDto.getRowData().get("Vendor Order Number"))
+                .invoiceNumber((String) errorDto.getRowData().get("Invoice Number"))
+                .errorMessage(errorDto.getErrorMessage())
+                .build();
+    }
+
+    @Override
+    protected Class<SiteActivityWorkExpenditureErrorReportDto> getErrorReportDtoClass() {
+        return SiteActivityWorkExpenditureErrorReportDto.class;
+    }
 
     @Override
     @Transactional

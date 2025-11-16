@@ -1,10 +1,13 @@
 package com.eps.module.api.epsone.site_activity_work_expenditure.service;
 
+import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureBulkUploadDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureRequestDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureResponseDto;
+import com.eps.module.common.bulk.service.BulkUploadService;
+import com.eps.module.site.SiteActivityWorkExpenditure;
 import org.springframework.data.domain.Page;
 
-public interface SiteActivityWorkExpenditureService {
+public interface SiteActivityWorkExpenditureService extends BulkUploadService<SiteActivityWorkExpenditureBulkUploadDto, SiteActivityWorkExpenditure> {
 
     SiteActivityWorkExpenditureResponseDto createSiteActivityWorkExpenditure(SiteActivityWorkExpenditureRequestDto requestDto);
 

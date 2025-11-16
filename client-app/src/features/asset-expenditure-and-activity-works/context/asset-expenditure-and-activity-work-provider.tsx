@@ -8,6 +8,8 @@ interface AssetExpenditureAndActivityWorkContextType {
   setIsDrawerOpen: (show: boolean) => void;
   isDeleteDialogOpen: boolean;
   setIsDeleteDialogOpen: (show: boolean) => void;
+  isBulkUploadDialogOpen: boolean;
+  setIsBulkUploadDialogOpen: (show: boolean) => void;
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
   assetId: number | undefined;
@@ -15,6 +17,8 @@ interface AssetExpenditureAndActivityWorkContextType {
   closeDrawer: () => void;
   openDeleteDialog: () => void;
   closeDeleteDialog: () => void;
+  openBulkUploadDialog: () => void;
+  closeBulkUploadDialog: () => void;
 }
 
 const AssetExpenditureAndActivityWorkContext = createContext<
@@ -32,6 +36,7 @@ export function AssetExpenditureAndActivityWorkProvider({
     useState<AssetExpenditureAndActivityWork | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
   const [globalFilter, setGlobalFilter] = useState('');
 
   const openDrawer = () => setIsDrawerOpen(true);
@@ -46,6 +51,9 @@ export function AssetExpenditureAndActivityWorkProvider({
     setSelectedExpenditure(null);
   };
 
+  const openBulkUploadDialog = () => setIsBulkUploadDialogOpen(true);
+  const closeBulkUploadDialog = () => setIsBulkUploadDialogOpen(false);
+
   return (
     <AssetExpenditureAndActivityWorkContext.Provider
       value={{
@@ -55,6 +63,8 @@ export function AssetExpenditureAndActivityWorkProvider({
         setIsDrawerOpen,
         isDeleteDialogOpen,
         setIsDeleteDialogOpen,
+        isBulkUploadDialogOpen,
+        setIsBulkUploadDialogOpen,
         globalFilter,
         setGlobalFilter,
         assetId,
@@ -62,6 +72,8 @@ export function AssetExpenditureAndActivityWorkProvider({
         closeDrawer,
         openDeleteDialog,
         closeDeleteDialog,
+        openBulkUploadDialog,
+        closeBulkUploadDialog,
       }}
     >
       {children}

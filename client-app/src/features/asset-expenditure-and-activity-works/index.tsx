@@ -7,9 +7,9 @@ import { ThemeSwitch } from '@/components/theme-switch';
 import { ConfigDrawer } from '@/components/config-drawer';
 import { AssetExpenditureAndActivityWorkProvider } from './context/asset-expenditure-and-activity-work-provider';
 import { AssetExpenditureAndActivityWorkDrawer } from './components/asset-expenditure-and-activity-work-drawer';
-import { AssetExpenditureAndActivityWorkDeleteDialog } from './components/asset-expenditure-and-activity-work-delete-dialog';
+import { AssetExpenditureAndActivityWorkDialogs } from './components/asset-expenditure-and-activity-work-dialogs';
 import { AssetExpenditureAndActivityWorkTable } from './components/asset-expenditure-and-activity-work-table';
-import { AssetExpenditureAndActivityWorkCreateButton } from './components/asset-expenditure-and-activity-work-create-button';
+import { AssetExpenditureAndActivityWorkPrimaryButtons } from './components/asset-expenditure-and-activity-work-primary-buttons';
 
 export default function AssetExpenditureAndActivityWorksPage() {
   const search = useSearch({ from: '/_authenticated/asset-expenditure-and-activity-works/' });
@@ -37,14 +37,14 @@ export default function AssetExpenditureAndActivityWorksPage() {
                 : 'Link assets with expenditure invoices and activity works'}
             </p>
           </div>
-          <AssetExpenditureAndActivityWorkCreateButton />
+          <AssetExpenditureAndActivityWorkPrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
           <AssetExpenditureAndActivityWorkTable />
         </div>
       </Main>
       <AssetExpenditureAndActivityWorkDrawer />
-      <AssetExpenditureAndActivityWorkDeleteDialog />
+      <AssetExpenditureAndActivityWorkDialogs />
     </AssetExpenditureAndActivityWorkProvider>
   );
 }

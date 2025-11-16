@@ -9,9 +9,21 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExpendituresInvoiceRepository extends JpaRepository<ExpendituresInvoice, Long> {
+
+    // Bulk upload support methods
+    @Query("SELECT CASE WHEN COUNT(ei) > 0 THEN true ELSE false END FROM ExpendituresInvoice ei " +
+            "LEFT JOIN ei.invoice i " +
+            "WHERE i.invoiceNumber = :invoiceNumber")
+    boolean existsByInvoiceNumber(@Param("invoiceNumber") String invoiceNumber);
+    
+    @Query("SELECT ei FROM ExpendituresInvoice ei " +
+            "LEFT JOIN FETCH ei.invoice i " +
+            "WHERE i.invoiceNumber = :invoiceNumber")
+    Optional<ExpendituresInvoice> findByInvoiceNumber(@Param("invoiceNumber") String invoiceNumber);
 
     @Query("SELECT DISTINCT ei FROM ExpendituresInvoice ei " +
             "LEFT JOIN FETCH ei.costItem ci " +
