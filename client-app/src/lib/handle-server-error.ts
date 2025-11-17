@@ -30,12 +30,21 @@ export function handleServerError(error: unknown, options: ErrorHandlerOptions =
 
   if (error instanceof AxiosError) {
     statusCode = error.response?.status
-    errMsg = error.response?.data?.message || error.response?.data?.title || error.message
     
-    // Handle specific error cases
+    // Extract error message from various possible locations in the response
+    const responseData = error.response?.data
+    errMsg = responseData?.message || responseData?.title || responseData?.error || error.message
+    
+    // Handle specific error cases (only override if we don't have a server message)
     switch (statusCode) {
+      case 400:
+        // Use server message for 400 errors (validation, constraint violations, etc.)
+        // Don't override with generic message
+        break
       case 401:
-        errMsg = 'Unauthorized. Please login again.'
+        if (!responseData?.message) {
+          errMsg = 'Unauthorized. Please login again.'
+        }
         if (redirectOnError) {
           // Redirect to login or show 401 page
           window.location.href = '/sign-in'
@@ -43,7 +52,9 @@ export function handleServerError(error: unknown, options: ErrorHandlerOptions =
         }
         break
       case 403:
-        errMsg = 'Access forbidden. You do not have permission.'
+        if (!responseData?.message) {
+          errMsg = 'Access forbidden. You do not have permission.'
+        }
         if (redirectOnError) {
           // Could redirect to 403 page
           window.location.href = '/errors/403'
@@ -51,10 +62,14 @@ export function handleServerError(error: unknown, options: ErrorHandlerOptions =
         }
         break
       case 404:
-        errMsg = 'Resource not found.'
+        if (!responseData?.message) {
+          errMsg = 'Resource not found.'
+        }
         break
       case 500:
-        errMsg = 'Internal server error. Please try again later.'
+        if (!responseData?.message) {
+          errMsg = 'Internal server error. Please try again later.'
+        }
         if (redirectOnError) {
           // Could redirect to 500 page
           window.location.href = '/errors/500'

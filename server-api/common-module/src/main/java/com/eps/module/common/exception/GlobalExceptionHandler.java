@@ -80,14 +80,127 @@ public class GlobalExceptionHandler {
         String message = "Unable to complete operation due to data dependencies.";
         
         if (ex.getMessage() != null) {
-            if (ex.getMessage().contains("foreign key constraint")) {
-                message = "Cannot delete this record because it is being used by other records. Please remove the dependencies first.";
-            } else if (ex.getMessage().contains("unique constraint") || ex.getMessage().contains("duplicate key")) {
-                message = "This record already exists. Please use different values.";
+            String errorMsg = ex.getMessage();
+            
+            if (errorMsg.contains("foreign key constraint")) {
+                // Extract table names from the error message
+                String parentTable = extractTableName(errorMsg, "on table \"(\\w+)\"");
+                String childTable = extractTableName(errorMsg, "from table \"(\\w+)\"");
+                
+                if (parentTable != null && childTable != null) {
+                    message = String.format(
+                        "Cannot delete this %s because it is being used by %s records. " +
+                        "Please remove or reassign the related %s records first.",
+                        formatTableName(parentTable),
+                        formatTableName(childTable),
+                        formatTableName(childTable)
+                    );
+                } else {
+                    message = "Cannot delete this record because it is being used by other records. " +
+                             "Please remove the dependencies first.";
+                }
+                
+                log.warn("Foreign key constraint violation: Parent table='{}', Child table='{}', Error: {}", 
+                         parentTable, childTable, errorMsg);
+            } else if (errorMsg.contains("unique constraint") || errorMsg.contains("duplicate key")) {
+                // Extract constraint/column name if available
+                String constraintName = extractConstraintName(errorMsg);
+                
+                if (constraintName != null) {
+                    message = String.format(
+                        "This record already exists. A record with this %s already exists in the system.",
+                        formatConstraintName(constraintName)
+                    );
+                } else {
+                    message = "This record already exists. Please use different values.";
+                }
+                
+                log.warn("Unique constraint violation: {}", errorMsg);
+            } else if (errorMsg.contains("not-null constraint")) {
+                message = "Required field is missing. Please provide all mandatory information.";
+                log.warn("Not-null constraint violation: {}", errorMsg);
             }
         }
         
         return ResponseBuilder.error(message, HttpStatus.BAD_REQUEST);
+    }
+    
+    /**
+     * Extract table name from PostgreSQL error message using regex pattern
+     */
+    private String extractTableName(String errorMsg, String pattern) {
+        try {
+            java.util.regex.Pattern p = java.util.regex.Pattern.compile(pattern);
+            java.util.regex.Matcher m = p.matcher(errorMsg);
+            if (m.find()) {
+                return m.group(1);
+            }
+        } catch (Exception e) {
+            log.debug("Failed to extract table name from error message", e);
+        }
+        return null;
+    }
+    
+    /**
+     * Extract constraint name from error message
+     */
+    private String extractConstraintName(String errorMsg) {
+        try {
+            // Try to extract constraint name from various formats
+            java.util.regex.Pattern p = java.util.regex.Pattern.compile("constraint \\[([\\w_]+)\\]");
+            java.util.regex.Matcher m = p.matcher(errorMsg);
+            if (m.find()) {
+                return m.group(1);
+            }
+            
+            // Alternative format: constraint "constraint_name"
+            p = java.util.regex.Pattern.compile("constraint \"([\\w_]+)\"");
+            m = p.matcher(errorMsg);
+            if (m.find()) {
+                return m.group(1);
+            }
+        } catch (Exception e) {
+            log.debug("Failed to extract constraint name from error message", e);
+        }
+        return null;
+    }
+    
+    /**
+     * Format table name to be more user-friendly
+     * Converts: site_type -> Site Type, payment_details -> Payment Details
+     */
+    private String formatTableName(String tableName) {
+        if (tableName == null) return "record";
+        
+        // Convert snake_case to Title Case
+        String[] words = tableName.split("_");
+        StringBuilder formatted = new StringBuilder();
+        
+        for (String word : words) {
+            if (formatted.length() > 0) {
+                formatted.append(" ");
+            }
+            formatted.append(word.substring(0, 1).toUpperCase())
+                    .append(word.substring(1).toLowerCase());
+        }
+        
+        return formatted.toString();
+    }
+    
+    /**
+     * Format constraint name to be more user-friendly
+     * Converts: uk_email -> email, uk_pan_number -> PAN number
+     */
+    private String formatConstraintName(String constraintName) {
+        if (constraintName == null) return "value";
+        
+        // Remove common prefixes
+        String cleaned = constraintName
+            .replaceFirst("^(uk_|uq_|unique_)", "")
+            .replaceFirst("^(fk_|foreign_key_)", "")
+            .replace("_", " ");
+        
+        return cleaned.toLowerCase();
     }
 
     @ExceptionHandler(RuntimeException.class)
