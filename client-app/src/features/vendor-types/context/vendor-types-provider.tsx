@@ -45,6 +45,7 @@ export const VendorTypesProvider: React.FC<{ children: React.ReactNode }> = ({ c
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useVendorTypes = () => {
   const context = useContext(VendorTypesContext);
   if (context === undefined) {

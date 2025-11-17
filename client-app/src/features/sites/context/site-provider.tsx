@@ -48,6 +48,7 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSiteContext() {
   const context = useContext(SiteContext);
   if (!context) {
@@ -57,4 +58,5 @@ export function useSiteContext() {
 }
 
 // Export alias for consistency with other features
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSite = useSiteContext;

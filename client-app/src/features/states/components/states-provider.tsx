@@ -74,6 +74,7 @@ export function StatesProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useStates() {
   const context = useContext(StatesContext)
   if (context === undefined) {
