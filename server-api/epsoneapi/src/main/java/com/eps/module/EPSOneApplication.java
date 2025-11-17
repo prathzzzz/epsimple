@@ -29,6 +29,37 @@ public class EPSOneApplication {
         log.info("Starting EPSOne Application...");
         log.info("Log directory: ./logs");
         log.info("===========================================");
+        
+        // Jasypt Environment Variable Check
+        log.info("╔════════════════════════════════════════════════════════════╗");
+        log.info("║          Jasypt Configuration Check                        ║");
+        log.info("╚════════════════════════════════════════════════════════════╝");
+        
+        String devPassword = System.getenv("JASYPT_ENCRYPTOR_PASSWORD_DEV");
+        String prodPassword = System.getenv("JASYPT_ENCRYPTOR_PASSWORD_PROD");
+        
+        if (devPassword != null && !devPassword.trim().isEmpty()) {
+            log.info("✓ JASYPT_ENCRYPTOR_PASSWORD_DEV is set (length: {})", devPassword.length());
+        } else {
+            log.warn("✗ JASYPT_ENCRYPTOR_PASSWORD_DEV is NOT set or empty");
+        }
+        
+        if (prodPassword != null && !prodPassword.trim().isEmpty()) {
+            log.info("✓ JASYPT_ENCRYPTOR_PASSWORD_PROD is set (length: {})", prodPassword.length());
+        } else {
+            log.warn("✗ JASYPT_ENCRYPTOR_PASSWORD_PROD is NOT set or empty");
+        }
+        
+        // Check active profile
+        String activeProfile = System.getProperty("spring.profiles.active");
+        if (activeProfile != null) {
+            log.info("Active Profile (from system property): {}", activeProfile);
+        } else {
+            log.warn("No active profile set in system property");
+        }
+        
+        log.info("════════════════════════════════════════════════════════════");
+        
         SpringApplication.run(EPSOneApplication.class, args);
     }
 
