@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 
 const BASE_URL = '/api/vendor-types';
 

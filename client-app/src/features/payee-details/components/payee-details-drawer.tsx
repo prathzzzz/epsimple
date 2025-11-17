@@ -120,7 +120,7 @@ export function PayeeDetailsDrawer() {
 
   const handlePANChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    field: any
+    field: { onChange: (value: string) => void }
   ) => {
     const value = e.target.value.toUpperCase();
     field.onChange(value);
@@ -128,7 +128,7 @@ export function PayeeDetailsDrawer() {
 
   const handleIFSCChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    field: any
+    field: { onChange: (value: string) => void }
   ) => {
     const value = e.target.value.toUpperCase();
     field.onChange(value);

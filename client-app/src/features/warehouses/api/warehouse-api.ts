@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import api from '@/lib/api';
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { Warehouse, WarehouseFormData } from './schema';
 
 interface ApiResponse<T> {
@@ -87,8 +87,9 @@ export const warehouseApi = {
         queryClient.invalidateQueries({ queryKey: ['warehouses'] });
         toast.success('Warehouse created successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to create warehouse');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to create warehouse';
+        toast.error(message);
       },
     });
   },
@@ -108,8 +109,9 @@ export const warehouseApi = {
         queryClient.invalidateQueries({ queryKey: ['warehouses'] });
         toast.success('Warehouse updated successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update warehouse');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to update warehouse';
+        toast.error(message);
       },
     });
   },
@@ -125,8 +127,9 @@ export const warehouseApi = {
         queryClient.invalidateQueries({ queryKey: ['warehouses'] });
         toast.success('Warehouse deleted successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to delete warehouse');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to delete warehouse';
+        toast.error(message);
       },
     });
   },

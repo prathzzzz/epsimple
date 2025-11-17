@@ -4,7 +4,7 @@ import { ProfileDropdown } from "@/components/profile-dropdown";
 import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { ConfigDrawer } from "@/components/config-drawer";
-import { SiteCategoryProvider } from "./context/site-category-provider";
+import { SiteCategoryProvider, useSiteCategoryContext } from "./context/site-category-provider";
 import { SiteCategoryTable } from "./components/site-category-table";
 import { siteCategoryColumns } from "./components/site-category-columns";
 import { CreateSiteCategoryButton } from "./components/create-site-category-button";
@@ -12,7 +12,6 @@ import { SiteCategoryDrawer } from "./components/site-category-drawer";
 import { SiteCategoryDeleteDialog } from "./components/site-category-delete-dialog";
 import { SiteCategoryPrimaryButtons } from "./components/site-category-primary-buttons";
 import { GenericBulkUploadDialog } from "@/components/bulk-upload/GenericBulkUploadDialog";
-import { useSiteCategoryContext } from "./context/site-category-provider";
 import { useQueryClient } from "@tanstack/react-query";
 
 function SiteCategoriesContent() {

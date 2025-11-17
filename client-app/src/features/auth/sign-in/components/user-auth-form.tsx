@@ -65,10 +65,9 @@ export function UserAuthForm({
       
       // Use the actual user data from the response for the toast
       toast.success(`Welcome back, ${user?.name || user?.email || 'User'}!`)
-    } catch (error: any) {
-      console.error('Login error:', error)
-      // Error is already set in the store, just show toast
-      toast.error(error.response?.data?.message || error.message || 'Login failed')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Login failed';
+      toast.error(message);
     }
   }
 

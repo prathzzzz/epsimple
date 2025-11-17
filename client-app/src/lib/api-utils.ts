@@ -116,7 +116,7 @@ export async function downloadFile(endpoint: string, filename: string): Promise<
  * @param data - The data to send in the request body
  * @param filename - The filename to save as
  */
-export async function downloadFileWithPost(endpoint: string, data: any, filename: string): Promise<void> {
+export async function downloadFileWithPost(endpoint: string, data: Record<string, unknown>, filename: string): Promise<void> {
   const headers: Record<string, string> = {
     ...createAuthHeaders(),
     'Content-Type': 'application/json',

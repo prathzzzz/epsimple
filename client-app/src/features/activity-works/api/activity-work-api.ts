@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import api from '@/lib/api';
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { ActivityWork, ActivityWorkFormData } from './schema';
 
 interface ApiResponse<T> {
@@ -87,8 +87,9 @@ export const activityWorkApi = {
         queryClient.invalidateQueries({ queryKey: ['activity-works'] });
         toast.success('Activity work created successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to create activity work');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to create activity work';
+        toast.error(message);
       },
     });
   },
@@ -108,8 +109,9 @@ export const activityWorkApi = {
         queryClient.invalidateQueries({ queryKey: ['activity-works'] });
         toast.success('Activity work updated successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update activity work');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to update activity work';
+        toast.error(message);
       },
     });
   },
@@ -125,8 +127,9 @@ export const activityWorkApi = {
         queryClient.invalidateQueries({ queryKey: ['activity-works'] });
         toast.success('Activity work deleted successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to delete activity work');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to delete activity work';
+        toast.error(message);
       },
     });
   },

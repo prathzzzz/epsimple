@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/data-table";
 import type { SiteType } from "../api/schema";
 

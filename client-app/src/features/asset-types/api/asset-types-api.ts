@@ -1,6 +1,6 @@
 import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { AssetTypeFormData } from '@/features/asset-types/api/schema';
 
 const BASE_URL = '/api/asset-types';

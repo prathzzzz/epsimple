@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import api from '@/lib/api'
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils'
+import { type BackendPageResponse, flattenPageResponse } from '@/lib/api-utils'
 import type { ActivityWorkRemark, ActivityWorkRemarkRequest } from './schema'
 
 const REMARK_ENDPOINTS = {
@@ -115,8 +115,9 @@ export const activityWorkRemarksApi = {
         })
         toast.success('Remark added successfully')
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to add remark')
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to add remark';
+        toast.error(message);
       },
     })
   },
@@ -141,8 +142,9 @@ export const activityWorkRemarksApi = {
         })
         toast.success('Remark updated successfully')
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update remark')
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to update remark';
+        toast.error(message);
       },
     })
   },
@@ -167,8 +169,9 @@ export const activityWorkRemarksApi = {
         })
         toast.success('Remark deleted successfully')
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to delete remark')
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to delete remark';
+        toast.error(message);
       },
     })
   },

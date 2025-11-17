@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from "@/lib/api-utils";
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from "@/lib/api-utils";
 import type { SiteCodeGenerator, SiteCodeGeneratorFormData, GeneratedSiteCode } from "./schema";
 
 const SITE_CODE_GENERATOR_ENDPOINTS = {
@@ -63,9 +63,9 @@ export const siteCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["site-code-generators"] });
         toast.success("Site code generator created successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to create site code generator";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to create site code generator";
+        toast.error(message);
       },
     });
   },
@@ -84,9 +84,9 @@ export const siteCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["site-code-generators"] });
         toast.success("Site code generator updated successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to update site code generator";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to update site code generator";
+        toast.error(message);
       },
     });
   },
@@ -101,9 +101,9 @@ export const siteCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["site-code-generators"] });
         toast.success("Site code generator deleted successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to delete site code generator";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to delete site code generator";
+        toast.error(message);
       },
     });
   },
@@ -123,9 +123,9 @@ export const siteCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["site-code-generators"] });
         toast.success("Site code generated successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to generate site code";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to generate site code";
+        toast.error(message);
       },
     });
   },
@@ -139,9 +139,9 @@ export const siteCodeGeneratorApi = {
         );
         return response.data.data;
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to preview site code";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to preview site code";
+        toast.error(message);
       },
     });
   },

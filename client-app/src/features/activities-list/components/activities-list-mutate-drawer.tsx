@@ -68,7 +68,7 @@ export function ActivitiesListMutateDrawer({
   const form = useForm<ActivitiesListFormData>({
     resolver: zodResolver(activitiesListFormSchema),
     defaultValues: {
-      activityId: undefined as any,
+      activityId: undefined,
       activityName: "",
       activityCategory: "",
       activityDescription: "",
@@ -101,7 +101,7 @@ export function ActivitiesListMutateDrawer({
       });
     } else {
       form.reset({
-        activityId: undefined as any,
+        activityId: undefined,
         activityName: "",
         activityCategory: "",
         activityDescription: "",

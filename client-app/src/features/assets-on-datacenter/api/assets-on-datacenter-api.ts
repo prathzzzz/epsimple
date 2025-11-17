@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import api from '@/lib/api';
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { AssetsOnDatacenter, AssetsOnDatacenterFormData } from './schema';
 
 interface ApiResponse<T> {
@@ -87,8 +87,9 @@ export const assetsOnDatacenterApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-Datacenter'] });
         toast.success('Asset placed in Datacenter successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to place asset in Datacenter');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to place asset in Datacenter';
+        toast.error(message);
       },
     });
   },
@@ -108,8 +109,9 @@ export const assetsOnDatacenterApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-Datacenter'] });
         toast.success('Asset in Datacenter updated successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update asset in Datacenter');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to update asset in Datacenter';
+        toast.error(message);
       },
     });
   },
@@ -125,8 +127,9 @@ export const assetsOnDatacenterApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-Datacenter'] });
         toast.success('Asset removed from Datacenter successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to remove asset from Datacenter');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to remove asset from Datacenter';
+        toast.error(message);
       },
     });
   },

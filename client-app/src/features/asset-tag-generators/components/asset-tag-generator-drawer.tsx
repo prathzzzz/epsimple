@@ -95,7 +95,7 @@ export function AssetTagCodeGeneratorDrawer() {
         await createMutation.mutateAsync(data);
       }
       handleClose();
-    } catch (error) {
+    } catch (_error) {
       // Error is handled by the mutation
     }
   };

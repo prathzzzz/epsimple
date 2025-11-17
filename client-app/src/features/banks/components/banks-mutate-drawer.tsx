@@ -73,8 +73,8 @@ export function BanksMutateDrawer({
       setLogoFile(null)
       setLogoPreview(null)
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || 'Failed to create bank'
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Failed to create bank';
       toast.error(message)
     },
   })
@@ -89,8 +89,8 @@ export function BanksMutateDrawer({
       setLogoFile(null)
       setLogoPreview(null)
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || 'Failed to update bank'
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Failed to update bank';
       toast.error(message)
     },
   })

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import { downloadFileWithPost, downloadFile, createAuthHeaders } from '@/lib/api-utils'
 
@@ -22,7 +22,7 @@ export interface BulkUploadError {
   errorMessage: string
   rejectedValue?: string
   errorType?: 'VALIDATION' | 'DUPLICATE' | 'ERROR'
-  rowData?: Record<string, any>
+  rowData?: Record<string, unknown>
 }
 
 export interface BulkUploadConfig {
@@ -43,6 +43,24 @@ export function useBulkUpload(config: BulkUploadConfig) {
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
 
+  const handleDownloadErrorReport = useCallback(async () => {
+    if (!progress?.errors?.length) return
+
+    try {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
+      await downloadFileWithPost(
+        config.errorReportEndpoint,
+        progress as unknown as Record<string, unknown>,
+        `${config.entityName}_Upload_Errors_${timestamp}.xlsx`
+      )
+      toast.success('Error report downloaded')
+    } catch (error) {
+      toast.error('Failed to download error report', {
+        description: error instanceof Error ? error.message : 'An error occurred',
+      })
+    }
+  }, [progress, config.errorReportEndpoint, config.entityName])
+
   // Auto-download error report when errors are present
   useEffect(() => {
     if (
@@ -55,7 +73,7 @@ export function useBulkUpload(config: BulkUploadConfig) {
       handleDownloadErrorReport()
       setErrorReportDownloaded(true)
     }
-  }, [progress, errorReportDownloaded])
+  }, [progress, errorReportDownloaded, handleDownloadErrorReport])
 
   const handleFileSelect = (file: File) => {
     if (!file.name.endsWith('.xlsx')) {
@@ -81,7 +99,6 @@ export function useBulkUpload(config: BulkUploadConfig) {
 
     // Abort any existing upload
     if (abortController) {
-      console.log('Aborting previous upload')
       abortController.abort()
     }
 
@@ -127,24 +144,6 @@ export function useBulkUpload(config: BulkUploadConfig) {
     } finally {
       setIsUploading(false)
       setAbortController(null)
-    }
-  }
-
-  const handleDownloadErrorReport = async () => {
-    if (!progress?.errors?.length) return
-
-    try {
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
-      await downloadFileWithPost(
-        config.errorReportEndpoint,
-        progress,
-        `${config.entityName}_Upload_Errors_${timestamp}.xlsx`
-      )
-      toast.success('Error report downloaded')
-    } catch (error) {
-      toast.error('Failed to download error report', {
-        description: error instanceof Error ? error.message : 'An error occurred',
-      })
     }
   }
 
@@ -238,7 +237,7 @@ async function bulkUploadWithSSE(
         const errorText = await response.text()
         const errorData = JSON.parse(errorText)
         throw new Error(errorData.message || 'Invalid file format or content')
-      } catch (jsonError) {
+      } catch (_jsonError) {
         throw new Error('Invalid file format or content')
       }
     }

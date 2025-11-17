@@ -1,6 +1,6 @@
 import api from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 
 export interface Activity {
   id: number;
@@ -82,9 +82,9 @@ export const activitiesApi = {
   useSearch: (searchTerm: string) => {
     const endpoint = searchTerm?.trim() ? `${BASE_URL}/search` : BASE_URL;
     return useQuery({
-      queryKey: ['activities', 'search', searchTerm],
+      queryKey: ['activities', 'search', searchTerm, endpoint],
       queryFn: async () => {
-        const params: any = {
+        const params: Record<string, unknown> = {
           page: 0,
           size: 20,
           sortBy: 'activityName',

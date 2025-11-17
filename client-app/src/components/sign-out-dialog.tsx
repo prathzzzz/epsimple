@@ -22,8 +22,7 @@ export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
         search: { redirect: currentPath },
         replace: true,
       })
-    } catch (error) {
-      console.error('Logout failed:', error)
+    } catch (_error) {
       // Even if logout fails, redirect to sign-in
       navigate({
         to: '/sign-in',

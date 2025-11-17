@@ -25,8 +25,8 @@ export function PersonTypesDialogs() {
       toast.success('Person type deleted successfully')
       setIsDeleteDialogOpen(false)
     },
-    onError: (error: any) => {
-      const message = error?.message || 'Failed to delete person type'
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Failed to delete person type';
       toast.error(message)
     },
   })

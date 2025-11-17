@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import type { AssetTagCodeGenerator } from "../api/schema";
 import { AssetTagCodeGeneratorRowActions } from "./asset-tag-generator-row-actions";
 

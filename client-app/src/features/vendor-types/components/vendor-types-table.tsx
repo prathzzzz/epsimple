@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -48,7 +48,7 @@ export function VendorTypesTable<TData, TValue>({
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ['vendor-types', pagination.pageIndex, pagination.pageSize, globalFilter, sorting],
+    queryKey: ['vendor-types', pagination.pageIndex, pagination.pageSize, globalFilter, sorting.length, sorting[0]?.id, sorting[0]?.desc],
     queryFn: async () => {
       const sortBy = sorting.length > 0 ? sorting[0].id : 'id';
       const sortDirection = sorting.length > 0 && sorting[0].desc ? 'DESC' : 'ASC';
@@ -86,6 +86,7 @@ export function VendorTypesTable<TData, TValue>({
       ...columns,
       {
         id: 'actions',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         cell: ({ row }: { row: any }) => <DataTableRowActions row={row} />,
       },
     ],

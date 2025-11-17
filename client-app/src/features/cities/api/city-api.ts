@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from "@/lib/api-utils";
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from "@/lib/api-utils";
 import type { City, CityFormData } from "./schema";
 
 const CITY_ENDPOINTS = {
@@ -88,9 +88,9 @@ export const cityApi = {
         queryClient.invalidateQueries({ queryKey: ["cities"] });
         toast.success("City created successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to create city";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to create city";
+        toast.error(message);
       },
     });
   },
@@ -106,9 +106,9 @@ export const cityApi = {
         queryClient.invalidateQueries({ queryKey: ["cities"] });
         toast.success("City updated successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to update city";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to update city";
+        toast.error(message);
       },
     });
   },
@@ -123,9 +123,9 @@ export const cityApi = {
         queryClient.invalidateQueries({ queryKey: ["cities"] });
         toast.success("City deleted successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to delete city";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to delete city";
+        toast.error(message);
       },
     });
   },

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import { handleServerError } from "@/lib/handle-server-error";
 import type { ManagedProject, ManagedProjectFormData } from "./schema";
 
@@ -152,9 +152,9 @@ export const managedProjectApi = {
   useSearch: (searchTerm: string) => {
     const endpoint = searchTerm?.trim() ? MANAGED_PROJECT_ENDPOINTS.SEARCH : MANAGED_PROJECT_ENDPOINTS.BASE;
     return useQuery({
-      queryKey: ['managed-projects', 'search', searchTerm],
+      queryKey: ['managed-projects', 'search', searchTerm, endpoint],
       queryFn: async () => {
-        const params: any = {
+        const params: Record<string, unknown> = {
           page: 0,
           size: 20,
           sortBy: 'projectName',

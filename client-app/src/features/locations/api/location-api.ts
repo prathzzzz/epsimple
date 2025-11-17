@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import api from '@/lib/api';
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { Location, LocationFormData } from './schema';
 
 interface ApiResponse<T> {
@@ -87,8 +87,9 @@ export const locationApi = {
         queryClient.invalidateQueries({ queryKey: ['locations'] });
         toast.success('Location created successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to create location');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to create location';
+        toast.error(message);
       },
     });
   },
@@ -108,8 +109,9 @@ export const locationApi = {
         queryClient.invalidateQueries({ queryKey: ['locations'] });
         toast.success('Location updated successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update location');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to update location';
+        toast.error(message);
       },
     });
   },
@@ -125,8 +127,9 @@ export const locationApi = {
         queryClient.invalidateQueries({ queryKey: ['locations'] });
         toast.success('Location deleted successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to delete location');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to delete location';
+        toast.error(message);
       },
     });
   },

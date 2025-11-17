@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils'
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from '@/lib/api-utils'
 import api from '@/lib/api'
 
 export interface PersonType {
@@ -147,9 +147,9 @@ export const personTypesApi = {
   useSearch: (searchTerm: string) => {
     const endpoint = searchTerm?.trim() ? `${BASE_URL}/search` : BASE_URL;
     return useQuery({
-      queryKey: ['person-types', 'search', searchTerm],
+      queryKey: ['person-types', 'search', searchTerm, endpoint],
       queryFn: async () => {
-        const params: any = {
+        const params: Record<string, unknown> = {
           page: 0,
           size: 20,
           sortBy: 'typeName',

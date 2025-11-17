@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import api from '@/lib/api';
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { AssetsOnWarehouse, AssetsOnWarehouseFormData } from './schema';
 
 interface ApiResponse<T> {
@@ -87,8 +87,9 @@ export const assetsOnWarehouseApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-warehouse'] });
         toast.success('Asset placed in warehouse successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to place asset in warehouse');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to place asset in warehouse';
+        toast.error(message);
       },
     });
   },
@@ -108,8 +109,9 @@ export const assetsOnWarehouseApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-warehouse'] });
         toast.success('Asset in warehouse updated successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update asset in warehouse');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to update asset in warehouse';
+        toast.error(message);
       },
     });
   },
@@ -125,8 +127,9 @@ export const assetsOnWarehouseApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-warehouse'] });
         toast.success('Asset removed from warehouse successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to remove asset from warehouse');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to remove asset from warehouse';
+        toast.error(message);
       },
     });
   },

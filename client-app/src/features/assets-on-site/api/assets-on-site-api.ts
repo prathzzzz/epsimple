@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import api from '@/lib/api';
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { AssetsOnSite, AssetsOnSiteFormData } from './schema';
 
 interface ApiResponse<T> {
@@ -114,8 +114,9 @@ export const assetsOnSiteApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-site'] });
         toast.success('Asset placed on site successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to place asset on site');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to place asset on site';
+        toast.error(message);
       },
     });
   },
@@ -135,8 +136,9 @@ export const assetsOnSiteApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-site'] });
         toast.success('Asset on site updated successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update asset on site');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to update asset on site';
+        toast.error(message);
       },
     });
   },
@@ -152,8 +154,9 @@ export const assetsOnSiteApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-site'] });
         toast.success('Asset removed from site successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to remove asset from site');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to remove asset from site';
+        toast.error(message);
       },
     });
   },

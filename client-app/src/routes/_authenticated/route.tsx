@@ -13,8 +13,7 @@ export const Route = createFileRoute('/_authenticated')({
     if (!user && !isInitializing) {
       try {
         await initialize()
-      } catch (error) {
-        console.error('Auth initialization failed:', error)
+      } catch (_error) {
         // If initialization fails, redirect to sign-in
         throw redirect({
           to: '/sign-in',

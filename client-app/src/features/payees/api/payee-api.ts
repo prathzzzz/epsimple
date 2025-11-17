@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import { BackendPageResponse, flattenPageResponse, FlatPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, flattenPageResponse, type FlatPageResponse } from '@/lib/api-utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { Payee, PayeeFormData } from './schema';
@@ -137,8 +137,9 @@ export const payeeApi = {
         queryClient.invalidateQueries({ queryKey: ['payees'] });
         toast.success('Payee created successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to create payee');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to create payee';
+        toast.error(message);
       },
     });
   },
@@ -152,8 +153,9 @@ export const payeeApi = {
         queryClient.invalidateQueries({ queryKey: ['payees'] });
         toast.success('Payee updated successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update payee');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to update payee';
+        toast.error(message);
       },
     });
   },
@@ -166,8 +168,9 @@ export const payeeApi = {
         queryClient.invalidateQueries({ queryKey: ['payees'] });
         toast.success('Payee deleted successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to delete payee');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to delete payee';
+        toast.error(message);
       },
     });
   },

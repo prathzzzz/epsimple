@@ -1,4 +1,4 @@
-import { ColumnDef } from '@tanstack/react-table';
+import { type ColumnDef } from '@tanstack/react-table';
 import { PayeeRowActions } from './payee-row-actions';
 import type { Payee } from '../api/schema';
 

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from "@/lib/api-utils";
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from "@/lib/api-utils";
 import type { AssetTagCodeGenerator, AssetTagCodeGeneratorFormData, GeneratedAssetTag } from "./schema";
 
 const ASSET_TAG_GENERATOR_ENDPOINTS = {
@@ -61,9 +61,9 @@ export const assetTagCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-tag-generators"] });
         toast.success("Asset tag generator created successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to create asset tag generator";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to create asset tag generator";
+        toast.error(message);
       },
     });
   },
@@ -82,9 +82,9 @@ export const assetTagCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-tag-generators"] });
         toast.success("Asset tag generator updated successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to update asset tag generator";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to update asset tag generator";
+        toast.error(message);
       },
     });
   },
@@ -99,9 +99,9 @@ export const assetTagCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-tag-generators"] });
         toast.success("Asset tag generator deleted successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to delete asset tag generator";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to delete asset tag generator";
+        toast.error(message);
       },
     });
   },
@@ -120,9 +120,9 @@ export const assetTagCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-tag-generators"] });
         toast.success("Asset tag generated successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to generate asset tag";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to generate asset tag";
+        toast.error(message);
       },
     });
   },
@@ -136,9 +136,9 @@ export const assetTagCodeGeneratorApi = {
         );
         return response.data.data;
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to preview asset tag";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to preview asset tag";
+        toast.error(message);
       },
     });
   },

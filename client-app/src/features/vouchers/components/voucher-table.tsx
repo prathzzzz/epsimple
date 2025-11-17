@@ -81,7 +81,7 @@ export function VoucherTable<TData, TValue>({
   });
 
   const vouchers = (data?.data?.content || []) as TData[];
-  const totalPages = data?.data?.page?.totalPages || 0;
+  const totalPages = data?.data?.page?.totalPages || 1;
 
   // Reset to first page when search query changes
   useEffect(() => {
@@ -126,6 +126,7 @@ export function VoucherTable<TData, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     manualPagination: true,
+    manualFiltering: true,
     manualSorting: true,
   });
 

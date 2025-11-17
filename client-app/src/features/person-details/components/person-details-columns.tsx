@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import type { PersonDetails } from "../api/schema";
 import { PersonDetailsRowActions } from "./person-details-row-actions";
 

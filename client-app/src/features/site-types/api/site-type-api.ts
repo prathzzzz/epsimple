@@ -1,6 +1,6 @@
 import api from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { SiteType, SiteTypeFormData } from "./schema";
 
 const SITE_TYPE_ENDPOINTS = {
@@ -68,9 +68,9 @@ export const siteTypeApi = {
   useSearch: (searchTerm: string) => {
     const endpoint = searchTerm?.trim() ? SITE_TYPE_ENDPOINTS.SEARCH : SITE_TYPE_ENDPOINTS.BASE;
     return useQuery({
-      queryKey: ['site-types', 'search', searchTerm],
+      queryKey: ['site-types', 'search', searchTerm, endpoint],
       queryFn: async () => {
-        const params: any = {
+        const params: Record<string, unknown> = {
           page: 0,
           size: 20,
           sortBy: 'typeName',

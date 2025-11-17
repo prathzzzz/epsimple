@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { SiteCategory, SiteCategoryFormData } from "./schema";
 
 const SITE_CATEGORY_ENDPOINTS = {
@@ -62,9 +62,9 @@ export const siteCategoryApi = {
         queryClient.invalidateQueries({ queryKey: ["site-categories"] });
         toast.success("Site category created successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to create site category";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to create site category";
+        toast.error(message);
       },
     });
   },
@@ -89,9 +89,9 @@ export const siteCategoryApi = {
         queryClient.invalidateQueries({ queryKey: ["site-categories"] });
         toast.success("Site category updated successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to update site category";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to update site category";
+        toast.error(message);
       },
     });
   },
@@ -106,9 +106,9 @@ export const siteCategoryApi = {
         queryClient.invalidateQueries({ queryKey: ["site-categories"] });
         toast.success("Site category deleted successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to delete site category";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to delete site category";
+        toast.error(message);
       },
     });
   },
@@ -137,9 +137,9 @@ export const siteCategoryApi = {
   useSearch: (searchTerm: string) => {
     const endpoint = searchTerm?.trim() ? SITE_CATEGORY_ENDPOINTS.SEARCH : SITE_CATEGORY_ENDPOINTS.BASE;
     return useQuery({
-      queryKey: ['site-categories', 'search', searchTerm],
+      queryKey: ['site-categories', 'search', searchTerm, endpoint],
       queryFn: async () => {
-        const params: any = {
+        const params: Record<string, unknown> = {
           page: 0,
           size: 20,
           sortBy: 'categoryName',

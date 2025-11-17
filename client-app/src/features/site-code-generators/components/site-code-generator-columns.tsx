@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import type { SiteCodeGenerator } from "../api/schema";
 import { SiteCodeGeneratorRowActions } from "./site-code-generator-row-actions";
 

@@ -100,8 +100,8 @@ export const CostItemDrawer = () => {
       }
       closeDrawer();
       form.reset();
-    } catch (error) {
-      console.error('Failed to save cost item:', error);
+    } catch (_error) {
+      // Error is handled by mutation
     }
   };
 

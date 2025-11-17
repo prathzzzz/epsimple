@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 
 interface UseErrorHandlerOptions {
   showToast?: boolean
-  onError?: (error: any) => void
+  onError?: (error: { statusCode?: number; message: string; originalError: unknown }) => void
 }
 
 export function useErrorHandler(options: UseErrorHandlerOptions = {}) {

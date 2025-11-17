@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -51,7 +51,9 @@ export function SiteCategoryTable<TData, TValue>({
       pagination.pageIndex,
       pagination.pageSize,
       globalFilter,
-      sorting,
+      sorting.length,
+      sorting[0]?.id,
+      sorting[0]?.desc,
     ],
     queryFn: async () => {
       const sortBy = sorting.length > 0 ? sorting[0].id : "id";
@@ -82,6 +84,7 @@ export function SiteCategoryTable<TData, TValue>({
       ...columns,
       {
         id: "actions",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         cell: ({ row }: { row: any }) => <SiteCategoryRowActions row={row} />,
       },
     ],

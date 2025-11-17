@@ -1,5 +1,5 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { ExpendituresVoucher } from "../api/schema";
+import { type ColumnDef } from "@tanstack/react-table";
+import { type ExpendituresVoucher } from "../api/schema";
 import { DataTableColumnHeader } from "@/components/data-table";
 import { format } from "date-fns";
 

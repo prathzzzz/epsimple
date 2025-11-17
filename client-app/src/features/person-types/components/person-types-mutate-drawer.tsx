@@ -72,8 +72,8 @@ export function PersonTypesMutateDrawer({
       onOpenChange(false)
       form.reset()
     },
-    onError: (error: any) => {
-      const message = error?.message || 'Failed to create person type'
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Failed to create person type';
       toast.error(message)
     },
   })
@@ -87,8 +87,8 @@ export function PersonTypesMutateDrawer({
       onOpenChange(false)
       form.reset()
     },
-    onError: (error: any) => {
-      const message = error?.message || 'Failed to update person type'
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Failed to update person type';
       toast.error(message)
     },
   })

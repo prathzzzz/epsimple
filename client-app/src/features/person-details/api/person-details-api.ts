@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from "@/lib/api-utils";
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from "@/lib/api-utils";
 import type { PersonDetails, PersonDetailsFormData } from "./schema";
 
 const PERSON_DETAILS_ENDPOINTS = {
@@ -114,9 +114,9 @@ export const personDetailsApi = {
         queryClient.invalidateQueries({ queryKey: ["person-details"] });
         toast.success("Person details created successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to create person details";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to create person details";
+        toast.error(message);
       },
     });
   },
@@ -132,9 +132,9 @@ export const personDetailsApi = {
         queryClient.invalidateQueries({ queryKey: ["person-details"] });
         toast.success("Person details updated successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to update person details";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to update person details";
+        toast.error(message);
       },
     });
   },
@@ -149,9 +149,9 @@ export const personDetailsApi = {
         queryClient.invalidateQueries({ queryKey: ["person-details"] });
         toast.success("Person details deleted successfully");
       },
-      onError: (error: any) => {
+      onError: (error: unknown) => {
         // Extract the error message from the backend response
-        const errorMessage = error?.response?.data?.message || "Failed to delete person details";
+        const errorMessage = error instanceof Error ? error.message : "Failed to delete person details";
         toast.error(errorMessage);
       },
     });

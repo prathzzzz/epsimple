@@ -62,8 +62,8 @@ export function StatesMutateDrawer({
       onOpenChange(false)
       form.reset()
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || 'Failed to create state'
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Failed to create state';
       toast.error(message)
     },
   })
@@ -76,8 +76,8 @@ export function StatesMutateDrawer({
       onOpenChange(false)
       form.reset()
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || 'Failed to update state'
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Failed to update state';
       toast.error(message)
     },
   })

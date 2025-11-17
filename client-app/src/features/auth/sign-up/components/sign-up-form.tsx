@@ -53,8 +53,9 @@ export function SignUpForm({
 
       toast.success('Account created successfully! Welcome!')
       navigate({ to: '/', replace: true })
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Registration failed')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Registration failed';
+      toast.error(message);
     }
   }
 

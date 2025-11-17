@@ -44,8 +44,9 @@ export function ForgotPasswordForm({
       toast.success(`Reset instructions sent to ${data.email}`)
       form.reset()
       navigate({ to: '/reset-password' })
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to send reset email')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to send reset email';
+      toast.error(message);
     }
   }
 

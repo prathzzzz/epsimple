@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import api from '@/lib/api';
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 
 export interface CostItem {
   id: number;
@@ -96,9 +96,9 @@ export const useCreateCostItem = () => {
       queryClient.invalidateQueries({ queryKey: ['cost-items'] });
       toast.success('Cost item created successfully');
     },
-    onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || 'Failed to create cost item';
-      toast.error(errorMessage);
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Failed to create cost item';
+      toast.error(message);
     },
   });
 };
@@ -114,9 +114,9 @@ export const useUpdateCostItem = () => {
       queryClient.invalidateQueries({ queryKey: ['cost-items'] });
       toast.success('Cost item updated successfully');
     },
-    onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || 'Failed to update cost item';
-      toast.error(errorMessage);
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Failed to update cost item';
+      toast.error(message);
     },
   });
 };
@@ -131,9 +131,9 @@ export const useDeleteCostItem = () => {
       queryClient.invalidateQueries({ queryKey: ['cost-items'] });
       toast.success('Cost item deleted successfully');
     },
-    onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || 'Failed to delete cost item';
-      toast.error(errorMessage);
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Failed to delete cost item';
+      toast.error(message);
     },
   });
 };

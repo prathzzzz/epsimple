@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +17,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useSiteActivityWorkExpenditure } from '../context/site-activity-work-expenditure-provider';
+import { downloadFile } from '@/lib/api-utils';
 
 export function SiteActivityWorkExpenditurePrimaryButtons() {
   const { setIsBulkUploadDialogOpen } = useSiteActivityWorkExpenditure();
@@ -25,26 +27,15 @@ export function SiteActivityWorkExpenditurePrimaryButtons() {
   const handleDownloadTemplate = async () => {
     setIsDownloadingTemplate(true);
     try {
-      const response = await fetch(
+      await downloadFile(
         '/api/site-activity-work-expenditures/bulk-upload/template',
-        {
-          credentials: 'include',
-        }
+        'site-activity-work-expenditure-template.xlsx'
       );
-
-      if (!response.ok) throw new Error('Failed to download template');
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'site-activity-work-expenditure-template.xlsx';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      toast.success('Template downloaded successfully');
     } catch (error) {
-      console.error('Error downloading template:', error);
+      toast.error('Failed to download template', {
+        description: error instanceof Error ? error.message : 'An error occurred',
+      });
     } finally {
       setIsDownloadingTemplate(false);
     }
@@ -53,26 +44,16 @@ export function SiteActivityWorkExpenditurePrimaryButtons() {
   const handleExportData = async () => {
     setIsExporting(true);
     try {
-      const response = await fetch(
+      const timestamp = new Date().toISOString().split('T')[0];
+      await downloadFile(
         '/api/site-activity-work-expenditures/bulk-upload/export',
-        {
-          credentials: 'include',
-        }
+        `site-activity-work-expenditures-export-${timestamp}.xlsx`
       );
-
-      if (!response.ok) throw new Error('Failed to export data');
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `site-activity-work-expenditures-export-${new Date().toISOString().split('T')[0]}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      toast.success('Data exported successfully');
     } catch (error) {
-      console.error('Error exporting data:', error);
+      toast.error('Failed to export data', {
+        description: error instanceof Error ? error.message : 'An error occurred',
+      });
     } finally {
       setIsExporting(false);
     }

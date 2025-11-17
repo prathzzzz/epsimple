@@ -29,8 +29,6 @@ api.interceptors.response.use(
     // Handle common errors
     if (error.response?.status === 401) {
       // Unauthorized - redirect to login
-      console.warn('Unauthorized request - redirecting to login')
-      
       // Only redirect if we're not already on login/auth pages
       const currentPath = window.location.pathname
       const isAuthPage = currentPath.includes('/sign-in') || 
@@ -50,12 +48,12 @@ api.interceptors.response.use(
     
     if (error.response?.status === 403) {
       // Forbidden
-      console.warn('Forbidden request')
+      // Request forbidden - user doesn't have permission
     }
     
     if (error.response?.status >= 500) {
       // Server errors
-      console.error('Server error:', error.response.status)
+      // Server error occurred
     }
     
     return Promise.reject(error)

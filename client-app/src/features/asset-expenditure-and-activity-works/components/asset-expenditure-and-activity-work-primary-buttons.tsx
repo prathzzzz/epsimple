@@ -10,8 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAssetExpenditureAndActivityWork } from "../context/asset-expenditure-and-activity-work-provider";
 import { toast } from "sonner";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { downloadFile } from "@/lib/api-utils";
 
 export function AssetExpenditureAndActivityWorkPrimaryButtons() {
   const { openDrawer, openBulkUploadDialog } = useAssetExpenditureAndActivityWork();
@@ -19,66 +18,35 @@ export function AssetExpenditureAndActivityWorkPrimaryButtons() {
   const [isExporting, setIsExporting] = useState(false);
 
   const handleDownloadTemplate = async () => {
+    setIsDownloadingTemplate(true);
     try {
-      setIsDownloadingTemplate(true);
-      const response = await fetch(
-        `${API_URL}/api/asset-expenditure-and-activity-works/bulk-upload/template`,
-        {
-          credentials: "include",
-        }
+      await downloadFile(
+        '/api/asset-expenditure-and-activity-works/bulk-upload/template',
+        'asset_expenditure_and_activity_work_template.xlsx'
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to download template");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "asset_expenditure_and_activity_work_template.xlsx";
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
       toast.success("Template downloaded successfully");
     } catch (error) {
-      console.error("Error downloading template:", error);
-      toast.error("Failed to download template");
+      toast.error("Failed to download template", {
+        description: error instanceof Error ? error.message : 'An error occurred',
+      });
     } finally {
       setIsDownloadingTemplate(false);
     }
   };
 
   const handleExportData = async () => {
+    setIsExporting(true);
     try {
-      setIsExporting(true);
-      const response = await fetch(
-        `${API_URL}/api/asset-expenditure-and-activity-works/bulk-upload/export`,
-        {
-          credentials: "include",
-        }
+      const timestamp = new Date().toISOString().split("T")[0];
+      await downloadFile(
+        '/api/asset-expenditure-and-activity-works/bulk-upload/export',
+        `asset_expenditure_and_activity_works_export_${timestamp}.xlsx`
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to export data");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `asset_expenditure_and_activity_works_export_${new Date().toISOString().split("T")[0]}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
       toast.success("Data exported successfully");
     } catch (error) {
-      console.error("Error exporting data:", error);
-      toast.error("Failed to export data");
+      toast.error("Failed to export data", {
+        description: error instanceof Error ? error.message : 'An error occurred',
+      });
     } finally {
       setIsExporting(false);
     }

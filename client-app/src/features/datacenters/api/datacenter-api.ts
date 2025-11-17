@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import api from '@/lib/api';
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { Datacenter, DatacenterFormValues } from './schema';
 
 interface ApiResponse<T> {
@@ -87,8 +87,9 @@ export const datacenterApi = {
         queryClient.invalidateQueries({ queryKey: ['datacenters'] });
         toast.success('Datacenter created successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to create datacenter');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to create datacenter';
+        toast.error(message);
       },
     });
   },
@@ -108,8 +109,9 @@ export const datacenterApi = {
         queryClient.invalidateQueries({ queryKey: ['datacenters'] });
         toast.success('Datacenter updated successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update datacenter');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to update datacenter';
+        toast.error(message);
       },
     });
   },
@@ -125,8 +127,9 @@ export const datacenterApi = {
         queryClient.invalidateQueries({ queryKey: ['datacenters'] });
         toast.success('Datacenter deleted successfully');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to delete datacenter');
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to delete datacenter';
+        toast.error(message);
       },
     });
   },

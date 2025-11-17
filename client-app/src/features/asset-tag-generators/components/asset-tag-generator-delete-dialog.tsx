@@ -24,7 +24,7 @@ export function AssetTagCodeGeneratorDeleteDialog() {
       await deleteMutation.mutateAsync(generatorToDelete.id);
       setIsDeleteDialogOpen(false);
       setGeneratorToDelete(null);
-    } catch (error) {
+    } catch (_error) {
       // Error handled by mutation
     }
   };

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { BackendPageResponse, FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from '@/lib/api-utils';
 import type { AssetCategory, AssetCategoryFormData } from "./schema";
 
 const ASSET_CATEGORY_ENDPOINTS = {
@@ -62,9 +62,9 @@ export const assetCategoryApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-categories"] });
         toast.success("Asset category created successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to create asset category";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to create asset category";
+        toast.error(message);
       },
     });
   },
@@ -89,9 +89,9 @@ export const assetCategoryApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-categories"] });
         toast.success("Asset category updated successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to update asset category";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to update asset category";
+        toast.error(message);
       },
     });
   },
@@ -106,9 +106,9 @@ export const assetCategoryApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-categories"] });
         toast.success("Asset category deleted successfully");
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Failed to delete asset category";
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to delete asset category";
+        toast.error(message);
       },
     });
   },

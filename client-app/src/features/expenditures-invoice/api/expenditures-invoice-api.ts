@@ -100,9 +100,9 @@ export const expendituresInvoiceApi = {
         queryClient.invalidateQueries({ queryKey: ['expenditures-invoices'] });
         toast.success('Expenditure created successfully');
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || 'Failed to create expenditure';
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to create expenditure';
+        toast.error(message);
       },
     });
   },
@@ -118,9 +118,9 @@ export const expendituresInvoiceApi = {
         queryClient.invalidateQueries({ queryKey: ['expenditures-invoices'] });
         toast.success('Expenditure updated successfully');
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || 'Failed to update expenditure';
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to update expenditure';
+        toast.error(message);
       },
     });
   },
@@ -135,9 +135,9 @@ export const expendituresInvoiceApi = {
         queryClient.invalidateQueries({ queryKey: ['expenditures-invoices'] });
         toast.success('Expenditure deleted successfully');
       },
-      onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || 'Failed to delete expenditure';
-        toast.error(errorMessage);
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to delete expenditure';
+        toast.error(message);
       },
     });
   },

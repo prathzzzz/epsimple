@@ -4,12 +4,11 @@ import { Search } from '@/components/search';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ConfigDrawer } from '@/components/config-drawer';
-import { ExpendituresVoucherProvider } from './context/expenditures-voucher-provider';
+import { ExpendituresVoucherProvider, useExpendituresVoucherContext } from './context/expenditures-voucher-provider';
 import { ExpendituresVoucherTable } from './components/expenditures-voucher-table';
 import { ExpendituresVoucherDrawer } from './components/expenditures-voucher-drawer';
 import { ExpendituresVoucherPrimaryButtons } from './components/expenditures-voucher-primary-buttons';
 import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog';
-import { useExpendituresVoucherContext } from './context/expenditures-voucher-provider';
 import { useQueryClient } from '@tanstack/react-query';
 import { columns } from './components/columns';
 

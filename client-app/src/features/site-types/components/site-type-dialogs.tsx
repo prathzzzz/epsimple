@@ -30,9 +30,9 @@ export function SiteTypeDialogs() {
       setShowDeleteDialog(false);
       setEditingSiteType(null);
     },
-    onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || "Failed to delete site type";
-      toast.error(errorMessage);
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Failed to delete site type";
+      toast.error(message);
     },
   });
 

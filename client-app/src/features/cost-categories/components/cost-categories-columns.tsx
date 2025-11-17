@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { DataTableColumnHeader } from "@/components/data-table";
 import { LongText } from "@/components/long-text";

@@ -1,10 +1,10 @@
-import { createContext, useContext, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useEffect, type ReactNode } from 'react'
 import { useAuthStore } from '@/stores/auth-store'
 
 interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
-  user: any
+  user: unknown
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)

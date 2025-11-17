@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -66,6 +66,7 @@ export function SiteTable<TData, TValue>({
       ...columns,
       {
         id: "actions",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         cell: ({ row }: { row: any }) => <SiteRowActions site={row.original} />,
       },
     ],

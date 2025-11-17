@@ -1,6 +1,6 @@
 import api from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
+import { type BackendPageResponse, flattenPageResponse } from '@/lib/api-utils';
 
 export interface PayeeType {
   id: number;

@@ -47,7 +47,7 @@ export function PersonTypesTable({
 
   // Fetch data using TanStack Query with real-time search
   const { data: response, isLoading, isError } = useQuery({
-    queryKey: ['person-types', page - 1, pageSize, globalFilter],
+    queryKey: ['person-types', page - 1, pageSize, globalFilter, sorting.length, sorting[0]?.id, sorting[0]?.desc],
     queryFn: async () => {
       const sortBy = sorting[0]?.id || 'id'
       const sortDirection = sorting[0]?.desc ? 'DESC' : 'ASC'

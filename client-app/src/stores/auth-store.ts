@@ -60,8 +60,9 @@ export const useAuthStore = create<AuthStore>()(
         try {
           const response = await authApi.me()
           set({ user: response.data, error: null })
-        } catch (error: any) {
-          set({ user: null, error: error.message })
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Failed to get current user';
+          set({ user: null, error: message })
           throw error
         }
       },
@@ -71,8 +72,9 @@ export const useAuthStore = create<AuthStore>()(
         try {
           const response = await authApi.login({ email, password })
           set({ user: response.data.user, isLoading: false })
-        } catch (error: any) {
-          set({ error: error.message, isLoading: false })
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Login failed';
+          set({ error: message, isLoading: false })
           throw error
         }
       },
@@ -82,8 +84,9 @@ export const useAuthStore = create<AuthStore>()(
         try {
           const response = await authApi.register({ email, password, name })
           set({ user: response.data.user, isLoading: false })
-        } catch (error: any) {
-          set({ error: error.message, isLoading: false })
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Registration failed';
+          set({ error: message, isLoading: false })
           throw error
         }
       },
@@ -93,8 +96,9 @@ export const useAuthStore = create<AuthStore>()(
         try {
           await authApi.logout()
           set({ user: null, isLoading: false, error: null })
-        } catch (error: any) {
-          set({ user: null, isLoading: false, error: error.message })
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Logout failed';
+          set({ user: null, isLoading: false, error: message })
           throw error
         }
       },
@@ -104,8 +108,9 @@ export const useAuthStore = create<AuthStore>()(
         try {
           await authApi.forgotPassword({ email })
           set({ isLoading: false })
-        } catch (error: any) {
-          set({ error: error.message, isLoading: false })
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Failed to send reset email';
+          set({ error: message, isLoading: false })
           throw error
         }
       },
@@ -115,8 +120,9 @@ export const useAuthStore = create<AuthStore>()(
         try {
           await authApi.resetPassword({ token, newPassword })
           set({ isLoading: false })
-        } catch (error: any) {
-          set({ error: error.message, isLoading: false })
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Failed to reset password';
+          set({ error: message, isLoading: false })
           throw error
         }
       },

@@ -48,7 +48,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
       // TODO: Implement OTP verification with backend API
       toast.success('OTP verified successfully!')
       navigate({ to: '/' })
-    } catch (error: any) {
+    } catch (_error: unknown) {
       toast.error('Verification failed')
     } finally {
       setIsLoading(false)

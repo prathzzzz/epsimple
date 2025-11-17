@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import api from '@/lib/api'
-import { BackendPageResponse, flattenPageResponse } from '@/lib/api-utils'
+import { type BackendPageResponse, flattenPageResponse } from '@/lib/api-utils'
 import type { Asset, AssetRequest } from './schema'
 
 const ASSET_ENDPOINTS = {
@@ -71,8 +71,9 @@ export const assetsApi = {
         queryClient.invalidateQueries({ queryKey: ['assets'] })
         toast.success('Asset created successfully')
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to create asset')
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to create asset';
+        toast.error(message);
       },
     })
   },
@@ -92,8 +93,9 @@ export const assetsApi = {
         queryClient.invalidateQueries({ queryKey: ['assets'] })
         toast.success('Asset updated successfully')
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update asset')
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to update asset';
+        toast.error(message);
       },
     })
   },
@@ -109,8 +111,9 @@ export const assetsApi = {
         queryClient.invalidateQueries({ queryKey: ['assets'] })
         toast.success('Asset deleted successfully')
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to delete asset')
+      onError: (error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Failed to delete asset';
+        toast.error(message);
       },
     })
   },

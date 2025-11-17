@@ -1,13 +1,17 @@
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useExpendituresInvoiceContext } from '../hooks/use-expenditures-invoice-context';
 import { expendituresInvoiceApi } from '../api/expenditures-invoice-api';
 import {
   flexRender,
   getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
   type ColumnDef,
+  type ColumnFiltersState,
   type SortingState,
   type VisibilityState,
 } from '@tanstack/react-table';
@@ -19,9 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { DataTablePagination, DataTableToolbar } from '@/components/data-table';
 import type { ExpendituresInvoice } from '../api/schema';
 import { DataTableRowActions } from './data-table-row-actions';
 
@@ -31,119 +33,156 @@ interface ExpendituresInvoiceTableProps {
 
 export const ExpendituresInvoiceTable = ({ columns }: ExpendituresInvoiceTableProps) => {
   const { globalFilter, setGlobalFilter } = useExpendituresInvoiceContext();
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'id', desc: true }]);
+  const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-
-  const hasSearch = globalFilter && globalFilter.trim().length > 0;
-
-  // Query for all data
-  const { data: allData, isLoading: isAllLoading } = useQuery({
-    queryKey: ['expenditures-invoices', page, pageSize, sorting[0]?.id, sorting[0]?.desc],
-    queryFn: () =>
-      expendituresInvoiceApi.getAll(
-        page,
-        pageSize,
-        sorting[0]?.id || 'id',
-        sorting[0]?.desc ? 'DESC' : 'ASC'
-      ),
-    enabled: !hasSearch,
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'id', desc: true }]);
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
   });
 
-  // Query for search data
-  const { data: searchData, isLoading: isSearchLoading } = useQuery({
-    queryKey: ['expenditures-invoices', 'search', globalFilter, page, pageSize, sorting[0]?.id, sorting[0]?.desc],
-    queryFn: () =>
-      expendituresInvoiceApi.search(
-        globalFilter,
-        page,
-        pageSize,
-        sorting[0]?.id || 'id',
-        sorting[0]?.desc ? 'DESC' : 'ASC'
-      ),
-    enabled: !!hasSearch,
-  });
+  const { data, isLoading } = useQuery({
+    queryKey: [
+      'expenditures-invoices',
+      pagination.pageIndex,
+      pagination.pageSize,
+      globalFilter,
+      sorting.length,
+      sorting[0]?.id,
+      sorting[0]?.desc,
+    ],
+    queryFn: async () => {
+      const sortBy = sorting.length > 0 ? sorting[0].id : 'id';
+      const sortDirection = sorting.length > 0 && sorting[0].desc ? 'DESC' : 'ASC';
 
-  const data = hasSearch ? searchData : allData;
-  const isLoading = hasSearch ? isSearchLoading : isAllLoading;
+      if (globalFilter && globalFilter.trim() !== '') {
+        return await expendituresInvoiceApi.search(
+          globalFilter,
+          pagination.pageIndex,
+          pagination.pageSize,
+          sortBy,
+          sortDirection
+        );
+      }
 
-  const columnsWithActions: ColumnDef<ExpendituresInvoice>[] = [
-    ...columns,
-    {
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => <DataTableRowActions row={row} />,
+      return await expendituresInvoiceApi.getAll(
+        pagination.pageIndex,
+        pagination.pageSize,
+        sortBy,
+        sortDirection
+      );
     },
-  ];
+  });
+
+  const expenditures = (data?.data?.content || []) as ExpendituresInvoice[];
+  const totalPages = data?.data?.page?.totalPages || 1;
+
+  // Reset to first page when search query changes
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  }, [globalFilter]);
+
+  // Add actions column
+  const columnsWithActions = React.useMemo(
+    () => [
+      ...columns,
+      {
+        id: 'actions',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        cell: ({ row }) => <DataTableRowActions row={row as any} />,
+      },
+    ],
+    [columns]
+  );
 
   const table = useReactTable({
-    data: data?.data?.content || [],
-    columns: columnsWithActions,
+    data: expenditures,
+    columns: columnsWithActions as ColumnDef<ExpendituresInvoice>[],
+    pageCount: totalPages,
     state: {
       sorting,
       columnVisibility,
+      rowSelection,
+      columnFilters,
+      pagination,
+      globalFilter,
     },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
     manualPagination: true,
+    manualFiltering: true,
     manualSorting: true,
-    pageCount: data?.data?.page?.totalPages || 0,
   });
 
   return (
     <div className="space-y-4">
-      {/* Search */}
-      <div className="flex items-center gap-2">
-        <Input
-          placeholder="Search expenditures..."
-          value={globalFilter}
-          onChange={(e) => {
-            setGlobalFilter(e.target.value);
-            setPage(0);
-          }}
-          className="max-w-sm"
-        />
-      </div>
-
-      {/* Table */}
+      <DataTableToolbar
+        table={table}
+        searchPlaceholder="Search expenditures invoices..."
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id} colSpan={header.colSpan}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={columnsWithActions.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length + 1}
+                  className="h-24 text-center"
+                >
                   Loading...
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columnsWithActions.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length + 1}
+                  className="h-24 text-center"
+                >
                   No results.
                 </TableCell>
               </TableRow>
@@ -151,66 +190,7 @@ export const ExpendituresInvoiceTable = ({ columns }: ExpendituresInvoiceTablePr
           </TableBody>
         </Table>
       </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Rows per page:</span>
-          <select
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
-              setPage(0);
-            }}
-            className="h-8 rounded-md border border-input bg-background px-2 text-sm"
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">
-            Page {page + 1} of {data?.data?.page?.totalPages || 1}
-          </span>
-          <div className="flex gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage(0)}
-              disabled={page === 0 || isLoading}
-            >
-              <ChevronsLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0 || isLoading}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((p) => p + 1)}
-              disabled={!data || page >= (data.data?.page?.totalPages || 1) - 1 || isLoading}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((data?.data?.page?.totalPages || 1) - 1)}
-              disabled={!data || page >= (data.data?.page?.totalPages || 1) - 1 || isLoading}
-            >
-              <ChevronsRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
+      <DataTablePagination table={table} />
     </div>
   );
 };

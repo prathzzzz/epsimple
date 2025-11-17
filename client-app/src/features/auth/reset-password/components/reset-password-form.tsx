@@ -64,8 +64,9 @@ export function ResetPasswordForm({ className, ...props }: ResetPasswordFormProp
       await resetPassword(data.otp, data.newPassword)
       toast.success('Password reset successfully!')
       navigate({ to: '/sign-in' })
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Password reset failed')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Password reset failed';
+      toast.error(message);
     } finally {
       setIsLoading(false)
     }
