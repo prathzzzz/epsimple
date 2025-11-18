@@ -1,0 +1,155 @@
+name: Parallel Build & Service Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  # ====================================================
+  # JOB 1: BUILD FRONTEND (Runs in Parallel)
+  # ====================================================
+  build-frontend:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install & Build React
+        working-directory: ./client-api
+        run: |
+          bun install
+          bun run build
+
+      - name: Upload Frontend Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: client-api/dist/
+          retention-days: 1
+
+  # ====================================================
+  # JOB 2: BUILD BACKEND (Runs in Parallel)
+  # ====================================================
+  build-backend:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # UPDATED: Using Java 21 (Microsoft Distribution)
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft' # Matches your local 'ms-21' installation
+          java-version: '21'
+          
+      - name: Build Java Modules
+        working-directory: ./server-api
+        run: |
+          # Using standard Maven commands. 
+          # The Setup Java step above ensures 'mvn' uses Java 21 automatically.
+          mvn clean install -f common-module/pom.xml
+          mvn clean install -f auth-module/pom.xml
+          mvn clean install -f entity-module/pom.xml
+          mvn clean install -f crypto-module/pom.xml
+          mvn clean install -f epsoneapi/pom.xml
+
+      - name: Upload Backend Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: server-api/epsoneapi/target/epsoneapi-*.jar
+          retention-days: 1
+
+  # ====================================================
+  # JOB 3: DEPLOY (Runs after Build Jobs finish)
+  # ====================================================
+  deploy:
+    needs: [build-frontend, build-backend]
+    runs-on: self-hosted
+    
+    steps:
+      # 1. Download Artifacts
+      - name: Download Frontend
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: ./ready-to-deploy/dist
+
+      - name: Download Backend
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: ./ready-to-deploy/jar
+
+      # 2. Execute Remote Deployment via WinRM
+      - name: Stop Service, Backup, Deploy, Start Service
+        shell: powershell
+        env:
+          SERVER_IP: "192.168.83.23"
+          USER: ${{ secrets.SERVER_USERNAME }}
+          PASS: ${{ secrets.SERVER_PASSWORD }}
+        run: |
+          $pass = $env:PASS | ConvertTo-SecureString -AsPlainText -Force
+          $cred = New-Object System.Management.Automation.PSCredential($env:USER, $pass)
+          
+          $session = New-PSSession -ComputerName $env:SERVER_IP -Credential $cred -Port 5985
+
+          $root = "E:\epsone"
+          $apiDir = "$root\server-api"
+          $clientDir = "$root\client-api\dist"
+          $backupRoot = "$apiDir\backup-jars"
+          $serviceName = "epsone-backend"
+
+          # A. STOP SERVICE
+          Invoke-Command -Session $session -ScriptBlock {
+              param($svc)
+              $service = Get-Service -Name $svc -ErrorAction SilentlyContinue
+              if ($service -and $service.Status -eq 'Running') {
+                  Write-Host "Stopping Service: $svc..."
+                  Stop-Service -Name $svc -Force
+                  Start-Sleep -Seconds 5
+              }
+          } -ArgumentList $serviceName
+
+          # B. BACKUP
+          Invoke-Command -Session $session -ScriptBlock {
+              param($path, $backupRoot)
+              $dateStr = Get-Date -Format "yyyy-MM-dd_HH-mm"
+              $currentBackupFolder = "$backupRoot\$dateStr"
+              $oldJar = Get-ChildItem -Path $path -Filter "epsoneapi-*.jar" | Select-Object -First 1
+              
+              if ($oldJar) {
+                  New-Item -Path $currentBackupFolder -ItemType Directory -Force | Out-Null
+                  Move-Item -Path $oldJar.FullName -Destination $currentBackupFolder -Force
+                  Write-Host "Backed up JAR to: $currentBackupFolder"
+              }
+          } -ArgumentList $apiDir, $backupRoot
+
+          # C. UPLOAD NEW FILES
+          Write-Host "Uploading new JAR..."
+          $localJar = Get-ChildItem -Path ".\ready-to-deploy\jar\epsoneapi-*.jar" | Select-Object -First 1
+          Copy-Item -Path $localJar.FullName -Destination $apiDir -ToSession $session -Force
+
+          Write-Host "Uploading React build..."
+          Invoke-Command -Session $session -ScriptBlock {
+              param($path)
+              if (Test-Path $path) { Remove-Item "$path\*" -Recurse -Force }
+          } -ArgumentList $clientDir
+          Copy-Item -Path ".\ready-to-deploy\dist\*" -Destination $clientDir -ToSession $session -Recurse -Force
+
+          # D. START SERVICE
+          Invoke-Command -Session $session -ScriptBlock {
+              param($svc)
+              Write-Host "Starting Service: $svc..."
+              Start-Service -Name $svc
+          } -ArgumentList $serviceName
+
+          Remove-PSSession $session
+          Write-Host "Deployment Complete."
