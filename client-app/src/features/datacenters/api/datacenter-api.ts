@@ -87,8 +87,8 @@ export const datacenterApi = {
         queryClient.invalidateQueries({ queryKey: ['datacenters'] });
         toast.success('Datacenter created successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to create datacenter';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to create datacenter";
         toast.error(message);
       },
     });
@@ -109,8 +109,8 @@ export const datacenterApi = {
         queryClient.invalidateQueries({ queryKey: ['datacenters'] });
         toast.success('Datacenter updated successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to update datacenter';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update datacenter";
         toast.error(message);
       },
     });
@@ -127,8 +127,8 @@ export const datacenterApi = {
         queryClient.invalidateQueries({ queryKey: ['datacenters'] });
         toast.success('Datacenter deleted successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to delete datacenter';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to delete datacenter";
         toast.error(message);
       },
     });

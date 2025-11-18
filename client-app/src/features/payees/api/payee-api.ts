@@ -137,8 +137,8 @@ export const payeeApi = {
         queryClient.invalidateQueries({ queryKey: ['payees'] });
         toast.success('Payee created successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to create payee';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to create payee";
         toast.error(message);
       },
     });
@@ -153,8 +153,8 @@ export const payeeApi = {
         queryClient.invalidateQueries({ queryKey: ['payees'] });
         toast.success('Payee updated successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to update payee';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update payee";
         toast.error(message);
       },
     });
@@ -168,8 +168,8 @@ export const payeeApi = {
         queryClient.invalidateQueries({ queryKey: ['payees'] });
         toast.success('Payee deleted successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to delete payee';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to delete payee";
         toast.error(message);
       },
     });

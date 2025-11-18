@@ -87,8 +87,8 @@ export const assetsOnDatacenterApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-Datacenter'] });
         toast.success('Asset placed in Datacenter successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to place asset in Datacenter';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to place asset on datacenter";
         toast.error(message);
       },
     });
@@ -109,8 +109,8 @@ export const assetsOnDatacenterApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-Datacenter'] });
         toast.success('Asset in Datacenter updated successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to update asset in Datacenter';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update asset placement";
         toast.error(message);
       },
     });
@@ -127,8 +127,8 @@ export const assetsOnDatacenterApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-Datacenter'] });
         toast.success('Asset removed from Datacenter successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to remove asset from Datacenter';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to remove asset from datacenter";
         toast.error(message);
       },
     });

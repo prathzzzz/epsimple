@@ -100,8 +100,8 @@ export const expendituresVoucherApi = {
         queryClient.invalidateQueries({ queryKey: ['expenditures-vouchers'] });
         toast.success('Expenditure created successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to create expenditure';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || 'Failed to create expenditure';
         toast.error(message);
       },
     });
@@ -118,8 +118,8 @@ export const expendituresVoucherApi = {
         queryClient.invalidateQueries({ queryKey: ['expenditures-vouchers'] });
         toast.success('Expenditure updated successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to update expenditure';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || 'Failed to update expenditure';
         toast.error(message);
       },
     });
@@ -135,8 +135,8 @@ export const expendituresVoucherApi = {
         queryClient.invalidateQueries({ queryKey: ['expenditures-vouchers'] });
         toast.success('Expenditure deleted successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to delete expenditure';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || 'Failed to delete expenditure';
         toast.error(message);
       },
     });

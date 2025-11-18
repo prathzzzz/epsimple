@@ -20,8 +20,8 @@ export function BanksDialogs() {
         setCurrentRow(null)
       }, 500)
     },
-    onError: (error: unknown) => {
-      const message = error instanceof Error ? error.message : 'Failed to delete bank';
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Failed to delete bank';
       toast.error(message)
     },
   })

@@ -87,8 +87,8 @@ export const assetsOnWarehouseApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-warehouse'] });
         toast.success('Asset placed in warehouse successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to place asset in warehouse';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to place asset in warehouse";
         toast.error(message);
       },
     });
@@ -109,8 +109,8 @@ export const assetsOnWarehouseApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-warehouse'] });
         toast.success('Asset in warehouse updated successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to update asset in warehouse';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update asset placement";
         toast.error(message);
       },
     });
@@ -127,8 +127,8 @@ export const assetsOnWarehouseApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-warehouse'] });
         toast.success('Asset removed from warehouse successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to remove asset from warehouse';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to remove asset from warehouse";
         toast.error(message);
       },
     });

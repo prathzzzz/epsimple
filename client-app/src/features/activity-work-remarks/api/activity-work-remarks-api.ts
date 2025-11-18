@@ -115,8 +115,8 @@ export const activityWorkRemarksApi = {
         })
         toast.success('Remark added successfully')
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to add remark';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || 'Failed to add remark';
         toast.error(message);
       },
     })
@@ -142,8 +142,8 @@ export const activityWorkRemarksApi = {
         })
         toast.success('Remark updated successfully')
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to update remark';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || 'Failed to update remark';
         toast.error(message);
       },
     })
@@ -169,8 +169,8 @@ export const activityWorkRemarksApi = {
         })
         toast.success('Remark deleted successfully')
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to delete remark';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || 'Failed to delete remark';
         toast.error(message);
       },
     })

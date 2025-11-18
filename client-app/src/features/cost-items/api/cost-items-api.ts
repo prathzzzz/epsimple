@@ -96,8 +96,8 @@ export const useCreateCostItem = () => {
       queryClient.invalidateQueries({ queryKey: ['cost-items'] });
       toast.success('Cost item created successfully');
     },
-    onError: (error: unknown) => {
-      const message = error instanceof Error ? error.message : 'Failed to create cost item';
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Failed to create cost item';
       toast.error(message);
     },
   });
@@ -114,8 +114,8 @@ export const useUpdateCostItem = () => {
       queryClient.invalidateQueries({ queryKey: ['cost-items'] });
       toast.success('Cost item updated successfully');
     },
-    onError: (error: unknown) => {
-      const message = error instanceof Error ? error.message : 'Failed to update cost item';
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Failed to update cost item';
       toast.error(message);
     },
   });
@@ -131,8 +131,8 @@ export const useDeleteCostItem = () => {
       queryClient.invalidateQueries({ queryKey: ['cost-items'] });
       toast.success('Cost item deleted successfully');
     },
-    onError: (error: unknown) => {
-      const message = error instanceof Error ? error.message : 'Failed to delete cost item';
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Failed to delete cost item';
       toast.error(message);
     },
   });

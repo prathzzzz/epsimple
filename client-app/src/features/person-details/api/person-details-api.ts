@@ -114,8 +114,8 @@ export const personDetailsApi = {
         queryClient.invalidateQueries({ queryKey: ["person-details"] });
         toast.success("Person details created successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to create person details";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || 'Failed to delete person';
         toast.error(message);
       },
     });
@@ -132,8 +132,8 @@ export const personDetailsApi = {
         queryClient.invalidateQueries({ queryKey: ["person-details"] });
         toast.success("Person details updated successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to update person details";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || 'Failed to update person';
         toast.error(message);
       },
     });

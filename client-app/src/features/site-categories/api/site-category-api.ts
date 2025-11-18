@@ -106,8 +106,8 @@ export const siteCategoryApi = {
         queryClient.invalidateQueries({ queryKey: ["site-categories"] });
         toast.success("Site category deleted successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to delete site category";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to delete site category";
         toast.error(message);
       },
     });

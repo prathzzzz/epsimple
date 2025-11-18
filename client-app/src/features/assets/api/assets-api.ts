@@ -71,8 +71,8 @@ export const assetsApi = {
         queryClient.invalidateQueries({ queryKey: ['assets'] })
         toast.success('Asset created successfully')
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to create asset';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to create asset";
         toast.error(message);
       },
     })
@@ -93,8 +93,8 @@ export const assetsApi = {
         queryClient.invalidateQueries({ queryKey: ['assets'] })
         toast.success('Asset updated successfully')
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to update asset';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update asset";
         toast.error(message);
       },
     })
@@ -111,8 +111,8 @@ export const assetsApi = {
         queryClient.invalidateQueries({ queryKey: ['assets'] })
         toast.success('Asset deleted successfully')
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to delete asset';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to delete asset";
         toast.error(message);
       },
     })

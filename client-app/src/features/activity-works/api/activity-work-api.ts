@@ -87,8 +87,8 @@ export const activityWorkApi = {
         queryClient.invalidateQueries({ queryKey: ['activity-works'] });
         toast.success('Activity work created successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to create activity work';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to create activity work";
         toast.error(message);
       },
     });
@@ -109,8 +109,8 @@ export const activityWorkApi = {
         queryClient.invalidateQueries({ queryKey: ['activity-works'] });
         toast.success('Activity work updated successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to update activity work';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update activity work";
         toast.error(message);
       },
     });
@@ -127,8 +127,8 @@ export const activityWorkApi = {
         queryClient.invalidateQueries({ queryKey: ['activity-works'] });
         toast.success('Activity work deleted successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to delete activity work';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to delete activity work";
         toast.error(message);
       },
     });

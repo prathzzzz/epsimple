@@ -62,8 +62,8 @@ export const assetCategoryApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-categories"] });
         toast.success("Asset category created successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to create asset category";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to create asset category";
         toast.error(message);
       },
     });
@@ -89,8 +89,8 @@ export const assetCategoryApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-categories"] });
         toast.success("Asset category updated successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to update asset category";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update asset category";
         toast.error(message);
       },
     });
@@ -106,8 +106,8 @@ export const assetCategoryApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-categories"] });
         toast.success("Asset category deleted successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to delete asset category";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to delete asset category";
         toast.error(message);
       },
     });

@@ -87,8 +87,8 @@ export const warehouseApi = {
         queryClient.invalidateQueries({ queryKey: ['warehouses'] });
         toast.success('Warehouse created successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to create warehouse';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to create warehouse";
         toast.error(message);
       },
     });
@@ -109,8 +109,8 @@ export const warehouseApi = {
         queryClient.invalidateQueries({ queryKey: ['warehouses'] });
         toast.success('Warehouse updated successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to update warehouse';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update warehouse";
         toast.error(message);
       },
     });
@@ -127,8 +127,8 @@ export const warehouseApi = {
         queryClient.invalidateQueries({ queryKey: ['warehouses'] });
         toast.success('Warehouse deleted successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to delete warehouse';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to delete warehouse";
         toast.error(message);
       },
     });

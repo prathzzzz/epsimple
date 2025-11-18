@@ -87,8 +87,8 @@ export const locationApi = {
         queryClient.invalidateQueries({ queryKey: ['locations'] });
         toast.success('Location created successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to create location';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to create location";
         toast.error(message);
       },
     });
@@ -109,8 +109,8 @@ export const locationApi = {
         queryClient.invalidateQueries({ queryKey: ['locations'] });
         toast.success('Location updated successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to update location';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update location";
         toast.error(message);
       },
     });
@@ -127,8 +127,8 @@ export const locationApi = {
         queryClient.invalidateQueries({ queryKey: ['locations'] });
         toast.success('Location deleted successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to delete location';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to delete location";
         toast.error(message);
       },
     });

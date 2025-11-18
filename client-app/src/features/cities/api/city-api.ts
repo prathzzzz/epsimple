@@ -88,8 +88,8 @@ export const cityApi = {
         queryClient.invalidateQueries({ queryKey: ["cities"] });
         toast.success("City created successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to create city";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to create city";
         toast.error(message);
       },
     });
@@ -106,8 +106,8 @@ export const cityApi = {
         queryClient.invalidateQueries({ queryKey: ["cities"] });
         toast.success("City updated successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to update city";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update city";
         toast.error(message);
       },
     });
@@ -123,8 +123,8 @@ export const cityApi = {
         queryClient.invalidateQueries({ queryKey: ["cities"] });
         toast.success("City deleted successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to delete city";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to delete city";
         toast.error(message);
       },
     });

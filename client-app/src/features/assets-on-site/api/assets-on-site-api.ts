@@ -114,8 +114,8 @@ export const assetsOnSiteApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-site'] });
         toast.success('Asset placed on site successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to place asset on site';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to place asset on site";
         toast.error(message);
       },
     });
@@ -136,8 +136,8 @@ export const assetsOnSiteApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-site'] });
         toast.success('Asset on site updated successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to update asset on site';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update asset placement";
         toast.error(message);
       },
     });
@@ -154,8 +154,8 @@ export const assetsOnSiteApi = {
         queryClient.invalidateQueries({ queryKey: ['assets-on-site'] });
         toast.success('Asset removed from site successfully');
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to remove asset from site';
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to remove asset from site";
         toast.error(message);
       },
     });

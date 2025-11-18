@@ -61,8 +61,8 @@ export const assetTagCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-tag-generators"] });
         toast.success("Asset tag generator created successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to create asset tag generator";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to create generator";
         toast.error(message);
       },
     });
@@ -82,8 +82,8 @@ export const assetTagCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-tag-generators"] });
         toast.success("Asset tag generator updated successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to update asset tag generator";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update generator";
         toast.error(message);
       },
     });
@@ -99,8 +99,8 @@ export const assetTagCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["asset-tag-generators"] });
         toast.success("Asset tag generator deleted successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to delete asset tag generator";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to delete generator";
         toast.error(message);
       },
     });

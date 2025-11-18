@@ -63,8 +63,8 @@ export const siteCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["site-code-generators"] });
         toast.success("Site code generator created successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to create site code generator";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to create generator";
         toast.error(message);
       },
     });
@@ -84,8 +84,8 @@ export const siteCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["site-code-generators"] });
         toast.success("Site code generator updated successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to update site code generator";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to update generator";
         toast.error(message);
       },
     });
@@ -101,8 +101,8 @@ export const siteCodeGeneratorApi = {
         queryClient.invalidateQueries({ queryKey: ["site-code-generators"] });
         toast.success("Site code generator deleted successfully");
       },
-      onError: (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to delete site code generator";
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to delete generator";
         toast.error(message);
       },
     });
