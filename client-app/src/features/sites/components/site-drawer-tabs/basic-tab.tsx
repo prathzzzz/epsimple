@@ -593,7 +593,7 @@ export function BasicTab({ form, states }: Readonly<BasicTabProps>) {
                       >
                         {field.value
                           ? personDetails.find((p) => p.id === field.value)
-                            ? personDetails.find((p) => p.id === field.value)?.fullName || `${personDetails.find((p) => p.id === field.value)?.firstName || ''} ${personDetails.find((p) => p.id === field.value)?.lastName || ''}`.trim() || personDetails.find((p) => p.id === field.value)?.email
+                            ? personDetails.find((p) => p.id === field.value)?.fullName || `${personDetails.find((p) => p.id === field.value)?.firstName || ''} ${personDetails.find((p) => p.id === field.value)?.lastName || ''}`.trim()
                             : "Select contact"
                           : "Select contact"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -629,7 +629,7 @@ export function BasicTab({ form, states }: Readonly<BasicTabProps>) {
                                 <Check
                                   className={cn("mr-2 h-4 w-4", field.value === person.id ? "opacity-100" : "opacity-0")}
                                 />
-                                {person.fullName || `${person.firstName || ''} ${person.lastName || ''}`.trim() || person.email}
+                                {person.fullName || `${person.firstName || ''} ${person.lastName || ''}`.trim()}
                               </CommandItem>
                             ))}
                           </CommandGroup>
@@ -659,7 +659,7 @@ export function BasicTab({ form, states }: Readonly<BasicTabProps>) {
                       >
                         {field.value
                           ? personDetails.find((p) => p.id === field.value)
-                            ? personDetails.find((p) => p.id === field.value)?.fullName || `${personDetails.find((p) => p.id === field.value)?.firstName || ''} ${personDetails.find((p) => p.id === field.value)?.lastName || ''}`.trim() || personDetails.find((p) => p.id === field.value)?.email
+                            ? personDetails.find((p) => p.id === field.value)?.fullName || `${personDetails.find((p) => p.id === field.value)?.firstName || ''} ${personDetails.find((p) => p.id === field.value)?.lastName || ''}`.trim()
                             : "Select contact"
                           : "Select contact"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -695,7 +695,7 @@ export function BasicTab({ form, states }: Readonly<BasicTabProps>) {
                                 <Check
                                   className={cn("mr-2 h-4 w-4", field.value === person.id ? "opacity-100" : "opacity-0")}
                                 />
-                                {person.fullName || `${person.firstName || ''} ${person.lastName || ''}`.trim() || person.email}
+                                {person.fullName || `${person.firstName || ''} ${person.lastName || ''}`.trim()}
                               </CommandItem>
                             ))}
                           </CommandGroup>
@@ -727,7 +727,7 @@ export function BasicTab({ form, states }: Readonly<BasicTabProps>) {
                       >
                         {field.value
                           ? personDetails.find((p) => p.id === field.value)
-                            ? personDetails.find((p) => p.id === field.value)?.fullName || `${personDetails.find((p) => p.id === field.value)?.firstName || ''} ${personDetails.find((p) => p.id === field.value)?.lastName || ''}`.trim() || personDetails.find((p) => p.id === field.value)?.email
+                            ? personDetails.find((p) => p.id === field.value)?.fullName || `${personDetails.find((p) => p.id === field.value)?.firstName || ''} ${personDetails.find((p) => p.id === field.value)?.lastName || ''}`.trim()
                             : "Select contact"
                           : "Select contact"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -763,7 +763,7 @@ export function BasicTab({ form, states }: Readonly<BasicTabProps>) {
                                 <Check
                                   className={cn("mr-2 h-4 w-4", field.value === person.id ? "opacity-100" : "opacity-0")}
                                 />
-                                {person.fullName || `${person.firstName || ''} ${person.lastName || ''}`.trim() || person.email}
+                                {person.fullName || `${person.firstName || ''} ${person.lastName || ''}`.trim()}
                               </CommandItem>
                             ))}
                           </CommandGroup>
@@ -793,7 +793,7 @@ export function BasicTab({ form, states }: Readonly<BasicTabProps>) {
                       >
                         {field.value
                           ? personDetails.find((p) => p.id === field.value)
-                            ? personDetails.find((p) => p.id === field.value)?.fullName || `${personDetails.find((p) => p.id === field.value)?.firstName || ''} ${personDetails.find((p) => p.id === field.value)?.lastName || ''}`.trim() || personDetails.find((p) => p.id === field.value)?.email
+                            ? personDetails.find((p) => p.id === field.value)?.fullName || `${personDetails.find((p) => p.id === field.value)?.firstName || ''} ${personDetails.find((p) => p.id === field.value)?.lastName || ''}`.trim()
                             : "Select contact"
                           : "Select contact"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -829,7 +829,7 @@ export function BasicTab({ form, states }: Readonly<BasicTabProps>) {
                                 <Check
                                   className={cn("mr-2 h-4 w-4", field.value === person.id ? "opacity-100" : "opacity-0")}
                                 />
-                                {person.fullName || `${person.firstName || ''} ${person.lastName || ''}`.trim() || person.email}
+                                {person.fullName || `${person.firstName || ''} ${person.lastName || ''}`.trim()}
                               </CommandItem>
                             ))}
                           </CommandGroup>
@@ -861,7 +861,7 @@ export function BasicTab({ form, states }: Readonly<BasicTabProps>) {
                       >
                         {field.value
                           ? personDetails.find((p) => p.id === field.value)
-                            ? personDetails.find((p) => p.id === field.value)?.fullName || `${personDetails.find((p) => p.id === field.value)?.firstName || ''} ${personDetails.find((p) => p.id === field.value)?.lastName || ''}`.trim() || personDetails.find((p) => p.id === field.value)?.email
+                            ? personDetails.find((p) => p.id === field.value)?.fullName || `${personDetails.find((p) => p.id === field.value)?.firstName || ''} ${personDetails.find((p) => p.id === field.value)?.lastName || ''}`.trim()
                             : "Select contact"
                           : "Select contact"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -897,7 +897,7 @@ export function BasicTab({ form, states }: Readonly<BasicTabProps>) {
                                 <Check
                                   className={cn("mr-2 h-4 w-4", field.value === person.id ? "opacity-100" : "opacity-0")}
                                 />
-                                {person.fullName || `${person.firstName || ''} ${person.lastName || ''}`.trim() || person.email}
+                                {person.fullName || `${person.firstName || ''} ${person.lastName || ''}`.trim()}
                               </CommandItem>
                             ))}
                           </CommandGroup>
