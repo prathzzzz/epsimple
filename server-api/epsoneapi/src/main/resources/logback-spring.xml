@@ -56,6 +56,22 @@
 		</rollingPolicy>
     </appender>
     
+    <!-- Crypto Module Log File Appender -->
+    <appender name="CRYPTO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/crypto.log</file>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${ARCHIVE_PATH}/crypto-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>5GB</totalSizeCap>
+			<cleanHistoryOnStart>true</cleanHistoryOnStart>
+		</rollingPolicy>
+    </appender>
+    
     <!-- Database Log File Appender -->
     <appender name="DATABASE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/database.log</file>
@@ -106,6 +122,13 @@
         <appender-ref ref="AUTH_FILE"/>
     </appender>
     
+    <appender name="ASYNC_CRYPTO" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>false</neverBlock>
+        <appender-ref ref="CRYPTO_FILE"/>
+    </appender>
+    
     <appender name="ASYNC_DATABASE" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>512</queueSize>
         <discardingThreshold>0</discardingThreshold>
@@ -123,6 +146,13 @@
     <!-- Logger for Auth Module -->
     <logger name="com.eps.module.auth" level="INFO" additivity="false">
         <appender-ref ref="ASYNC_AUTH"/>
+        <appender-ref ref="ASYNC_ERROR"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+    
+    <!-- Logger for Crypto Module -->
+    <logger name="com.eps.module.crypto" level="INFO" additivity="false">
+        <appender-ref ref="ASYNC_CRYPTO"/>
         <appender-ref ref="ASYNC_ERROR"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
@@ -153,6 +183,7 @@
     <!-- Dev Profile Configuration -->
     <springProfile name="dev">
         <logger name="com.eps.module" level="DEBUG"/>
+        <logger name="com.eps.module.crypto" level="DEBUG"/>
         <logger name="org.hibernate.SQL" level="DEBUG"/>
         <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
         <logger name="org.springframework.security" level="DEBUG"/>
@@ -168,6 +199,7 @@
     <!-- Prod Profile Configuration -->
     <springProfile name="prod">
         <logger name="com.eps.module" level="INFO"/>
+        <logger name="com.eps.module.crypto" level="INFO"/>
         <logger name="org.hibernate.SQL" level="WARN"/>
         <logger name="org.springframework" level="WARN"/>
         <logger name="org.springframework.security" level="WARN"/>
