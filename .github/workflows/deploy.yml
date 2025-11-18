@@ -71,8 +71,9 @@ jobs:
   # JOB 3: DEPLOY FRONTEND (Runs if Frontend Build succeeds)
   # ====================================================
   deploy-frontend:
-    # This job only needs the frontend build to succeed (Job 1)
-    needs: [build-frontend] 
+    # 🚨 FIX: Explicitly checks if the needed job succeeded
+    needs: [build-frontend]
+    if: needs.build-frontend.result == 'success'
     runs-on: self-hosted
     
     steps:
@@ -115,8 +116,9 @@ jobs:
   # JOB 4: DEPLOY BACKEND (Runs only if Backend Build succeeds)
   # ====================================================
   deploy-backend:
-    # This job requires BOTH builds to succeed to proceed
+    # Requires both builds to succeed
     needs: [build-frontend, build-backend]
+    if: always() && needs.build-frontend.result == 'success' && needs.build-backend.result == 'success'
     runs-on: self-hosted
     
     steps:
