@@ -15,8 +15,8 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install & Build React
-        working-directory: ./client-api
+      - name: Build React
+        working-directory: ./client-app
         run: |
           bun install
           bun run build
