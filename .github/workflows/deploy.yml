@@ -15,10 +15,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Bun setup action is removed, relying on system PATH
-      - name: Verify Local Bun Installation
-        run: bun --version
-
       - name: Install & Build React
         working-directory: ./client-api
         run: |
@@ -40,10 +36,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      # Java setup action is removed, relying on system PATH
-      - name: Verify Local Java Installation
-        run: java -version
           
       - name: Build Java Modules
         working-directory: ./server-api
