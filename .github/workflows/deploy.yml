@@ -15,8 +15,23 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build React
-        working-directory: ./client-app
+      # 🚨 FIX FOR 'bun not recognized'
+      - name: Set Bun Path
+        shell: powershell
+        run: |
+          # Inject Bun installation path to the job's PATH variable
+          # Assuming the Bun binary is in C:\Users\Admin\.bun\bin
+          $BunPath = "C:\Users\Admin\.bun\bin"
+          
+          # Add the Bun directory to the system PATH for this job session
+          Write-Host "Adding $BunPath to PATH"
+          echo "$BunPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          
+      - name: Verify Local Bun Installation
+        run: bun --version
+
+      - name: Install & Build React
+        working-directory: ./client-app # Assuming your folder is client-app
         run: |
           bun install
           bun run build
@@ -25,7 +40,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
-          path: client-api/dist/
+          path: client-app/dist/
           retention-days: 1
 
   # ====================================================
@@ -36,11 +51,15 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      # Java setup action is removed, relying on system PATH
+      - name: Verify Local Java Installation
+        run: java -version
           
       - name: Build Java Modules
         working-directory: ./server-api
         run: |
-          # Maven uses the Java installation found on the system PATH
+          # Uses Java 21 from your system PATH
           mvn clean install -f common-module/pom.xml
           mvn clean install -f auth-module/pom.xml
           mvn clean install -f entity-module/pom.xml
@@ -55,7 +74,7 @@ jobs:
           retention-days: 1
 
   # ====================================================
-  # JOB 3: DEPLOY
+  # JOB 3: DEPLOY (Service Management and File Copy)
   # ====================================================
   deploy:
     needs: [build-frontend, build-backend]
