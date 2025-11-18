@@ -52,7 +52,7 @@ public class SiteCodeGeneratorServiceImpl implements SiteCodeGeneratorService {
         // Validate foreign keys
         ManagedProject project = managedProjectRepository.findById(requestDto.getProjectId())
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "Managed project not found with id: " + requestDto.getProjectId()));
+                        "Managed Project not found with id: " + requestDto.getProjectId()));
 
         State state = stateRepository.findById(requestDto.getStateId())
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -136,7 +136,7 @@ public class SiteCodeGeneratorServiceImpl implements SiteCodeGeneratorService {
         if (!existingGenerator.getProject().getId().equals(requestDto.getProjectId())) {
             ManagedProject project = managedProjectRepository.findById(requestDto.getProjectId())
                     .orElseThrow(() -> new EntityNotFoundException(
-                            "Managed project not found with id: " + requestDto.getProjectId()));
+                            "Managed Project not found with id: " + requestDto.getProjectId()));
             existingGenerator.setProject(project);
         }
 

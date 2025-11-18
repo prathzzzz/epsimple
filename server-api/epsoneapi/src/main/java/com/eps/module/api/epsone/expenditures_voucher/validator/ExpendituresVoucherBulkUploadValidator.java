@@ -60,12 +60,12 @@ public class ExpendituresVoucherBulkUploadValidator implements BulkRowValidator<
 
         // Validate Managed Project Code (Required, FK)
         if (rowData.getManagedProjectCode() == null || rowData.getManagedProjectCode().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "Managed Project Code", "Managed project code is required", rowData.getManagedProjectCode()));
+            errors.add(createError(rowNumber, "Managed Project Code", "Managed Project code is required", rowData.getManagedProjectCode()));
         } else {
             String projectCode = rowData.getManagedProjectCode().trim();
             boolean exists = managedProjectRepository.existsByProjectCodeIgnoreCase(projectCode);
             if (!exists) {
-                errors.add(createError(rowNumber, "Managed Project Code", "Managed project '" + projectCode + "' not found", projectCode));
+                errors.add(createError(rowNumber, "Managed Project Code", "Managed Project '" + projectCode + "' not found", projectCode));
             }
         }
 

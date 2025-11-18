@@ -122,9 +122,9 @@ public class ExpendituresVoucherServiceImpl extends BaseBulkUploadService<Expend
             throw new ResourceNotFoundException("Voucher not found with ID: " + requestDto.getVoucherId());
         }
 
-        // Validate managed project exists
+        // Validate Managed Project exists
         if (!managedProjectRepository.existsById(requestDto.getManagedProjectId())) {
-            throw new ResourceNotFoundException("Managed project not found with ID: " + requestDto.getManagedProjectId());
+            throw new ResourceNotFoundException("Managed Project not found with ID: " + requestDto.getManagedProjectId());
         }
 
         ExpendituresVoucher expendituresVoucher = expendituresVoucherMapper.toEntity(requestDto);
@@ -181,10 +181,10 @@ public class ExpendituresVoucherServiceImpl extends BaseBulkUploadService<Expend
             }
         }
 
-        // Validate managed project exists if changed
+        // Validate Managed Project exists if changed
         if (!requestDto.getManagedProjectId().equals(existingExpendituresVoucher.getManagedProject().getId())) {
             if (!managedProjectRepository.existsById(requestDto.getManagedProjectId())) {
-                throw new ResourceNotFoundException("Managed project not found with ID: " + requestDto.getManagedProjectId());
+                throw new ResourceNotFoundException("Managed Project not found with ID: " + requestDto.getManagedProjectId());
             }
         }
 

@@ -164,10 +164,10 @@ public class BankServiceImpl extends BaseBulkUploadService<BankBulkUploadDto, Ba
         Bank bank = bankRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Bank not found with ID: " + id));
 
-        // Check if this bank is being used by any managed projects
-        log.debug("Checking for dependent managed projects for bank ID: {}", id);
+        // Check if this bank is being used by any Managed Projects
+        log.debug("Checking for dependent Managed Projects for bank ID: {}", id);
         Page<ManagedProject> dependentProjects = managedProjectRepository.findByBankId(id, PageRequest.of(0, 6));
-        log.debug("Found {} dependent managed projects", dependentProjects.getTotalElements());
+        log.debug("Found {} dependent Managed Projects", dependentProjects.getTotalElements());
         
         if (!dependentProjects.isEmpty()) {
             long totalCount = dependentProjects.getTotalElements();
@@ -178,7 +178,7 @@ public class BankServiceImpl extends BaseBulkUploadService<BankBulkUploadDto, Ba
             
             String projectNamesList = String.join(", ", projectNames);
             String errorMessage = String.format(
-                    "Cannot delete '%s' bank because it is being used by %d managed project%s: %s%s. Please delete or reassign these managed projects first.",
+                    "Cannot delete '%s' bank because it is being used by %d Managed Project%s: %s%s. Please delete or reassign these Managed Projects first.",
                     bank.getBankName(),
                     totalCount,
                     totalCount > 1 ? "s" : "",
@@ -186,7 +186,7 @@ public class BankServiceImpl extends BaseBulkUploadService<BankBulkUploadDto, Ba
                     totalCount > 5 ? " and " + (totalCount - 5) + " more" : ""
             );
             
-            log.warn("Attempted to delete bank '{}' which is referenced by {} managed projects", bank.getBankName(), totalCount);
+            log.warn("Attempted to delete bank '{}' which is referenced by {} Managed Projects", bank.getBankName(), totalCount);
             throw new IllegalStateException(errorMessage);
         }
 

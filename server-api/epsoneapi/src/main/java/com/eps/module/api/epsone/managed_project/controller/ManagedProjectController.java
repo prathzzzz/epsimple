@@ -35,9 +35,9 @@ public class ManagedProjectController {
     @PostMapping
     public ResponseEntity<ApiResponse<ManagedProjectResponseDto>> createManagedProject(
             @Valid @RequestBody ManagedProjectRequestDto requestDto) {
-        log.info("POST /api/managed-projects - Creating new managed project");
+        log.info("POST /api/managed-projects - Creating new Managed Project");
         ManagedProjectResponseDto responseDto = managedProjectService.createManagedProject(requestDto);
-        return ResponseBuilder.success(responseDto, "Managed project created successfully", HttpStatus.CREATED);
+        return ResponseBuilder.success(responseDto, "Managed Project created successfully", HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -46,14 +46,14 @@ public class ManagedProjectController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
-        
-        log.info("GET /api/managed-projects - Fetching all managed projects with pagination");
-        
-        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") 
-            ? Sort.Direction.DESC 
-            : Sort.Direction.ASC;
+
+        log.info("GET /api/managed-projects - Fetching all Managed Projects with pagination");
+
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        
+
         Page<ManagedProjectResponseDto> managedProjects = managedProjectService.getAllManagedProjects(pageable);
         return ResponseBuilder.success(managedProjects, "Managed projects retrieved successfully");
     }
@@ -65,16 +65,16 @@ public class ManagedProjectController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "projectName") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
-        
-        log.info("GET /api/managed-projects/search - Searching managed projects with term: {}", searchTerm);
-        
-        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") 
-            ? Sort.Direction.DESC 
-            : Sort.Direction.ASC;
+
+        log.info("GET /api/managed-projects/search - Searching Managed Projects with term: {}", searchTerm);
+
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        
+
         Page<ManagedProjectResponseDto> managedProjects = managedProjectService.searchManagedProjects(searchTerm, pageable);
-        return ResponseBuilder.success(managedProjects, "Managed projects search completed successfully");
+        return ResponseBuilder.success(managedProjects, "Managed Projects search completed successfully");
     }
 
     @GetMapping("/bank/{bankId}")
@@ -84,30 +84,30 @@ public class ManagedProjectController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "projectName") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
-        
-        log.info("GET /api/managed-projects/bank/{} - Fetching managed projects by bank", bankId);
-        
-        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") 
-            ? Sort.Direction.DESC 
-            : Sort.Direction.ASC;
+
+        log.info("GET /api/managed-projects/bank/{} - Fetching Managed Projects by bank", bankId);
+
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        
+
         Page<ManagedProjectResponseDto> managedProjects = managedProjectService.getManagedProjectsByBank(bankId, pageable);
         return ResponseBuilder.success(managedProjects, "Managed projects retrieved successfully");
     }
 
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<List<ManagedProjectResponseDto>>> getAllManagedProjectsList() {
-        log.info("GET /api/managed-projects/list - Fetching all managed projects as list");
+        log.info("GET /api/managed-projects/list - Fetching all Managed Projects as list");
         List<ManagedProjectResponseDto> managedProjects = managedProjectService.getAllManagedProjectsList();
-        return ResponseBuilder.success(managedProjects, "Managed projects list retrieved successfully");
+        return ResponseBuilder.success(managedProjects, "Managed Projects list retrieved successfully");
     }
 
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportData() throws IOException {
-        log.info("GET /api/managed-projects/export - Exporting all managed projects");
+        log.info("GET /api/managed-projects/export - Exporting all Managed Projects");
         return bulkUploadHelper.export(managedProjectService);
     }
 
@@ -115,25 +115,25 @@ public class ManagedProjectController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ManagedProjectResponseDto>> getManagedProjectById(@PathVariable Long id) {
-        log.info("GET /api/managed-projects/{} - Fetching managed project by ID", id);
+        log.info("GET /api/managed-projects/{} - Fetching Managed Project by ID", id);
         ManagedProjectResponseDto managedProject = managedProjectService.getManagedProjectById(id);
-        return ResponseBuilder.success(managedProject, "Managed project retrieved successfully");
+        return ResponseBuilder.success(managedProject, "Managed Project retrieved successfully");
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ManagedProjectResponseDto>> updateManagedProject(
             @PathVariable Long id,
             @Valid @RequestBody ManagedProjectRequestDto requestDto) {
-        log.info("PUT /api/managed-projects/{} - Updating managed project", id);
+        log.info("PUT /api/managed-projects/{} - Updating Managed Project", id);
         ManagedProjectResponseDto responseDto = managedProjectService.updateManagedProject(id, requestDto);
-        return ResponseBuilder.success(responseDto, "Managed project updated successfully");
+        return ResponseBuilder.success(responseDto, "Managed Project updated successfully");
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteManagedProject(@PathVariable Long id) {
-        log.info("DELETE /api/managed-projects/{} - Deleting managed project", id);
+        log.info("DELETE /api/managed-projects/{} - Deleting Managed Project", id);
         managedProjectService.deleteManagedProject(id);
-        return ResponseBuilder.success(null, "Managed project deleted successfully");
+        return ResponseBuilder.success(null, "Managed Project deleted successfully");
     }
 
     // ========== Bulk Upload Endpoints ==========

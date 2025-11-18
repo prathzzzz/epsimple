@@ -87,8 +87,8 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
     public void deleteManagedProject(Long id) {
         log.info("Deleting managed project with ID: {}", id);
         
-        ManagedProject managedProject = managedProjectRepository.findByIdWithBank(id)
-            .orElseThrow(() -> new IllegalArgumentException("Managed project not found with id: " + id));
+        ManagedProject managedProject = managedProjectRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Managed Project not found with id: " + id));
         
         // Check for dependent sites
         Page<Site> dependentSites = managedProjectRepository.findSitesByProjectId(id, PageRequest.of(0, 6));
@@ -102,18 +102,18 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
             
             String siteCodesList = String.join(", ", siteCodes);
             String errorMessage = String.format(
-                    "Cannot delete '%s' managed project because it is being used by %d site%s: %s. Please delete or reassign these sites first.",
+                    "Cannot delete '%s' Managed Project because it is being used by %d site%s: %s. Please delete or reassign these sites first.",
                     managedProject.getProjectName(),
                     totalCount,
                     totalCount > 1 ? "s" : "",
                     siteCodesList
             );
-            log.warn("Failed to delete managed project with ID {}: {}", id, errorMessage);
+            log.warn("Failed to delete Managed Project with ID {}: {}", id, errorMessage);
             throw new IllegalStateException(errorMessage);
         }
         
         managedProjectRepository.deleteById(id);
-        log.info("Managed project deleted successfully with ID: {}", id);
+        log.info("Managed Project deleted successfully with ID: {}", id);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
 
     @Override
     public List<ManagedProject> getAllEntitiesForExport() {
-        log.info("Fetching all managed projects for export");
+        log.info("Fetching all Managed Projects for export");
         return managedProjectRepository.findAllForExport();
     }
 

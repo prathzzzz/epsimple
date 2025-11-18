@@ -50,7 +50,7 @@ public class ManagedProjectBulkUploadProcessor extends BulkUploadProcessor<Manag
 
     @Override
     protected void saveEntity(ManagedProject entity) {
-        log.debug("Saving managed project: {}", entity.getProjectName());
+        log.debug("Saving Managed Project: {}", entity.getProjectName());
         managedProjectRepository.save(entity);
     }
 

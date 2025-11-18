@@ -64,7 +64,7 @@ public class ExpendituresInvoiceBulkUploadProcessor extends BulkUploadProcessor<
         // Find Managed Project
         ManagedProject managedProject = managedProjectRepository
                 .findByProjectCodeIgnoreCase(dto.getManagedProjectCode().trim())
-                .orElseThrow(() -> new RuntimeException("Managed project not found: " + dto.getManagedProjectCode()));
+                .orElseThrow(() -> new RuntimeException("Managed Project not found: " + dto.getManagedProjectCode()));
 
         // Build ExpendituresInvoice entity
         return ExpendituresInvoice.builder()
