@@ -13,6 +13,7 @@ import com.eps.module.bank.Bank;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.crypto.service.CryptoService;
 import com.eps.module.payment.PayeeDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,7 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
     private final PayeeRepository payeeRepository;
     private final PayeeDetailsMapper payeeDetailsMapper;
     private final PayeeDetailsBulkUploadProcessor payeeDetailsBulkUploadProcessor;
+    private final CryptoService cryptoService;
 
     @Override
     @Transactional
@@ -46,30 +48,31 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
                             "Bank with ID " + requestDto.getBankId() + " not found"));
         }
 
-        // Validate PAN uniqueness if provided
+        // Validate PAN uniqueness if provided (using hash)
         if (requestDto.getPanNumber() != null && !requestDto.getPanNumber().isEmpty()) {
-            if (payeeDetailsRepository.existsByPanNumber(requestDto.getPanNumber())) {
+            String panHash = cryptoService.hash(requestDto.getPanNumber());
+            if (payeeDetailsRepository.existsByPanNumberHash(panHash)) {
                 throw new IllegalArgumentException(
-                        "PAN number '" + requestDto.getPanNumber() + "' is already registered");
+                        "PAN number is already registered");
             }
         }
 
-        // Validate Aadhaar uniqueness if provided
+        // Validate Aadhaar uniqueness if provided (using hash)
         if (requestDto.getAadhaarNumber() != null && !requestDto.getAadhaarNumber().isEmpty()) {
-            if (payeeDetailsRepository.existsByAadhaarNumber(requestDto.getAadhaarNumber())) {
+            String aadhaarHash = cryptoService.hash(requestDto.getAadhaarNumber());
+            if (payeeDetailsRepository.existsByAadhaarNumberHash(aadhaarHash)) {
                 throw new IllegalArgumentException(
-                        "Aadhaar number '" + requestDto.getAadhaarNumber() + "' is already registered");
+                        "Aadhaar number is already registered");
             }
         }
 
-        // Validate account number uniqueness for the bank if both provided
+        // Validate account number uniqueness for the bank if both provided (using hash)
         if (requestDto.getAccountNumber() != null && !requestDto.getAccountNumber().isEmpty() 
                 && requestDto.getBankId() != null) {
-            if (payeeDetailsRepository.existsByAccountNumberAndBankId(
-                    requestDto.getAccountNumber(), requestDto.getBankId())) {
+            String accountHash = cryptoService.hash(requestDto.getAccountNumber());
+            if (payeeDetailsRepository.existsByAccountNumberHashAndBankId(accountHash, requestDto.getBankId())) {
                 throw new IllegalArgumentException(
-                        "Account number '" + requestDto.getAccountNumber() + 
-                        "' is already registered with " + bank.getBankName());
+                        "Account number is already registered with " + bank.getBankName());
             }
         }
 
@@ -125,41 +128,61 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
                             "Bank with ID " + requestDto.getBankId() + " not found"));
         }
 
-        // Validate PAN uniqueness if changed
+        // Validate PAN uniqueness if changed (using hash)
         if (requestDto.getPanNumber() != null && !requestDto.getPanNumber().isEmpty()) {
-            if (payeeDetailsRepository.existsByPanNumberAndIdNot(requestDto.getPanNumber(), id)) {
+            String panHash = cryptoService.hash(requestDto.getPanNumber());
+            if (payeeDetailsRepository.existsByPanNumberHashAndIdNot(panHash, id)) {
                 throw new IllegalArgumentException(
-                        "PAN number '" + requestDto.getPanNumber() + "' is already registered with another payee");
+                        "PAN number is already registered with another payee");
             }
         }
 
-        // Validate Aadhaar uniqueness if changed
+        // Validate Aadhaar uniqueness if changed (using hash)
         if (requestDto.getAadhaarNumber() != null && !requestDto.getAadhaarNumber().isEmpty()) {
-            if (payeeDetailsRepository.existsByAadhaarNumberAndIdNot(requestDto.getAadhaarNumber(), id)) {
+            String aadhaarHash = cryptoService.hash(requestDto.getAadhaarNumber());
+            if (payeeDetailsRepository.existsByAadhaarNumberHashAndIdNot(aadhaarHash, id)) {
                 throw new IllegalArgumentException(
-                        "Aadhaar number '" + requestDto.getAadhaarNumber() + "' is already registered with another payee");
+                        "Aadhaar number is already registered with another payee");
             }
         }
 
-        // Validate account number uniqueness for the bank if both provided
+        // Validate account number uniqueness for the bank if both provided (using hash)
         if (requestDto.getAccountNumber() != null && !requestDto.getAccountNumber().isEmpty() 
                 && requestDto.getBankId() != null) {
-            if (payeeDetailsRepository.existsByAccountNumberAndBankIdAndIdNot(
-                    requestDto.getAccountNumber(), requestDto.getBankId(), id)) {
+            String accountHash = cryptoService.hash(requestDto.getAccountNumber());
+            if (payeeDetailsRepository.existsByAccountNumberHashAndBankIdAndIdNot(
+                    accountHash, requestDto.getBankId(), id)) {
                 throw new IllegalArgumentException(
-                        "Account number '" + requestDto.getAccountNumber() + 
-                        "' is already registered with " + bank.getBankName() + " for another payee");
+                        "Account number is already registered with " + bank.getBankName() + " for another payee");
             }
         }
 
-        // Update fields
+        // Update fields using mapper
         existingPayeeDetails.setPayeeName(requestDto.getPayeeName());
-        existingPayeeDetails.setPanNumber(requestDto.getPanNumber());
-        existingPayeeDetails.setAadhaarNumber(requestDto.getAadhaarNumber());
         existingPayeeDetails.setBank(bank);
         existingPayeeDetails.setIfscCode(requestDto.getIfscCode());
-        existingPayeeDetails.setBeneficiaryName(requestDto.getBeneficiaryName());
-        existingPayeeDetails.setAccountNumber(requestDto.getAccountNumber());
+        
+        // Encrypt and hash sensitive fields
+        if (requestDto.getPanNumber() != null) {
+            CryptoService.EncryptedData panData = cryptoService.encryptWithHash(requestDto.getPanNumber());
+            existingPayeeDetails.setPanNumber(panData.encryptedValue());
+            existingPayeeDetails.setPanNumberHash(panData.hash());
+        }
+        if (requestDto.getAadhaarNumber() != null) {
+            CryptoService.EncryptedData aadhaarData = cryptoService.encryptWithHash(requestDto.getAadhaarNumber());
+            existingPayeeDetails.setAadhaarNumber(aadhaarData.encryptedValue());
+            existingPayeeDetails.setAadhaarNumberHash(aadhaarData.hash());
+        }
+        if (requestDto.getBeneficiaryName() != null) {
+            CryptoService.EncryptedData beneficiaryData = cryptoService.encryptWithHash(requestDto.getBeneficiaryName());
+            existingPayeeDetails.setBeneficiaryName(beneficiaryData.encryptedValue());
+            existingPayeeDetails.setBeneficiaryNameHash(beneficiaryData.hash());
+        }
+        if (requestDto.getAccountNumber() != null) {
+            CryptoService.EncryptedData accountData = cryptoService.encryptWithHash(requestDto.getAccountNumber());
+            existingPayeeDetails.setAccountNumber(accountData.encryptedValue());
+            existingPayeeDetails.setAccountNumberHash(accountData.hash());
+        }
 
         PayeeDetails updatedPayeeDetails = payeeDetailsRepository.save(existingPayeeDetails);
         return payeeDetailsMapper.toDto(updatedPayeeDetails);
@@ -206,13 +229,20 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
     public Function<PayeeDetails, PayeeDetailsBulkUploadDto> getEntityToDtoMapper() {
         return entity -> PayeeDetailsBulkUploadDto.builder()
                 .payeeName(entity.getPayeeName())
-                .panNumber(entity.getPanNumber())
-                .aadhaarNumber(entity.getAadhaarNumber())
+                .panNumber(decryptField(entity.getPanNumber()))
+                .aadhaarNumber(decryptField(entity.getAadhaarNumber()))
                 .bankName(entity.getBank() != null ? entity.getBank().getBankName() : null)
                 .ifscCode(entity.getIfscCode())
-                .beneficiaryName(entity.getBeneficiaryName())
-                .accountNumber(entity.getAccountNumber())
+                .beneficiaryName(decryptField(entity.getBeneficiaryName()))
+                .accountNumber(decryptField(entity.getAccountNumber()))
                 .build();
+    }
+
+    private String decryptField(String encryptedValue) {
+        if (encryptedValue == null || encryptedValue.isEmpty()) {
+            return encryptedValue;
+        }
+        return cryptoService.decrypt(encryptedValue);
     }
 
     @Override

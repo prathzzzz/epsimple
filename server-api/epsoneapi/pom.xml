@@ -49,6 +49,12 @@
             <artifactId>entity-module</artifactId>
             <version>0.1.0</version>
         </dependency>
+        <!-- crypto module-->
+        <dependency>
+            <groupId>com.eps.module.crypto</groupId>
+            <artifactId>crypto-module</artifactId>
+            <version>0.1.0</version>
+        </dependency>
 		<dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

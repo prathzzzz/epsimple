@@ -6,6 +6,7 @@ import com.eps.module.api.epsone.payment_details.validator.PaymentDetailsBulkUpl
 import com.eps.module.api.epsone.payment_method.repository.PaymentMethodRepository;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.validator.BulkRowValidator;
+import com.eps.module.crypto.service.CryptoService;
 import com.eps.module.payment.PaymentDetails;
 import com.eps.module.payment.PaymentMethod;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class PaymentDetailsBulkUploadProcessor extends BulkUploadProcessor<Payme
     private final PaymentDetailsRepository paymentDetailsRepository;
     private final PaymentMethodRepository paymentMethodRepository;
     private final PaymentDetailsBulkUploadValidator validator;
+    private final CryptoService cryptoService;
 
     @Override
     protected BulkRowValidator<PaymentDetailsBulkUploadDto> getValidator() {
@@ -35,16 +37,33 @@ public class PaymentDetailsBulkUploadProcessor extends BulkUploadProcessor<Payme
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Payment method not found: " + dto.getPaymentMethodName()));
 
-        return PaymentDetails.builder()
+        PaymentDetails.PaymentDetailsBuilder builder = PaymentDetails.builder()
                 .paymentMethod(paymentMethod)
                 .paymentDate(dto.getPaymentDate())
                 .paymentAmount(dto.getPaymentAmount())
                 .transactionNumber(dto.getTransactionNumber())
-                .vpa(dto.getVpa())
-                .beneficiaryName(dto.getBeneficiaryName())
-                .beneficiaryAccountNumber(dto.getBeneficiaryAccountNumber())
-                .paymentRemarks(dto.getPaymentRemarks())
-                .build();
+                .paymentRemarks(dto.getPaymentRemarks());
+
+        // Encrypt and hash sensitive fields
+        if (dto.getVpa() != null && !dto.getVpa().isEmpty()) {
+            CryptoService.EncryptedData vpaData = cryptoService.encryptWithHash(dto.getVpa());
+            builder.vpa(vpaData.encryptedValue());
+            builder.vpaHash(vpaData.hash());
+        }
+
+        if (dto.getBeneficiaryName() != null && !dto.getBeneficiaryName().isEmpty()) {
+            CryptoService.EncryptedData beneficiaryData = cryptoService.encryptWithHash(dto.getBeneficiaryName());
+            builder.beneficiaryName(beneficiaryData.encryptedValue());
+            builder.beneficiaryNameHash(beneficiaryData.hash());
+        }
+
+        if (dto.getBeneficiaryAccountNumber() != null && !dto.getBeneficiaryAccountNumber().isEmpty()) {
+            CryptoService.EncryptedData accountData = cryptoService.encryptWithHash(dto.getBeneficiaryAccountNumber());
+            builder.beneficiaryAccountNumber(accountData.encryptedValue());
+            builder.beneficiaryAccountNumberHash(accountData.hash());
+        }
+
+        return builder.build();
     }
 
     @Override

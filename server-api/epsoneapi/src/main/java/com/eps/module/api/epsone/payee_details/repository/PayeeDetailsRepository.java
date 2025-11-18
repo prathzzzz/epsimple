@@ -31,38 +31,38 @@ public interface PayeeDetailsRepository extends JpaRepository<PayeeDetails, Long
     List<PayeeDetails> findAllList();
 
     /**
-     * Check if PAN number exists (for uniqueness validation during create)
+     * Check if PAN number hash exists (for uniqueness validation during create)
      */
-    boolean existsByPanNumber(String panNumber);
+    boolean existsByPanNumberHash(String panNumberHash);
 
     /**
-     * Check if PAN number exists for another payee (for uniqueness validation during update)
+     * Check if PAN number hash exists for another payee (for uniqueness validation during update)
      */
-    @Query("SELECT CASE WHEN COUNT(pd) > 0 THEN true ELSE false END FROM PayeeDetails pd WHERE pd.panNumber = :panNumber AND pd.id <> :id")
-    boolean existsByPanNumberAndIdNot(@Param("panNumber") String panNumber, @Param("id") Long id);
+    @Query("SELECT CASE WHEN COUNT(pd) > 0 THEN true ELSE false END FROM PayeeDetails pd WHERE pd.panNumberHash = :panNumberHash AND pd.id <> :id")
+    boolean existsByPanNumberHashAndIdNot(@Param("panNumberHash") String panNumberHash, @Param("id") Long id);
 
     /**
-     * Check if Aadhaar number exists (for uniqueness validation during create)
+     * Check if Aadhaar number hash exists (for uniqueness validation during create)
      */
-    boolean existsByAadhaarNumber(String aadhaarNumber);
+    boolean existsByAadhaarNumberHash(String aadhaarNumberHash);
 
     /**
-     * Check if Aadhaar number exists for another payee (for uniqueness validation during update)
+     * Check if Aadhaar number hash exists for another payee (for uniqueness validation during update)
      */
-    @Query("SELECT CASE WHEN COUNT(pd) > 0 THEN true ELSE false END FROM PayeeDetails pd WHERE pd.aadhaarNumber = :aadhaarNumber AND pd.id <> :id")
-    boolean existsByAadhaarNumberAndIdNot(@Param("aadhaarNumber") String aadhaarNumber, @Param("id") Long id);
+    @Query("SELECT CASE WHEN COUNT(pd) > 0 THEN true ELSE false END FROM PayeeDetails pd WHERE pd.aadhaarNumberHash = :aadhaarNumberHash AND pd.id <> :id")
+    boolean existsByAadhaarNumberHashAndIdNot(@Param("aadhaarNumberHash") String aadhaarNumberHash, @Param("id") Long id);
 
     /**
-     * Check if account number exists for a specific bank (for uniqueness validation during create)
+     * Check if account number hash exists for a specific bank (for uniqueness validation during create)
      */
-    @Query("SELECT CASE WHEN COUNT(pd) > 0 THEN true ELSE false END FROM PayeeDetails pd WHERE pd.accountNumber = :accountNumber AND pd.bank.id = :bankId")
-    boolean existsByAccountNumberAndBankId(@Param("accountNumber") String accountNumber, @Param("bankId") Long bankId);
+    @Query("SELECT CASE WHEN COUNT(pd) > 0 THEN true ELSE false END FROM PayeeDetails pd WHERE pd.accountNumberHash = :accountNumberHash AND pd.bank.id = :bankId")
+    boolean existsByAccountNumberHashAndBankId(@Param("accountNumberHash") String accountNumberHash, @Param("bankId") Long bankId);
 
     /**
-     * Check if account number exists for a specific bank for another payee (for uniqueness validation during update)
+     * Check if account number hash exists for a specific bank for another payee (for uniqueness validation during update)
      */
-    @Query("SELECT CASE WHEN COUNT(pd) > 0 THEN true ELSE false END FROM PayeeDetails pd WHERE pd.accountNumber = :accountNumber AND pd.bank.id = :bankId AND pd.id <> :id")
-    boolean existsByAccountNumberAndBankIdAndIdNot(@Param("accountNumber") String accountNumber, @Param("bankId") Long bankId, @Param("id") Long id);
+    @Query("SELECT CASE WHEN COUNT(pd) > 0 THEN true ELSE false END FROM PayeeDetails pd WHERE pd.accountNumberHash = :accountNumberHash AND pd.bank.id = :bankId AND pd.id <> :id")
+    boolean existsByAccountNumberHashAndBankIdAndIdNot(@Param("accountNumberHash") String accountNumberHash, @Param("bankId") Long bankId, @Param("id") Long id);
 
     /**
      * Count payee details by bank (for dependency protection when deleting banks)

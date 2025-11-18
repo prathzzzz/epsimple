@@ -11,6 +11,7 @@ import com.eps.module.api.epsone.payment_method.repository.PaymentMethodReposito
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.crypto.service.CryptoService;
 import com.eps.module.payment.PaymentDetails;
 import com.eps.module.payment.PaymentMethod;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +37,14 @@ public class PaymentDetailsServiceImpl extends BaseBulkUploadService<PaymentDeta
     private final PaymentMethodRepository paymentMethodRepository;
     private final PaymentDetailsMapper paymentDetailsMapper;
     private final PaymentDetailsBulkUploadProcessor paymentDetailsBulkUploadProcessor;
+    private final CryptoService cryptoService;
 
     @Override
     @Transactional
     public PaymentDetailsResponseDto createPaymentDetails(PaymentDetailsRequestDto requestDto) {
         log.info("Creating payment details for amount: {}", requestDto.getPaymentAmount());
+        log.debug("Request DTO - vpa: '{}', beneficiaryName: '{}', beneficiaryAccountNumber: '{}'", 
+            requestDto.getVpa(), requestDto.getBeneficiaryName(), requestDto.getBeneficiaryAccountNumber());
 
         // Validate that payment method exists
         PaymentMethod paymentMethod = paymentMethodRepository.findById(requestDto.getPaymentMethodId())
@@ -49,6 +53,10 @@ public class PaymentDetailsServiceImpl extends BaseBulkUploadService<PaymentDeta
 
         PaymentDetails paymentDetails = paymentDetailsMapper.toEntity(requestDto);
         paymentDetails.setPaymentMethod(paymentMethod);
+        
+        log.debug("After mapping - vpa: '{}', vpaHash: '{}', beneficiaryName: '{}', beneficiaryNameHash: '{}'", 
+            paymentDetails.getVpa(), paymentDetails.getVpaHash(), 
+            paymentDetails.getBeneficiaryName(), paymentDetails.getBeneficiaryNameHash());
         
         PaymentDetails savedPaymentDetails = paymentDetailsRepository.save(paymentDetails);
 
@@ -153,11 +161,18 @@ public class PaymentDetailsServiceImpl extends BaseBulkUploadService<PaymentDeta
                 .paymentDate(entity.getPaymentDate())
                 .paymentAmount(entity.getPaymentAmount())
                 .transactionNumber(entity.getTransactionNumber())
-                .vpa(entity.getVpa())
-                .beneficiaryName(entity.getBeneficiaryName())
-                .beneficiaryAccountNumber(entity.getBeneficiaryAccountNumber())
+                .vpa(decryptField(entity.getVpa()))
+                .beneficiaryName(decryptField(entity.getBeneficiaryName()))
+                .beneficiaryAccountNumber(decryptField(entity.getBeneficiaryAccountNumber()))
                 .paymentRemarks(entity.getPaymentRemarks())
                 .build();
+    }
+
+    private String decryptField(String encryptedValue) {
+        if (encryptedValue == null || encryptedValue.isEmpty()) {
+            return encryptedValue;
+        }
+        return cryptoService.decrypt(encryptedValue);
     }
 
     @Override

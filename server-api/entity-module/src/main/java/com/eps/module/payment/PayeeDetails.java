@@ -21,11 +21,17 @@ public class PayeeDetails extends BaseEntity {
     @Column(name = "payee_name", nullable = false, length = 255)
     private String payeeName;
 
-    @Column(name = "pan_number", length = 255)
+    @Column(name = "pan_number", length = 512)
     private String panNumber;
 
-    @Column(name = "aadhaar_number", length = 255)
+    @Column(name = "pan_number_hash", length = 64)
+    private String panNumberHash;
+
+    @Column(name = "aadhaar_number", length = 512)
     private String aadhaarNumber;
+
+    @Column(name = "aadhaar_number_hash", length = 64)
+    private String aadhaarNumberHash;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_id")
@@ -34,9 +40,15 @@ public class PayeeDetails extends BaseEntity {
     @Column(name = "ifsc_code", length = 20)
     private String ifscCode;
 
-    @Column(name = "beneficiary_name", length = 255)
+    @Column(name = "beneficiary_name", length = 512)
     private String beneficiaryName;
 
-    @Column(name = "account_number", length = 255)
+    @Column(name = "beneficiary_name_hash", length = 64)
+    private String beneficiaryNameHash;
+
+    @Column(name = "account_number", length = 512)
     private String accountNumber;
+
+    @Column(name = "account_number_hash", length = 64)
+    private String accountNumberHash;
 }

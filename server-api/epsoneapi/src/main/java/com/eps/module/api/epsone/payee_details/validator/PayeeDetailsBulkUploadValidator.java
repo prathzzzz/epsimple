@@ -6,6 +6,7 @@ import com.eps.module.api.epsone.bank.repository.BankRepository;
 import com.eps.module.bank.Bank;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.validator.BulkRowValidator;
+import com.eps.module.crypto.service.CryptoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,7 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
 
     private final BankRepository bankRepository;
     private final PayeeDetailsRepository payeeDetailsRepository;
+    private final CryptoService cryptoService;
 
     @Override
     public List<BulkUploadErrorDto> validate(PayeeDetailsBulkUploadDto rowData, int rowNumber) {
@@ -55,7 +57,8 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
 
         // Validate PAN uniqueness if provided
         if (rowData.getPanNumber() != null && !rowData.getPanNumber().trim().isEmpty()) {
-            if (payeeDetailsRepository.existsByPanNumber(rowData.getPanNumber())) {
+            String panHash = cryptoService.hash(rowData.getPanNumber());
+            if (payeeDetailsRepository.existsByPanNumberHash(panHash)) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("PAN Number")
@@ -67,7 +70,8 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
 
         // Validate Aadhaar uniqueness if provided
         if (rowData.getAadhaarNumber() != null && !rowData.getAadhaarNumber().trim().isEmpty()) {
-            if (payeeDetailsRepository.existsByAadhaarNumber(rowData.getAadhaarNumber())) {
+            String aadhaarHash = cryptoService.hash(rowData.getAadhaarNumber());
+            if (payeeDetailsRepository.existsByAadhaarNumberHash(aadhaarHash)) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Aadhaar Number")
@@ -82,8 +86,9 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
                 && rowData.getBankName() != null && !rowData.getBankName().trim().isEmpty()) {
             Bank bank = bankRepository.findByBankName(rowData.getBankName()).orElse(null);
             if (bank != null) {
-                if (payeeDetailsRepository.existsByAccountNumberAndBankId(
-                        rowData.getAccountNumber(), bank.getId())) {
+                String accountNumberHash = cryptoService.hash(rowData.getAccountNumber());
+                if (payeeDetailsRepository.existsByAccountNumberHashAndBankId(
+                        accountNumberHash, bank.getId())) {
                     errors.add(BulkUploadErrorDto.builder()
                             .rowNumber(rowNumber)
                             .fieldName("Account Number")
@@ -149,12 +154,14 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
         // Check for duplicates in the database
         // PAN number is the primary unique identifier
         if (rowData.getPanNumber() != null && !rowData.getPanNumber().trim().isEmpty()) {
-            return payeeDetailsRepository.existsByPanNumber(rowData.getPanNumber());
+            String panHash = cryptoService.hash(rowData.getPanNumber());
+            return payeeDetailsRepository.existsByPanNumberHash(panHash);
         }
         
         // If no PAN, check Aadhaar
         if (rowData.getAadhaarNumber() != null && !rowData.getAadhaarNumber().trim().isEmpty()) {
-            return payeeDetailsRepository.existsByAadhaarNumber(rowData.getAadhaarNumber());
+            String aadhaarHash = cryptoService.hash(rowData.getAadhaarNumber());
+            return payeeDetailsRepository.existsByAadhaarNumberHash(aadhaarHash);
         }
         
         // If no PAN or Aadhaar, check account number + bank
@@ -162,8 +169,9 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
                 && rowData.getBankName() != null && !rowData.getBankName().trim().isEmpty()) {
             Bank bank = bankRepository.findByBankName(rowData.getBankName()).orElse(null);
             if (bank != null) {
-                return payeeDetailsRepository.existsByAccountNumberAndBankId(
-                        rowData.getAccountNumber(), bank.getId());
+                String accountNumberHash = cryptoService.hash(rowData.getAccountNumber());
+                return payeeDetailsRepository.existsByAccountNumberHashAndBankId(
+                        accountNumberHash, bank.getId());
             }
         }
         

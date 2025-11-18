@@ -7,6 +7,7 @@ import com.eps.module.api.epsone.bank.repository.BankRepository;
 import com.eps.module.bank.Bank;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.validator.BulkRowValidator;
+import com.eps.module.crypto.service.CryptoService;
 import com.eps.module.payment.PayeeDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ public class PayeeDetailsBulkUploadProcessor extends BulkUploadProcessor<PayeeDe
     private final PayeeDetailsRepository payeeDetailsRepository;
     private final BankRepository bankRepository;
     private final PayeeDetailsBulkUploadValidator validator;
+    private final CryptoService cryptoService;
 
     @Override
     protected BulkRowValidator<PayeeDetailsBulkUploadDto> getValidator() {
@@ -31,11 +33,32 @@ public class PayeeDetailsBulkUploadProcessor extends BulkUploadProcessor<PayeeDe
     protected PayeeDetails convertToEntity(PayeeDetailsBulkUploadDto dto) {
         PayeeDetails.PayeeDetailsBuilder builder = PayeeDetails.builder()
                 .payeeName(dto.getPayeeName())
-                .panNumber(dto.getPanNumber())
-                .aadhaarNumber(dto.getAadhaarNumber())
-                .ifscCode(dto.getIfscCode())
-                .beneficiaryName(dto.getBeneficiaryName())
-                .accountNumber(dto.getAccountNumber());
+                .ifscCode(dto.getIfscCode());
+
+        // Encrypt and hash sensitive fields
+        if (dto.getPanNumber() != null && !dto.getPanNumber().isEmpty()) {
+            CryptoService.EncryptedData panData = cryptoService.encryptWithHash(dto.getPanNumber());
+            builder.panNumber(panData.encryptedValue());
+            builder.panNumberHash(panData.hash());
+        }
+
+        if (dto.getAadhaarNumber() != null && !dto.getAadhaarNumber().isEmpty()) {
+            CryptoService.EncryptedData aadhaarData = cryptoService.encryptWithHash(dto.getAadhaarNumber());
+            builder.aadhaarNumber(aadhaarData.encryptedValue());
+            builder.aadhaarNumberHash(aadhaarData.hash());
+        }
+
+        if (dto.getBeneficiaryName() != null && !dto.getBeneficiaryName().isEmpty()) {
+            CryptoService.EncryptedData beneficiaryData = cryptoService.encryptWithHash(dto.getBeneficiaryName());
+            builder.beneficiaryName(beneficiaryData.encryptedValue());
+            builder.beneficiaryNameHash(beneficiaryData.hash());
+        }
+
+        if (dto.getAccountNumber() != null && !dto.getAccountNumber().isEmpty()) {
+            CryptoService.EncryptedData accountData = cryptoService.encryptWithHash(dto.getAccountNumber());
+            builder.accountNumber(accountData.encryptedValue());
+            builder.accountNumberHash(accountData.hash());
+        }
 
         // Set Bank if provided
         if (dto.getBankName() != null && !dto.getBankName().trim().isEmpty()) {

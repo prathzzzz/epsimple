@@ -33,14 +33,23 @@ public class PaymentDetails extends BaseEntity {
     @Column(name = "transaction_number", length = 255)
     private String transactionNumber;
 
-    @Column(length = 255)
+    @Column(length = 512)
     private String vpa;
 
-    @Column(name = "beneficiary_name", length = 255)
+    @Column(name = "vpa_hash", length = 64)
+    private String vpaHash;
+
+    @Column(name = "beneficiary_name", length = 512)
     private String beneficiaryName;
 
-    @Column(name = "beneficiary_account_number", length = 255)
+    @Column(name = "beneficiary_name_hash", length = 64)
+    private String beneficiaryNameHash;
+
+    @Column(name = "beneficiary_account_number", length = 512)
     private String beneficiaryAccountNumber;
+
+    @Column(name = "beneficiary_account_number_hash", length = 64)
+    private String beneficiaryAccountNumberHash;
 
     @Column(name = "payment_remarks", columnDefinition = "TEXT")
     private String paymentRemarks;
