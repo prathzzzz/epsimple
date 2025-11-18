@@ -12,13 +12,12 @@ jobs:
   build-frontend:
     runs-on: self-hosted
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: latest
+      # Bun setup action is removed, relying on system PATH
+      - name: Verify Local Bun Installation
+        run: bun --version
 
       - name: Install & Build React
         working-directory: ./client-api
@@ -39,21 +38,17 @@ jobs:
   build-backend:
     runs-on: self-hosted
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      # UPDATED: Using Java 21 (Microsoft Distribution)
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'microsoft' # Matches your local 'ms-21' installation
-          java-version: '21'
+      # Java setup action is removed, relying on system PATH
+      - name: Verify Local Java Installation
+        run: java -version
           
       - name: Build Java Modules
         working-directory: ./server-api
         run: |
-          # Using standard Maven commands. 
-          # The Setup Java step above ensures 'mvn' uses Java 21 automatically.
+          # Maven uses the Java installation found on the system PATH
           mvn clean install -f common-module/pom.xml
           mvn clean install -f auth-module/pom.xml
           mvn clean install -f entity-module/pom.xml
@@ -68,7 +63,7 @@ jobs:
           retention-days: 1
 
   # ====================================================
-  # JOB 3: DEPLOY (Runs after Build Jobs finish)
+  # JOB 3: DEPLOY
   # ====================================================
   deploy:
     needs: [build-frontend, build-backend]
@@ -96,11 +91,12 @@ jobs:
           USER: ${{ secrets.SERVER_USERNAME }}
           PASS: ${{ secrets.SERVER_PASSWORD }}
         run: |
+          # Setup Secure Connection
           $pass = $env:PASS | ConvertTo-SecureString -AsPlainText -Force
           $cred = New-Object System.Management.Automation.PSCredential($env:USER, $pass)
-          
           $session = New-PSSession -ComputerName $env:SERVER_IP -Credential $cred -Port 5985
 
+          # Define Server Paths
           $root = "E:\epsone"
           $apiDir = "$root\server-api"
           $clientDir = "$root\client-api\dist"
@@ -118,7 +114,7 @@ jobs:
               }
           } -ArgumentList $serviceName
 
-          # B. BACKUP
+          # B. BACKUP (Timestamped Folder)
           Invoke-Command -Session $session -ScriptBlock {
               param($path, $backupRoot)
               $dateStr = Get-Date -Format "yyyy-MM-dd_HH-mm"
@@ -137,7 +133,7 @@ jobs:
           $localJar = Get-ChildItem -Path ".\ready-to-deploy\jar\epsoneapi-*.jar" | Select-Object -First 1
           Copy-Item -Path $localJar.FullName -Destination $apiDir -ToSession $session -Force
 
-          Write-Host "Uploading React build..."
+          # Upload React build
           Invoke-Command -Session $session -ScriptBlock {
               param($path)
               if (Test-Path $path) { Remove-Item "$path\*" -Recurse -Force }
