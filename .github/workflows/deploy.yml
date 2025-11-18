@@ -1,4 +1,4 @@
-name: Parallel Build & Service Deploy
+name: Parallel Build & Flexible Service Deploy
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   # ====================================================
-  # JOB 1: BUILD FRONTEND (Runs in Parallel)
+  # JOB 1: BUILD FRONTEND
   # ====================================================
   build-frontend:
     runs-on: self-hosted
@@ -15,23 +15,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 🚨 FIX FOR 'bun not recognized'
       - name: Set Bun Path
         shell: powershell
         run: |
-          # Inject Bun installation path to the job's PATH variable
-          # Assuming the Bun binary is in C:\Users\Admin\.bun\bin
           $BunPath = "C:\Users\Admin\.bun\bin"
-          
-          # Add the Bun directory to the system PATH for this job session
-          Write-Host "Adding $BunPath to PATH"
           echo "$BunPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           
       - name: Verify Local Bun Installation
         run: bun --version
 
       - name: Install & Build React
-        working-directory: ./client-app # Assuming your folder is client-app
+        working-directory: ./client-app
         run: |
           bun install
           bun run build
@@ -44,7 +38,7 @@ jobs:
           retention-days: 1
 
   # ====================================================
-  # JOB 2: BUILD BACKEND (Runs in Parallel)
+  # JOB 2: BUILD BACKEND
   # ====================================================
   build-backend:
     runs-on: self-hosted
@@ -52,14 +46,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Java setup action is removed, relying on system PATH
       - name: Verify Local Java Installation
         run: java -version
           
       - name: Build Java Modules
         working-directory: ./server-api
         run: |
-          # Uses Java 21 from your system PATH
           mvn clean install -f common-module/pom.xml
           mvn clean install -f auth-module/pom.xml
           mvn clean install -f entity-module/pom.xml
@@ -73,28 +65,67 @@ jobs:
           path: server-api/epsoneapi/target/epsoneapi-*.jar
           retention-days: 1
 
+---
+
   # ====================================================
-  # JOB 3: DEPLOY (Service Management and File Copy)
+  # JOB 3: DEPLOY FRONTEND (Runs if Frontend Build succeeds)
   # ====================================================
-  deploy:
-    needs: [build-frontend, build-backend]
+  deploy-frontend:
+    # This job only needs the frontend build to succeed (Job 1)
+    needs: [build-frontend] 
     runs-on: self-hosted
     
     steps:
-      # 1. Download Artifacts
-      - name: Download Frontend
+      - name: Download Frontend Artifact
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
           path: ./ready-to-deploy/dist
 
-      - name: Download Backend
+      - name: Copy Frontend Files via WinRM
+        shell: powershell
+        env:
+          SERVER_IP: "192.168.83.23"
+          USER: ${{ secrets.SERVER_USERNAME }}
+          PASS: ${{ secrets.SERVER_PASSWORD }}
+        run: |
+          $pass = $env:PASS | ConvertTo-SecureString -AsPlainText -Force
+          $cred = New-Object System.Management.Automation.PSCredential($env:USER, $pass)
+          $session = New-PSSession -ComputerName $env:SERVER_IP -Credential $cred -Port 5985
+
+          $root = "E:\epsone"
+          $clientDir = "$root\client-api\dist"
+          
+          Write-Host "Starting Frontend Deployment..."
+          
+          # Clean remote dist folder
+          Invoke-Command -Session $session -ScriptBlock {
+              param($path)
+              if (Test-Path $path) { Remove-Item "$path\*" -Recurse -Force }
+          } -ArgumentList $clientDir
+          
+          # Upload new React build to E:\epsone\client-api\dist
+          Copy-Item -Path ".\ready-to-deploy\dist\*" -Destination $clientDir -ToSession $session -Recurse -Force
+          
+          Write-Host "Frontend Deployment Complete."
+          Remove-PSSession $session
+
+---
+  # ====================================================
+  # JOB 4: DEPLOY BACKEND (Runs only if Backend Build succeeds)
+  # ====================================================
+  deploy-backend:
+    # This job requires BOTH builds to succeed to proceed
+    needs: [build-frontend, build-backend]
+    runs-on: self-hosted
+    
+    steps:
+      - name: Download Backend Artifact
         uses: actions/download-artifact@v4
         with:
           name: backend-jar
           path: ./ready-to-deploy/jar
 
-      # 2. Execute Remote Deployment via WinRM
       - name: Stop Service, Backup, Deploy, Start Service
         shell: powershell
         env:
@@ -102,15 +133,12 @@ jobs:
           USER: ${{ secrets.SERVER_USERNAME }}
           PASS: ${{ secrets.SERVER_PASSWORD }}
         run: |
-          # Setup Secure Connection
           $pass = $env:PASS | ConvertTo-SecureString -AsPlainText -Force
           $cred = New-Object System.Management.Automation.PSCredential($env:USER, $pass)
           $session = New-PSSession -ComputerName $env:SERVER_IP -Credential $cred -Port 5985
 
-          # Define Server Paths
           $root = "E:\epsone"
           $apiDir = "$root\server-api"
-          $clientDir = "$root\client-api\dist"
           $backupRoot = "$apiDir\backup-jars"
           $serviceName = "epsone-backend"
 
@@ -139,17 +167,10 @@ jobs:
               }
           } -ArgumentList $apiDir, $backupRoot
 
-          # C. UPLOAD NEW FILES
+          # C. UPLOAD NEW JAR
           Write-Host "Uploading new JAR..."
           $localJar = Get-ChildItem -Path ".\ready-to-deploy\jar\epsoneapi-*.jar" | Select-Object -First 1
           Copy-Item -Path $localJar.FullName -Destination $apiDir -ToSession $session -Force
-
-          # Upload React build
-          Invoke-Command -Session $session -ScriptBlock {
-              param($path)
-              if (Test-Path $path) { Remove-Item "$path\*" -Recurse -Force }
-          } -ArgumentList $clientDir
-          Copy-Item -Path ".\ready-to-deploy\dist\*" -Destination $clientDir -ToSession $session -Recurse -Force
 
           # D. START SERVICE
           Invoke-Command -Session $session -ScriptBlock {
@@ -159,4 +180,4 @@ jobs:
           } -ArgumentList $serviceName
 
           Remove-PSSession $session
-          Write-Host "Deployment Complete."
+          Write-Host "Backend Deployment Complete."
