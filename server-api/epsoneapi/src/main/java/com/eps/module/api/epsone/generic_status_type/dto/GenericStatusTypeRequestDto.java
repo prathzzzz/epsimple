@@ -17,9 +17,14 @@ public class GenericStatusTypeRequestDto {
     private String statusName;
 
     @Size(max = 20, message = "Status code must not exceed 20 characters")
-    @Pattern(regexp = "^[A-Z0-9_-]*$", message = "Status code must be uppercase alphanumeric with hyphens/underscores")
+    @Pattern(regexp = "^[A-Z ]*$", message = "Status code must contain only uppercase letters and spaces")
     private String statusCode;
 
     @Size(max = 5000, message = "Description must not exceed 5000 characters")
     private String description;
+    
+    // Automatically uppercase status code when set
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode != null ? statusCode.toUpperCase().trim() : null;
+    }
 }

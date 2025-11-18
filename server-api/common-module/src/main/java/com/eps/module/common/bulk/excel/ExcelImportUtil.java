@@ -213,25 +213,14 @@ public class ExcelImportUtil {
                 return "";
             }
             
-            // Try to get as number first (since NUMBER cells can't be read as STRING)
-            try {
-                Optional<BigDecimal> numberValue = row.getCellAsNumber(columnIndex);
-                if (numberValue.isPresent()) {
-                    BigDecimal num = numberValue.get();
-                    // Check if it's a whole number (like phone numbers)
-                    if (num.stripTrailingZeros().scale() <= 0) {
-                        return num.toBigInteger().toString();
-                    } else {
-                        return num.toPlainString();
-                    }
-                }
-            } catch (Exception e) {
-                // Not a number, try string
+            // Use getCellText() which returns the cached computed value for formulas
+            // This works for STRING, NUMBER, and FORMULA cells
+            String cellText = row.getCellText(columnIndex);
+            if (cellText != null && !cellText.isEmpty()) {
+                return cellText.trim();
             }
             
-            // Try to get as string
-            Optional<String> stringValue = row.getCellAsString(columnIndex);
-            return stringValue.map(String::trim).orElse("");
+            return "";
 
         } catch (Exception e) {
             log.warn("Error reading cell at column {}: {}", columnIndex, e.getMessage());

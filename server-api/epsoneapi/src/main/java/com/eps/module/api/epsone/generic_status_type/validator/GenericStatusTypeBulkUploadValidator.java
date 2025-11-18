@@ -48,11 +48,11 @@ public class GenericStatusTypeBulkUploadValidator implements BulkRowValidator<Ge
                         .errorMessage("Status Code cannot exceed 20 characters")
                         .rejectedValue(dto.getStatusCode())
                         .build());
-            } else if (!dto.getStatusCode().matches("^[A-Z0-9_-]+$")) {
+            } else if (!dto.getStatusCode().matches("^[A-Z ]*$")) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Status Code")
-                        .errorMessage("Status Code must be uppercase alphanumeric with hyphens/underscores")
+                        .errorMessage("Status Code must contain only uppercase letters and spaces")
                         .rejectedValue(dto.getStatusCode())
                         .build());
             }

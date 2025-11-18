@@ -26,7 +26,7 @@ public class GenericStatusType extends BaseEntity {
     private String statusName;
 
     @Size(max = 20, message = "Status code cannot exceed 20 characters")
-    @Pattern(regexp = "^[A-Z0-9_-]+$", message = "Status code must be uppercase alphanumeric with hyphens/underscores")
+    @Pattern(regexp = "^[A-Z ]*$", message = "Status code must contain only uppercase letters and spaces")
     @Column(name = "status_code", unique = true, length = 20)
     private String statusCode;
 

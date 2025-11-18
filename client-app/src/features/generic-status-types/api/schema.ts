@@ -20,8 +20,8 @@ export const genericStatusTypeFormSchema = z.object({
     .string()
     .max(20, "Status code must not exceed 20 characters")
     .regex(
-      /^[A-Z0-9_-]*$/,
-      "Status code must be uppercase alphanumeric with hyphens/underscores"
+      /^[A-Z ]*$/,
+      "Status code must contain only uppercase letters and spaces"
     )
     .optional()
     .or(z.literal("")),

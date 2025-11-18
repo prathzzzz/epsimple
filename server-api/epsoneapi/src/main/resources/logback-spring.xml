@@ -142,6 +142,14 @@
         <appender-ref ref="CONSOLE"/>
     </logger>
     
+    <!-- Disable repository scanning logs -->
+    <logger name="org.springframework.data.repository.config.RepositoryConfigurationDelegate" level="ERROR"/>
+    <logger name="org.springframework.data.repository" level="WARN"/>
+    <logger name="org.springframework.boot.autoconfigure" level="WARN"/>
+    <logger name="org.springframework.context.annotation" level="WARN"/>
+    <logger name="org.springframework.data.repository.config.RepositoryComponentProvider" level="ERROR"/>
+    <logger name="org.springframework.data.repository.core.support.RepositoryFactorySupport" level="ERROR"/>
+    
     <!-- Dev Profile Configuration -->
     <springProfile name="dev">
         <logger name="com.eps.module" level="DEBUG"/>
