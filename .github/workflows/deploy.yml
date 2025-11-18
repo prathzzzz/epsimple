@@ -70,10 +70,9 @@ jobs:
   # ====================================================
   # JOB 3: DEPLOY FRONTEND (Runs if Frontend Build succeeds)
   # ====================================================
-  deploy-frontend:
-    # 🚨 FIX: Explicitly checks if the needed job succeeded
+ deploy-frontend:
     needs: [build-frontend]
-    if: needs.build-frontend.result == 'success'
+    if: always() && needs.build-frontend.result == 'success'
     runs-on: self-hosted
     
     steps:
