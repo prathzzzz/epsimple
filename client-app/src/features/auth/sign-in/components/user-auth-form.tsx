@@ -59,7 +59,7 @@ export function UserAuthForm({
 
       // If login is successful, navigate to target path (dashboard by default)
       // Decode the redirect URL if it exists
-      const targetPath = redirectTo ? decodeURIComponent(redirectTo) : '/'
+      const targetPath = redirectTo ? decodeURIComponent(redirectTo) : '/dashboard'
       
       navigate({ to: targetPath, replace: true })
       

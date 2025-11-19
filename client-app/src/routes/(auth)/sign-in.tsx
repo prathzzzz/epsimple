@@ -14,7 +14,7 @@ export const Route = createFileRoute('/(auth)/sign-in')({
     const { user } = useAuthStore.getState()
     if (user) {
       throw redirect({
-        to: '/',
+        to: '/dashboard',
       })
     }
   },

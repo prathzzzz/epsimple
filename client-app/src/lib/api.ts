@@ -28,6 +28,11 @@ api.interceptors.response.use(
   (error) => {
     // Handle common errors
     if (error.response?.status === 401) {
+      // Ignore 401 for the 'me' endpoint as it just means user is not logged in
+      if (error.config?.url?.includes('/auth/me')) {
+        return Promise.reject(error)
+      }
+
       // Unauthorized - redirect to login
       // Only redirect if we're not already on login/auth pages
       const currentPath = window.location.pathname
