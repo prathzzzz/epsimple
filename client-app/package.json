@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build:routes": "bunx @tanstack/router-cli generate",
-    "build": "bun run build:routes && tsc -b && vite build",
+    "build:routes": "npx @tanstack/router-cli generate",
+    "build": "npm run build:routes && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "format:check": "prettier --check .",
