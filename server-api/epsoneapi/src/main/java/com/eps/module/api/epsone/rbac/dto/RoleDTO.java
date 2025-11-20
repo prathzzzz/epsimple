@@ -1,23 +1,21 @@
-package com.eps.module.auth.dto;
+package com.eps.module.api.epsone.rbac.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.Set;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class UserDTO {
-
+public class RoleDTO {
     private Long id;
-    private String email;
     private String name;
+    private String description;
+    private Boolean isSystemRole;
     private Boolean isActive;
-    private Set<RoleDTO> roles;
-    private List<String> allPermissions; // Flattened list of all permission names from all roles
+    private Set<PermissionDTO> permissions;
 }

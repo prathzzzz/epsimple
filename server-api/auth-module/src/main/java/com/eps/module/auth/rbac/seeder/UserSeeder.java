@@ -1,4 +1,4 @@
-package com.eps.module.auth.master.seeder;
+package com.eps.module.auth.rbac.seeder;
 
 import com.eps.module.auth.entity.Role;
 import com.eps.module.auth.entity.User;
@@ -19,7 +19,7 @@ import java.util.Set;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Order(-1)
+@Order(3) // Run after PermissionSeeder and RoleSeeder
 public class UserSeeder extends AbstractSeeder {
 
     private final UserRepository userRepository;

@@ -27,6 +27,14 @@ public class Role extends BaseEntity {
     @Column(length = 255)
     private String description;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isSystemRole = false; // Marks ADMIN as system role (cannot be deleted)
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isActive = true; // Enable/disable roles
+
     @ManyToMany(mappedBy = "roles")
     @Builder.Default
     private Set<User> users = new HashSet<>();

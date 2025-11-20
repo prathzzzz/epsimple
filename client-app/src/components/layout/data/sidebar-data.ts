@@ -15,6 +15,7 @@ import {
   Briefcase,
   Receipt,
   FolderTree,
+  Shield,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -43,6 +44,11 @@ export const sidebarData: SidebarData = {
           title: 'Users',
           url: '/users',
           icon: Users,
+        },
+        {
+          title: 'Roles & Permissions',
+          url: '/roles',
+          icon: Shield,
         },
       ],
     },

@@ -47,15 +47,19 @@ public class CustomUserDetailsService implements UserDetailsService {
     private Collection<? extends GrantedAuthority> getAuthorities(User user) {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
-        // Add roles
-        user.getRoles().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+        // Add roles and permissions (only active ones)
+        user.getRoles().stream()
+                .filter(role -> role.getIsActive() != null && role.getIsActive())
+                .forEach(role -> {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
 
-            // Add permissions from roles
-            role.getPermissions().forEach(permission ->
-                    authorities.add(new SimpleGrantedAuthority(permission.getName()))
-            );
-        });
+                    // Add permissions from roles (only active ones)
+                    role.getPermissions().stream()
+                            .filter(permission -> permission.getIsActive() != null && permission.getIsActive())
+                            .forEach(permission ->
+                                    authorities.add(new SimpleGrantedAuthority(permission.getName()))
+                            );
+                });
 
         return authorities;
     }

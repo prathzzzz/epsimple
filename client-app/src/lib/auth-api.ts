@@ -1,20 +1,30 @@
 import api from '@/lib/api'
 
+export interface Permission {
+  id: number
+  name: string
+  description: string
+  scope: string
+  action: string
+  category: string
+}
+
+export interface Role {
+  id: number
+  name: string
+  description: string
+  isSystemRole: boolean
+  isActive: boolean
+  permissions: Permission[]
+}
+
 export interface AuthUser {
   id: number
   email: string
   name: string
   isActive: boolean
-  roles: Array<{
-    id: number
-    name: string
-    description: string
-    permissions: Array<{
-      id: number
-      name: string
-      description: string
-    }>
-  }>
+  roles: Role[]
+  allPermissions: string[] // Array of permission names like ["ASSET:CREATE", "SITE:READ"]
 }
 
 export interface LoginRequest {
