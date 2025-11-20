@@ -16,6 +16,7 @@ import {
   Bell,
   ArrowUpRight
 } from 'lucide-react';
+import { Logo } from '@/components/logo';
 
 export const Hero: React.FC = () => {
   const sidebarItems = [
@@ -79,10 +80,7 @@ export const Hero: React.FC = () => {
                 {/* Sidebar */}
                 <div className="w-64 bg-[#0f1115] border-r border-stone-800 flex-shrink-0 hidden lg:flex flex-col">
                 <div className="p-6 flex items-center gap-3 border-b border-stone-800/50">
-                    <div className="w-8 h-8 bg-orange-600 rounded-md flex items-center justify-center shadow-lg shadow-orange-900/20">
-                        <div className="w-3 h-3 bg-white rounded-full" />
-                    </div>
-                    <span className="font-bold text-white tracking-wide text-lg">EpsOne</span>
+                    <Logo variant="light" className="h-10" />
                 </div>
                 
                 <div className="flex-1 overflow-y-auto py-6 px-4 space-y-8 custom-scrollbar">
