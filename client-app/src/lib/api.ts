@@ -26,6 +26,9 @@ api.interceptors.response.use(
     return response
   },
   (error) => {
+    // Extract error message from backend response
+    const backendMessage = error.response?.data?.message
+    
     // Handle common errors
     if (error.response?.status === 401) {
       // Ignore 401 for the 'me' endpoint as it just means user is not logged in
@@ -59,6 +62,14 @@ api.interceptors.response.use(
     if (error.response?.status >= 500) {
       // Server errors
       // Server error occurred
+    }
+    
+    // Create custom error with backend message if available
+    if (backendMessage) {
+      const customError = new Error(backendMessage)
+      // Preserve original error properties
+      Object.assign(customError, { response: error.response, config: error.config })
+      return Promise.reject(customError)
     }
     
     return Promise.reject(error)
