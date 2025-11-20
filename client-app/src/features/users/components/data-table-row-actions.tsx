@@ -1,6 +1,6 @@
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { type Row } from '@tanstack/react-table'
-import { Trash2, UserPen } from 'lucide-react'
+import { Trash2, UserPen, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -10,6 +10,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { usePermission } from '@/hooks/use-permission'
 import { type User } from '../data/schema'
 import { useUsers } from './users-provider'
 
@@ -19,6 +20,15 @@ type DataTableRowActionsProps = {
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const { setOpen, setCurrentRow } = useUsers()
+  const { isAdmin } = usePermission()
+  
+  // Check if user is admin or superadmin
+  const userRoles = row.original.roles || (row.original.role ? [{ name: row.original.role }] : [])
+  const isUserAdmin = userRoles.some(role => {
+    const roleName = (typeof role === 'string' ? role : role.name)?.toLowerCase()
+    return roleName === 'admin' || roleName === 'superadmin'
+  })
+  
   return (
     <>
       <DropdownMenu modal={false}>
@@ -32,18 +42,33 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end' className='w-[160px]'>
-          <DropdownMenuItem
-            onClick={() => {
-              setCurrentRow(row.original)
-              setOpen('edit')
-            }}
-          >
-            Edit
-            <DropdownMenuShortcut>
-              <UserPen size={16} />
-            </DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
+          {!isUserAdmin && (
+            <DropdownMenuItem
+              onClick={() => {
+                setCurrentRow(row.original)
+                setOpen('edit')
+              }}
+            >
+              Edit
+              <DropdownMenuShortcut>
+                <UserPen size={16} />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          )}
+          {isAdmin() && (
+            <DropdownMenuItem
+              onClick={() => {
+                setCurrentRow(row.original)
+                setOpen('manageRoles')
+              }}
+            >
+              Manage Roles
+              <DropdownMenuShortcut>
+                <Shield size={16} />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          )}
+          {(!isUserAdmin || isAdmin()) && <DropdownMenuSeparator />}
           <DropdownMenuItem
             onClick={() => {
               setCurrentRow(row.original)

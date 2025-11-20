@@ -1,6 +1,6 @@
-package com.eps.module.api.epsone.rbac.controller;
+package com.eps.module.auth.rbac.controller;
 
-import com.eps.module.api.epsone.rbac.service.UserRoleService;
+import com.eps.module.auth.rbac.service.UserRoleService;
 import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;

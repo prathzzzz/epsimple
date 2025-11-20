@@ -1,10 +1,10 @@
-package com.eps.module.api.epsone.rbac.service;
+package com.eps.module.auth.rbac.service;
 
-import com.eps.module.api.epsone.rbac.dto.CreateRoleRequest;
-import com.eps.module.api.epsone.rbac.dto.RoleDTO;
-import com.eps.module.api.epsone.rbac.dto.UpdateRolePermissionsRequest;
-import com.eps.module.api.epsone.rbac.dto.UpdateRoleRequest;
-import com.eps.module.api.epsone.rbac.mapper.RoleMapper;
+import com.eps.module.auth.rbac.dto.CreateRoleRequest;
+import com.eps.module.auth.rbac.dto.RoleDTO;
+import com.eps.module.auth.rbac.dto.UpdateRolePermissionsRequest;
+import com.eps.module.auth.rbac.dto.UpdateRoleRequest;
+import com.eps.module.auth.rbac.mapper.RoleMapper;
 import com.eps.module.auth.entity.Permission;
 import com.eps.module.auth.entity.Role;
 import com.eps.module.auth.repository.PermissionRepository;

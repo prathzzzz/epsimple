@@ -1,7 +1,7 @@
-package com.eps.module.api.epsone.rbac.mapper;
+package com.eps.module.auth.rbac.mapper;
 
-import com.eps.module.api.epsone.rbac.dto.PermissionDTO;
-import com.eps.module.api.epsone.rbac.dto.RoleDTO;
+import com.eps.module.auth.rbac.dto.PermissionDTO;
+import com.eps.module.auth.rbac.dto.RoleDTO;
 import com.eps.module.auth.entity.Permission;
 import com.eps.module.auth.entity.Role;
 import org.springframework.stereotype.Component;

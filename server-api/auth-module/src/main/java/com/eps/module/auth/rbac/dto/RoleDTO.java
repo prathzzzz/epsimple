@@ -1,19 +1,21 @@
-package com.eps.module.api.epsone.rbac.dto;
+package com.eps.module.auth.rbac.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PermissionDTO {
+public class RoleDTO {
     private Long id;
     private String name;
     private String description;
-    private String scope;
-    private String action;
-    private String category;
+    private Boolean isSystemRole;
+    private Boolean isActive;
+    private Set<PermissionDTO> permissions;
 }

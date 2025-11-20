@@ -1,6 +1,5 @@
-package com.eps.module.api.epsone.rbac.dto;
+package com.eps.module.auth.rbac.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,12 +12,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateRoleRequest {
-    @NotBlank(message = "Role name is required")
-    private String name;
-    
-    private String description;
-    
+public class UpdateRolePermissionsRequest {
     @NotEmpty(message = "At least one permission is required")
     private Set<Long> permissionIds;
 }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
-import { showSubmittedData } from '@/lib/utils'
+import { useDeleteUser } from '../hooks/use-users-api'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,12 +21,23 @@ export function UsersDeleteDialog({
   currentRow,
 }: UserDeleteDialogProps) {
   const [value, setValue] = useState('')
+  const deleteUser = useDeleteUser()
 
-  const handleDelete = () => {
-    if (value.trim() !== currentRow.username) return
+  // Get username from API or mock data
+  const username = currentRow.username || currentRow.name || currentRow.email
+  const role = currentRow.role || currentRow.roles?.[0]?.name || 'USER'
 
-    onOpenChange(false)
-    showSubmittedData(currentRow, 'The following user has been deleted:')
+  const handleDelete = async () => {
+    if (value.trim() !== username) return
+
+    try {
+      const userId = typeof currentRow.id === 'string' ? parseInt(currentRow.id) : currentRow.id
+      await deleteUser.mutateAsync(userId)
+      setValue('')
+      onOpenChange(false)
+    } catch {
+      // Errors handled by mutation
+    }
   }
 
   return (
@@ -34,7 +45,7 @@ export function UsersDeleteDialog({
       open={open}
       onOpenChange={onOpenChange}
       handleConfirm={handleDelete}
-      disabled={value.trim() !== currentRow.username}
+      disabled={value.trim() !== username || deleteUser.isPending}
       title={
         <span className='text-destructive'>
           <AlertTriangle
@@ -48,11 +59,11 @@ export function UsersDeleteDialog({
         <div className='space-y-4'>
           <p className='mb-2'>
             Are you sure you want to delete{' '}
-            <span className='font-bold'>{currentRow.username}</span>?
+            <span className='font-bold'>{username}</span>?
             <br />
             This action will permanently remove the user with the role of{' '}
             <span className='font-bold'>
-              {currentRow.role.toUpperCase()}
+              {role.toUpperCase()}
             </span>{' '}
             from the system. This cannot be undone.
           </p>
@@ -74,7 +85,7 @@ export function UsersDeleteDialog({
           </Alert>
         </div>
       }
-      confirmText='Delete'
+      confirmText={deleteUser.isPending ? 'Deleting...' : 'Delete'}
       destructive
     />
   )

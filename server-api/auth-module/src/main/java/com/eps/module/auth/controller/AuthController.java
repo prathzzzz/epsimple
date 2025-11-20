@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eps.module.auth.dto.AuthResponse;
+import com.eps.module.auth.dto.ChangePasswordRequest;
 import com.eps.module.auth.dto.ForgotPasswordRequest;
 import com.eps.module.auth.dto.LoginRequest;
 import com.eps.module.auth.dto.RegisterRequest;
@@ -84,5 +85,15 @@ public class AuthController {
         passwordResetService.resetPassword(request);
         log.info("Password reset completed successfully");
         return ResponseBuilder.success(null, "Password reset successfully", HttpStatus.OK);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request,
+            Authentication authentication) {
+        log.info("Password change requested by user");
+        authService.changePassword(request, authentication);
+        log.info("Password changed successfully");
+        return ResponseBuilder.success(null, "Password changed successfully", HttpStatus.OK);
     }
 }

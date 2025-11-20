@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.eps.module.auth.config.security.JwtUtil;
 import com.eps.module.auth.dto.AuthResponse;
+import com.eps.module.auth.dto.ChangePasswordRequest;
 import com.eps.module.auth.dto.LoginRequest;
 import com.eps.module.auth.dto.RegisterRequest;
 import com.eps.module.auth.dto.UserDTO;
@@ -188,5 +189,39 @@ public class AuthService {
         cookie.setPath("/");
         cookie.setMaxAge(expiration.intValue() / 1000); // Convert to seconds
         response.addCookie(cookie);
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordRequest request, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            log.warn("Attempt to change password without authentication");
+            throw new UnauthorizedException("User not authenticated");
+        }
+
+        // Validate that new password matches confirmation
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new RuntimeException("New password and confirm password do not match");
+        }
+
+        String email = authentication.getName();
+        log.debug("Password change requested for user: {}", email);
+        
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.error("User not found during password change: {}", email);
+                    return new ResourceNotFoundException("User not found");
+                });
+
+        // Verify current password
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            log.warn("Invalid current password provided for user: {}", email);
+            throw new UnauthorizedException("Current password is incorrect");
+        }
+
+        // Update password
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        
+        log.info("Password changed successfully for user: {}", email);
     }
 }

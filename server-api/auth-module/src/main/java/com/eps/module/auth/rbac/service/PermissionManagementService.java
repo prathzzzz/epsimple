@@ -1,6 +1,6 @@
-package com.eps.module.api.epsone.rbac.service;
+package com.eps.module.auth.rbac.service;
 
-import com.eps.module.api.epsone.rbac.dto.PermissionDTO;
+import com.eps.module.auth.rbac.dto.PermissionDTO;
 import com.eps.module.auth.entity.Permission;
 import com.eps.module.auth.repository.PermissionRepository;
 import lombok.RequiredArgsConstructor;

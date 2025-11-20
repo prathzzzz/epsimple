@@ -6,6 +6,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import { Logo } from '@/components/logo'
 import { sidebarData } from './data/sidebar-data'
@@ -15,6 +16,7 @@ import { NavUser } from './nav-user'
 export function AppSidebar() {
   const { collapsible, variant } = useLayout()
   const { user } = useAuthStore()
+  const { open } = useSidebar()
 
   // Generate initials from user name
   const getInitials = (name: string) => {
@@ -42,9 +44,11 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible={collapsible} variant={variant}>
       <SidebarHeader>
-        <div className="flex items-center justify-center py-2">
-          <Logo className="h-8" />
-        </div>
+        {open && (
+          <div className="flex items-center justify-center py-2">
+            <Logo className="h-8" />
+          </div>
+        )}
       </SidebarHeader>
       <SidebarContent>
         {sidebarData.navGroups.map((props) => (

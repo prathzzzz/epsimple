@@ -101,109 +101,87 @@ GET    /api/permissions/scope/{scope} → Permissions for specific scope
 GET    /api/permissions/my            → Current user's permissions
 ```
 
-### Frontend 🔄
+### Frontend ✅
 **Location**: `client-app/src/`
 
 **Permission Infrastructure**:
-- [ ] Update auth types (`lib/auth-api.ts`):
-  ```typescript
-  interface Permission {
-    id: number
-    name: string
-    description: string
-    scope: string
-    action: string
-    category: string
-  }
-  
-  interface Role {
-    id: number
-    name: string
-    description: string
-    permissions: Permission[]
-  }
-  
-  interface AuthUser {
-    id: number
-    email: string
-    name: string
-    roles: Role[]
-    allPermissions: string[] // ["ASSET:CREATE", "SITE:READ"]
-  }
-  ```
-
-- [ ] **Permission Hook** (`hooks/use-permission.ts`):
-  ```typescript
+- [x] `lib/permissions-api.ts` - API client for permission operations
+- [x] `hooks/use-permissions.ts` - React Query hooks
+- [x] `hooks/use-permission.ts` - Permission checking hook with fallback logic
   - hasPermission(permission: string): boolean
   - hasAnyPermission(permissions: string[]): boolean
   - hasAllPermissions(permissions: string[]): boolean
   - isAdmin(): boolean
-  - can(scope: string, action: string): boolean
-  ```
-
-- [ ] **Permission Guards** (`components/permission-guard.tsx`):
-  ```typescript
-  <PermissionGuard 
-    permission="ASSET:CREATE"
-    fallback={<div>No access</div>}
-  >
-    <CreateButton />
-  </PermissionGuard>
-  ```
-
-- [ ] **Admin Guard** (`components/admin-guard.tsx`):
-  ```typescript
-  <AdminGuard>
-    <AdminPanel />
-  </AdminGuard>
-  ```
-
-**API Integration**:
-- [ ] `lib/permissions-api.ts` - API client
-- [ ] `hooks/use-permissions.ts` - React Query hooks
+- [x] Permission guard components integrated
 
 ---
 
-## ✅ FEATURE 3: USER ROLE ASSIGNMENT (BACKEND COMPLETE)
+## ✅ FEATURE 3: USER ROLE ASSIGNMENT (COMPLETE)
 
 ### Backend ✅
-**Location**: `server-api/epsoneapi/src/main/java/com/eps/module/api/epsone/rbac/`
+**Location**: `server-api/auth-module/rbac/`
+
+**Controllers**:
+- [x] `UserRoleController` - User-role management
+  - POST `/api/users/{userId}/roles/{roleId}` - Assign role (ADMIN only)
+  - DELETE `/api/users/{userId}/roles/{roleId}` - Remove role (ADMIN only)
+  - GET `/api/users/{userId}/permissions` - Get user permissions
+- [x] `UserController` - User CRUD operations
+  - GET `/api/users` - List all users (ADMIN only)
+  - GET `/api/users/{id}` - Get user by ID (ADMIN only)
+  - POST `/api/users` - Create user (ADMIN only)
+  - PUT `/api/users/{id}` - Update user (ADMIN only)
+  - DELETE `/api/users/{id}` - Delete user (ADMIN only)
 
 **Services**:
 - [x] `UserRoleService` - Assign/remove roles, get user permissions
+- [x] `UserManagementService` - User CRUD operations
 - [x] Validation: User exists, role exists, prevent duplicate assignments
 
-**APIs** (Standard `ApiResponse` format):
-```
-POST   /api/users/{userId}/roles/{roleId}     → Assign role (ADMIN only)
-DELETE /api/users/{userId}/roles/{roleId}     → Remove role (ADMIN only)
-GET    /api/users/{userId}/permissions        → Get user's permissions
-```
+**DTOs**:
+- [x] `CreateUserRequest` - User creation validation
+- [x] `UpdateUserRequest` - User update validation
+- [x] `UserDTO` - Updated with allPermissions field
+- [x] `UserMapper` - extractAllPermissions method
 
-### Frontend 🔄
+### Frontend ✅
 **Location**: `client-app/src/features/users/`
 
-- [ ] **User Roles Dialog** (`components/user-roles-dialog.tsx`):
-  - [ ] Multi-select dropdown for roles
-  - [ ] Display current assigned roles
-  - [ ] Show effective permissions preview
-  - [ ] Save/Cancel actions
-- [ ] **User Details Page Enhancement**:
-  - [ ] Add "Roles & Permissions" section
-  - [ ] Display assigned roles with badges
-  - [ ] "Manage Roles" button (ADMIN only)
-  - [ ] Show effective permissions list
-- [ ] **User List Page Enhancement**:
-  - [ ] Add "Roles" column showing role badges
-  - [ ] Quick "Assign Role" action in table
+- [x] **User Management** (`index.tsx`):
+  - Real API integration with useUsers() hook
+  - Loading and error states
+  - Admin-only access
+- [x] **User Roles Sheet** (`components/user-roles-sheet.tsx`):
+  - Shows current user info
+  - Lists all available roles with checkboxes
+  - Pending changes with badges ("Will Add", "Will Remove")
+  - Displays role details (permissions count, status)
+  - ScrollArea for long role lists
+- [x] **User Action Dialog** (`components/users-action-dialog.tsx`):
+  - Create/Edit users (name, email, password)
+  - API integration with mutations
+  - Form validation
+- [x] **User Delete Dialog** (`components/users-delete-dialog.tsx`):
+  - Confirmation with username input
+  - API integration
+- [x] **User Table** (`components/users-table.tsx`):
+  - Supports both mock and API data structures
+  - Search, filter, pagination
+  - "Manage Roles" action (admin only)
+- [x] **User Columns** (`components/users-columns.tsx`):
+  - Compatible with API data structure
+  - Role display from roles array
+  - Status from isActive boolean
 
 **API Integration**:
-- [ ] `lib/user-roles-api.ts` - API client
-- [ ] `hooks/use-user-roles.ts` - React Query hooks
+- [x] `api/users-api.ts` - User CRUD API client
+- [x] `api/user-roles-api.ts` - Role assignment API client
+- [x] `hooks/use-users-api.ts` - React Query hooks (useUsers, useCreateUser, useUpdateUser, useDeleteUser)
+- [x] `hooks/use-user-roles.ts` - React Query hooks (useUserPermissions, useAssignRole, useRemoveRole)
 
 ---
 
-## 🔄 FEATURE 4: CORE MASTERS PROTECTION
+## ✅ FEATURE 4: USER MANAGEMENT (COMPLETE)
 
 ### Backend 🔄
 **Task**: Apply `@RequireAdmin` annotation to all Core Master controllers
@@ -435,17 +413,18 @@ Apply permissions per controller:
 |---------|---------|----------|--------|
 | 1. Role Management | ✅ | ✅ | 100% |
 | 2. Permission System | ✅ | ✅ | 100% |
-| 3. User Role Assignment | ✅ | 🔄 | 50% |
-| 4. Core Masters Protection | 🔄 | 🔄 | 0% |
-| 5. Asset Management | 🔄 | 🔄 | 0% |
-| 6. Site Management | 🔄 | 🔄 | 0% |
-| 7. Activity Management | 🔄 | 🔄 | 0% |
-| 8. Financial Management | 🔄 | 🔄 | 0% |
-| 9. People & Vendor Mgmt | 🔄 | 🔄 | 0% |
-| 10. Asset Placement | 🔄 | 🔄 | 0% |
-| 11. Testing & Validation | 🔄 | 🔄 | 0% |
+| 3. User Role Assignment | ✅ | ✅ | 100% |
+| 4. User Management | ✅ | ✅ | 100% |
+| 5. Core Masters Protection | 🔄 | 🔄 | 0% |
+| 6. Asset Management | 🔄 | 🔄 | 0% |
+| 7. Site Management | 🔄 | 🔄 | 0% |
+| 8. Activity Management | 🔄 | 🔄 | 0% |
+| 9. Financial Management | 🔄 | 🔄 | 0% |
+| 10. People & Vendor Mgmt | 🔄 | 🔄 | 0% |
+| 11. Asset Placement | 🔄 | 🔄 | 0% |
+| 12. Testing & Validation | 🔄 | 🔄 | 0% |
 
-**Overall Progress**: ~23% (3/11 backends complete, 2/11 frontends complete)
+**Overall Progress**: ~33% (4/12 backends complete, 4/12 frontends complete)
 
 ---
 
@@ -454,10 +433,17 @@ Apply permissions per controller:
 **Recommended Order**:
 1. ✅ Complete Feature 1 Frontend (Role Management UI) - **DONE**
 2. ✅ Complete Feature 2 Frontend (Permission Hooks & Guards) - **DONE**
-3. 🔄 Complete Feature 3 Frontend (User Role Assignment UI)
-4. 🔄 Feature 4 Backend (Protect Core Masters)
-5. 🔄 Feature 4 Frontend (AdminGuard on Core Master pages)
-6. 🔄 Feature 5 Backend → Frontend (Assets)
-7. 🔄 Continue feature-by-feature...
+3. ✅ Complete Feature 3 Frontend (User Role Assignment UI) - **DONE**
+4. ✅ Complete Feature 4 Backend & Frontend (User Management) - **DONE**
+5. 🔄 Feature 5 Backend (Protect Core Masters)
+6. 🔄 Feature 5 Frontend (AdminGuard on Core Master pages)
+7. 🔄 Feature 6 Backend → Frontend (Assets)
+8. 🔄 Continue feature-by-feature...
 
-**Current Priority**: Complete User Role Assignment UI (Feature 3 Frontend)
+**Current Priority**: Feature 5 - Protect Core Masters with @RequireAdmin
+
+**Recent Updates**:
+- Moved all RBAC controllers from `epsoneapi/rbac` to `auth-module/rbac` for better organization
+- Updated sidebar to hide logo when collapsed for cleaner UI
+- Fixed TypeScript errors in user-roles-sheet.tsx
+- All users functionality now uses real API (no mock data)

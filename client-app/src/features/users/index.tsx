@@ -9,13 +9,14 @@ import { UsersDialogs } from './components/users-dialogs'
 import { UsersPrimaryButtons } from './components/users-primary-buttons'
 import { UsersProvider } from './components/users-provider'
 import { UsersTable } from './components/users-table'
-import { users } from './data/users'
+import { useUsers } from './hooks/use-users-api'
 
 const route = getRouteApi('/_authenticated/users/')
 
 export function Users() {
   const search = route.useSearch()
   const navigate = route.useNavigate()
+  const { data: users = [], isLoading } = useUsers()
 
   return (
     <UsersProvider>
@@ -39,7 +40,13 @@ export function Users() {
           <UsersPrimaryButtons />
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12'>
-          <UsersTable data={users} search={search} navigate={navigate} />
+          {isLoading ? (
+            <div className='flex items-center justify-center p-8'>
+              <div className='text-sm text-muted-foreground'>Loading users...</div>
+            </div>
+          ) : (
+            <UsersTable data={users} search={search} navigate={navigate} />
+          )}
         </div>
       </Main>
 

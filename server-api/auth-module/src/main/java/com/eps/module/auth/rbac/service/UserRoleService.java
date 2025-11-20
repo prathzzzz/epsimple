@@ -1,9 +1,7 @@
-package com.eps.module.api.epsone.rbac.service;
+package com.eps.module.auth.rbac.service;
 
-import com.eps.module.api.epsone.rbac.dto.PermissionDTO;
 import com.eps.module.auth.entity.Role;
 import com.eps.module.auth.entity.User;
-import com.eps.module.auth.rbac.service.PermissionService;
 import com.eps.module.auth.repository.RoleRepository;
 import com.eps.module.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
