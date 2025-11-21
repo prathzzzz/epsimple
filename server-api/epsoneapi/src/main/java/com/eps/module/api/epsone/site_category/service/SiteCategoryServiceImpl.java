@@ -35,6 +35,18 @@ public class SiteCategoryServiceImpl extends BaseBulkUploadService<SiteCategoryB
     @Override
     @Transactional
     public SiteCategoryResponseDto createSiteCategory(SiteCategoryRequestDto requestDto) {
+        // Check if category name already exists
+        if (repository.existsByCategoryName(requestDto.getCategoryName())) {
+            throw new IllegalArgumentException("Site category with name '" + requestDto.getCategoryName() + "' already exists");
+        }
+        
+        // Check if category code already exists (if provided)
+        if (requestDto.getCategoryCode() != null && !requestDto.getCategoryCode().trim().isEmpty()) {
+            if (repository.existsByCategoryCode(requestDto.getCategoryCode())) {
+                throw new IllegalArgumentException("Site category with code '" + requestDto.getCategoryCode() + "' already exists");
+            }
+        }
+        
         SiteCategory siteCategory = mapper.toEntity(requestDto);
         SiteCategory savedSiteCategory = repository.save(siteCategory);
         return mapper.toResponseDto(savedSiteCategory);
@@ -75,6 +87,22 @@ public class SiteCategoryServiceImpl extends BaseBulkUploadService<SiteCategoryB
     public SiteCategoryResponseDto updateSiteCategory(Long id, SiteCategoryRequestDto requestDto) {
         SiteCategory siteCategory = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Site Category not found with id: " + id));
+        
+        // Check if category name is being changed and if it already exists
+        if (!siteCategory.getCategoryName().equals(requestDto.getCategoryName())) {
+            if (repository.existsByCategoryName(requestDto.getCategoryName())) {
+                throw new IllegalArgumentException("Site category with name '" + requestDto.getCategoryName() + "' already exists");
+            }
+        }
+        
+        // Check if category code is being changed and if it already exists
+        if (requestDto.getCategoryCode() != null && !requestDto.getCategoryCode().trim().isEmpty()) {
+            if (!requestDto.getCategoryCode().equals(siteCategory.getCategoryCode())) {
+                if (repository.existsByCategoryCode(requestDto.getCategoryCode())) {
+                    throw new IllegalArgumentException("Site category with code '" + requestDto.getCategoryCode() + "' already exists");
+                }
+            }
+        }
         
         mapper.updateEntityFromDto(requestDto, siteCategory);
         SiteCategory updatedSiteCategory = repository.save(siteCategory);

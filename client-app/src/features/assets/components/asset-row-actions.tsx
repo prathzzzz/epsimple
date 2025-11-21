@@ -2,6 +2,7 @@ import type { Row } from '@tanstack/react-table'
 import { MoreHorizontal, Pencil, Trash, History, MapPin, Receipt } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
+import { PermissionGuard } from '@/components/permission-guard'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -69,10 +70,12 @@ export function AssetRowActions({ row }: AssetRowActionsProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[200px]">
+        <PermissionGuard permission="ASSET:PLACE">
         <DropdownMenuItem onClick={handlePlaceAsset}>
           <MapPin className="mr-2 h-4 w-4" />
           Place Asset
         </DropdownMenuItem>
+        </PermissionGuard>
         <DropdownMenuItem onClick={handleManageExpenditures}>
           <Receipt className="mr-2 h-4 w-4" />
           Manage Expenditures
@@ -82,14 +85,18 @@ export function AssetRowActions({ row }: AssetRowActionsProps) {
           Movement History
         </DropdownMenuItem>
         <DropdownMenuSeparator />
+        <PermissionGuard permission="ASSET:UPDATE">
         <DropdownMenuItem onClick={handleEdit}>
           <Pencil className="mr-2 h-4 w-4" />
           Edit
         </DropdownMenuItem>
+        </PermissionGuard>
+        <PermissionGuard permission="ASSET:DELETE">
         <DropdownMenuItem onClick={handleDelete} className="text-destructive">
           <Trash className="mr-2 h-4 w-4" />
           Delete
         </DropdownMenuItem>
+        </PermissionGuard>
       </DropdownMenuContent>
     </DropdownMenu>
   )

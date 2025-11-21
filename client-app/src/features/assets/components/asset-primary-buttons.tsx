@@ -5,6 +5,7 @@ import { useAssetContext } from "../context/asset-provider";
 import { toast } from "sonner";
 import { downloadFile } from "@/lib/api-utils";
 import { useExport } from "@/hooks/useExport";
+import { PermissionGuard } from "@/components/permission-guard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,7 +67,8 @@ export function AssetPrimaryButtons() {
   return (
     <div className="flex items-center gap-2">
       {/* Bulk Actions Dropdown */}
-      <DropdownMenu>
+      <PermissionGuard anyPermissions={["ASSET:BULK_UPLOAD", "ASSET:EXPORT"]}>
+        <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
@@ -83,6 +85,7 @@ export function AssetPrimaryButtons() {
           <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
             Asset Creation
           </DropdownMenuLabel>
+          <PermissionGuard permission="ASSET:BULK_UPLOAD">
           <DropdownMenuItem 
             onClick={handleDownloadTemplate} 
             className="cursor-pointer"
@@ -99,12 +102,14 @@ export function AssetPrimaryButtons() {
             <FileUp className="h-4 w-4 mr-2 text-blue-600" />
             <span>Bulk Upload Assets</span>
           </DropdownMenuItem>
+          </PermissionGuard>
           
           <DropdownMenuSeparator />
           
           <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
             Asset Placement
           </DropdownMenuLabel>
+          <PermissionGuard permission="ASSET:PLACE">
           <DropdownMenuItem 
             onClick={handleDownloadPlacementTemplate} 
             className="cursor-pointer"
@@ -121,8 +126,11 @@ export function AssetPrimaryButtons() {
             <MapPin className="h-4 w-4 mr-2 text-teal-600" />
             <span>Bulk Place Assets</span>
           </DropdownMenuItem>
+          </PermissionGuard>
           
           <DropdownMenuSeparator />
+          
+          <PermissionGuard permission="ASSET:EXPORT">
           
           <DropdownMenuItem 
             onClick={handleExport} 
@@ -136,10 +144,13 @@ export function AssetPrimaryButtons() {
             )}
             <span>Export All Data</span>
           </DropdownMenuItem>
+          </PermissionGuard>
         </DropdownMenuContent>
       </DropdownMenu>
+      </PermissionGuard>
 
       {/* Primary Action */}
+      <PermissionGuard permission="ASSET:CREATE">
       <Button 
         onClick={handleCreate}
         size="sm"
@@ -148,6 +159,7 @@ export function AssetPrimaryButtons() {
         <Plus className="h-4 w-4 mr-2" />
         Add Asset
       </Button>
+      </PermissionGuard>
     </div>
   );
 }

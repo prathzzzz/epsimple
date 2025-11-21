@@ -23,6 +23,9 @@ public interface SiteCategoryRepository extends JpaRepository<SiteCategory, Long
     boolean existsByCategoryNameIgnoreCase(String categoryName);
     
     boolean existsByCategoryCode(String categoryCode);
+    
+    // Existence checks for validation
+    boolean existsByCategoryName(String categoryName);
 
     @Query("SELECT sc FROM SiteCategory sc WHERE LOWER(sc.categoryName) = LOWER(:categoryName)")
     java.util.Optional<SiteCategory> findByCategoryNameIgnoreCase(@Param("categoryName") String categoryName);
