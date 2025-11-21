@@ -42,14 +42,12 @@ public class ExpendituresVoucherController {
     }
 
     @GetMapping("/bulk-upload/template")
-    @RequirePermission("EXPENDITURE_VOUCHER:READ")
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("GET /api/expenditures/vouchers/bulk-upload/template - Downloading template");
         return bulkUploadControllerHelper.downloadTemplate(expendituresVoucherService);
     }
 
     @PostMapping("/bulk-upload/errors")
-    @RequirePermission("EXPENDITURE_VOUCHER:READ")
     public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/expenditures/vouchers/bulk-upload/errors - Exporting error report");
         return bulkUploadControllerHelper.exportErrors(progressData, expendituresVoucherService);
@@ -75,7 +73,6 @@ public class ExpendituresVoucherController {
     }
 
     @GetMapping
-    @RequirePermission("EXPENDITURE_VOUCHER:READ")
     public ResponseEntity<ApiResponse<Page<ExpendituresVoucherResponseDto>>> getAllExpendituresVouchers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -93,7 +90,6 @@ public class ExpendituresVoucherController {
     }
 
     @GetMapping("/search")
-    @RequirePermission("EXPENDITURE_VOUCHER:READ")
     public ResponseEntity<ApiResponse<Page<ExpendituresVoucherResponseDto>>> searchExpendituresVouchers(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -112,7 +108,6 @@ public class ExpendituresVoucherController {
     }
 
     @GetMapping("/list")
-    @RequirePermission("EXPENDITURE_VOUCHER:READ")
     public ResponseEntity<ApiResponse<List<ExpendituresVoucherResponseDto>>> getAllExpendituresVouchersList() {
         log.info("GET /api/expenditures/vouchers/list - Fetching all expenditures vouchers as list");
         List<ExpendituresVoucherResponseDto> responseList = expendituresVoucherService.getAllExpendituresVouchersList();
@@ -120,7 +115,6 @@ public class ExpendituresVoucherController {
     }
 
     @GetMapping("/{id}")
-    @RequirePermission("EXPENDITURE_VOUCHER:READ")
     public ResponseEntity<ApiResponse<ExpendituresVoucherResponseDto>> getExpendituresVoucherById(@PathVariable Long id) {
         log.info("GET /api/expenditures/vouchers/{} - Fetching expenditures voucher", id);
         ExpendituresVoucherResponseDto responseDto = expendituresVoucherService.getExpendituresVoucherById(id);
@@ -146,7 +140,6 @@ public class ExpendituresVoucherController {
     }
 
     @GetMapping("/project/{projectId}")
-    @RequirePermission("EXPENDITURE_VOUCHER:READ")
     public ResponseEntity<ApiResponse<Page<ExpendituresVoucherResponseDto>>> getExpendituresVouchersByProjectId(
             @PathVariable Long projectId,
             @RequestParam(defaultValue = "0") int page,
@@ -165,7 +158,6 @@ public class ExpendituresVoucherController {
     }
 
     @GetMapping("/voucher/{voucherId}")
-    @RequirePermission("EXPENDITURE_VOUCHER:READ")
     public ResponseEntity<ApiResponse<List<ExpendituresVoucherResponseDto>>> getExpendituresVouchersByVoucherId(
             @PathVariable Long voucherId) {
         log.info("GET /api/expenditures/vouchers/voucher/{} - Fetching expenditures for voucher", voucherId);

@@ -27,7 +27,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/activity")
 @RequiredArgsConstructor
-@RequireAdmin
 public class ActivityController {
 
     private final ActivityService activityService;
@@ -36,18 +35,21 @@ public class ActivityController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RequireAdmin
     public SseEmitter bulkUploadActivities(@RequestParam("file") MultipartFile file) throws Exception {
         log.info("POST /api/activity/bulk-upload - Starting bulk upload");
         return bulkUploadControllerHelper.bulkUpload(file, activityService);
     }
 
     @GetMapping("/bulk-upload/template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("GET /api/activity/bulk-upload/template - Downloading template");
         return bulkUploadControllerHelper.downloadTemplate(activityService);
     }
 
     @PostMapping("/bulk-upload/errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/activity/bulk-upload/errors - Downloading error report");
         return bulkUploadControllerHelper.exportErrors(progressData, activityService);
@@ -56,6 +58,7 @@ public class ActivityController {
     // ========== CRUD Endpoints ==========
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<ActivityResponseDto>> createActivity(
             @Valid @RequestBody ActivityRequestDto activityRequestDto) {
         ActivityResponseDto response = activityService.createActivity(activityRequestDto);
@@ -100,6 +103,7 @@ public class ActivityController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportData() throws Exception {
         log.info("GET /api/activity/export - Exporting all activities");
         return bulkUploadControllerHelper.export(activityService);
@@ -114,6 +118,7 @@ public class ActivityController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<ActivityResponseDto>> updateActivity(
             @PathVariable Long id,
             @Valid @RequestBody ActivityRequestDto activityRequestDto) {
@@ -122,6 +127,7 @@ public class ActivityController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteActivity(@PathVariable Long id) {
         activityService.deleteActivity(id);
         return ResponseBuilder.success(null, "Activity deleted successfully");

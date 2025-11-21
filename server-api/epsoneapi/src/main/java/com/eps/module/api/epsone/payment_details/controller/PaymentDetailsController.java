@@ -37,7 +37,6 @@ public class PaymentDetailsController {
     }
 
     @GetMapping
-    @RequirePermission("PAYMENT:READ")
     public ResponseEntity<?> getAllPaymentDetails(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -55,7 +54,6 @@ public class PaymentDetailsController {
     }
 
     @GetMapping("/search")
-    @RequirePermission("PAYMENT:READ")
     public ResponseEntity<?> searchPaymentDetails(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -74,14 +72,12 @@ public class PaymentDetailsController {
     }
 
     @GetMapping("/list")
-    @RequirePermission("PAYMENT:READ")
     public ResponseEntity<?> getPaymentDetailsList() {
         List<PaymentDetailsResponseDto> paymentDetails = paymentDetailsService.getPaymentDetailsList();
         return ResponseBuilder.success(paymentDetails, "Payment details list retrieved successfully");
     }
 
     @GetMapping("/{id}")
-    @RequirePermission("PAYMENT:READ")
     public ResponseEntity<?> getPaymentDetailsById(@PathVariable Long id) {
         PaymentDetailsResponseDto paymentDetails = paymentDetailsService.getPaymentDetailsById(id);
         return ResponseBuilder.success(paymentDetails, "Payment details retrieved successfully");
@@ -116,13 +112,11 @@ public class PaymentDetailsController {
     }
 
     @GetMapping("/download-template")
-    @RequirePermission("PAYMENT:READ")
     public ResponseEntity<byte[]> downloadTemplate() throws java.io.IOException {
         return bulkUploadControllerHelper.downloadTemplate(paymentDetailsService);
     }
 
     @PostMapping("/export-errors")
-    @RequirePermission("PAYMENT:READ")
     public ResponseEntity<byte[]> exportErrors(@RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws java.io.IOException {
         return bulkUploadControllerHelper.exportErrors(progressData, paymentDetailsService);
     }

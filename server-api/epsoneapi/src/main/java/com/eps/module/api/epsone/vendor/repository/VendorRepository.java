@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.vendor.repository;
 import com.eps.module.vendor.Vendor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +14,12 @@ import java.util.Optional;
 
 @Repository
 public interface VendorRepository extends JpaRepository<Vendor, Long> {
+
+    /**
+     * Get all vendors with pagination and eager loading
+     */
+    @EntityGraph(attributePaths = {"vendorType", "vendorDetails"})
+    Page<Vendor> findAll(Pageable pageable);
 
     /**
      * Search vendors by code, person details

@@ -42,7 +42,6 @@ public class ActivitiesController {
     }
 
     @GetMapping("/bulk-upload/template")
-    @RequirePermission("ACTIVITY_LIST:READ")
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("GET /api/activities/bulk-upload/template - Downloading template");
         return bulkUploadControllerHelper.downloadTemplate(activitiesService);
@@ -56,7 +55,6 @@ public class ActivitiesController {
     }
 
     @PostMapping("/bulk-upload/errors")
-    @RequirePermission("ACTIVITY_LIST:READ")
     public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/activities/bulk-upload/errors - Downloading error report");
         return bulkUploadControllerHelper.exportErrors(progressData, activitiesService);
@@ -73,7 +71,6 @@ public class ActivitiesController {
     }
 
     @GetMapping
-    @RequirePermission("ACTIVITY_LIST:READ")
     public ResponseEntity<ApiResponse<Page<ActivitiesResponseDto>>> getAllActivities(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -88,7 +85,6 @@ public class ActivitiesController {
     }
 
     @GetMapping("/search")
-    @RequirePermission("ACTIVITY_LIST:READ")
     public ResponseEntity<ApiResponse<Page<ActivitiesResponseDto>>> searchActivities(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -104,14 +100,12 @@ public class ActivitiesController {
     }
 
     @GetMapping("/list")
-    @RequirePermission("ACTIVITY_LIST:READ")
     public ResponseEntity<ApiResponse<List<ActivitiesResponseDto>>> getActivitiesList() {
         List<ActivitiesResponseDto> activities = activitiesService.getActivitiesList();
         return ResponseBuilder.success(activities, "Activities list retrieved successfully");
     }
 
     @GetMapping("/{id}")
-    @RequirePermission("ACTIVITY_LIST:READ")
     public ResponseEntity<ApiResponse<ActivitiesResponseDto>> getActivitiesById(@PathVariable Long id) {
         ActivitiesResponseDto activities = activitiesService.getActivitiesById(id);
         return ResponseBuilder.success(activities, "Activities retrieved successfully");

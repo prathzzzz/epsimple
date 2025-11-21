@@ -24,13 +24,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/payee-types")
 @RequiredArgsConstructor
-@RequireAdmin
 public class PayeeTypeController {
 
     private final PayeeTypeService payeeTypeService;
     private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<?> createPayeeType(@Valid @RequestBody PayeeTypeRequestDto requestDto) {
         PayeeTypeResponseDto response = payeeTypeService.createPayeeType(requestDto);
         return ResponseBuilder.success(response, "Payee type created successfully");
@@ -84,6 +84,7 @@ public class PayeeTypeController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<?> updatePayeeType(
             @PathVariable Long id,
             @Valid @RequestBody PayeeTypeRequestDto requestDto) {
@@ -92,6 +93,7 @@ public class PayeeTypeController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<?> deletePayeeType(@PathVariable Long id) {
         payeeTypeService.deletePayeeType(id);
         return ResponseBuilder.success(null, "Payee type deleted successfully");
@@ -99,21 +101,25 @@ public class PayeeTypeController {
 
     // Bulk upload endpoints
     @PostMapping("/bulk-upload")
+    @RequireAdmin
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
         return bulkUploadHelper.bulkUpload(file, payeeTypeService);
     }
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> export() throws IOException {
         return bulkUploadHelper.export(payeeTypeService);
     }
 
     @GetMapping("/download-template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadTemplate() throws IOException {
         return bulkUploadHelper.downloadTemplate(payeeTypeService);
     }
 
     @PostMapping("/export-errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progressData) throws IOException {
         return bulkUploadHelper.exportErrors(progressData, payeeTypeService);
     }

@@ -28,13 +28,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/locations")
 @RequiredArgsConstructor
-@RequireAdmin
 public class LocationController {
 
     private final LocationService locationService;
     private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<LocationResponseDto>> createLocation(
             @Valid @RequestBody LocationRequestDto locationRequestDto) {
         log.info("POST /api/locations - Creating location: {}", locationRequestDto.getLocationName());
@@ -88,6 +88,7 @@ public class LocationController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportData() throws IOException {
         log.info("GET /api/locations/export - Exporting all locations");
         return bulkUploadHelper.export(locationService);
@@ -103,6 +104,7 @@ public class LocationController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<LocationResponseDto>> updateLocation(
             @PathVariable Long id,
             @Valid @RequestBody LocationRequestDto locationRequestDto) {
@@ -112,6 +114,7 @@ public class LocationController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteLocation(@PathVariable Long id) {
         log.info("DELETE /api/locations/{} - Deleting location", id);
         locationService.deleteLocation(id);
@@ -121,18 +124,21 @@ public class LocationController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping("/bulk/upload")
+    @RequireAdmin
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/locations/bulk/upload - Starting bulk upload with file: {}", file.getOriginalFilename());
         return bulkUploadHelper.bulkUpload(file, locationService);
     }
 
     @GetMapping("/bulk/export-template")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportTemplate() throws IOException {
         log.info("GET /api/locations/bulk/export-template - Exporting template");
         return bulkUploadHelper.downloadTemplate(locationService);
     }
 
     @PostMapping("/bulk/export-error-report")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/locations/bulk/export-error-report - Exporting error report");
         return bulkUploadHelper.exportErrors(progressData, locationService);

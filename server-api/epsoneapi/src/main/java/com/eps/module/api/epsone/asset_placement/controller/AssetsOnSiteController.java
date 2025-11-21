@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.asset_placement.controller;
 import com.eps.module.api.epsone.asset_placement.dto.AssetsOnSiteRequestDto;
 import com.eps.module.api.epsone.asset_placement.dto.AssetsOnSiteResponseDto;
 import com.eps.module.api.epsone.asset_placement.service.AssetsOnSiteService;
+import com.eps.module.auth.rbac.annotation.RequirePermission;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -22,6 +23,7 @@ public class AssetsOnSiteController {
     private final AssetsOnSiteService assetsOnSiteService;
 
     @PostMapping
+    @RequirePermission("ASSETS_ON_SITE:CREATE")
     public ResponseEntity<ApiResponse<AssetsOnSiteResponseDto>> placeAssetOnSite(
             @Valid @RequestBody AssetsOnSiteRequestDto requestDto) {
         log.info("POST /api/assets-on-site - Placing asset on site");
@@ -72,6 +74,7 @@ public class AssetsOnSiteController {
     }
 
     @PutMapping("/{id}")
+    @RequirePermission("ASSETS_ON_SITE:UPDATE")
     public ResponseEntity<ApiResponse<AssetsOnSiteResponseDto>> updateAssetOnSite(
             @PathVariable Long id,
             @Valid @RequestBody AssetsOnSiteRequestDto requestDto) {
@@ -81,6 +84,7 @@ public class AssetsOnSiteController {
     }
 
     @DeleteMapping("/{id}")
+    @RequirePermission("ASSETS_ON_SITE:DELETE")
     public ResponseEntity<ApiResponse<Void>> removeAssetFromSite(@PathVariable Long id) {
         log.info("DELETE /api/assets-on-site/{} - Removing asset from site", id);
         assetsOnSiteService.removeAssetFromSite(id);

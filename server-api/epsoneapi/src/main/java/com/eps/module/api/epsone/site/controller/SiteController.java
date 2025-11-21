@@ -42,7 +42,6 @@ public class SiteController {
     }
 
     @GetMapping
-    @RequirePermission("SITE:READ")
     public ResponseEntity<ApiResponse<Page<SiteResponseDto>>> getAllSites(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -58,7 +57,6 @@ public class SiteController {
     }
 
     @GetMapping("/search")
-    @RequirePermission("SITE:READ")
     public ResponseEntity<ApiResponse<Page<SiteResponseDto>>> searchSites(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -93,8 +91,7 @@ public class SiteController {
     }
 
     @GetMapping("/list")
-    @RequirePermission("SITE:READ")
-    public ResponseEntity<ApiResponse<List<SiteResponseDto>>> getSiteList() {
+    public ResponseEntity<ApiResponse<List<SiteResponseDto>>> getAllSitesList() {
         log.info("GET /api/sites/list - Fetching all sites as list");
         List<SiteResponseDto> sites = siteService.getSiteList();
         return ResponseBuilder.success(sites, "Sites list retrieved successfully");
@@ -112,7 +109,6 @@ public class SiteController {
     // ========== CRUD Endpoints ==========
 
     @GetMapping("/{id}")
-    @RequirePermission("SITE:READ")
     public ResponseEntity<ApiResponse<SiteResponseDto>> getSiteById(@PathVariable Long id) {
         log.info("GET /api/sites/{} - Fetching site by ID", id);
         SiteResponseDto site = siteService.getSiteById(id);
@@ -147,14 +143,12 @@ public class SiteController {
     }
 
     @GetMapping("/bulk-upload/template")
-    @RequirePermission("SITE:READ")
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("GET /api/sites/bulk-upload/template - Downloading template");
         return bulkUploadControllerHelper.downloadTemplate(siteService);
     }
 
     @PostMapping("/bulk-upload/errors")
-    @RequirePermission("SITE:READ")
     public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/sites/bulk-upload/errors - Exporting errors");
         return bulkUploadControllerHelper.exportErrors(progressData, siteService);

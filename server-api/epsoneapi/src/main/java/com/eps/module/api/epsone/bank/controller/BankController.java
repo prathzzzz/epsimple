@@ -29,13 +29,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/banks")
 @RequiredArgsConstructor
-@RequireAdmin
 public class BankController {
 
     private final BankService bankService;
     private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequireAdmin
     public ResponseEntity<ApiResponse<BankResponseDto>> createBank(
             @Valid @ModelAttribute BankRequestDto bankRequestDto,
             @RequestParam(value = "logo", required = false) MultipartFile logo) {
@@ -100,6 +100,7 @@ public class BankController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportData() throws IOException {
         log.info("GET /api/banks/export - Exporting all banks");
         return bulkUploadHelper.export(bankService);
@@ -108,6 +109,7 @@ public class BankController {
     // ========== CRUD Endpoints ==========
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<BankResponseDto>> updateBank(
             @PathVariable Long id,
             @Valid @ModelAttribute BankRequestDto bankRequestDto,
@@ -118,6 +120,7 @@ public class BankController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteBank(@PathVariable Long id) {
         log.info("DELETE /api/banks/{} - Deleting bank", id);
         bankService.deleteBank(id);
@@ -127,18 +130,21 @@ public class BankController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping("/bulk/upload")
+    @RequireAdmin
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/banks/bulk/upload - Starting bulk upload with file: {}", file.getOriginalFilename());
         return bulkUploadHelper.bulkUpload(file, bankService);
     }
 
     @GetMapping("/bulk/export-template")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportTemplate() throws IOException {
         log.info("GET /api/banks/bulk/export-template - Exporting template");
         return bulkUploadHelper.downloadTemplate(bankService);
     }
 
     @PostMapping("/bulk/export-error-report")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/banks/bulk/export-error-report - Exporting error report");
         return bulkUploadHelper.exportErrors(progressData, bankService);

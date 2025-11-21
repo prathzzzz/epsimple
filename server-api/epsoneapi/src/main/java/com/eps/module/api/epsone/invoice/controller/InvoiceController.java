@@ -41,13 +41,11 @@ public class InvoiceController {
     }
 
     @GetMapping("/bulk-upload/template")
-    @RequirePermission("INVOICE:READ")
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         return bulkUploadControllerHelper.downloadTemplate(invoiceService);
     }
 
     @PostMapping("/bulk-upload/errors")
-    @RequirePermission("INVOICE:READ")
     public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         return bulkUploadControllerHelper.exportErrors(progressData, invoiceService);
     }
@@ -63,7 +61,6 @@ public class InvoiceController {
     }
 
     @GetMapping
-    @RequirePermission("INVOICE:READ")
     public ResponseEntity<?> getAllInvoices(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -81,7 +78,6 @@ public class InvoiceController {
     }
 
     @GetMapping("/search")
-    @RequirePermission("INVOICE:READ")
     public ResponseEntity<?> searchInvoices(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -100,7 +96,6 @@ public class InvoiceController {
     }
 
     @GetMapping("/list")
-    @RequirePermission("INVOICE:READ")
     public ResponseEntity<?> getInvoicesList() {
         List<InvoiceResponseDto> invoices = invoiceService.getInvoicesList();
         return ResponseBuilder.success(invoices, "Invoices list retrieved successfully");
@@ -117,14 +112,12 @@ public class InvoiceController {
     // ========== CRUD Endpoints ==========
 
     @GetMapping("/payee/{payeeId}")
-    @RequirePermission("INVOICE:READ")
     public ResponseEntity<?> getInvoicesByPayeeId(@PathVariable Long payeeId) {
         List<InvoiceResponseDto> invoices = invoiceService.getInvoicesByPayeeId(payeeId);
         return ResponseBuilder.success(invoices, "Invoices retrieved for payee successfully");
     }
 
     @GetMapping("/{id}")
-    @RequirePermission("INVOICE:READ")
     public ResponseEntity<?> getInvoiceById(@PathVariable Long id) {
         InvoiceResponseDto invoice = invoiceService.getInvoiceById(id);
         return ResponseBuilder.success(invoice, "Invoice retrieved successfully");

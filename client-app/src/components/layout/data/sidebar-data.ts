@@ -44,11 +44,13 @@ export const sidebarData: SidebarData = {
           title: 'Users',
           url: '/users',
           icon: Users,
+          requireAdmin: true,
         },
         {
           title: 'Roles & Permissions',
           url: '/roles',
           icon: Shield,
+          requireAdmin: true,
         },
       ],
     },
@@ -58,6 +60,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Location Setup',
           icon: MapPin,
+          requireAdmin: true,
           items: [
             {
               title: 'States',
@@ -84,6 +87,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Asset Configuration',
           icon: Package,
+          requireAdmin: true,
           items: [
             {
               title: 'Asset Types',
@@ -106,6 +110,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Site Configuration',
           icon: MapPinned,
+          requireAdmin: true,
           items: [
             {
               title: 'Site Types',
@@ -124,6 +129,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Activity Configuration',
           icon: Activity,
+          requireAdmin: true,
           items: [
             {
               title: 'Activity Master',
@@ -134,6 +140,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Financial Setup',
           icon: Database,
+          requireAdmin: true,
           items: [
             {
               title: 'Banks',
@@ -164,6 +171,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Classifications',
           icon: FolderTree,
+          requireAdmin: true,
           items: [
             {
               title: 'Vendor Categories',
@@ -191,6 +199,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Asset Management',
           icon: Package,
+          permission: 'ASSET:READ',
           items: [
             {
               title: 'Assets',
@@ -201,6 +210,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Site Management',
           icon: MapPinned,
+          permission: 'SITE:READ',
           items: [
             {
               title: 'Sites',
@@ -211,6 +221,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Activity Management',
           icon: Activity,
+          permission: 'ACTIVITY:READ',
           items: [
             {
               title: 'Activities',
@@ -225,6 +236,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Project Management',
           icon: Briefcase,
+          permission: 'MANAGED_PROJECT:READ',
           items: [
             {
               title: 'Managed Projects',
@@ -240,46 +252,56 @@ export const sidebarData: SidebarData = {
         {
           title: 'Transactions',
           icon: Receipt,
+          anyPermissions: ['INVOICE:READ', 'VOUCHER:READ'],
           items: [
             {
               title: 'Invoices',
               url: '/invoices',
+              permission: 'INVOICE:READ',
             },
             {
               title: 'Vouchers',
               url: '/vouchers',
+              permission: 'VOUCHER:READ',
             },
           ],
         },
         {
           title: 'Expenditures',
           icon: Landmark,
+          anyPermissions: ['ASSET_EXPENDITURE_AND_ACTIVITY_WORK:READ'],
           items: [
             {
               title: 'Invoice Expenditures',
               url: '/expenditures/invoices',
+              permission: 'ASSET_EXPENDITURE_AND_ACTIVITY_WORK:READ',
             },
             {
               title: 'Voucher Expenditures',
               url: '/expenditures/vouchers',
+              permission: 'ASSET_EXPENDITURE_AND_ACTIVITY_WORK:READ',
             },
           ],
         },
         {
           title: 'Payment Management',
           icon: Landmark,
+          anyPermissions: ['PAYMENT_DETAIL:READ', 'PAYEE_DETAIL:READ', 'PAYEE:READ'],
           items: [
             {
               title: 'Payment Details',
               url: '/payment-details',
+              permission: 'PAYMENT_DETAIL:READ',
             },
             {
               title: 'Payee Details',
               url: '/payee-details',
+              permission: 'PAYEE_DETAIL:READ',
             },
             {
               title: 'Payees',
               url: '/payees',
+              permission: 'PAYEE:READ',
             },
           ],
         },
@@ -291,6 +313,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Vendors',
           icon: Building2,
+          permission: 'VENDOR:READ',
           items: [
             {
               title: 'Vendors',
@@ -301,6 +324,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Landlords',
           icon: UserCircle,
+          permission: 'LANDLORD:READ',
           items: [
             {
               title: 'Landlords',
@@ -311,6 +335,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Persons',
           icon: UserCircle,
+          permission: 'PERSON_DETAILS:READ',
           items: [
             {
               title: 'Person Details',

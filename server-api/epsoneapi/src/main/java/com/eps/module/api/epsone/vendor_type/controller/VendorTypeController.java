@@ -27,12 +27,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/vendor-types")
 @RequiredArgsConstructor
-@RequireAdmin
 public class VendorTypeController {
 
     private final VendorTypeService vendorTypeService;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<VendorTypeResponseDto>> createVendorType(
             @Valid @RequestBody VendorTypeRequestDto requestDto) {
         log.info("POST /api/vendor-types - Creating new vendor type");
@@ -94,6 +94,7 @@ public class VendorTypeController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<VendorTypeResponseDto>> updateVendorType(
             @PathVariable Long id,
             @Valid @RequestBody VendorTypeRequestDto requestDto) {
@@ -103,6 +104,7 @@ public class VendorTypeController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteVendorType(@PathVariable Long id) {
         log.info("DELETE /api/vendor-types/{} - Deleting vendor type", id);
         vendorTypeService.deleteVendorType(id);
@@ -112,24 +114,28 @@ public class VendorTypeController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping("/bulk-upload")
+    @RequireAdmin
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/vendor-types/bulk-upload - Starting bulk upload");
         return vendorTypeService.bulkUpload(file);
     }
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportToExcel() throws IOException {
         log.info("GET /api/vendor-types/export - Exporting all vendor types to Excel");
         return vendorTypeService.exportToExcel();
     }
 
     @GetMapping("/download-template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadTemplate() throws IOException {
         log.info("GET /api/vendor-types/download-template - Downloading bulk upload template");
         return vendorTypeService.downloadTemplate();
     }
 
     @PostMapping("/export-errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/vendor-types/export-errors - Exporting error report");
         return vendorTypeService.exportErrorReport(progressData);

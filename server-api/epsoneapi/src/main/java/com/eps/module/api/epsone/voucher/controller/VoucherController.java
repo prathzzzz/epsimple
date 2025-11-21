@@ -40,7 +40,6 @@ public class VoucherController {
     }
 
     @GetMapping
-    @RequirePermission("VOUCHER:READ")
     public ResponseEntity<?> getAllVouchers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -58,7 +57,6 @@ public class VoucherController {
     }
 
     @GetMapping("/search")
-    @RequirePermission("VOUCHER:READ")
     public ResponseEntity<?> searchVouchers(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -77,14 +75,12 @@ public class VoucherController {
     }
 
     @GetMapping("/list")
-    @RequirePermission("VOUCHER:READ")
     public ResponseEntity<?> getVouchersList() {
         List<VoucherResponseDto> vouchers = voucherService.getVouchersList();
         return ResponseBuilder.success(vouchers, "Vouchers list retrieved successfully");
     }
 
     @GetMapping("/payee/{payeeId}")
-    @RequirePermission("VOUCHER:READ")
     public ResponseEntity<?> getVouchersByPayee(
             @PathVariable Long payeeId,
             @RequestParam(defaultValue = "0") int page,
@@ -103,7 +99,6 @@ public class VoucherController {
     }
 
     @GetMapping("/{id}")
-    @RequirePermission("VOUCHER:READ")
     public ResponseEntity<?> getVoucherById(@PathVariable Long id) {
         VoucherResponseDto voucher = voucherService.getVoucherById(id);
         return ResponseBuilder.success(voucher, "Voucher retrieved successfully");
@@ -147,13 +142,11 @@ public class VoucherController {
     }
 
     @GetMapping("/bulk-upload/template")
-    @RequirePermission("VOUCHER:READ")
     public ResponseEntity<byte[]> downloadTemplate() throws IOException {
         return bulkUploadControllerHelper.downloadTemplate(voucherService);
     }
 
     @PostMapping(value = "/bulk-upload/errors", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    @RequirePermission("VOUCHER:READ")
     public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progressDto) throws IOException {
         return bulkUploadControllerHelper.exportErrors(progressDto, voucherService);
     }

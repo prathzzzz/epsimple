@@ -28,13 +28,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/states")
 @RequiredArgsConstructor
-@RequireAdmin
 public class StateController {
 
     private final StateService stateService;
     private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<StateResponseDto>> createState(
             @Valid @RequestBody StateRequestDto stateRequestDto) {
         log.info("POST /api/states - Creating new state");
@@ -96,6 +96,7 @@ public class StateController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<StateResponseDto>> updateState(
             @PathVariable Long id,
             @Valid @RequestBody StateRequestDto stateRequestDto) {
@@ -105,6 +106,7 @@ public class StateController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteState(@PathVariable Long id) {
         log.info("DELETE /api/states/{} - Deleting state", id);
         stateService.deleteState(id);
@@ -114,24 +116,28 @@ public class StateController {
     // Bulk Operations
     
     @PostMapping(value = "/bulk-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequireAdmin
     public SseEmitter bulkUploadStates(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/states/bulk-upload - Starting bulk upload");
         return bulkUploadHelper.bulkUpload(file, stateService);
     }
     
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportStates() throws IOException {
         log.info("GET /api/states/export - Exporting all states to Excel");
         return bulkUploadHelper.export(stateService);
     }
     
     @GetMapping("/download-template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadTemplate() throws IOException {
         log.info("GET /api/states/download-template - Downloading bulk upload template");
         return bulkUploadHelper.downloadTemplate(stateService);
     }
     
     @PostMapping("/export-errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportBulkUploadErrors(
             @RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/states/export-errors - Exporting bulk upload errors");

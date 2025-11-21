@@ -24,13 +24,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/payment-methods")
 @RequiredArgsConstructor
-@RequireAdmin
 public class PaymentMethodController {
 
     private final PaymentMethodService paymentMethodService;
     private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<?> createPaymentMethod(@Valid @RequestBody PaymentMethodRequestDto requestDto) {
         PaymentMethodResponseDto response = paymentMethodService.createPaymentMethod(requestDto);
         return ResponseBuilder.success(response, "Payment method created successfully");
@@ -84,6 +84,7 @@ public class PaymentMethodController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<?> updatePaymentMethod(
             @PathVariable Long id,
             @Valid @RequestBody PaymentMethodRequestDto requestDto) {
@@ -92,27 +93,32 @@ public class PaymentMethodController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<?> deletePaymentMethod(@PathVariable Long id) {
         paymentMethodService.deletePaymentMethod(id);
         return ResponseBuilder.success(null, "Payment method deleted successfully");
     }
 
     @PostMapping("/bulk-upload")
+    @RequireAdmin
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws java.io.IOException {
         return bulkUploadControllerHelper.bulkUpload(file, paymentMethodService);
     }
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportPaymentMethods() throws java.io.IOException {
         return bulkUploadControllerHelper.export(paymentMethodService);
     }
 
     @GetMapping("/download-template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadTemplate() throws java.io.IOException {
         return bulkUploadControllerHelper.downloadTemplate(paymentMethodService);
     }
 
     @PostMapping("/export-errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportErrors(@RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws java.io.IOException {
         return bulkUploadControllerHelper.exportErrors(progressData, paymentMethodService);
     }

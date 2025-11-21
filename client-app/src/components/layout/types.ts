@@ -6,11 +6,22 @@ type User = {
   avatar: string
 }
 
+type PermissionProps = {
+  /** Single permission required */
+  permission?: string
+  /** Any of these permissions (OR logic) */
+  anyPermissions?: string[]
+  /** All of these permissions (AND logic) */
+  allPermissions?: string[]
+  /** Require admin access */
+  requireAdmin?: boolean
+}
+
 type BaseNavItem = {
   title: string
   badge?: string
   icon?: React.ElementType
-}
+} & PermissionProps
 
 type NavLink = BaseNavItem & {
   url: LinkProps['to'] | (string & {})

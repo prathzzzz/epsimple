@@ -28,13 +28,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/cities")
 @RequiredArgsConstructor
-@RequireAdmin
 public class CityController {
 
     private final CityService cityService;
     private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<CityResponseDto>> createCity(@Valid @RequestBody CityRequestDto requestDto) {
         log.info("POST /api/cities - Creating new city");
         CityResponseDto response = cityService.createCity(requestDto);
@@ -103,6 +103,7 @@ public class CityController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<CityResponseDto>> updateCity(
             @PathVariable Long id,
             @Valid @RequestBody CityRequestDto requestDto) {
@@ -112,6 +113,7 @@ public class CityController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteCity(@PathVariable Long id) {
         log.info("DELETE /api/cities/{} - Deleting city", id);
         cityService.deleteCity(id);
@@ -120,24 +122,28 @@ public class CityController {
 
     // Bulk upload endpoints
     @PostMapping("/bulk-upload")
+    @RequireAdmin
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/cities/bulk-upload - Starting bulk upload");
         return bulkUploadHelper.bulkUpload(file, cityService);
     }
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportToExcel() throws IOException {
         log.info("GET /api/cities/export - Exporting cities to Excel");
         return bulkUploadHelper.export(cityService);
     }
 
     @GetMapping("/download-template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadTemplate() throws IOException {
         log.info("GET /api/cities/download-template - Downloading bulk upload template");
         return bulkUploadHelper.downloadTemplate(cityService);
     }
 
     @PostMapping("/export-errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progress) throws IOException {
         log.info("POST /api/cities/export-errors - Exporting error report");
         return bulkUploadHelper.exportErrors(progress, cityService);

@@ -25,7 +25,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/warehouses")
 @RequiredArgsConstructor
-@RequireAdmin
 public class WarehouseController {
 
     private final WarehouseService warehouseService;
@@ -34,18 +33,21 @@ public class WarehouseController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping("/bulk/upload")
+    @RequireAdmin
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/warehouses/bulk/upload - Starting bulk upload with file: {}", file.getOriginalFilename());
         return bulkUploadHelper.bulkUpload(file, warehouseService);
     }
 
     @GetMapping("/bulk/export-template")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportTemplate() throws IOException {
         log.info("GET /api/warehouses/bulk/export-template - Exporting template");
         return bulkUploadHelper.downloadTemplate(warehouseService);
     }
 
     @PostMapping("/bulk/export-error-report")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/warehouses/bulk/export-error-report - Exporting error report");
         return bulkUploadHelper.exportErrors(progressData, warehouseService);
@@ -54,6 +56,7 @@ public class WarehouseController {
     // ========== CRUD Endpoints ==========
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<WarehouseResponseDto>> createWarehouse(
             @Valid @RequestBody WarehouseRequestDto requestDto) {
         log.info("POST /api/warehouses - Creating warehouse: {}", requestDto.getWarehouseName());
@@ -95,6 +98,7 @@ public class WarehouseController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportData() throws IOException {
         log.info("GET /api/warehouses/export - Exporting all warehouses");
         return bulkUploadHelper.export(warehouseService);
@@ -110,6 +114,7 @@ public class WarehouseController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<WarehouseResponseDto>> updateWarehouse(
             @PathVariable Long id,
             @Valid @RequestBody WarehouseRequestDto requestDto) {
@@ -119,6 +124,7 @@ public class WarehouseController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteWarehouse(@PathVariable Long id) {
         log.info("DELETE /api/warehouses/{} - Deleting warehouse", id);
         warehouseService.deleteWarehouse(id);

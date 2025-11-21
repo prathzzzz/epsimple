@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.asset_placement.controller;
 import com.eps.module.api.epsone.asset_placement.dto.AssetsOnDatacenterRequestDto;
 import com.eps.module.api.epsone.asset_placement.dto.AssetsOnDatacenterResponseDto;
 import com.eps.module.api.epsone.asset_placement.service.AssetsOnDatacenterService;
+import com.eps.module.auth.rbac.annotation.RequirePermission;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -22,6 +23,7 @@ public class AssetsOnDatacenterController {
     private final AssetsOnDatacenterService assetsOnDatacenterService;
 
     @PostMapping
+    @RequirePermission("ASSETS_ON_DATACENTER:CREATE")
     public ResponseEntity<ApiResponse<AssetsOnDatacenterResponseDto>> placeAssetInDatacenter(
             @Valid @RequestBody AssetsOnDatacenterRequestDto requestDto) {
         log.info("POST /api/assets-on-datacenter - Placing asset in datacenter");
@@ -72,6 +74,7 @@ public class AssetsOnDatacenterController {
     }
 
     @PutMapping("/{id}")
+    @RequirePermission("ASSETS_ON_DATACENTER:UPDATE")
     public ResponseEntity<ApiResponse<AssetsOnDatacenterResponseDto>> updateAssetInDatacenter(
             @PathVariable Long id,
             @Valid @RequestBody AssetsOnDatacenterRequestDto requestDto) {
@@ -81,6 +84,7 @@ public class AssetsOnDatacenterController {
     }
 
     @DeleteMapping("/{id}")
+    @RequirePermission("ASSETS_ON_DATACENTER:DELETE")
     public ResponseEntity<ApiResponse<Void>> removeAssetFromDatacenter(@PathVariable Long id) {
         log.info("DELETE /api/assets-on-datacenter/{} - Removing asset from datacenter", id);
         assetsOnDatacenterService.removeAssetFromDatacenter(id);

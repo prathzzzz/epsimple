@@ -27,13 +27,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/site-types")
 @RequiredArgsConstructor
-@RequireAdmin
 public class SiteTypeController {
 
     private final SiteTypeService siteTypeService;
     private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<SiteTypeResponseDto>> createSiteType(@Valid @RequestBody SiteTypeRequestDto requestDto) {
         log.info("POST /api/site-types - Creating new site type");
         SiteTypeResponseDto response = siteTypeService.createSiteType(requestDto);
@@ -79,6 +79,7 @@ public class SiteTypeController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportData() throws Exception {
         log.info("GET /api/site-types/export - Exporting all site types");
         return bulkUploadControllerHelper.export(siteTypeService);
@@ -94,6 +95,7 @@ public class SiteTypeController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<SiteTypeResponseDto>> updateSiteType(
             @PathVariable Long id,
             @Valid @RequestBody SiteTypeRequestDto requestDto) {
@@ -103,6 +105,7 @@ public class SiteTypeController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteSiteType(@PathVariable Long id) {
         log.info("DELETE /api/site-types/{} - Deleting site type", id);
         siteTypeService.deleteSiteType(id);
@@ -112,18 +115,21 @@ public class SiteTypeController {
     // ============ Bulk Upload Endpoints ============
 
     @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RequireAdmin
     public SseEmitter bulkUploadSiteTypes(@RequestParam("file") MultipartFile file) throws Exception {
         log.info("POST /api/site-types/bulk-upload - Starting bulk upload for site types");
         return bulkUploadControllerHelper.bulkUpload(file, siteTypeService);
     }
 
     @GetMapping("/bulk-upload/template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadBulkUploadTemplate() throws Exception {
         log.info("GET /api/site-types/bulk-upload/template - Downloading bulk upload template");
         return bulkUploadControllerHelper.downloadTemplate(siteTypeService);
     }
 
     @PostMapping("/bulk-upload/errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadErrorReport(@RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/site-types/bulk-upload/errors - Downloading error report");
         return bulkUploadControllerHelper.exportErrors(progressData, siteTypeService);

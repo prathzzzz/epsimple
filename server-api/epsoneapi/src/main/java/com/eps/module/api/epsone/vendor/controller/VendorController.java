@@ -45,7 +45,6 @@ public class VendorController {
     }
 
     @GetMapping
-    @RequirePermission("VENDOR:READ")
     public ResponseEntity<ApiResponse<Page<VendorResponseDto>>> getAllVendors(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -53,14 +52,14 @@ public class VendorController {
             @RequestParam(defaultValue = "ASC") String sortDirection) {
         log.info("Fetching vendors - page: {}, size: {}, sortBy: {}, sortDirection: {}", 
                 page, size, sortBy, sortDirection);
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? 
+            Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<VendorResponseDto> vendors = vendorService.getAllVendors(pageable);
         return ResponseBuilder.success(vendors, "Vendors retrieved successfully", HttpStatus.OK);
     }
 
     @GetMapping("/search")
-    @RequirePermission("VENDOR:READ")
     public ResponseEntity<ApiResponse<Page<VendorResponseDto>>> searchVendors(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -68,14 +67,14 @@ public class VendorController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
         log.info("Searching vendors with term: '{}', page: {}, size: {}", searchTerm, page, size);
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? 
+            Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<VendorResponseDto> vendors = vendorService.searchVendors(searchTerm, pageable);
         return ResponseBuilder.success(vendors, "Vendors search completed successfully", HttpStatus.OK);
     }
 
     @GetMapping("/list")
-    @RequirePermission("VENDOR:READ")
     public ResponseEntity<ApiResponse<List<VendorResponseDto>>> getAllVendorsList() {
         log.info("Fetching all vendors as list");
         List<VendorResponseDto> vendors = vendorService.getAllVendorsList();
@@ -83,7 +82,6 @@ public class VendorController {
     }
 
     @GetMapping("/type/{vendorTypeId}")
-    @RequirePermission("VENDOR:READ")
     public ResponseEntity<ApiResponse<Page<VendorResponseDto>>> getVendorsByType(
             @PathVariable Long vendorTypeId,
             @RequestParam(defaultValue = "0") int page,
@@ -91,14 +89,14 @@ public class VendorController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") String sortDirection) {
         log.info("Fetching vendors by type ID: {}", vendorTypeId);
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? 
+            Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<VendorResponseDto> vendors = vendorService.getVendorsByType(vendorTypeId, pageable);
         return ResponseBuilder.success(vendors, "Vendors by type retrieved successfully", HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    @RequirePermission("VENDOR:READ")
     public ResponseEntity<ApiResponse<VendorResponseDto>> getVendorById(@PathVariable Long id) {
         log.info("Fetching vendor with id: {}", id);
         VendorResponseDto vendor = vendorService.getVendorById(id);

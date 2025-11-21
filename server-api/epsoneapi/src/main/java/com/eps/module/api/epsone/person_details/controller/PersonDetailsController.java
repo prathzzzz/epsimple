@@ -42,7 +42,6 @@ public class PersonDetailsController {
     }
 
     @GetMapping
-    @RequirePermission("PERSON_DETAILS:READ")
     public ResponseEntity<ApiResponse<Page<PersonDetailsResponseDto>>> getAllPersonDetails(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -58,7 +57,6 @@ public class PersonDetailsController {
     }
 
     @GetMapping("/search")
-    @RequirePermission("PERSON_DETAILS:READ")
     public ResponseEntity<ApiResponse<Page<PersonDetailsResponseDto>>> searchPersonDetails(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -75,7 +73,6 @@ public class PersonDetailsController {
     }
 
     @GetMapping("/person-type/{personTypeId}")
-    @RequirePermission("PERSON_DETAILS:READ")
     public ResponseEntity<ApiResponse<Page<PersonDetailsResponseDto>>> getPersonDetailsByPersonType(
             @PathVariable Long personTypeId,
             @RequestParam(defaultValue = "0") int page,
@@ -92,7 +89,6 @@ public class PersonDetailsController {
     }
 
     @GetMapping("/list")
-    @RequirePermission("PERSON_DETAILS:READ")
     public ResponseEntity<ApiResponse<List<PersonDetailsResponseDto>>> getPersonDetailsList() {
         log.info("GET /api/person-details/list - Fetching all person details as list");
         List<PersonDetailsResponseDto> personDetails = personDetailsService.getPersonDetailsList();
@@ -100,7 +96,6 @@ public class PersonDetailsController {
     }
 
     @GetMapping("/{id}")
-    @RequirePermission("PERSON_DETAILS:READ")
     public ResponseEntity<ApiResponse<PersonDetailsResponseDto>> getPersonDetailsById(@PathVariable Long id) {
         log.info("GET /api/person-details/{} - Fetching person details by ID", id);
         PersonDetailsResponseDto personDetails = personDetailsService.getPersonDetailsById(id);

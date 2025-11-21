@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.managed_project.controller;
 import com.eps.module.api.epsone.managed_project.dto.ManagedProjectRequestDto;
 import com.eps.module.api.epsone.managed_project.dto.ManagedProjectResponseDto;
 import com.eps.module.api.epsone.managed_project.service.ManagedProjectService;
+import com.eps.module.auth.rbac.annotation.RequirePermission;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -33,6 +34,7 @@ public class ManagedProjectController {
     private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
+    @RequirePermission("MANAGED_PROJECT:CREATE")
     public ResponseEntity<ApiResponse<ManagedProjectResponseDto>> createManagedProject(
             @Valid @RequestBody ManagedProjectRequestDto requestDto) {
         log.info("POST /api/managed-projects - Creating new Managed Project");
@@ -106,6 +108,7 @@ public class ManagedProjectController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequirePermission("MANAGED_PROJECT:EXPORT")
     public ResponseEntity<byte[]> exportData() throws IOException {
         log.info("GET /api/managed-projects/export - Exporting all Managed Projects");
         return bulkUploadHelper.export(managedProjectService);
@@ -121,6 +124,7 @@ public class ManagedProjectController {
     }
 
     @PutMapping("/{id}")
+    @RequirePermission("MANAGED_PROJECT:UPDATE")
     public ResponseEntity<ApiResponse<ManagedProjectResponseDto>> updateManagedProject(
             @PathVariable Long id,
             @Valid @RequestBody ManagedProjectRequestDto requestDto) {
@@ -130,6 +134,7 @@ public class ManagedProjectController {
     }
 
     @DeleteMapping("/{id}")
+    @RequirePermission("MANAGED_PROJECT:DELETE")
     public ResponseEntity<ApiResponse<Void>> deleteManagedProject(@PathVariable Long id) {
         log.info("DELETE /api/managed-projects/{} - Deleting Managed Project", id);
         managedProjectService.deleteManagedProject(id);
@@ -139,18 +144,21 @@ public class ManagedProjectController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping("/bulk/upload")
+    @RequirePermission("MANAGED_PROJECT:BULK_UPLOAD")
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/managed-projects/bulk/upload - Starting bulk upload with file: {}", file.getOriginalFilename());
         return bulkUploadHelper.bulkUpload(file, managedProjectService);
     }
 
     @GetMapping("/bulk/export-template")
+    @RequirePermission("MANAGED_PROJECT:BULK_UPLOAD")
     public ResponseEntity<byte[]> exportTemplate() throws IOException {
         log.info("GET /api/managed-projects/bulk/export-template - Exporting template");
         return bulkUploadHelper.downloadTemplate(managedProjectService);
     }
 
     @PostMapping("/bulk/export-error-report")
+    @RequirePermission("MANAGED_PROJECT:BULK_UPLOAD")
     public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/managed-projects/bulk/export-error-report - Exporting error report");
         return bulkUploadHelper.exportErrors(progressData, managedProjectService);

@@ -27,13 +27,13 @@ import java.util.List;
 @RequestMapping("/api/generic-status-types")
 @RequiredArgsConstructor
 @Slf4j
-@RequireAdmin
 public class GenericStatusTypeController {
 
     private final GenericStatusTypeService genericStatusTypeService;
     private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<GenericStatusTypeResponseDto>> createGenericStatusType(
             @Valid @RequestBody GenericStatusTypeRequestDto genericStatusTypeRequestDto) {
         GenericStatusTypeResponseDto response = genericStatusTypeService.createGenericStatusType(genericStatusTypeRequestDto);
@@ -82,6 +82,7 @@ public class GenericStatusTypeController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<GenericStatusTypeResponseDto>> updateGenericStatusType(
             @PathVariable Long id,
             @Valid @RequestBody GenericStatusTypeRequestDto genericStatusTypeRequestDto) {
@@ -90,6 +91,7 @@ public class GenericStatusTypeController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteGenericStatusType(@PathVariable Long id) {
         genericStatusTypeService.deleteGenericStatusType(id);
         return ResponseBuilder.success(null, "Generic status type deleted successfully");
@@ -97,24 +99,28 @@ public class GenericStatusTypeController {
 
     // Bulk Upload Endpoints
     @PostMapping("/bulk-upload")
+    @RequireAdmin
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/generic-status-types/bulk-upload - Starting bulk upload");
         return bulkUploadControllerHelper.bulkUpload(file, genericStatusTypeService);
     }
 
     @GetMapping("/download-template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadTemplate() throws IOException {
         log.info("GET /api/generic-status-types/download-template - Downloading bulk upload template");
         return bulkUploadControllerHelper.downloadTemplate(genericStatusTypeService);
     }
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportData() throws IOException {
         log.info("GET /api/generic-status-types/export - Exporting all generic status types");
         return bulkUploadControllerHelper.export(genericStatusTypeService);
     }
 
     @PostMapping("/export-errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportErrors(
             @RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/generic-status-types/export-errors - Exporting bulk upload error report");

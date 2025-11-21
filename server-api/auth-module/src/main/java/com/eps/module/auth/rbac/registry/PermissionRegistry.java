@@ -8,15 +8,17 @@ import java.util.List;
 
 /**
  * Permission registry that defines all entity scopes and auto-generates permissions.
- * Auto-generates 6 basic permissions (CREATE, READ, UPDATE, DELETE, BULK_UPLOAD, EXPORT) for all entity scopes.
+ * Auto-generates 5 basic permissions (CREATE, UPDATE, DELETE, BULK_UPLOAD, EXPORT) for all entity scopes.
+ * READ permission removed - all authenticated users can read all data except USER/ROLE management.
  * Custom permissions can be added manually as needed.
  */
 @Component
 public class PermissionRegistry {
 
     // Basic actions auto-generated for every scope
+    // READ removed - all authenticated users can read all data except USER/ROLE (admin-only)
     private static final String[] BASIC_ACTIONS = {
-            "CREATE", "READ", "UPDATE", "DELETE", "BULK_UPLOAD", "EXPORT"
+            "CREATE", "UPDATE", "DELETE", "BULK_UPLOAD", "EXPORT"
     };
 
     // Core Master Scopes (ADMIN only)
@@ -131,7 +133,8 @@ public class PermissionRegistry {
     }
 
     /**
-     * Generate 6 basic permissions for each scope in the category
+     * Generate 5 basic permissions for each scope in the category
+     * (CREATE, UPDATE, DELETE, BULK_UPLOAD, EXPORT - READ removed as it's open to all)
      */
     private void generateBasicPermissions(List<PermissionDefinition> permissions, String[] scopes, String category) {
         for (String scope : scopes) {

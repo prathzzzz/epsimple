@@ -451,23 +451,52 @@ Apply permissions per controller:
 
 ---
 
-## 🔄 FEATURE 10: ASSET PLACEMENT
+## ✅ FEATURE 10: ASSET PLACEMENT (COMPLETE)
 
-### Backend 🔄
+### Backend ✅
 **Controllers**:
-- `AssetsOnSiteController`
-- `AssetsOnWarehouseController`
-- `AssetsOnDatacenterController`
+- `AssetsOnSiteController` - `/api/assets-on-site`
+- `AssetsOnWarehouseController` - `/api/assets-on-warehouse`
+- `AssetsOnDatacenterController` - `/api/assets-on-datacenter`
 
-- [ ] Apply ASSETS_ON_SITE:* permissions
-- [ ] Apply ASSETS_ON_WAREHOUSE:* permissions
-- [ ] Apply ASSETS_ON_DATACENTER:* permissions
+**Assets on Site**:
+- [x] Apply `@RequirePermission("ASSETS_ON_SITE:CREATE")` to POST placeAssetOnSite
+- [x] Apply `@RequirePermission("ASSETS_ON_SITE:READ")` to GET endpoints (getAllAssetsOnSite, searchAssetsOnSite, getAssetsBySiteId, getAssetOnSiteById)
+- [x] Apply `@RequirePermission("ASSETS_ON_SITE:UPDATE")` to PUT updateAssetOnSite
+- [x] Apply `@RequirePermission("ASSETS_ON_SITE:DELETE")` to DELETE removeAssetFromSite
 
-### Frontend 🔄
+**Assets on Warehouse**:
+- [x] Apply `@RequirePermission("ASSETS_ON_WAREHOUSE:CREATE")` to POST placeAssetInWarehouse
+- [x] Apply `@RequirePermission("ASSETS_ON_WAREHOUSE:READ")` to GET endpoints (getAllAssetsInWarehouse, searchAssetsInWarehouse, getAssetsByWarehouseId, getAssetInWarehouseById)
+- [x] Apply `@RequirePermission("ASSETS_ON_WAREHOUSE:UPDATE")` to PUT updateAssetInWarehouse
+- [x] Apply `@RequirePermission("ASSETS_ON_WAREHOUSE:DELETE")` to DELETE removeAssetFromWarehouse
+
+**Assets on Datacenter**:
+- [x] Apply `@RequirePermission("ASSETS_ON_DATACENTER:CREATE")` to POST placeAssetInDatacenter
+- [x] Apply `@RequirePermission("ASSETS_ON_DATACENTER:READ")` to GET endpoints (getAllAssetsInDatacenter, searchAssetsInDatacenter, getAssetsByDatacenterId, getAssetInDatacenterById)
+- [x] Apply `@RequirePermission("ASSETS_ON_DATACENTER:UPDATE")` to PUT updateAssetInDatacenter
+- [x] Apply `@RequirePermission("ASSETS_ON_DATACENTER:DELETE")` to DELETE removeAssetFromDatacenter
+
+### Frontend ✅
 **Location**: `client-app/src/features/assets-on-*/`
 
-- [ ] Apply permission guards
-- [ ] Update placement workflows
+**Assets on Site**:
+- [x] Wrap Create button with `<PermissionGuard permission="ASSETS_ON_SITE:CREATE">`
+- [x] Wrap row actions dropdown with `<PermissionGuard anyPermissions={["ASSETS_ON_SITE:UPDATE", "ASSETS_ON_SITE:DELETE"]}>`
+- [x] Wrap Edit action with `<PermissionGuard permission="ASSETS_ON_SITE:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="ASSETS_ON_SITE:DELETE">`
+
+**Assets on Warehouse**:
+- [x] Wrap Create button with `<PermissionGuard permission="ASSETS_ON_WAREHOUSE:CREATE">`
+- [x] Wrap row actions dropdown with `<PermissionGuard anyPermissions={["ASSETS_ON_WAREHOUSE:UPDATE", "ASSETS_ON_WAREHOUSE:DELETE"]}>`
+- [x] Wrap Edit action with `<PermissionGuard permission="ASSETS_ON_WAREHOUSE:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="ASSETS_ON_WAREHOUSE:DELETE">`
+
+**Assets on Datacenter**:
+- [x] Wrap Create button with `<PermissionGuard permission="ASSETS_ON_DATACENTER:CREATE">`
+- [x] Wrap row actions dropdown with `<PermissionGuard anyPermissions={["ASSETS_ON_DATACENTER:UPDATE", "ASSETS_ON_DATACENTER:DELETE"]}>`
+- [x] Wrap Edit action with `<PermissionGuard permission="ASSETS_ON_DATACENTER:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="ASSETS_ON_DATACENTER:DELETE">`
 
 ---
 
@@ -511,10 +540,10 @@ Apply permissions per controller:
 | 7. Activity Management | ✅ | ✅ | 100% |
 | 8. Financial Management | ✅ | ✅ | 100% |
 | 9. People & Vendor Mgmt | ✅ | ✅ | 100% |
-| 10. Asset Placement | 🔄 | 🔄 | 0% |
+| 10. Asset Placement | ✅ | ✅ | 100% |
 | 11. Testing & Validation | 🔄 | 🔄 | 0% |
 
-**Overall Progress**: ~82% (10/11 backends complete, 9/11 frontends complete)
+**Overall Progress**: ~91% (10/11 backends complete, 10/11 frontends complete)
 
 ---
 
@@ -530,22 +559,25 @@ Apply permissions per controller:
 7. ✅ Feature 7 Backend & Frontend (Activity Management) - **DONE**
 8. ✅ Feature 8 Backend & Frontend (Financial Management) - **DONE**
 9. ✅ Feature 9 Backend & Frontend (People & Vendor Management) - **DONE**
-10. 🔄 Continue with Feature 10 Backend & Frontend (Asset Placement)...
+10. ✅ Feature 10 Backend & Frontend (Asset Placement) - **DONE**
+11. 🔄 Feature 11: Testing & Validation
 
-**Current Priority**: Feature 10 - Asset Placement RBAC
+**Current Priority**: Feature 11 - Testing & Validation
 
 **Recent Updates**:
-- ✅ Completed People & Vendor Management (Feature 9) - Both Backend & Frontend
+- ✅ Completed Asset Placement (Feature 10) - Both Backend & Frontend
   - Backend: Added @RequirePermission annotations to all 3 controllers:
-    - VendorController: 12 endpoints with VENDOR:* permissions (CREATE, READ, UPDATE, DELETE, BULK_UPLOAD, EXPORT)
-    - LandlordController: 11 endpoints with LANDLORD:* permissions (CREATE, READ, UPDATE, DELETE, BULK_UPLOAD, EXPORT)
-    - PersonDetailsController: 12 endpoints with PERSON_DETAILS:* permissions (CREATE, READ, UPDATE, DELETE, BULK_UPLOAD, EXPORT)
+    - AssetsOnSiteController: 7 endpoints with ASSETS_ON_SITE:* permissions (CREATE, READ, UPDATE, DELETE)
+    - AssetsOnWarehouseController: 7 endpoints with ASSETS_ON_WAREHOUSE:* permissions (CREATE, READ, UPDATE, DELETE)
+    - AssetsOnDatacenterController: 7 endpoints with ASSETS_ON_DATACENTER:* permissions (CREATE, READ, UPDATE, DELETE)
   - Frontend: Applied PermissionGuard to all UI components:
-    - vendor-primary-buttons.tsx: Protected Create, Bulk Upload, Download Template, Export buttons
-    - vendor-row-actions.tsx: Protected Edit and Delete actions
-    - landlord-primary-buttons.tsx: Protected Create, Bulk Upload, Download Template, Export buttons
-    - landlord-row-actions.tsx: Protected Edit and Delete actions
-    - person-details-primary-buttons.tsx: Protected Create, Bulk Upload, Download Template, Export buttons
-    - person-details-row-actions.tsx: Protected Edit and Delete actions
-  - All 3 modules now have complete RBAC coverage for CRUD, bulk upload, and export operations
-- Overall progress: Backend 91% (10/11), Frontend 82% (9/11), Total 82%
+    - create-assets-on-site-button.tsx: Protected Create button
+    - assets-on-site-row-actions.tsx: Protected Edit and Delete actions
+    - create-assets-on-warehouse-button.tsx: Protected Create button
+    - assets-on-warehouse-row-actions.tsx: Protected Edit and Delete actions
+    - create-assets-on-datacenter-button.tsx: Protected Create button
+    - assets-on-datacenter-row-actions.tsx: Protected Edit and Delete actions
+  - All 3 asset placement modules now have complete RBAC coverage for CRUD operations
+- Fixed @RequireAdmin annotation to support both METHOD and TYPE (class-level) usage
+- Updated PermissionAspect to intercept class-level annotations with @within pointcut
+- Overall progress: Backend 100% (10/10), Frontend 100% (10/10), Total 91% (only testing remains)

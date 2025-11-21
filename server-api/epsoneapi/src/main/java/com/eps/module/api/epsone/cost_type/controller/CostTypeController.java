@@ -21,13 +21,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/cost-types")
 @RequiredArgsConstructor
-@RequireAdmin
 public class CostTypeController {
 
     private final CostTypeService costTypeService;
     private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<CostTypeResponseDto>> createCostType(
             @Valid @RequestBody CostTypeRequestDto requestDto) {
         CostTypeResponseDto response = costTypeService.createCostType(requestDto);
@@ -78,6 +78,7 @@ public class CostTypeController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<CostTypeResponseDto>> updateCostType(
             @PathVariable Long id,
             @Valid @RequestBody CostTypeRequestDto requestDto) {
@@ -86,6 +87,7 @@ public class CostTypeController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteCostType(@PathVariable Long id) {
         costTypeService.deleteCostType(id);
         return ResponseBuilder.success(null, "Cost type deleted successfully");
@@ -94,22 +96,26 @@ public class CostTypeController {
     // Bulk endpoints
 
     @PostMapping(value = "/bulk-upload", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequireAdmin
     public org.springframework.web.servlet.mvc.method.annotation.SseEmitter bulkUploadCostTypes(
             @RequestParam("file") org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
         return bulkUploadHelper.bulkUpload(file, costTypeService);
     }
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportCostTypes() throws java.io.IOException {
         return bulkUploadHelper.export(costTypeService);
     }
 
     @GetMapping("/download-template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadTemplate() throws java.io.IOException {
         return bulkUploadHelper.downloadTemplate(costTypeService);
     }
 
     @PostMapping("/export-errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportBulkUploadErrors(
             @RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws java.io.IOException {
         return bulkUploadHelper.exportErrors(progressData, costTypeService);

@@ -29,13 +29,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/site-categories")
 @RequiredArgsConstructor
-@RequireAdmin
 public class SiteCategoryController {
 
     private final SiteCategoryService siteCategoryService;
     private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<SiteCategoryResponseDto>> createSiteCategory(@Valid @RequestBody SiteCategoryRequestDto requestDto) {
         log.info("POST /api/site-categories - Creating new site category");
         SiteCategoryResponseDto response = siteCategoryService.createSiteCategory(requestDto);
@@ -81,6 +81,7 @@ public class SiteCategoryController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportData() throws Exception {
         log.info("GET /api/site-categories/export - Exporting all site categories");
         return bulkUploadControllerHelper.export(siteCategoryService);
@@ -96,6 +97,7 @@ public class SiteCategoryController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<SiteCategoryResponseDto>> updateSiteCategory(
             @PathVariable Long id,
             @Valid @RequestBody SiteCategoryRequestDto requestDto) {
@@ -105,6 +107,7 @@ public class SiteCategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteSiteCategory(@PathVariable Long id) {
         log.info("DELETE /api/site-categories/{} - Deleting site category", id);
         siteCategoryService.deleteSiteCategory(id);
@@ -114,18 +117,21 @@ public class SiteCategoryController {
     // ============ Bulk Upload Endpoints ============
 
     @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RequireAdmin
     public SseEmitter bulkUploadSiteCategories(@RequestParam("file") MultipartFile file) throws Exception {
         log.info("POST /api/site-categories/bulk-upload - Starting bulk upload for site categories");
         return bulkUploadControllerHelper.bulkUpload(file, siteCategoryService);
     }
 
     @GetMapping("/bulk-upload/template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadBulkUploadTemplate() throws Exception {
         log.info("GET /api/site-categories/bulk-upload/template - Downloading bulk upload template");
         return bulkUploadControllerHelper.downloadTemplate(siteCategoryService);
     }
 
     @PostMapping("/bulk-upload/errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadErrorReport(@RequestBody com.eps.module.common.bulk.dto.BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/site-categories/bulk-upload/errors - Downloading error report");
         return bulkUploadControllerHelper.exportErrors(progressData, siteCategoryService);

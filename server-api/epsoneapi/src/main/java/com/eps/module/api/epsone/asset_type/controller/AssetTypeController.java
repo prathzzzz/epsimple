@@ -25,13 +25,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/asset-types")
 @RequiredArgsConstructor
-@RequireAdmin
 public class AssetTypeController {
 
     private final AssetTypeService assetTypeService;
     private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<AssetTypeResponseDto>> createAssetType(
             @Valid @RequestBody AssetTypeRequestDto requestDto) {
         AssetTypeResponseDto response = assetTypeService.createAssetType(requestDto);
@@ -78,6 +78,7 @@ public class AssetTypeController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportData() throws Exception {
         return bulkUploadControllerHelper.export(assetTypeService);
     }
@@ -91,6 +92,7 @@ public class AssetTypeController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<AssetTypeResponseDto>> updateAssetType(
             @PathVariable Long id,
             @Valid @RequestBody AssetTypeRequestDto requestDto) {
@@ -99,6 +101,7 @@ public class AssetTypeController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteAssetType(@PathVariable Long id) {
         assetTypeService.deleteAssetType(id);
         return ResponseBuilder.success(null, "Asset type deleted successfully");
@@ -107,16 +110,19 @@ public class AssetTypeController {
     // ========== Bulk Upload Endpoints ==========
     
     @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RequireAdmin
     public SseEmitter bulkUploadAssetTypes(@RequestParam("file") MultipartFile file) throws Exception {
         return bulkUploadControllerHelper.bulkUpload(file, assetTypeService);
     }
 
     @GetMapping("/bulk-upload/template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         return bulkUploadControllerHelper.downloadTemplate(assetTypeService);
     }
 
     @PostMapping("/bulk-upload/errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         return bulkUploadControllerHelper.exportErrors(progressData, assetTypeService);
     }

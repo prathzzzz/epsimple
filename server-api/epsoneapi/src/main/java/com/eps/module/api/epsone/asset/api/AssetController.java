@@ -40,14 +40,12 @@ public class AssetController {
         return bulkUploadHelper.bulkUpload(file, assetService);
     }
 
-    @RequirePermission("ASSET:READ")
     @GetMapping("/bulk/export-template")
     public ResponseEntity<byte[]> exportTemplate() throws IOException {
         log.info("GET /api/assets/bulk/export-template - Exporting template");
         return bulkUploadHelper.downloadTemplate(assetService);
     }
 
-    @RequirePermission("ASSET:READ")
     @PostMapping("/bulk/export-error-report")
     public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/assets/bulk/export-error-report - Exporting error report");
@@ -64,7 +62,6 @@ public class AssetController {
         return ResponseBuilder.success(response, "Asset created successfully");
     }
 
-    @RequirePermission("ASSET:READ")
     @GetMapping
     public ResponseEntity<ApiResponse<Page<AssetResponseDto>>> getAllAssets(
             @RequestParam(defaultValue = "0") int page,
@@ -78,7 +75,6 @@ public class AssetController {
         return ResponseBuilder.success(assets, "Assets retrieved successfully");
     }
 
-    @RequirePermission("ASSET:READ")
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<Page<AssetResponseDto>>> searchAssets(
             @RequestParam(required = false, defaultValue = "") String searchTerm,
@@ -93,7 +89,6 @@ public class AssetController {
         return ResponseBuilder.success(assets, "Assets search completed");
     }
 
-    @RequirePermission("ASSET:READ")
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<List<AssetResponseDto>>> listAssets() {
         List<AssetResponseDto> assets = assetService.listAssets();
@@ -111,7 +106,6 @@ public class AssetController {
 
     // ========== CRUD Endpoints ==========
 
-    @RequirePermission("ASSET:READ")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AssetResponseDto>> getAssetById(@PathVariable Long id) {
         AssetResponseDto asset = assetService.getAssetById(id);

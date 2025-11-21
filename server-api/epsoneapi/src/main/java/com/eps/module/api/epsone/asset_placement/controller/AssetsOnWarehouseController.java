@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.asset_placement.controller;
 import com.eps.module.api.epsone.asset_placement.dto.AssetsOnWarehouseRequestDto;
 import com.eps.module.api.epsone.asset_placement.dto.AssetsOnWarehouseResponseDto;
 import com.eps.module.api.epsone.asset_placement.service.AssetsOnWarehouseService;
+import com.eps.module.auth.rbac.annotation.RequirePermission;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -22,6 +23,7 @@ public class AssetsOnWarehouseController {
     private final AssetsOnWarehouseService assetsOnWarehouseService;
 
     @PostMapping
+    @RequirePermission("ASSETS_ON_WAREHOUSE:CREATE")
     public ResponseEntity<ApiResponse<AssetsOnWarehouseResponseDto>> placeAssetInWarehouse(
             @Valid @RequestBody AssetsOnWarehouseRequestDto requestDto) {
         log.info("POST /api/assets-on-warehouse - Placing asset in warehouse");
@@ -72,6 +74,7 @@ public class AssetsOnWarehouseController {
     }
 
     @PutMapping("/{id}")
+    @RequirePermission("ASSETS_ON_WAREHOUSE:UPDATE")
     public ResponseEntity<ApiResponse<AssetsOnWarehouseResponseDto>> updateAssetInWarehouse(
             @PathVariable Long id,
             @Valid @RequestBody AssetsOnWarehouseRequestDto requestDto) {
@@ -81,6 +84,7 @@ public class AssetsOnWarehouseController {
     }
 
     @DeleteMapping("/{id}")
+    @RequirePermission("ASSETS_ON_WAREHOUSE:DELETE")
     public ResponseEntity<ApiResponse<Void>> removeAssetFromWarehouse(@PathVariable Long id) {
         log.info("DELETE /api/assets-on-warehouse/{} - Removing asset from warehouse", id);
         assetsOnWarehouseService.removeAssetFromWarehouse(id);

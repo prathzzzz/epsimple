@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { PermissionGuard } from '@/components/permission-guard';
 import type { AssetsOnDatacenter } from '../api/schema';
 import { useAssetsOnDatacenter } from '../context/assets-on-datacenter-provider';
 
@@ -32,25 +33,31 @@ export function AssetsOnDatacenterRowActions({ row }: AssetsOnDatacenterRowActio
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleEdit}>
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-          <Trash className="mr-2 h-4 w-4" />
-          Remove
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <PermissionGuard anyPermissions={['ASSETS_ON_DATACENTER:UPDATE', 'ASSETS_ON_DATACENTER:DELETE']}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <PermissionGuard permission="ASSETS_ON_DATACENTER:UPDATE">
+            <DropdownMenuItem onClick={handleEdit}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+          </PermissionGuard>
+          <PermissionGuard permission="ASSETS_ON_DATACENTER:DELETE">
+            <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+              <Trash className="mr-2 h-4 w-4" />
+              Remove
+            </DropdownMenuItem>
+          </PermissionGuard>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </PermissionGuard>
   );
 }

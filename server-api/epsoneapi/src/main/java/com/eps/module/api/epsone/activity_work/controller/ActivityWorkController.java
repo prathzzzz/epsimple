@@ -40,14 +40,12 @@ public class ActivityWorkController {
     }
 
     @GetMapping("/bulk-upload/template")
-    @RequirePermission("ACTIVITY_WORK:READ")
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("GET /api/activity-works/bulk-upload/template - Downloading template");
         return bulkUploadControllerHelper.downloadTemplate(activityWorkService);
     }
 
     @PostMapping("/bulk-upload/errors")
-    @RequirePermission("ACTIVITY_WORK:READ")
     public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/activity-works/bulk-upload/errors - Downloading error report");
         return bulkUploadControllerHelper.exportErrors(progressData, activityWorkService);
@@ -65,7 +63,6 @@ public class ActivityWorkController {
     }
 
     @GetMapping
-    @RequirePermission("ACTIVITY_WORK:READ")
     public ResponseEntity<ApiResponse<Page<ActivityWorkResponseDto>>> getAllActivityWorks(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -77,7 +74,6 @@ public class ActivityWorkController {
     }
 
     @GetMapping("/search")
-    @RequirePermission("ACTIVITY_WORK:READ")
     public ResponseEntity<ApiResponse<Page<ActivityWorkResponseDto>>> searchActivityWorks(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
@@ -90,7 +86,6 @@ public class ActivityWorkController {
     }
 
     @GetMapping("/list")
-    @RequirePermission("ACTIVITY_WORK:READ")
     public ResponseEntity<ApiResponse<List<ActivityWorkResponseDto>>> getAllActivityWorksList() {
         log.info("GET /api/activity-works/list - Fetching all activity works as list");
         List<ActivityWorkResponseDto> activityWorks = activityWorkService.getAllActivityWorksList();
@@ -109,7 +104,6 @@ public class ActivityWorkController {
     // ========== CRUD Endpoints ==========
 
     @GetMapping("/{id}")
-    @RequirePermission("ACTIVITY_WORK:READ")
     public ResponseEntity<ApiResponse<ActivityWorkResponseDto>> getActivityWorkById(@PathVariable Long id) {
         log.info("GET /api/activity-works/{} - Fetching activity work", id);
         ActivityWorkResponseDto responseDto = activityWorkService.getActivityWorkById(id);

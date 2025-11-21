@@ -33,15 +33,65 @@ import {
   type NavLink,
   type NavGroup as NavGroupProps,
 } from './types'
+import { usePermission } from '@/hooks/use-permission'
+
+/**
+ * Check if user has access to a navigation item based on permission metadata
+ */
+function useHasAccess() {
+  const { hasPermission, hasAnyPermission, hasAllPermissions, isAdmin } = usePermission()
+
+  const hasAccess = (item: NavItem | NavCollapsibleLevel2 | { 
+    permission?: string
+    anyPermissions?: string[]
+    allPermissions?: string[]
+    requireAdmin?: boolean 
+  }): boolean => {
+    // If item requires admin and user is not admin, deny access
+    if (item.requireAdmin && !isAdmin()) {
+      return false
+    }
+
+    // If item has single permission requirement
+    if (item.permission && !hasPermission(item.permission)) {
+      return false
+    }
+
+    // If item requires any of the permissions (OR logic)
+    if (item.anyPermissions && !hasAnyPermission(item.anyPermissions)) {
+      return false
+    }
+
+    // If item requires all permissions (AND logic)
+    if (item.allPermissions && !hasAllPermissions(item.allPermissions)) {
+      return false
+    }
+
+    // If no permission requirements specified, allow access
+    return true
+  }
+
+  return { hasAccess }
+}
 
 export function NavGroup({ title, items }: NavGroupProps) {
   const { state, isMobile } = useSidebar()
   const href = useLocation({ select: (location) => location.href })
+  const { hasAccess } = useHasAccess()
+
+  // Filter items based on permissions
+  const filteredItems = items.filter(hasAccess)
+
+  // Don't render the group if no items are accessible
+  if (filteredItems.length === 0) {
+    return null
+  }
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{title}</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => {
+        {filteredItems.map((item) => {
           const key = `${item.title}-${item.url}`
 
           if (!item.items)
@@ -90,6 +140,16 @@ function SidebarMenuCollapsible({
   href: string
 }) {
   const { setOpenMobile } = useSidebar()
+  const { hasAccess } = useHasAccess()
+
+  // Filter sub-items based on permissions
+  const filteredSubItems = item.items.filter(hasAccess)
+
+  // Don't render if no sub-items are accessible
+  if (filteredSubItems.length === 0) {
+    return null
+  }
+
   return (
     <Collapsible
       asChild
@@ -107,7 +167,7 @@ function SidebarMenuCollapsible({
         </CollapsibleTrigger>
         <CollapsibleContent className='CollapsibleContent'>
           <SidebarMenuSub>
-            {item.items.map((subItem) => {
+            {filteredSubItems.map((subItem) => {
               // Check if this is a nested collapsible (Level 2)
               if ('items' in subItem && subItem.items) {
                 return (
@@ -197,6 +257,16 @@ function SidebarMenuCollapsedDropdown({
   item: NavCollapsibleLevel1
   href: string
 }) {
+  const { hasAccess } = useHasAccess()
+
+  // Filter sub-items based on permissions
+  const filteredSubItems = item.items.filter(hasAccess)
+
+  // Don't render if no sub-items are accessible
+  if (filteredSubItems.length === 0) {
+    return null
+  }
+
   return (
     <SidebarMenuItem>
       <DropdownMenu>
@@ -216,15 +286,23 @@ function SidebarMenuCollapsedDropdown({
             {item.title} {item.badge ? `(${item.badge})` : ''}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {item.items.map((sub) => {
+          {filteredSubItems.map((sub) => {
             // Handle nested items
             if ('items' in sub && sub.items) {
+              // Filter nested items as well
+              const filteredNestedItems = sub.items.filter(hasAccess)
+              
+              // Skip if no nested items are accessible
+              if (filteredNestedItems.length === 0) {
+                return null
+              }
+
               return (
                 <div key={sub.title}>
                   <DropdownMenuLabel className='text-xs'>
                     {sub.title}
                   </DropdownMenuLabel>
-                  {sub.items.map((subSub) => (
+                  {filteredNestedItems.map((subSub) => (
                     <DropdownMenuItem key={`${subSub.title}-${subSub.url}`} asChild>
                       <Link
                         to={subSub.url}

@@ -28,13 +28,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/asset-categories")
 @RequiredArgsConstructor
-@RequireAdmin
 public class AssetCategoryController {
 
     private final AssetCategoryService assetCategoryService;
     private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<AssetCategoryResponseDto>> createAssetCategory(
             @Valid @RequestBody AssetCategoryRequestDto requestDto) {
         log.info("POST /api/asset-categories - Creating new asset category");
@@ -91,6 +91,7 @@ public class AssetCategoryController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportData() throws Exception {
         log.info("GET /api/asset-categories/export - Exporting all asset categories");
         return bulkUploadControllerHelper.export(assetCategoryService);
@@ -106,6 +107,7 @@ public class AssetCategoryController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<AssetCategoryResponseDto>> updateAssetCategory(
             @PathVariable Long id,
             @Valid @RequestBody AssetCategoryRequestDto requestDto) {
@@ -115,6 +117,7 @@ public class AssetCategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteAssetCategory(@PathVariable Long id) {
         log.info("DELETE /api/asset-categories/{} - Deleting asset category", id);
         assetCategoryService.deleteAssetCategory(id);
@@ -124,18 +127,21 @@ public class AssetCategoryController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RequireAdmin
     public SseEmitter bulkUploadAssetCategories(@RequestParam("file") MultipartFile file) throws Exception {
         log.info("POST /api/asset-categories/bulk-upload - Starting bulk upload");
         return bulkUploadControllerHelper.bulkUpload(file, assetCategoryService);
     }
 
     @GetMapping("/bulk-upload/template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("GET /api/asset-categories/bulk-upload/template - Downloading template");
         return bulkUploadControllerHelper.downloadTemplate(assetCategoryService);
     }
 
     @PostMapping("/bulk-upload/errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/asset-categories/bulk-upload/errors - Downloading error report");
         return bulkUploadControllerHelper.exportErrors(progressData, assetCategoryService);

@@ -28,13 +28,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/vendor-categories")
 @RequiredArgsConstructor
-@RequireAdmin
 public class VendorCategoryController {
 
     private final VendorCategoryService vendorCategoryService;
     private final BulkUploadControllerHelper bulkUploadHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<VendorCategoryResponseDto>> createVendorCategory(
             @Valid @RequestBody VendorCategoryRequestDto requestDto) {
         log.info("POST /api/vendor-categories - Creating new vendor category");
@@ -91,6 +91,7 @@ public class VendorCategoryController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportData() throws java.io.IOException {
         log.info("GET /api/vendor-categories/export - Exporting all vendor categories");
         return bulkUploadHelper.export(vendorCategoryService);
@@ -106,6 +107,7 @@ public class VendorCategoryController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<VendorCategoryResponseDto>> updateVendorCategory(
             @PathVariable Long id,
             @Valid @RequestBody VendorCategoryRequestDto requestDto) {
@@ -115,6 +117,7 @@ public class VendorCategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteVendorCategory(@PathVariable Long id) {
         log.info("DELETE /api/vendor-categories/{} - Deleting vendor category", id);
         vendorCategoryService.deleteVendorCategory(id);
@@ -123,6 +126,7 @@ public class VendorCategoryController {
 
     // Bulk Upload Endpoints
     @PostMapping(value = "/bulk/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequireAdmin
     public SseEmitter bulkUploadVendorCategories(
             @RequestParam("file") MultipartFile file) throws java.io.IOException {
         log.info("POST /api/vendor-categories/bulk/upload - Starting bulk upload");
@@ -130,12 +134,14 @@ public class VendorCategoryController {
     }
 
     @GetMapping("/bulk/export-template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadBulkUploadTemplate() throws java.io.IOException {
         log.info("GET /api/vendor-categories/bulk/export-template - Downloading bulk upload template");
         return bulkUploadHelper.downloadTemplate(vendorCategoryService);
     }
 
     @PostMapping("/bulk/export-error-report")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportErrorReport(
             @RequestBody BulkUploadProgressDto progressDto) throws java.io.IOException {
         log.info("POST /api/vendor-categories/bulk/export-error-report - Exporting error report");

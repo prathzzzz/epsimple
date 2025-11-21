@@ -27,12 +27,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/person-types")
 @RequiredArgsConstructor
-@RequireAdmin
 public class PersonTypeController {
 
     private final PersonTypeService personTypeService;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<PersonTypeResponseDto>> createPersonType(
             @Valid @RequestBody PersonTypeRequestDto requestDto) {
         log.info("POST /api/person-types - Creating new person type");
@@ -94,6 +94,7 @@ public class PersonTypeController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<PersonTypeResponseDto>> updatePersonType(
             @PathVariable Long id,
             @Valid @RequestBody PersonTypeRequestDto requestDto) {
@@ -103,6 +104,7 @@ public class PersonTypeController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deletePersonType(@PathVariable Long id) {
         log.info("DELETE /api/person-types/{} - Deleting person type", id);
         personTypeService.deletePersonType(id);
@@ -112,24 +114,28 @@ public class PersonTypeController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping("/bulk-upload")
+    @RequireAdmin
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/person-types/bulk-upload - Starting bulk upload");
         return personTypeService.bulkUpload(file);
     }
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportToExcel() throws IOException {
         log.info("GET /api/person-types/export - Exporting all person types to Excel");
         return personTypeService.exportToExcel();
     }
 
     @GetMapping("/download-template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadTemplate() throws IOException {
         log.info("GET /api/person-types/download-template - Downloading bulk upload template");
         return personTypeService.downloadTemplate();
     }
 
     @PostMapping("/export-errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/person-types/export-errors - Exporting error report");
         return personTypeService.exportErrorReport(progressData);

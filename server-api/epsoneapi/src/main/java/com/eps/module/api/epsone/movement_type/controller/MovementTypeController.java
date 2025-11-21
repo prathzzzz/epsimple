@@ -25,13 +25,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/movement-types")
 @RequiredArgsConstructor
-@RequireAdmin
 public class MovementTypeController {
 
     private final MovementTypeService movementTypeService;
     private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
+    @RequireAdmin
     public ResponseEntity<ApiResponse<MovementTypeResponseDto>> createMovementType(
             @Valid @RequestBody MovementTypeRequestDto requestDto) {
         MovementTypeResponseDto response = movementTypeService.createMovementType(requestDto);
@@ -78,6 +78,7 @@ public class MovementTypeController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequireAdmin
     public ResponseEntity<byte[]> exportData() throws Exception {
         return bulkUploadControllerHelper.export(movementTypeService);
     }
@@ -91,6 +92,7 @@ public class MovementTypeController {
     }
 
     @PutMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<MovementTypeResponseDto>> updateMovementType(
             @PathVariable Long id,
             @Valid @RequestBody MovementTypeRequestDto requestDto) {
@@ -99,6 +101,7 @@ public class MovementTypeController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireAdmin
     public ResponseEntity<ApiResponse<Void>> deleteMovementType(@PathVariable Long id) {
         movementTypeService.deleteMovementType(id);
         return ResponseBuilder.success(null, "Movement type deleted successfully");
@@ -107,16 +110,19 @@ public class MovementTypeController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RequireAdmin
     public SseEmitter bulkUploadMovementTypes(@RequestParam("file") MultipartFile file) throws Exception {
         return bulkUploadControllerHelper.bulkUpload(file, movementTypeService);
     }
 
     @GetMapping("/bulk-upload/template")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         return bulkUploadControllerHelper.downloadTemplate(movementTypeService);
     }
 
     @PostMapping("/bulk-upload/errors")
+    @RequireAdmin
     public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         return bulkUploadControllerHelper.exportErrors(progressData, movementTypeService);
     }

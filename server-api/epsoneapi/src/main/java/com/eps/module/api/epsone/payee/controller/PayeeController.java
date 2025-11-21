@@ -41,7 +41,6 @@ public class PayeeController {
     }
 
     @GetMapping
-    @RequirePermission("PAYEE:READ")
     public ResponseEntity<?> getAllPayees(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -56,7 +55,6 @@ public class PayeeController {
     }
 
     @GetMapping("/search")
-    @RequirePermission("PAYEE:READ")
     public ResponseEntity<?> searchPayees(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -93,7 +91,6 @@ public class PayeeController {
     }
 
     @GetMapping("/list")
-    @RequirePermission("PAYEE:READ")
     public ResponseEntity<?> getPayeesList() {
         log.info("Received request to get payees list");
         List<PayeeResponseDto> response = payeeService.getPayeesList();
@@ -112,7 +109,6 @@ public class PayeeController {
     // ========== CRUD Endpoints ==========
 
     @GetMapping("/{id}")
-    @RequirePermission("PAYEE:READ")
     public ResponseEntity<?> getPayeeById(@PathVariable Long id) {
         log.info("Received request to get payee by id: {}", id);
         PayeeResponseDto response = payeeService.getPayeeById(id);
@@ -138,7 +134,6 @@ public class PayeeController {
     }
 
     @GetMapping("/count")
-    @RequirePermission("PAYEE:READ")
     public ResponseEntity<?> countPayees() {
         log.info("Received request to count payees");
         long count = payeeService.countPayees();
@@ -155,14 +150,12 @@ public class PayeeController {
     }
 
     @GetMapping("/bulk-upload/template")
-    @RequirePermission("PAYEE:READ")
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("Received request to download Payee bulk upload template");
         return bulkUploadControllerHelper.downloadTemplate(payeeService);
     }
 
     @PostMapping("/bulk-upload/errors")
-    @RequirePermission("PAYEE:READ")
     public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("Received request to export Payee bulk upload errors");
         return bulkUploadControllerHelper.exportErrors(progressData, payeeService);

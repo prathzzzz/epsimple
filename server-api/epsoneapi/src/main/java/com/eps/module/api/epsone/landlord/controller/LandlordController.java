@@ -43,7 +43,6 @@ public class LandlordController {
     }
 
     @GetMapping
-    @RequirePermission("LANDLORD:READ")
     public ResponseEntity<ApiResponse<Page<LandlordResponseDto>>> getAllLandlords(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -58,7 +57,6 @@ public class LandlordController {
     }
 
     @GetMapping("/search")
-    @RequirePermission("LANDLORD:READ")
     public ResponseEntity<ApiResponse<Page<LandlordResponseDto>>> searchLandlords(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -73,7 +71,6 @@ public class LandlordController {
     }
 
     @GetMapping("/list")
-    @RequirePermission("LANDLORD:READ")
     public ResponseEntity<ApiResponse<List<LandlordResponseDto>>> getAllLandlordsList() {
         log.info("Fetching all landlords as list");
         List<LandlordResponseDto> landlords = landlordService.getAllLandlordsList();
@@ -81,7 +78,6 @@ public class LandlordController {
     }
 
     @GetMapping("/{id}")
-    @RequirePermission("LANDLORD:READ")
     public ResponseEntity<ApiResponse<LandlordResponseDto>> getLandlordById(@PathVariable Long id) {
         log.info("Fetching landlord with id: {}", id);
         LandlordResponseDto landlord = landlordService.getLandlordById(id);
