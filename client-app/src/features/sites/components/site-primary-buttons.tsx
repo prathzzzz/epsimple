@@ -5,6 +5,7 @@ import { useSite } from "../context/site-provider";
 import { toast } from "sonner";
 import { downloadFile } from "@/lib/api-utils";
 import { useExport } from "@/hooks/useExport";
+import { PermissionGuard } from "@/components/permission-guard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,64 +45,72 @@ export function SitePrimaryButtons() {
   return (
     <div className="flex items-center gap-2">
       {/* Bulk Actions Dropdown */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9 px-3 text-sm font-medium"
-            disabled={isDownloadingTemplate || isExporting}
-          >
-            <FileUp className="h-4 w-4 mr-2" />
-            Bulk Actions
-            <ChevronDown className="h-4 w-4 ml-2" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-64">
-          <DropdownMenuItem 
-            onClick={handleDownloadTemplate} 
-            className="cursor-pointer"
-            disabled={isDownloadingTemplate}
-          >
-            {isDownloadingTemplate ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin text-blue-600" />
-            ) : (
-              <Download className="h-4 w-4 mr-2 text-blue-600" />
-            )}
-            <span>Download Template</span>
-          </DropdownMenuItem>
-          
-          <DropdownMenuItem onClick={() => setIsBulkUploadDialogOpen(true)} className="cursor-pointer">
-            <FileUp className="h-4 w-4 mr-2 text-orange-600" />
-            <span>Bulk Upload</span>
-          </DropdownMenuItem>
-          
-          <DropdownMenuSeparator />
-          
-          <DropdownMenuItem 
-            onClick={handleExport} 
-            className="cursor-pointer"
-            disabled={isExporting}
-          >
-            {isExporting ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin text-purple-600" />
-            ) : (
-              <FileSpreadsheet className="h-4 w-4 mr-2 text-purple-600" />
-            )}
-            <span>Export All Data</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <PermissionGuard anyPermissions={["SITE:BULK_UPLOAD", "SITE:EXPORT"]}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 px-3 text-sm font-medium"
+              disabled={isDownloadingTemplate || isExporting}
+            >
+              <FileUp className="h-4 w-4 mr-2" />
+              Bulk Actions
+              <ChevronDown className="h-4 w-4 ml-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-64">
+            <PermissionGuard permission="SITE:BULK_UPLOAD">
+              <DropdownMenuItem 
+                onClick={handleDownloadTemplate} 
+                className="cursor-pointer"
+                disabled={isDownloadingTemplate}
+              >
+                {isDownloadingTemplate ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin text-blue-600" />
+                ) : (
+                  <Download className="h-4 w-4 mr-2 text-blue-600" />
+                )}
+                <span>Download Template</span>
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem onClick={() => setIsBulkUploadDialogOpen(true)} className="cursor-pointer">
+                <FileUp className="h-4 w-4 mr-2 text-orange-600" />
+                <span>Bulk Upload</span>
+              </DropdownMenuItem>
+            </PermissionGuard>
+            
+            <PermissionGuard permission="SITE:EXPORT">
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem 
+                onClick={handleExport} 
+                className="cursor-pointer"
+                disabled={isExporting}
+              >
+                {isExporting ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin text-purple-600" />
+                ) : (
+                  <FileSpreadsheet className="h-4 w-4 mr-2 text-purple-600" />
+                )}
+                <span>Export All Data</span>
+              </DropdownMenuItem>
+            </PermissionGuard>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </PermissionGuard>
 
       {/* Primary Action */}
-      <Button 
-        onClick={handleCreate}
-        size="sm"
-        className="h-9 px-4 text-sm font-medium"
-      >
-        <Plus className="h-4 w-4 mr-2" />
-        Add Site
-      </Button>
+      <PermissionGuard permission="SITE:CREATE">
+        <Button 
+          onClick={handleCreate}
+          size="sm"
+          className="h-9 px-4 text-sm font-medium"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Site
+        </Button>
+      </PermissionGuard>
     </div>
   );
 }

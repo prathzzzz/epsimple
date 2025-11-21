@@ -233,53 +233,53 @@ GET    /api/permissions/my            → Current user's permissions
 
 ---
 
-## 🔄 FEATURE 5: ASSET MANAGEMENT
+## ✅ FEATURE 5: ASSET MANAGEMENT (COMPLETE)
 
-### Backend 🔄
+### Backend ✅
 **Controllers**: `AssetController` - `/api/assets`
 
-- [ ] Apply `@RequirePermission("ASSET:READ")` to GET endpoints
-- [ ] Apply `@RequirePermission("ASSET:CREATE")` to POST create
-- [ ] Apply `@RequirePermission("ASSET:UPDATE")` to PUT update
-- [ ] Apply `@RequirePermission("ASSET:DELETE")` to DELETE
-- [ ] Apply `@RequirePermission("ASSET:BULK_UPLOAD")` to bulk upload
-- [ ] Apply `@RequirePermission("ASSET:EXPORT")` to export
-- [ ] Apply `@RequirePermission("ASSET:PLACE")` to placement endpoints
-- [ ] Apply `@RequirePermission("ASSET:TRANSFER")` to transfer endpoints
+- [x] Apply `@RequirePermission("ASSET:READ")` to GET endpoints
+- [x] Apply `@RequirePermission("ASSET:CREATE")` to POST create
+- [x] Apply `@RequirePermission("ASSET:UPDATE")` to PUT update
+- [x] Apply `@RequirePermission("ASSET:DELETE")` to DELETE
+- [x] Apply `@RequirePermission("ASSET:BULK_UPLOAD")` to bulk upload
+- [x] Apply `@RequirePermission("ASSET:EXPORT")` to export
+- [x] Apply `@RequirePermission("ASSET:PLACE")` to placement endpoints
+- [x] Apply `@RequirePermission("ASSET:TRANSFER")` to transfer endpoints
 
-### Frontend 🔄
+### Frontend ✅
 **Location**: `client-app/src/features/assets/`
 
-- [ ] Wrap Create button with `<PermissionGuard permission="ASSET:CREATE">`
-- [ ] Wrap Edit action with `<PermissionGuard permission="ASSET:UPDATE">`
-- [ ] Wrap Delete action with `<PermissionGuard permission="ASSET:DELETE">`
-- [ ] Wrap Bulk Upload with `<PermissionGuard permission="ASSET:BULK_UPLOAD">`
-- [ ] Wrap Export with `<PermissionGuard permission="ASSET:EXPORT">`
-- [ ] Wrap Place Asset with `<PermissionGuard permission="ASSET:PLACE">`
-- [ ] Wrap Transfer Asset with `<PermissionGuard permission="ASSET:TRANSFER">`
+- [x] Wrap Create button with `<PermissionGuard permission="ASSET:CREATE">`
+- [x] Wrap Edit action with `<PermissionGuard permission="ASSET:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="ASSET:DELETE">`
+- [x] Wrap Bulk Upload with `<PermissionGuard permission="ASSET:BULK_UPLOAD">`
+- [x] Wrap Export with `<PermissionGuard permission="ASSET:EXPORT">`
+- [x] Wrap Place Asset with `<PermissionGuard permission="ASSET:PLACE">`
+- [x] Wrap Transfer Asset with `<PermissionGuard permission="ASSET:TRANSFER">`
 
 ---
 
-## 🔄 FEATURE 6: SITE MANAGEMENT
+## ✅ FEATURE 6: SITE MANAGEMENT (COMPLETE)
 
-### Backend 🔄
+### Backend ✅
 **Controllers**: `SiteController` - `/api/sites`
 
-- [ ] Apply `@RequirePermission("SITE:READ")` to GET endpoints
-- [ ] Apply `@RequirePermission("SITE:CREATE")` to POST create
-- [ ] Apply `@RequirePermission("SITE:UPDATE")` to PUT update
-- [ ] Apply `@RequirePermission("SITE:DELETE")` to DELETE
-- [ ] Apply `@RequirePermission("SITE:BULK_UPLOAD")` to bulk upload
-- [ ] Apply `@RequirePermission("SITE:EXPORT")` to export
+- [x] Apply `@RequirePermission("SITE:READ")` to GET endpoints
+- [x] Apply `@RequirePermission("SITE:CREATE")` to POST create
+- [x] Apply `@RequirePermission("SITE:UPDATE")` to PUT update
+- [x] Apply `@RequirePermission("SITE:DELETE")` to DELETE
+- [x] Apply `@RequirePermission("SITE:BULK_UPLOAD")` to bulk upload
+- [x] Apply `@RequirePermission("SITE:EXPORT")` to export
 
-### Frontend 🔄
+### Frontend ✅
 **Location**: `client-app/src/features/sites/`
 
-- [ ] Wrap Create button with `<PermissionGuard permission="SITE:CREATE">`
-- [ ] Wrap Edit action with `<PermissionGuard permission="SITE:UPDATE">`
-- [ ] Wrap Delete action with `<PermissionGuard permission="SITE:DELETE">`
-- [ ] Wrap Bulk Upload with `<PermissionGuard permission="SITE:BULK_UPLOAD">`
-- [ ] Wrap Export with `<PermissionGuard permission="SITE:EXPORT">`
+- [x] Wrap Create button with `<PermissionGuard permission="SITE:CREATE">`
+- [x] Wrap Edit action with `<PermissionGuard permission="SITE:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="SITE:DELETE">`
+- [x] Wrap Bulk Upload with `<PermissionGuard permission="SITE:BULK_UPLOAD">`
+- [x] Wrap Export with `<PermissionGuard permission="SITE:EXPORT">`
 
 ---
 
@@ -415,16 +415,16 @@ Apply permissions per controller:
 | 2. Permission System | ✅ | ✅ | 100% |
 | 3. User Role Assignment | ✅ | ✅ | 100% |
 | 4. User Management | ✅ | ✅ | 100% |
-| 5. Core Masters Protection | 🔄 | 🔄 | 0% |
-| 6. Asset Management | 🔄 | 🔄 | 0% |
-| 7. Site Management | 🔄 | 🔄 | 0% |
+| 5. Asset Management | ✅ | ✅ | 100% |
+| 6. Site Management | ✅ | ✅ | 100% |
+| 7. Core Masters Protection | 🔄 | 🔄 | 0% |
 | 8. Activity Management | 🔄 | 🔄 | 0% |
 | 9. Financial Management | 🔄 | 🔄 | 0% |
 | 10. People & Vendor Mgmt | 🔄 | 🔄 | 0% |
 | 11. Asset Placement | 🔄 | 🔄 | 0% |
 | 12. Testing & Validation | 🔄 | 🔄 | 0% |
 
-**Overall Progress**: ~33% (4/12 backends complete, 4/12 frontends complete)
+**Overall Progress**: ~50% (6/12 backends complete, 6/12 frontends complete)
 
 ---
 
@@ -435,15 +435,16 @@ Apply permissions per controller:
 2. ✅ Complete Feature 2 Frontend (Permission Hooks & Guards) - **DONE**
 3. ✅ Complete Feature 3 Frontend (User Role Assignment UI) - **DONE**
 4. ✅ Complete Feature 4 Backend & Frontend (User Management) - **DONE**
-5. 🔄 Feature 5 Backend (Protect Core Masters)
-6. 🔄 Feature 5 Frontend (AdminGuard on Core Master pages)
-7. 🔄 Feature 6 Backend → Frontend (Assets)
+5. ✅ Feature 5 Backend & Frontend (Asset Management) - **DONE**
+6. ✅ Feature 6 Backend & Frontend (Site Management) - **DONE**
+7. 🔄 Feature 7 Backend & Frontend (Core Masters Protection)
 8. 🔄 Continue feature-by-feature...
 
-**Current Priority**: Feature 5 - Protect Core Masters with @RequireAdmin
+**Current Priority**: Feature 7 - Activity Management
 
 **Recent Updates**:
-- Moved all RBAC controllers from `epsoneapi/rbac` to `auth-module/rbac` for better organization
-- Updated sidebar to hide logo when collapsed for cleaner UI
-- Fixed TypeScript errors in user-roles-sheet.tsx
-- All users functionality now uses real API (no mock data)
+- Completed Asset Management RBAC (Feature 5)
+- Completed Site Management RBAC (Feature 6)
+  - Backend: Added @RequirePermission annotations to all SiteController endpoints
+  - Frontend: Added PermissionGuard components to site-primary-buttons.tsx and site-row-actions.tsx
+- Overall progress: 50% (6/12 features complete)

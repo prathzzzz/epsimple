@@ -1,6 +1,7 @@
 import { Edit2, Trash, Receipt, MoreHorizontal } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { PermissionGuard } from "@/components/permission-guard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,19 +50,23 @@ export function SiteRowActions({ site }: SiteRowActionsProps) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleEdit}>
-          <Edit2 className="mr-2 h-4 w-4" />
-          Edit
-        </DropdownMenuItem>
+        <PermissionGuard permission="SITE:UPDATE">
+          <DropdownMenuItem onClick={handleEdit}>
+            <Edit2 className="mr-2 h-4 w-4" />
+            Edit
+          </DropdownMenuItem>
+        </PermissionGuard>
         <DropdownMenuItem onClick={handleManageExpenditures}>
           <Receipt className="mr-2 h-4 w-4" />
           Manage Expenditures
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-          <Trash className="mr-2 h-4 w-4" />
-          Delete
-        </DropdownMenuItem>
+        <PermissionGuard permission="SITE:DELETE">
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+            <Trash className="mr-2 h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+        </PermissionGuard>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.site.controller;
 import com.eps.module.api.epsone.site.dto.SiteRequestDto;
 import com.eps.module.api.epsone.site.dto.SiteResponseDto;
 import com.eps.module.api.epsone.site.service.SiteService;
+import com.eps.module.auth.rbac.annotation.RequirePermission;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -33,6 +34,7 @@ public class SiteController {
     private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
+    @RequirePermission("SITE:CREATE")
     public ResponseEntity<ApiResponse<SiteResponseDto>> createSite(@Valid @RequestBody SiteRequestDto requestDto) {
         log.info("POST /api/sites - Creating new site");
         SiteResponseDto response = siteService.createSite(requestDto);
@@ -40,6 +42,7 @@ public class SiteController {
     }
 
     @GetMapping
+    @RequirePermission("SITE:READ")
     public ResponseEntity<ApiResponse<Page<SiteResponseDto>>> getAllSites(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -55,6 +58,7 @@ public class SiteController {
     }
 
     @GetMapping("/search")
+    @RequirePermission("SITE:READ")
     public ResponseEntity<ApiResponse<Page<SiteResponseDto>>> searchSites(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -89,6 +93,7 @@ public class SiteController {
     }
 
     @GetMapping("/list")
+    @RequirePermission("SITE:READ")
     public ResponseEntity<ApiResponse<List<SiteResponseDto>>> getSiteList() {
         log.info("GET /api/sites/list - Fetching all sites as list");
         List<SiteResponseDto> sites = siteService.getSiteList();
@@ -98,6 +103,7 @@ public class SiteController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequirePermission("SITE:EXPORT")
     public ResponseEntity<byte[]> exportData() throws Exception {
         log.info("GET /api/sites/export - Exporting all sites");
         return bulkUploadControllerHelper.export(siteService);
@@ -106,6 +112,7 @@ public class SiteController {
     // ========== CRUD Endpoints ==========
 
     @GetMapping("/{id}")
+    @RequirePermission("SITE:READ")
     public ResponseEntity<ApiResponse<SiteResponseDto>> getSiteById(@PathVariable Long id) {
         log.info("GET /api/sites/{} - Fetching site by ID", id);
         SiteResponseDto site = siteService.getSiteById(id);
@@ -113,6 +120,7 @@ public class SiteController {
     }
 
     @PutMapping("/{id}")
+    @RequirePermission("SITE:UPDATE")
     public ResponseEntity<ApiResponse<SiteResponseDto>> updateSite(
             @PathVariable Long id,
             @Valid @RequestBody SiteRequestDto requestDto) {
@@ -122,6 +130,7 @@ public class SiteController {
     }
 
     @DeleteMapping("/{id}")
+    @RequirePermission("SITE:DELETE")
     public ResponseEntity<ApiResponse<Void>> deleteSite(@PathVariable Long id) {
         log.info("DELETE /api/sites/{} - Deleting site", id);
         siteService.deleteSite(id);
@@ -131,18 +140,21 @@ public class SiteController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RequirePermission("SITE:BULK_UPLOAD")
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws Exception {
         log.info("POST /api/sites/bulk-upload - Bulk uploading sites");
         return bulkUploadControllerHelper.bulkUpload(file, siteService);
     }
 
     @GetMapping("/bulk-upload/template")
+    @RequirePermission("SITE:READ")
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("GET /api/sites/bulk-upload/template - Downloading template");
         return bulkUploadControllerHelper.downloadTemplate(siteService);
     }
 
     @PostMapping("/bulk-upload/errors")
+    @RequirePermission("SITE:READ")
     public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/sites/bulk-upload/errors - Exporting errors");
         return bulkUploadControllerHelper.exportErrors(progressData, siteService);
