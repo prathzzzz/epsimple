@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.cost_item.controller;
 import com.eps.module.api.epsone.cost_item.dto.CostItemRequestDto;
 import com.eps.module.api.epsone.cost_item.dto.CostItemResponseDto;
 import com.eps.module.api.epsone.cost_item.service.CostItemService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.response.ResponseBuilder;
 import jakarta.validation.Valid;
@@ -22,6 +23,7 @@ import java.util.List;
 @RequestMapping("/api/cost-items")
 @RequiredArgsConstructor
 @Slf4j
+@RequireAdmin
 public class CostItemController {
 
     private final CostItemService costItemService;

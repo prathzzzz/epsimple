@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.landlord.controller;
 import com.eps.module.api.epsone.landlord.dto.LandlordRequestDto;
 import com.eps.module.api.epsone.landlord.dto.LandlordResponseDto;
 import com.eps.module.api.epsone.landlord.service.LandlordService;
+import com.eps.module.auth.rbac.annotation.RequirePermission;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -33,6 +34,7 @@ public class LandlordController {
     private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
+    @RequirePermission("LANDLORD:CREATE")
     public ResponseEntity<ApiResponse<LandlordResponseDto>> createLandlord(
             @Valid @RequestBody LandlordRequestDto requestDto) {
         log.info("Creating landlord with person details ID: {}", requestDto.getLandlordDetailsId());
@@ -41,6 +43,7 @@ public class LandlordController {
     }
 
     @GetMapping
+    @RequirePermission("LANDLORD:READ")
     public ResponseEntity<ApiResponse<Page<LandlordResponseDto>>> getAllLandlords(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -55,6 +58,7 @@ public class LandlordController {
     }
 
     @GetMapping("/search")
+    @RequirePermission("LANDLORD:READ")
     public ResponseEntity<ApiResponse<Page<LandlordResponseDto>>> searchLandlords(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -69,6 +73,7 @@ public class LandlordController {
     }
 
     @GetMapping("/list")
+    @RequirePermission("LANDLORD:READ")
     public ResponseEntity<ApiResponse<List<LandlordResponseDto>>> getAllLandlordsList() {
         log.info("Fetching all landlords as list");
         List<LandlordResponseDto> landlords = landlordService.getAllLandlordsList();
@@ -76,6 +81,7 @@ public class LandlordController {
     }
 
     @GetMapping("/{id}")
+    @RequirePermission("LANDLORD:READ")
     public ResponseEntity<ApiResponse<LandlordResponseDto>> getLandlordById(@PathVariable Long id) {
         log.info("Fetching landlord with id: {}", id);
         LandlordResponseDto landlord = landlordService.getLandlordById(id);
@@ -83,6 +89,7 @@ public class LandlordController {
     }
 
     @PutMapping("/{id}")
+    @RequirePermission("LANDLORD:UPDATE")
     public ResponseEntity<ApiResponse<LandlordResponseDto>> updateLandlord(
             @PathVariable Long id,
             @Valid @RequestBody LandlordRequestDto requestDto) {
@@ -92,6 +99,7 @@ public class LandlordController {
     }
 
     @DeleteMapping("/{id}")
+    @RequirePermission("LANDLORD:DELETE")
     public ResponseEntity<ApiResponse<Void>> deleteLandlord(@PathVariable Long id) {
         log.info("Deleting landlord with id: {}", id);
         landlordService.deleteLandlord(id);
@@ -100,24 +108,28 @@ public class LandlordController {
 
     // Bulk Upload Endpoints
     @PostMapping("/bulk-upload")
+    @RequirePermission("LANDLORD:BULK_UPLOAD")
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/landlords/bulk-upload - Starting bulk upload");
         return bulkUploadControllerHelper.bulkUpload(file, landlordService);
     }
 
     @GetMapping("/download-template")
+    @RequirePermission("LANDLORD:EXPORT")
     public ResponseEntity<byte[]> downloadTemplate() throws IOException {
         log.info("GET /api/landlords/download-template - Downloading bulk upload template");
         return bulkUploadControllerHelper.downloadTemplate(landlordService);
     }
 
     @GetMapping("/export")
+    @RequirePermission("LANDLORD:EXPORT")
     public ResponseEntity<byte[]> exportData() throws IOException {
         log.info("GET /api/landlords/export - Exporting all landlords");
         return bulkUploadControllerHelper.export(landlordService);
     }
 
     @PostMapping("/export-errors")
+    @RequirePermission("LANDLORD:EXPORT")
     public ResponseEntity<byte[]> exportErrors(
             @RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/landlords/export-errors - Exporting bulk upload error report");

@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.warehouse.controller;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseRequestDto;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseResponseDto;
 import com.eps.module.api.epsone.warehouse.service.WarehouseService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -24,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/warehouses")
 @RequiredArgsConstructor
+@RequireAdmin
 public class WarehouseController {
 
     private final WarehouseService warehouseService;

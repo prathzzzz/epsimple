@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.vendor_type.controller;
 import com.eps.module.api.epsone.vendor_type.dto.VendorTypeRequestDto;
 import com.eps.module.api.epsone.vendor_type.dto.VendorTypeResponseDto;
 import com.eps.module.api.epsone.vendor_type.service.VendorTypeService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
@@ -26,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/vendor-types")
 @RequiredArgsConstructor
+@RequireAdmin
 public class VendorTypeController {
 
     private final VendorTypeService vendorTypeService;

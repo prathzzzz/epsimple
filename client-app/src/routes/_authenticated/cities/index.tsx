@@ -1,6 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
-import Cities from '@/features/cities'
+import { AdminGuard } from '@/components/admin-guard'
+import CitiesPage from '@/features/cities'
 
 export const Route = createFileRoute('/_authenticated/cities/')({
-  component: Cities,
+  component: () => (
+    <AdminGuard>
+      <CitiesPage />
+    </AdminGuard>
+  ),
 })

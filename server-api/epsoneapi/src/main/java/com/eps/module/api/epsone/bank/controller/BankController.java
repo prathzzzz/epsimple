@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.bank.controller;
 import com.eps.module.api.epsone.bank.dto.BankRequestDto;
 import com.eps.module.api.epsone.bank.dto.BankResponseDto;
 import com.eps.module.api.epsone.bank.service.BankService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -28,6 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/banks")
 @RequiredArgsConstructor
+@RequireAdmin
 public class BankController {
 
     private final BankService bankService;

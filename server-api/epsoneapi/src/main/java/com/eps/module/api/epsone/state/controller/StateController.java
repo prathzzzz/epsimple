@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.state.controller;
 import com.eps.module.api.epsone.state.dto.StateRequestDto;
 import com.eps.module.api.epsone.state.dto.StateResponseDto;
 import com.eps.module.api.epsone.state.service.StateService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
@@ -27,6 +28,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/states")
 @RequiredArgsConstructor
+@RequireAdmin
 public class StateController {
 
     private final StateService stateService;

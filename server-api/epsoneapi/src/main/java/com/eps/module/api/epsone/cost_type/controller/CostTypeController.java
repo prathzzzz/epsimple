@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.cost_type.controller;
 import com.eps.module.api.epsone.cost_type.dto.CostTypeRequestDto;
 import com.eps.module.api.epsone.cost_type.dto.CostTypeResponseDto;
 import com.eps.module.api.epsone.cost_type.service.CostTypeService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
@@ -20,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/cost-types")
 @RequiredArgsConstructor
+@RequireAdmin
 public class CostTypeController {
 
     private final CostTypeService costTypeService;

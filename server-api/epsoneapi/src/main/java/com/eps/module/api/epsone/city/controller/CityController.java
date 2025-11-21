@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.city.controller;
 import com.eps.module.api.epsone.city.dto.CityRequestDto;
 import com.eps.module.api.epsone.city.dto.CityResponseDto;
 import com.eps.module.api.epsone.city.service.CityService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -27,6 +28,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/cities")
 @RequiredArgsConstructor
+@RequireAdmin
 public class CityController {
 
     private final CityService cityService;

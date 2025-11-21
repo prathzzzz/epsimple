@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.generic_status_type.controller;
 import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeRequestDto;
 import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeResponseDto;
 import com.eps.module.api.epsone.generic_status_type.service.GenericStatusTypeService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -26,6 +27,7 @@ import java.util.List;
 @RequestMapping("/api/generic-status-types")
 @RequiredArgsConstructor
 @Slf4j
+@RequireAdmin
 public class GenericStatusTypeController {
 
     private final GenericStatusTypeService genericStatusTypeService;

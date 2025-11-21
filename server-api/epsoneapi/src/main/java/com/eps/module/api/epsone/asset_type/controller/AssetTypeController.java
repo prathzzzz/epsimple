@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.asset_type.controller;
 import com.eps.module.api.epsone.asset_type.dto.AssetTypeRequestDto;
 import com.eps.module.api.epsone.asset_type.dto.AssetTypeResponseDto;
 import com.eps.module.api.epsone.asset_type.service.AssetTypeService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -24,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/asset-types")
 @RequiredArgsConstructor
+@RequireAdmin
 public class AssetTypeController {
 
     private final AssetTypeService assetTypeService;

@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.site_type.controller;
 import com.eps.module.api.epsone.site_type.dto.SiteTypeRequestDto;
 import com.eps.module.api.epsone.site_type.dto.SiteTypeResponseDto;
 import com.eps.module.api.epsone.site_type.service.SiteTypeService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
@@ -26,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/site-types")
 @RequiredArgsConstructor
+@RequireAdmin
 public class SiteTypeController {
 
     private final SiteTypeService siteTypeService;

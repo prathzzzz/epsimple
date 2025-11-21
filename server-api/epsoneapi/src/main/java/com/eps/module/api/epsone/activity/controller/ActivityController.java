@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.activity.controller;
 import com.eps.module.api.epsone.activity.dto.ActivityRequestDto;
 import com.eps.module.api.epsone.activity.dto.ActivityResponseDto;
 import com.eps.module.api.epsone.activity.service.ActivityService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -26,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/activity")
 @RequiredArgsConstructor
+@RequireAdmin
 public class ActivityController {
 
     private final ActivityService activityService;

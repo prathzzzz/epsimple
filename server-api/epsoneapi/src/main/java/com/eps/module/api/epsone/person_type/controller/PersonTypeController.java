@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.person_type.controller;
 import com.eps.module.api.epsone.person_type.dto.PersonTypeRequestDto;
 import com.eps.module.api.epsone.person_type.dto.PersonTypeResponseDto;
 import com.eps.module.api.epsone.person_type.service.PersonTypeService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
@@ -26,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/person-types")
 @RequiredArgsConstructor
+@RequireAdmin
 public class PersonTypeController {
 
     private final PersonTypeService personTypeService;

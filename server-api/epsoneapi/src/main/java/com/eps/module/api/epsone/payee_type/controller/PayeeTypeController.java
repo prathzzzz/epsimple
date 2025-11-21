@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.payee_type.controller;
 import com.eps.module.api.epsone.payee_type.dto.PayeeTypeRequestDto;
 import com.eps.module.api.epsone.payee_type.dto.PayeeTypeResponseDto;
 import com.eps.module.api.epsone.payee_type.service.PayeeTypeService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ResponseBuilder;
@@ -23,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/payee-types")
 @RequiredArgsConstructor
+@RequireAdmin
 public class PayeeTypeController {
 
     private final PayeeTypeService payeeTypeService;

@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.location.controller;
 import com.eps.module.api.epsone.location.dto.LocationRequestDto;
 import com.eps.module.api.epsone.location.dto.LocationResponseDto;
 import com.eps.module.api.epsone.location.service.LocationService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -27,6 +28,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/locations")
 @RequiredArgsConstructor
+@RequireAdmin
 public class LocationController {
 
     private final LocationService locationService;

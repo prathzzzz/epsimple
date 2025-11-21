@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.cost_category.controller;
 import com.eps.module.api.epsone.cost_category.dto.CostCategoryRequestDto;
 import com.eps.module.api.epsone.cost_category.dto.CostCategoryResponseDto;
 import com.eps.module.api.epsone.cost_category.service.CostCategoryService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
@@ -20,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/cost-categories")
 @RequiredArgsConstructor
+@RequireAdmin
 public class CostCategoryController {
 
     private final CostCategoryService costCategoryService;

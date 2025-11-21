@@ -1,6 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { AdminGuard } from '@/components/admin-guard'
 import { Banks } from '@/features/banks'
 
 export const Route = createFileRoute('/_authenticated/banks/')({
-  component: Banks,
+  component: () => (
+    <AdminGuard>
+      <Banks />
+    </AdminGuard>
+  ),
 })

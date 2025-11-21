@@ -76,9 +76,9 @@ public class PermissionAspect {
     }
 
     /**
-     * Intercept @RequireAdmin annotations
+     * Intercept @RequireAdmin annotations (method or class level)
      */
-    @Around("@annotation(requireAdmin)")
+    @Around("@annotation(requireAdmin) || @within(requireAdmin)")
     public Object checkAdmin(ProceedingJoinPoint joinPoint, RequireAdmin requireAdmin) throws Throwable {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {

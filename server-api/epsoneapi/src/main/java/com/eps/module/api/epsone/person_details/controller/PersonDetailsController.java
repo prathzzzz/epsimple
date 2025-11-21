@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.person_details.controller;
 import com.eps.module.api.epsone.person_details.dto.PersonDetailsRequestDto;
 import com.eps.module.api.epsone.person_details.dto.PersonDetailsResponseDto;
 import com.eps.module.api.epsone.person_details.service.PersonDetailsService;
+import com.eps.module.auth.rbac.annotation.RequirePermission;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -33,6 +34,7 @@ public class PersonDetailsController {
     private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
+    @RequirePermission("PERSON_DETAILS:CREATE")
     public ResponseEntity<ApiResponse<PersonDetailsResponseDto>> createPersonDetails(@Valid @RequestBody PersonDetailsRequestDto requestDto) {
         log.info("POST /api/person-details - Creating new person details");
         PersonDetailsResponseDto response = personDetailsService.createPersonDetails(requestDto);
@@ -40,6 +42,7 @@ public class PersonDetailsController {
     }
 
     @GetMapping
+    @RequirePermission("PERSON_DETAILS:READ")
     public ResponseEntity<ApiResponse<Page<PersonDetailsResponseDto>>> getAllPersonDetails(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -55,6 +58,7 @@ public class PersonDetailsController {
     }
 
     @GetMapping("/search")
+    @RequirePermission("PERSON_DETAILS:READ")
     public ResponseEntity<ApiResponse<Page<PersonDetailsResponseDto>>> searchPersonDetails(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -71,6 +75,7 @@ public class PersonDetailsController {
     }
 
     @GetMapping("/person-type/{personTypeId}")
+    @RequirePermission("PERSON_DETAILS:READ")
     public ResponseEntity<ApiResponse<Page<PersonDetailsResponseDto>>> getPersonDetailsByPersonType(
             @PathVariable Long personTypeId,
             @RequestParam(defaultValue = "0") int page,
@@ -87,6 +92,7 @@ public class PersonDetailsController {
     }
 
     @GetMapping("/list")
+    @RequirePermission("PERSON_DETAILS:READ")
     public ResponseEntity<ApiResponse<List<PersonDetailsResponseDto>>> getPersonDetailsList() {
         log.info("GET /api/person-details/list - Fetching all person details as list");
         List<PersonDetailsResponseDto> personDetails = personDetailsService.getPersonDetailsList();
@@ -94,6 +100,7 @@ public class PersonDetailsController {
     }
 
     @GetMapping("/{id}")
+    @RequirePermission("PERSON_DETAILS:READ")
     public ResponseEntity<ApiResponse<PersonDetailsResponseDto>> getPersonDetailsById(@PathVariable Long id) {
         log.info("GET /api/person-details/{} - Fetching person details by ID", id);
         PersonDetailsResponseDto personDetails = personDetailsService.getPersonDetailsById(id);
@@ -101,6 +108,7 @@ public class PersonDetailsController {
     }
 
     @PutMapping("/{id}")
+    @RequirePermission("PERSON_DETAILS:UPDATE")
     public ResponseEntity<ApiResponse<PersonDetailsResponseDto>> updatePersonDetails(
             @PathVariable Long id,
             @Valid @RequestBody PersonDetailsRequestDto requestDto) {
@@ -110,6 +118,7 @@ public class PersonDetailsController {
     }
 
     @DeleteMapping("/{id}")
+    @RequirePermission("PERSON_DETAILS:DELETE")
     public ResponseEntity<ApiResponse<Void>> deletePersonDetails(@PathVariable Long id) {
         log.info("DELETE /api/person-details/{} - Deleting person details", id);
         personDetailsService.deletePersonDetails(id);
@@ -119,24 +128,28 @@ public class PersonDetailsController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping("/bulk-upload")
+    @RequirePermission("PERSON_DETAILS:BULK_UPLOAD")
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/person-details/bulk-upload - Starting bulk upload");
         return bulkUploadControllerHelper.bulkUpload(file, personDetailsService);
     }
 
     @GetMapping("/download-template")
+    @RequirePermission("PERSON_DETAILS:EXPORT")
     public ResponseEntity<byte[]> downloadTemplate() throws IOException {
         log.info("GET /api/person-details/download-template - Downloading bulk upload template");
         return bulkUploadControllerHelper.downloadTemplate(personDetailsService);
     }
 
     @GetMapping("/export")
+    @RequirePermission("PERSON_DETAILS:EXPORT")
     public ResponseEntity<byte[]> exportData() throws IOException {
         log.info("GET /api/person-details/export - Exporting all person details");
         return bulkUploadControllerHelper.export(personDetailsService);
     }
 
     @PostMapping("/export-errors")
+    @RequirePermission("PERSON_DETAILS:EXPORT")
     public ResponseEntity<byte[]> exportErrors(
             @RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/person-details/export-errors - Exporting bulk upload error report");

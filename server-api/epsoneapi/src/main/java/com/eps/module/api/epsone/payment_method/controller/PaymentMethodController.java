@@ -4,6 +4,7 @@ import com.eps.module.api.epsone.payment_method.dto.PaymentMethodBulkUploadDto;
 import com.eps.module.api.epsone.payment_method.dto.PaymentMethodRequestDto;
 import com.eps.module.api.epsone.payment_method.dto.PaymentMethodResponseDto;
 import com.eps.module.api.epsone.payment_method.service.PaymentMethodService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.response.ResponseBuilder;
@@ -23,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/payment-methods")
 @RequiredArgsConstructor
+@RequireAdmin
 public class PaymentMethodController {
 
     private final PaymentMethodService paymentMethodService;

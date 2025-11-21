@@ -4,6 +4,7 @@ import com.eps.module.api.epsone.site_category.dto.SiteCategoryBulkUploadDto;
 import com.eps.module.api.epsone.site_category.dto.SiteCategoryRequestDto;
 import com.eps.module.api.epsone.site_category.dto.SiteCategoryResponseDto;
 import com.eps.module.api.epsone.site_category.service.SiteCategoryService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
@@ -28,6 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/site-categories")
 @RequiredArgsConstructor
+@RequireAdmin
 public class SiteCategoryController {
 
     private final SiteCategoryService siteCategoryService;

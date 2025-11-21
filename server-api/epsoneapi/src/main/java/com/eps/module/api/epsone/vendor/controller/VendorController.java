@@ -4,6 +4,7 @@ package com.eps.module.api.epsone.vendor.controller;
 import com.eps.module.api.epsone.vendor.dto.VendorRequestDto;
 import com.eps.module.api.epsone.vendor.dto.VendorResponseDto;
 import com.eps.module.api.epsone.vendor.service.VendorService;
+import com.eps.module.auth.rbac.annotation.RequirePermission;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -34,6 +35,7 @@ public class VendorController {
     private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
+    @RequirePermission("VENDOR:CREATE")
     public ResponseEntity<ApiResponse<VendorResponseDto>> createVendor(
             @Valid @RequestBody VendorRequestDto requestDto) {
         log.info("Creating vendor with type ID: {}, person details ID: {}", 
@@ -43,6 +45,7 @@ public class VendorController {
     }
 
     @GetMapping
+    @RequirePermission("VENDOR:READ")
     public ResponseEntity<ApiResponse<Page<VendorResponseDto>>> getAllVendors(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -57,6 +60,7 @@ public class VendorController {
     }
 
     @GetMapping("/search")
+    @RequirePermission("VENDOR:READ")
     public ResponseEntity<ApiResponse<Page<VendorResponseDto>>> searchVendors(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -71,6 +75,7 @@ public class VendorController {
     }
 
     @GetMapping("/list")
+    @RequirePermission("VENDOR:READ")
     public ResponseEntity<ApiResponse<List<VendorResponseDto>>> getAllVendorsList() {
         log.info("Fetching all vendors as list");
         List<VendorResponseDto> vendors = vendorService.getAllVendorsList();
@@ -78,6 +83,7 @@ public class VendorController {
     }
 
     @GetMapping("/type/{vendorTypeId}")
+    @RequirePermission("VENDOR:READ")
     public ResponseEntity<ApiResponse<Page<VendorResponseDto>>> getVendorsByType(
             @PathVariable Long vendorTypeId,
             @RequestParam(defaultValue = "0") int page,
@@ -92,6 +98,7 @@ public class VendorController {
     }
 
     @GetMapping("/{id}")
+    @RequirePermission("VENDOR:READ")
     public ResponseEntity<ApiResponse<VendorResponseDto>> getVendorById(@PathVariable Long id) {
         log.info("Fetching vendor with id: {}", id);
         VendorResponseDto vendor = vendorService.getVendorById(id);
@@ -99,6 +106,7 @@ public class VendorController {
     }
 
     @PutMapping("/{id}")
+    @RequirePermission("VENDOR:UPDATE")
     public ResponseEntity<ApiResponse<VendorResponseDto>> updateVendor(
             @PathVariable Long id,
             @Valid @RequestBody VendorRequestDto requestDto) {
@@ -108,6 +116,7 @@ public class VendorController {
     }
 
     @DeleteMapping("/{id}")
+    @RequirePermission("VENDOR:DELETE")
     public ResponseEntity<ApiResponse<Void>> deleteVendor(@PathVariable Long id) {
         log.info("Deleting vendor with id: {}", id);
         vendorService.deleteVendor(id);
@@ -116,24 +125,28 @@ public class VendorController {
 
     // Bulk Upload Endpoints
     @PostMapping("/bulk-upload")
+    @RequirePermission("VENDOR:BULK_UPLOAD")
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("POST /api/vendors/bulk-upload - Starting bulk upload");
         return bulkUploadControllerHelper.bulkUpload(file, vendorService);
     }
 
     @GetMapping("/download-template")
+    @RequirePermission("VENDOR:EXPORT")
     public ResponseEntity<byte[]> downloadTemplate() throws IOException {
         log.info("GET /api/vendors/download-template - Downloading bulk upload template");
         return bulkUploadControllerHelper.downloadTemplate(vendorService);
     }
 
     @GetMapping("/export")
+    @RequirePermission("VENDOR:EXPORT")
     public ResponseEntity<byte[]> exportData() throws IOException {
         log.info("GET /api/vendors/export - Exporting all vendors");
         return bulkUploadControllerHelper.export(vendorService);
     }
 
     @PostMapping("/export-errors")
+    @RequirePermission("VENDOR:EXPORT")
     public ResponseEntity<byte[]> exportErrors(
             @RequestBody BulkUploadProgressDto progressData) throws IOException {
         log.info("POST /api/vendors/export-errors - Exporting bulk upload error report");

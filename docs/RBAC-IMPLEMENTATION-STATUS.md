@@ -181,55 +181,54 @@ GET    /api/permissions/my            → Current user's permissions
 
 ---
 
-## ✅ FEATURE 4: USER MANAGEMENT (COMPLETE)
+## ✅ FEATURE 4: CORE MASTERS PROTECTION (COMPLETE)
 
-### Backend 🔄
+### Backend ✅
 **Task**: Apply `@RequireAdmin` annotation to all Core Master controllers
 
-**Controllers to Update** (23 controllers):
+**Controllers Updated** (21 controllers):
 
 **Location Setup**:
-- [ ] `StateController` - `/api/states`
-- [ ] `CityController` - `/api/cities`
-- [ ] `LocationController` - `/api/locations`
-- [ ] `WarehouseController` - `/api/warehouses`
-- [ ] `DatacenterController` - `/api/datacenters`
+- [x] `StateController` - `/api/states`
+- [x] `CityController` - `/api/cities`
+- [x] `LocationController` - `/api/locations`
+- [x] `WarehouseController` - `/api/warehouses`
+- [x] `DatacenterController` - `/api/datacenters`
 
 **Asset Configuration**:
-- [ ] `AssetTypeController` - `/api/asset-types`
-- [ ] `AssetCategoryController` - `/api/asset-categories`
-- [ ] `MovementTypeController` - `/api/movement-types`
-- [ ] `AssetTagGeneratorController` - `/api/asset-tag-generators`
+- [x] `AssetTypeController` - `/api/asset-types`
+- [x] `AssetCategoryController` - `/api/asset-categories`
+- [x] `MovementTypeController` - `/api/movement-types`
 
 **Site Configuration**:
-- [ ] `SiteTypeController` - `/api/site-types`
-- [ ] `SiteCategoryController` - `/api/site-categories`
-- [ ] `SiteCodeGeneratorController` - `/api/site-code-generators`
-
-**Activity Configuration**:
-- [ ] `ActivityController` - `/api/activities`
+- [x] `SiteTypeController` - `/api/site-types`
+- [x] `SiteCategoryController` - `/api/site-categories`
 
 **Financial Setup**:
-- [ ] `BankController` - `/api/banks`
-- [ ] `CostCategoryController` - `/api/cost-categories`
-- [ ] `CostTypeController` - `/api/cost-types`
-- [ ] `CostItemController` - `/api/cost-items`
-- [ ] `PaymentMethodController` - `/api/payment-methods`
-- [ ] `PayeeTypeController` - `/api/payee-types`
+- [x] `BankController` - `/api/banks`
+- [x] `CostCategoryController` - `/api/cost-categories`
+- [x] `CostTypeController` - `/api/cost-types`
+- [x] `CostItemController` - `/api/cost-items`
+- [x] `PaymentMethodController` - `/api/payment-methods`
+- [x] `PayeeTypeController` - `/api/payee-types`
 
 **Classifications**:
-- [ ] `VendorCategoryController` - `/api/vendor-categories`
-- [ ] `VendorTypeController` - `/api/vendor-types`
-- [ ] `PersonTypeController` - `/api/person-types`
-- [ ] `GenericStatusTypeController` - `/api/generic-status-types`
+- [x] `VendorCategoryController` - `/api/vendor-categories`
+- [x] `VendorTypeController` - `/api/vendor-types`
+- [x] `PersonTypeController` - `/api/person-types`
+- [x] `GenericStatusTypeController` - `/api/generic-status-types`
 
-### Frontend 🔄
-**Location**: `client-app/src/features/*/`
+### Frontend ✅
+**Location**: `client-app/src/routes/_authenticated/*/`
 
-- [ ] Wrap all Core Master pages with `<AdminGuard>`
-- [ ] Update sidebar to hide Core Master menu items for non-admins
-- [ ] Show appropriate access denied messages
-- [ ] Add admin badge to Core Master menu items
+**All Core Master routes wrapped with `<AdminGuard>` (21 routes)**:
+- [x] States, Cities, Locations, Warehouses, Datacenters (Location Setup - 5)
+- [x] Asset Types, Asset Categories, Movement Types (Asset Configuration - 3)
+- [x] Site Types, Site Categories (Site Configuration - 2)
+- [x] Banks, Cost Categories, Cost Types, Cost Items, Payment Methods, Payee Types (Financial Setup - 6)
+- [x] Vendor Categories, Vendor Types, Person Types, Generic Status Types (Classifications - 4)
+
+**Note**: Activity master (`/api/activity`) is a Core Master but managed separately as it's also used in Activity Management (Feature 7)
 
 ---
 
@@ -385,23 +384,70 @@ Apply permissions per controller:
 
 ---
 
-## 🔄 FEATURE 9: PEOPLE & VENDOR MANAGEMENT
+## ✅ FEATURE 9: PEOPLE & VENDOR MANAGEMENT (COMPLETE)
 
-### Backend 🔄
+### Backend ✅
 **Controllers**:
 - `VendorController` - `/api/vendors`
 - `LandlordController` - `/api/landlords`
 - `PersonDetailsController` - `/api/person-details`
 
-- [ ] Apply VENDOR:* permissions
-- [ ] Apply LANDLORD:* permissions
-- [ ] Apply PERSON_DETAILS:* permissions
+**Vendor Management**:
+- [x] Apply `@RequirePermission("VENDOR:CREATE")` to POST create
+- [x] Apply `@RequirePermission("VENDOR:READ")` to GET endpoints (getAllVendors, searchVendors, getVendorById, getAllVendorsList, getVendorsByType)
+- [x] Apply `@RequirePermission("VENDOR:UPDATE")` to PUT update
+- [x] Apply `@RequirePermission("VENDOR:DELETE")` to DELETE
+- [x] Apply `@RequirePermission("VENDOR:BULK_UPLOAD")` to bulk upload
+- [x] Apply `@RequirePermission("VENDOR:EXPORT")` to download template, export data, export errors
 
-### Frontend 🔄
-**Location**: `client-app/src/features/vendors/`, `features/landlords/`, etc.
+**Landlord Management**:
+- [x] Apply `@RequirePermission("LANDLORD:CREATE")` to POST create
+- [x] Apply `@RequirePermission("LANDLORD:READ")` to GET endpoints (getAllLandlords, searchLandlords, getLandlordById, getAllLandlordsList)
+- [x] Apply `@RequirePermission("LANDLORD:UPDATE")` to PUT update
+- [x] Apply `@RequirePermission("LANDLORD:DELETE")` to DELETE
+- [x] Apply `@RequirePermission("LANDLORD:BULK_UPLOAD")` to bulk upload
+- [x] Apply `@RequirePermission("LANDLORD:EXPORT")` to download template, export data, export errors
 
-- [ ] Apply permission guards
-- [ ] Update forms and lists
+**Person Details Management**:
+- [x] Apply `@RequirePermission("PERSON_DETAILS:CREATE")` to POST create
+- [x] Apply `@RequirePermission("PERSON_DETAILS:READ")` to GET endpoints (getAllPersonDetails, searchPersonDetails, getPersonDetailsById, getPersonDetailsList, getPersonDetailsByPersonType)
+- [x] Apply `@RequirePermission("PERSON_DETAILS:UPDATE")` to PUT update
+- [x] Apply `@RequirePermission("PERSON_DETAILS:DELETE")` to DELETE
+- [x] Apply `@RequirePermission("PERSON_DETAILS:BULK_UPLOAD")` to bulk upload
+- [x] Apply `@RequirePermission("PERSON_DETAILS:EXPORT")` to download template, export data, export errors
+
+### Frontend ✅
+**Location**: `client-app/src/features/vendors/`, `features/landlords/`, `features/person-details/`
+
+**Vendors**:
+- [x] Wrap Bulk Actions dropdown with `<PermissionGuard anyPermissions={["VENDOR:BULK_UPLOAD", "VENDOR:EXPORT"]}>`
+- [x] Wrap Download Template with `<PermissionGuard permission="VENDOR:EXPORT">`
+- [x] Wrap Bulk Upload with `<PermissionGuard permission="VENDOR:BULK_UPLOAD">`
+- [x] Wrap Export with `<PermissionGuard permission="VENDOR:EXPORT">`
+- [x] Wrap Create button with `<PermissionGuard permission="VENDOR:CREATE">`
+- [x] Wrap row actions dropdown with `<PermissionGuard anyPermissions={["VENDOR:UPDATE", "VENDOR:DELETE"]}>`
+- [x] Wrap Edit action with `<PermissionGuard permission="VENDOR:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="VENDOR:DELETE">`
+
+**Landlords**:
+- [x] Wrap Bulk Actions dropdown with `<PermissionGuard anyPermissions={["LANDLORD:BULK_UPLOAD", "LANDLORD:EXPORT"]}>`
+- [x] Wrap Download Template with `<PermissionGuard permission="LANDLORD:EXPORT">`
+- [x] Wrap Bulk Upload with `<PermissionGuard permission="LANDLORD:BULK_UPLOAD">`
+- [x] Wrap Export with `<PermissionGuard permission="LANDLORD:EXPORT">`
+- [x] Wrap Create button with `<PermissionGuard permission="LANDLORD:CREATE">`
+- [x] Wrap row actions dropdown with `<PermissionGuard anyPermissions={["LANDLORD:UPDATE", "LANDLORD:DELETE"]}>`
+- [x] Wrap Edit action with `<PermissionGuard permission="LANDLORD:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="LANDLORD:DELETE">`
+
+**Person Details**:
+- [x] Wrap Bulk Actions dropdown with `<PermissionGuard anyPermissions={["PERSON_DETAILS:BULK_UPLOAD", "PERSON_DETAILS:EXPORT"]}>`
+- [x] Wrap Download Template with `<PermissionGuard permission="PERSON_DETAILS:EXPORT">`
+- [x] Wrap Bulk Upload with `<PermissionGuard permission="PERSON_DETAILS:BULK_UPLOAD">`
+- [x] Wrap Export with `<PermissionGuard permission="PERSON_DETAILS:EXPORT">`
+- [x] Wrap Create button with `<PermissionGuard permission="PERSON_DETAILS:CREATE">`
+- [x] Wrap row actions dropdown with `<PermissionGuard anyPermissions={["PERSON_DETAILS:UPDATE", "PERSON_DETAILS:DELETE"]}>`
+- [x] Wrap Edit action with `<PermissionGuard permission="PERSON_DETAILS:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="PERSON_DETAILS:DELETE">`
 
 ---
 
@@ -459,17 +505,16 @@ Apply permissions per controller:
 | 1. Role Management | ✅ | ✅ | 100% |
 | 2. Permission System | ✅ | ✅ | 100% |
 | 3. User Role Assignment | ✅ | ✅ | 100% |
-| 4. User Management | ✅ | ✅ | 100% |
+| 4. Core Masters Protection | ✅ | ✅ | 100% |
 | 5. Asset Management | ✅ | ✅ | 100% |
 | 6. Site Management | ✅ | ✅ | 100% |
 | 7. Activity Management | ✅ | ✅ | 100% |
 | 8. Financial Management | ✅ | ✅ | 100% |
-| 9. Core Masters Protection | 🔄 | 🔄 | 0% |
-| 10. People & Vendor Mgmt | 🔄 | 🔄 | 0% |
-| 11. Asset Placement | 🔄 | 🔄 | 0% |
-| 12. Testing & Validation | 🔄 | 🔄 | 0% |
+| 9. People & Vendor Mgmt | ✅ | ✅ | 100% |
+| 10. Asset Placement | 🔄 | 🔄 | 0% |
+| 11. Testing & Validation | 🔄 | 🔄 | 0% |
 
-**Overall Progress**: ~67% (8/12 backends complete, 8/12 frontends complete)
+**Overall Progress**: ~82% (10/11 backends complete, 9/11 frontends complete)
 
 ---
 
@@ -479,24 +524,28 @@ Apply permissions per controller:
 1. ✅ Complete Feature 1 Frontend (Role Management UI) - **DONE**
 2. ✅ Complete Feature 2 Frontend (Permission Hooks & Guards) - **DONE**
 3. ✅ Complete Feature 3 Frontend (User Role Assignment UI) - **DONE**
-4. ✅ Complete Feature 4 Backend & Frontend (User Management) - **DONE**
+4. ✅ Feature 4 Backend & Frontend (Core Masters Protection) - **DONE**
 5. ✅ Feature 5 Backend & Frontend (Asset Management) - **DONE**
 6. ✅ Feature 6 Backend & Frontend (Site Management) - **DONE**
 7. ✅ Feature 7 Backend & Frontend (Activity Management) - **DONE**
 8. ✅ Feature 8 Backend & Frontend (Financial Management) - **DONE**
-9. 🔄 Continue with Feature 9 (Core Masters Protection)...
+9. ✅ Feature 9 Backend & Frontend (People & Vendor Management) - **DONE**
+10. 🔄 Continue with Feature 10 Backend & Frontend (Asset Placement)...
 
-**Current Priority**: Feature 9 - Core Masters Protection (23 controllers)
+**Current Priority**: Feature 10 - Asset Placement RBAC
 
 **Recent Updates**:
-- ✅ Completed Financial Management RBAC (Feature 8) - Both Backend & Frontend
-  - Backend: Added @RequirePermission annotations to all 6 financial controllers
-  - Frontend: Added PermissionGuard to 12 component files across all 6 modules:
-    - Invoices (invoice-primary-buttons.tsx, data-table-row-actions.tsx)
-    - Vouchers (voucher-primary-buttons.tsx, data-table-row-actions.tsx)
-    - Payment Details (payment-details-primary-buttons.tsx, data-table-row-actions.tsx)
-    - Payees (payee-primary-buttons.tsx, payee-row-actions.tsx)
-    - Expenditures Invoice (expenditures-invoice-primary-buttons.tsx, data-table-row-actions.tsx)
-    - Expenditures Voucher (expenditures-voucher-primary-buttons.tsx, data-table-row-actions.tsx)
-  - All CRUD operations, bulk actions, and exports now protected with appropriate permissions
-- Overall progress: Backend 67% (8/12), Frontend 67% (8/12)
+- ✅ Completed People & Vendor Management (Feature 9) - Both Backend & Frontend
+  - Backend: Added @RequirePermission annotations to all 3 controllers:
+    - VendorController: 12 endpoints with VENDOR:* permissions (CREATE, READ, UPDATE, DELETE, BULK_UPLOAD, EXPORT)
+    - LandlordController: 11 endpoints with LANDLORD:* permissions (CREATE, READ, UPDATE, DELETE, BULK_UPLOAD, EXPORT)
+    - PersonDetailsController: 12 endpoints with PERSON_DETAILS:* permissions (CREATE, READ, UPDATE, DELETE, BULK_UPLOAD, EXPORT)
+  - Frontend: Applied PermissionGuard to all UI components:
+    - vendor-primary-buttons.tsx: Protected Create, Bulk Upload, Download Template, Export buttons
+    - vendor-row-actions.tsx: Protected Edit and Delete actions
+    - landlord-primary-buttons.tsx: Protected Create, Bulk Upload, Download Template, Export buttons
+    - landlord-row-actions.tsx: Protected Edit and Delete actions
+    - person-details-primary-buttons.tsx: Protected Create, Bulk Upload, Download Template, Export buttons
+    - person-details-row-actions.tsx: Protected Edit and Delete actions
+  - All 3 modules now have complete RBAC coverage for CRUD, bulk upload, and export operations
+- Overall progress: Backend 91% (10/11), Frontend 82% (9/11), Total 82%

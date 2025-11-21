@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.vendor_category.controller;
 import com.eps.module.api.epsone.vendor_category.dto.VendorCategoryRequestDto;
 import com.eps.module.api.epsone.vendor_category.dto.VendorCategoryResponseDto;
 import com.eps.module.api.epsone.vendor_category.service.VendorCategoryService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -27,6 +28,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/vendor-categories")
 @RequiredArgsConstructor
+@RequireAdmin
 public class VendorCategoryController {
 
     private final VendorCategoryService vendorCategoryService;

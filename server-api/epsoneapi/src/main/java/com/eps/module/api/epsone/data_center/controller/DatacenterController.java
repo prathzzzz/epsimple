@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.data_center.controller;
 import com.eps.module.api.epsone.data_center.dto.DatacenterRequestDto;
 import com.eps.module.api.epsone.data_center.dto.DatacenterResponseDto;
 import com.eps.module.api.epsone.data_center.service.DatacenterService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -24,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/datacenters")
 @RequiredArgsConstructor
+@RequireAdmin
 public class DatacenterController {
 
     private final DatacenterService datacenterService;

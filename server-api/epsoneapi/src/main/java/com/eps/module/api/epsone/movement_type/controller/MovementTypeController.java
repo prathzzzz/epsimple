@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.movement_type.controller;
 import com.eps.module.api.epsone.movement_type.dto.MovementTypeRequestDto;
 import com.eps.module.api.epsone.movement_type.dto.MovementTypeResponseDto;
 import com.eps.module.api.epsone.movement_type.service.MovementTypeService;
+import com.eps.module.auth.rbac.annotation.RequireAdmin;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -24,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/movement-types")
 @RequiredArgsConstructor
+@RequireAdmin
 public class MovementTypeController {
 
     private final MovementTypeService movementTypeService;
