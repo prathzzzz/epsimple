@@ -202,6 +202,7 @@ export function RolesActionDialog({
                           value={field.value}
                           onChange={field.onChange}
                           disabled={isSubmitting || isSystemRole}
+                          enabled={open}
                         />
                       </div>
                     </FormControl>

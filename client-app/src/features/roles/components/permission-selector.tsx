@@ -15,6 +15,8 @@ interface PermissionSelectorProps {
   onChange: (permissionIds: number[]) => void
   /** Disabled state */
   disabled?: boolean
+  /** Whether to enable permission loading */
+  enabled?: boolean
 }
 
 /**
@@ -25,6 +27,7 @@ export function PermissionSelector({
   value = [],
   onChange,
   disabled = false,
+  enabled = true,
 }: PermissionSelectorProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -32,7 +35,7 @@ export function PermissionSelector({
   )
 
   const { data: permissionsByCategory, isLoading } =
-    usePermissionsByCategory()
+    usePermissionsByCategory(enabled)
 
   // Flatten all permissions for search
   const allPermissions = useMemo(() => {

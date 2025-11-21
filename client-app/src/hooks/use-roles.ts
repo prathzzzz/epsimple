@@ -152,10 +152,11 @@ export function usePermissions() {
 /**
  * Get permissions grouped by category
  */
-export function usePermissionsByCategory() {
+export function usePermissionsByCategory(enabled = true) {
   return useQuery({
     queryKey: permissionKeys.grouped(),
     queryFn: permissionsApi.getPermissionsByCategory,
+    enabled,
   })
 }
 
