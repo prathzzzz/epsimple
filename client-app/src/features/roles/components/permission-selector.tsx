@@ -115,17 +115,7 @@ export function PermissionSelector({
     )
   }
 
-  if (!filteredPermissionsByCategory || Object.keys(filteredPermissionsByCategory).length === 0) {
-    return (
-      <div className="flex items-center justify-center rounded-lg border border-dashed p-12">
-        <div className="text-sm text-muted-foreground">
-          {searchTerm ? 'No permissions match your search' : 'No permissions available'}
-        </div>
-      </div>
-    )
-  }
-
-  const categories = Object.entries(filteredPermissionsByCategory)
+  const categories = Object.entries(filteredPermissionsByCategory || {})
 
   return (
     <div className="space-y-3">
@@ -155,7 +145,14 @@ export function PermissionSelector({
 
       {/* Permission Categories */}
       <ScrollArea className="h-[400px] rounded-md border">
-        <div className="p-3 space-y-1">
+        {categories.length === 0 ? (
+          <div className="flex items-center justify-center p-12">
+            <div className="text-sm text-muted-foreground">
+              {searchTerm ? 'No permissions match your search' : 'No permissions available'}
+            </div>
+          </div>
+        ) : (
+          <div className="p-3 space-y-1">
           {categories.map(([category, permissions]) => {
             const isExpanded = expandedCategories.has(category)
             const categoryPermissionIds = permissions.map((p) => p.id)
@@ -250,7 +247,8 @@ export function PermissionSelector({
               </div>
             )
           })}
-        </div>
+          </div>
+        )}
       </ScrollArea>
     </div>
   )
