@@ -5,6 +5,7 @@ import { type ExpendituresVoucher } from '../api/schema';
 import { expendituresVoucherApi } from '../api/expenditures-voucher-api';
 import { useExpendituresVoucherContext } from '../context/expenditures-voucher-provider';
 import { Button } from '@/components/ui/button';
+import { PermissionGuard } from '@/components/permission-guard';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,17 +64,21 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         <DropdownMenuContent align="end" className="w-[160px]">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleEdit}>
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setShowDeleteDialog(true)}
-            className="text-destructive focus:text-destructive"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete
-          </DropdownMenuItem>
+          <PermissionGuard permission="EXPENDITURE_VOUCHER:UPDATE">
+            <DropdownMenuItem onClick={handleEdit}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+          </PermissionGuard>
+          <PermissionGuard permission="EXPENDITURE_VOUCHER:DELETE">
+            <DropdownMenuItem
+              onClick={() => setShowDeleteDialog(true)}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </PermissionGuard>
         </DropdownMenuContent>
       </DropdownMenu>
 

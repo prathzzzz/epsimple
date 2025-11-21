@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.expenditures_invoice.controller;
 import com.eps.module.api.epsone.expenditures_invoice.dto.ExpendituresInvoiceRequestDto;
 import com.eps.module.api.epsone.expenditures_invoice.dto.ExpendituresInvoiceResponseDto;
 import com.eps.module.api.epsone.expenditures_invoice.service.ExpendituresInvoiceService;
+import com.eps.module.auth.rbac.annotation.RequirePermission;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -34,24 +35,28 @@ public class ExpendituresInvoiceController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping("/bulk-upload")
+    @RequirePermission("EXPENDITURE_INVOICE:BULK_UPLOAD")
     public SseEmitter bulkUploadExpendituresInvoices(@RequestParam("file") MultipartFile file) throws Exception {
         log.info("POST /api/expenditures/invoices/bulk-upload - Starting bulk upload");
         return bulkUploadControllerHelper.bulkUpload(file, expendituresInvoiceService);
     }
 
     @GetMapping("/bulk-upload/template")
+    @RequirePermission("EXPENDITURE_INVOICE:READ")
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("GET /api/expenditures/invoices/bulk-upload/template - Downloading template");
         return bulkUploadControllerHelper.downloadTemplate(expendituresInvoiceService);
     }
 
     @PostMapping("/bulk-upload/errors")
+    @RequirePermission("EXPENDITURE_INVOICE:READ")
     public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/expenditures/invoices/bulk-upload/errors - Exporting error report");
         return bulkUploadControllerHelper.exportErrors(progressData, expendituresInvoiceService);
     }
 
     @GetMapping("/export")
+    @RequirePermission("EXPENDITURE_INVOICE:EXPORT")
     public ResponseEntity<byte[]> exportData() throws Exception {
         log.info("GET /api/expenditures/invoices/export - Exporting all data");
         return bulkUploadControllerHelper.export(expendituresInvoiceService);
@@ -60,6 +65,7 @@ public class ExpendituresInvoiceController {
     // ========== CRUD Endpoints ==========
 
     @PostMapping
+    @RequirePermission("EXPENDITURE_INVOICE:CREATE")
     public ResponseEntity<ApiResponse<ExpendituresInvoiceResponseDto>> createExpendituresInvoice(
             @Valid @RequestBody ExpendituresInvoiceRequestDto requestDto) {
         log.info("POST /api/expenditures/invoices - Creating expenditures invoice");
@@ -68,6 +74,7 @@ public class ExpendituresInvoiceController {
     }
 
     @GetMapping
+    @RequirePermission("EXPENDITURE_INVOICE:READ")
     public ResponseEntity<ApiResponse<Page<ExpendituresInvoiceResponseDto>>> getAllExpendituresInvoices(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -85,6 +92,7 @@ public class ExpendituresInvoiceController {
     }
 
     @GetMapping("/search")
+    @RequirePermission("EXPENDITURE_INVOICE:READ")
     public ResponseEntity<ApiResponse<Page<ExpendituresInvoiceResponseDto>>> searchExpendituresInvoices(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -103,6 +111,7 @@ public class ExpendituresInvoiceController {
     }
 
     @GetMapping("/list")
+    @RequirePermission("EXPENDITURE_INVOICE:READ")
     public ResponseEntity<ApiResponse<List<ExpendituresInvoiceResponseDto>>> getAllExpendituresInvoicesList() {
         log.info("GET /api/expenditures/invoices/list - Fetching all expenditures invoices as list");
         List<ExpendituresInvoiceResponseDto> responseList = expendituresInvoiceService.getAllExpendituresInvoicesList();
@@ -110,6 +119,7 @@ public class ExpendituresInvoiceController {
     }
 
     @GetMapping("/{id}")
+    @RequirePermission("EXPENDITURE_INVOICE:READ")
     public ResponseEntity<ApiResponse<ExpendituresInvoiceResponseDto>> getExpendituresInvoiceById(@PathVariable Long id) {
         log.info("GET /api/expenditures/invoices/{} - Fetching expenditures invoice", id);
         ExpendituresInvoiceResponseDto responseDto = expendituresInvoiceService.getExpendituresInvoiceById(id);
@@ -117,6 +127,7 @@ public class ExpendituresInvoiceController {
     }
 
     @PutMapping("/{id}")
+    @RequirePermission("EXPENDITURE_INVOICE:UPDATE")
     public ResponseEntity<ApiResponse<ExpendituresInvoiceResponseDto>> updateExpendituresInvoice(
             @PathVariable Long id,
             @Valid @RequestBody ExpendituresInvoiceRequestDto requestDto) {
@@ -126,6 +137,7 @@ public class ExpendituresInvoiceController {
     }
 
     @DeleteMapping("/{id}")
+    @RequirePermission("EXPENDITURE_INVOICE:DELETE")
     public ResponseEntity<ApiResponse<Void>> deleteExpendituresInvoice(@PathVariable Long id) {
         log.info("DELETE /api/expenditures/invoices/{} - Deleting expenditures invoice", id);
         expendituresInvoiceService.deleteExpendituresInvoice(id);
@@ -133,6 +145,7 @@ public class ExpendituresInvoiceController {
     }
 
     @GetMapping("/project/{projectId}")
+    @RequirePermission("EXPENDITURE_INVOICE:READ")
     public ResponseEntity<ApiResponse<Page<ExpendituresInvoiceResponseDto>>> getExpendituresInvoicesByProjectId(
             @PathVariable Long projectId,
             @RequestParam(defaultValue = "0") int page,
@@ -151,6 +164,7 @@ public class ExpendituresInvoiceController {
     }
 
     @GetMapping("/invoice/{invoiceId}")
+    @RequirePermission("EXPENDITURE_INVOICE:READ")
     public ResponseEntity<ApiResponse<List<ExpendituresInvoiceResponseDto>>> getExpendituresInvoicesByInvoiceId(
             @PathVariable Long invoiceId) {
         log.info("GET /api/expenditures/invoices/invoice/{} - Fetching expenditures for invoice", invoiceId);

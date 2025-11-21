@@ -48,15 +48,19 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem onClick={handleEdit}>
-          <Pen className="mr-2 h-4 w-4" />
-          Edit
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleDelete} className="text-red-600">
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
-        </DropdownMenuItem>
+        <PermissionGuard permission="VOUCHER:UPDATE">
+          <DropdownMenuItem onClick={handleEdit}>
+            <Pencil className="mr-2 h-4 w-4" />
+            Edit
+          </DropdownMenuItem>
+        </PermissionGuard>
+        <PermissionGuard permission="VOUCHER:DELETE">
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+            <Trash className="mr-2 h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+        </PermissionGuard>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -7,6 +7,7 @@ import { expendituresInvoiceApi } from '../api/expenditures-invoice-api';
 import type { ExpendituresInvoice } from '../api/schema';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PermissionGuard } from '@/components/permission-guard';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,17 +69,21 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleEdit}>
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setShowDeleteDialog(true)}
-            className="text-destructive"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete
-          </DropdownMenuItem>
+          <PermissionGuard permission="EXPENDITURE_INVOICE:UPDATE">
+            <DropdownMenuItem onClick={handleEdit}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+          </PermissionGuard>
+          <PermissionGuard permission="EXPENDITURE_INVOICE:DELETE">
+            <DropdownMenuItem
+              onClick={() => setShowDeleteDialog(true)}
+              className="text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </PermissionGuard>
         </DropdownMenuContent>
       </DropdownMenu>
 

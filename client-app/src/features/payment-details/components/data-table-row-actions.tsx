@@ -2,6 +2,7 @@ import type { Row } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { PermissionGuard } from "@/components/permission-guard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,15 +50,19 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem onClick={handleEdit}>
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-          <Trash className="mr-2 h-4 w-4" />
-          Delete
-        </DropdownMenuItem>
+        <PermissionGuard permission="PAYMENT:UPDATE">
+          <DropdownMenuItem onClick={handleEdit}>
+            <Pencil className="mr-2 h-4 w-4" />
+            Edit
+          </DropdownMenuItem>
+        </PermissionGuard>
+        <PermissionGuard permission="PAYMENT:DELETE">
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+            <Trash className="mr-2 h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+        </PermissionGuard>
       </DropdownMenuContent>
     </DropdownMenu>
   );

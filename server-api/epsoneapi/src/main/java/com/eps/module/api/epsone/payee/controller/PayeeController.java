@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.payee.controller;
 import com.eps.module.api.epsone.payee.dto.PayeeRequestDto;
 import com.eps.module.api.epsone.payee.dto.PayeeResponseDto;
 import com.eps.module.api.epsone.payee.service.PayeeService;
+import com.eps.module.auth.rbac.annotation.RequirePermission;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ResponseBuilder;
@@ -32,6 +33,7 @@ public class PayeeController {
     private final BulkUploadControllerHelper bulkUploadControllerHelper;
 
     @PostMapping
+    @RequirePermission("PAYEE:CREATE")
     public ResponseEntity<?> createPayee(@Valid @RequestBody PayeeRequestDto requestDto) {
         log.info("Received request to create payee");
         PayeeResponseDto response = payeeService.createPayee(requestDto);
@@ -39,6 +41,7 @@ public class PayeeController {
     }
 
     @GetMapping
+    @RequirePermission("PAYEE:READ")
     public ResponseEntity<?> getAllPayees(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -53,6 +56,7 @@ public class PayeeController {
     }
 
     @GetMapping("/search")
+    @RequirePermission("PAYEE:READ")
     public ResponseEntity<?> searchPayees(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
@@ -89,6 +93,7 @@ public class PayeeController {
     }
 
     @GetMapping("/list")
+    @RequirePermission("PAYEE:READ")
     public ResponseEntity<?> getPayeesList() {
         log.info("Received request to get payees list");
         List<PayeeResponseDto> response = payeeService.getPayeesList();
@@ -98,6 +103,7 @@ public class PayeeController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequirePermission("PAYEE:EXPORT")
     public ResponseEntity<byte[]> exportData() throws Exception {
         log.info("Received request to export all payees");
         return bulkUploadControllerHelper.export(payeeService);
@@ -106,6 +112,7 @@ public class PayeeController {
     // ========== CRUD Endpoints ==========
 
     @GetMapping("/{id}")
+    @RequirePermission("PAYEE:READ")
     public ResponseEntity<?> getPayeeById(@PathVariable Long id) {
         log.info("Received request to get payee by id: {}", id);
         PayeeResponseDto response = payeeService.getPayeeById(id);
@@ -113,6 +120,7 @@ public class PayeeController {
     }
 
     @PutMapping("/{id}")
+    @RequirePermission("PAYEE:UPDATE")
     public ResponseEntity<?> updatePayee(
             @PathVariable Long id,
             @Valid @RequestBody PayeeRequestDto requestDto) {
@@ -122,6 +130,7 @@ public class PayeeController {
     }
 
     @DeleteMapping("/{id}")
+    @RequirePermission("PAYEE:DELETE")
     public ResponseEntity<?> deletePayee(@PathVariable Long id) {
         log.info("Received request to delete payee with id: {}", id);
         payeeService.deletePayee(id);
@@ -129,6 +138,7 @@ public class PayeeController {
     }
 
     @GetMapping("/count")
+    @RequirePermission("PAYEE:READ")
     public ResponseEntity<?> countPayees() {
         log.info("Received request to count payees");
         long count = payeeService.countPayees();
@@ -138,18 +148,21 @@ public class PayeeController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RequirePermission("PAYEE:BULK_UPLOAD")
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws Exception {
         log.info("Received bulk upload request for Payees");
         return bulkUploadControllerHelper.bulkUpload(file, payeeService);
     }
 
     @GetMapping("/bulk-upload/template")
+    @RequirePermission("PAYEE:READ")
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("Received request to download Payee bulk upload template");
         return bulkUploadControllerHelper.downloadTemplate(payeeService);
     }
 
     @PostMapping("/bulk-upload/errors")
+    @RequirePermission("PAYEE:READ")
     public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("Received request to export Payee bulk upload errors");
         return bulkUploadControllerHelper.exportErrors(progressData, payeeService);

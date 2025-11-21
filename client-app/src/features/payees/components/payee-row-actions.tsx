@@ -1,5 +1,6 @@
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PermissionGuard } from '@/components/permission-guard';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,14 +40,18 @@ export function PayeeRowActions({ payee }: PayeeRowActionsProps) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleEdit}>
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
-        </DropdownMenuItem>
+        <PermissionGuard permission="PAYEE:UPDATE">
+          <DropdownMenuItem onClick={handleEdit}>
+            <Pencil className="mr-2 h-4 w-4" />
+            Edit
+          </DropdownMenuItem>
+        </PermissionGuard>
+        <PermissionGuard permission="PAYEE:DELETE">
+          <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+        </PermissionGuard>
       </DropdownMenuContent>
     </DropdownMenu>
   );

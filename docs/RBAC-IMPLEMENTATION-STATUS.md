@@ -319,31 +319,69 @@ GET    /api/permissions/my            → Current user's permissions
 
 ---
 
-## 🔄 FEATURE 8: FINANCIAL MANAGEMENT
+## ✅ FEATURE 8: FINANCIAL MANAGEMENT (COMPLETE)
 
-### Backend 🔄
+### Backend ✅
 **Controllers**: 
 - `InvoiceController`
 - `VoucherController`
-- `ExpenditureInvoiceController`
-- `ExpenditureVoucherController`
+- `ExpendituresInvoiceController`
+- `ExpendituresVoucherController`
 - `PaymentDetailsController`
 - `PayeeController`
 
 Apply permissions per controller:
-- [ ] INVOICE:* permissions
-- [ ] VOUCHER:* permissions
-- [ ] EXPENDITURE_INVOICE:* permissions
-- [ ] EXPENDITURE_VOUCHER:* permissions
-- [ ] PAYMENT:* permissions
-- [ ] PAYEE:* permissions
+- [x] INVOICE:* permissions applied to all endpoints
+- [x] VOUCHER:* permissions applied to all endpoints
+- [x] EXPENDITURE_INVOICE:* permissions applied to all endpoints
+- [x] EXPENDITURE_VOUCHER:* permissions applied to all endpoints
+- [x] PAYMENT:* permissions applied to all endpoints
+- [x] PAYEE:* permissions applied to all endpoints
 
-### Frontend 🔄
+### Frontend ✅
 **Location**: `client-app/src/features/invoices/`, `features/vouchers/`, etc.
 
-- [ ] Apply permission guards to all financial modules
-- [ ] Update forms and list pages
-- [ ] Protect approval/rejection workflows
+**Invoices**:
+- [x] Wrap Bulk Actions dropdown with `<PermissionGuard anyPermissions={["INVOICE:BULK_UPLOAD", "INVOICE:EXPORT"]}>`
+- [x] Wrap individual bulk actions with `INVOICE:BULK_UPLOAD` and `INVOICE:EXPORT`
+- [x] Wrap Create button with `<PermissionGuard permission="INVOICE:CREATE">`
+- [x] Wrap Edit action with `<PermissionGuard permission="INVOICE:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="INVOICE:DELETE">`
+
+**Vouchers**:
+- [x] Wrap Bulk Actions dropdown with `<PermissionGuard anyPermissions={["VOUCHER:BULK_UPLOAD", "VOUCHER:EXPORT"]}>`
+- [x] Wrap individual bulk actions with `VOUCHER:BULK_UPLOAD` and `VOUCHER:EXPORT`
+- [x] Wrap Create button with `<PermissionGuard permission="VOUCHER:CREATE">`
+- [x] Wrap Edit action with `<PermissionGuard permission="VOUCHER:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="VOUCHER:DELETE">`
+
+**Payment Details**:
+- [x] Wrap Bulk Actions dropdown with `<PermissionGuard anyPermissions={["PAYMENT:BULK_UPLOAD", "PAYMENT:EXPORT"]}>`
+- [x] Wrap individual bulk actions with `PAYMENT:BULK_UPLOAD` and `PAYMENT:EXPORT`
+- [x] Wrap Create button with `<PermissionGuard permission="PAYMENT:CREATE">`
+- [x] Wrap Edit action with `<PermissionGuard permission="PAYMENT:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="PAYMENT:DELETE">`
+
+**Payees**:
+- [x] Wrap Bulk Actions dropdown with `<PermissionGuard anyPermissions={["PAYEE:BULK_UPLOAD", "PAYEE:EXPORT"]}>`
+- [x] Wrap individual bulk actions with `PAYEE:BULK_UPLOAD` and `PAYEE:EXPORT`
+- [x] Wrap Create button with `<PermissionGuard permission="PAYEE:CREATE">`
+- [x] Wrap Edit action with `<PermissionGuard permission="PAYEE:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="PAYEE:DELETE">`
+
+**Expenditures Invoice**:
+- [x] Wrap Bulk Actions dropdown with `<PermissionGuard anyPermissions={["EXPENDITURE_INVOICE:BULK_UPLOAD", "EXPENDITURE_INVOICE:EXPORT"]}>`
+- [x] Wrap individual bulk actions with `EXPENDITURE_INVOICE:BULK_UPLOAD` and `EXPENDITURE_INVOICE:EXPORT`
+- [x] Wrap Create button with `<PermissionGuard permission="EXPENDITURE_INVOICE:CREATE">`
+- [x] Wrap Edit action with `<PermissionGuard permission="EXPENDITURE_INVOICE:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="EXPENDITURE_INVOICE:DELETE">`
+
+**Expenditures Voucher**:
+- [x] Wrap Bulk Actions dropdown with `<PermissionGuard anyPermissions={["EXPENDITURE_VOUCHER:BULK_UPLOAD", "EXPENDITURE_VOUCHER:EXPORT"]}>`
+- [x] Wrap individual bulk actions with `EXPENDITURE_VOUCHER:BULK_UPLOAD` and `EXPENDITURE_VOUCHER:EXPORT`
+- [x] Wrap Create button with `<PermissionGuard permission="EXPENDITURE_VOUCHER:CREATE">`
+- [x] Wrap Edit action with `<PermissionGuard permission="EXPENDITURE_VOUCHER:UPDATE">`
+- [x] Wrap Delete action with `<PermissionGuard permission="EXPENDITURE_VOUCHER:DELETE">`
 
 ---
 
@@ -425,13 +463,13 @@ Apply permissions per controller:
 | 5. Asset Management | ✅ | ✅ | 100% |
 | 6. Site Management | ✅ | ✅ | 100% |
 | 7. Activity Management | ✅ | ✅ | 100% |
-| 8. Core Masters Protection | 🔄 | 🔄 | 0% |
-| 9. Financial Management | 🔄 | 🔄 | 0% |
+| 8. Financial Management | ✅ | ✅ | 100% |
+| 9. Core Masters Protection | 🔄 | 🔄 | 0% |
 | 10. People & Vendor Mgmt | 🔄 | 🔄 | 0% |
 | 11. Asset Placement | 🔄 | 🔄 | 0% |
 | 12. Testing & Validation | 🔄 | 🔄 | 0% |
 
-**Overall Progress**: ~58% (7/12 backends complete, 7/12 frontends complete)
+**Overall Progress**: ~67% (8/12 backends complete, 8/12 frontends complete)
 
 ---
 
@@ -445,12 +483,20 @@ Apply permissions per controller:
 5. ✅ Feature 5 Backend & Frontend (Asset Management) - **DONE**
 6. ✅ Feature 6 Backend & Frontend (Site Management) - **DONE**
 7. ✅ Feature 7 Backend & Frontend (Activity Management) - **DONE**
-8. 🔄 Continue feature-by-feature...
+8. ✅ Feature 8 Backend & Frontend (Financial Management) - **DONE**
+9. 🔄 Continue with Feature 9 (Core Masters Protection)...
 
-**Current Priority**: Feature 8 - Core Masters Protection
+**Current Priority**: Feature 9 - Core Masters Protection (23 controllers)
 
 **Recent Updates**:
-- Completed Activity Management RBAC (Feature 7)
-  - Backend: Added @RequirePermission annotations to ActivitiesController and ActivityWorkController
-  - Frontend: Added PermissionGuard components to activities-list and activity-works features
-- Overall progress: 58% (7/12 features complete)
+- ✅ Completed Financial Management RBAC (Feature 8) - Both Backend & Frontend
+  - Backend: Added @RequirePermission annotations to all 6 financial controllers
+  - Frontend: Added PermissionGuard to 12 component files across all 6 modules:
+    - Invoices (invoice-primary-buttons.tsx, data-table-row-actions.tsx)
+    - Vouchers (voucher-primary-buttons.tsx, data-table-row-actions.tsx)
+    - Payment Details (payment-details-primary-buttons.tsx, data-table-row-actions.tsx)
+    - Payees (payee-primary-buttons.tsx, payee-row-actions.tsx)
+    - Expenditures Invoice (expenditures-invoice-primary-buttons.tsx, data-table-row-actions.tsx)
+    - Expenditures Voucher (expenditures-voucher-primary-buttons.tsx, data-table-row-actions.tsx)
+  - All CRUD operations, bulk actions, and exports now protected with appropriate permissions
+- Overall progress: Backend 67% (8/12), Frontend 67% (8/12)

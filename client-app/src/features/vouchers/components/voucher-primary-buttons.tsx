@@ -9,6 +9,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PermissionGuard } from "@/components/permission-guard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -73,44 +74,52 @@ export function VoucherPrimaryButtons() {
 
   return (
     <div className="flex gap-2">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="h-9 px-3">
-            <FileUp className="mr-2 h-4 w-4" />
-            Bulk Actions
-            <ChevronDown className="ml-2 h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-64">
-          <DropdownMenuItem onClick={handleDownloadTemplate} disabled={isDownloadingTemplate}>
-            {isDownloadingTemplate ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin text-blue-500" />
-            ) : (
-              <Download className="mr-2 h-4 w-4 text-blue-500" />
-            )}
-            <span>Download Template</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleBulkUpload}>
-            <Upload className="mr-2 h-4 w-4 text-orange-500" />
-            <span>Bulk Upload</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleExport} disabled={isExporting}>
-            {isExporting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin text-green-500" />
-            ) : (
-              <FileSpreadsheet className="mr-2 h-4 w-4 text-green-500" />
-            )}
-            <span>Export All Data</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <PermissionGuard anyPermissions={["VOUCHER:BULK_UPLOAD", "VOUCHER:EXPORT"]}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="h-9 px-3">
+              <FileUp className="mr-2 h-4 w-4" />
+              Bulk Actions
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-64">
+            <PermissionGuard permission="VOUCHER:BULK_UPLOAD">
+              <DropdownMenuItem onClick={handleDownloadTemplate} disabled={isDownloadingTemplate}>
+                {isDownloadingTemplate ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin text-blue-500" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4 text-blue-500" />
+                )}
+                <span>Download Template</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleBulkUpload}>
+                <Upload className="mr-2 h-4 w-4 text-orange-500" />
+                <span>Bulk Upload</span>
+              </DropdownMenuItem>
+            </PermissionGuard>
+            <PermissionGuard permission="VOUCHER:EXPORT">
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleExport} disabled={isExporting}>
+                {isExporting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin text-green-500" />
+                ) : (
+                  <FileSpreadsheet className="mr-2 h-4 w-4 text-green-500" />
+                )}
+                <span>Export All Data</span>
+              </DropdownMenuItem>
+            </PermissionGuard>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </PermissionGuard>
 
-      <Button onClick={handleAdd} className="h-9">
-        <Plus className="mr-2 h-4 w-4" />
-        Add Voucher
-      </Button>
+      <PermissionGuard permission="VOUCHER:CREATE">
+        <Button onClick={handleAdd} className="h-9">
+          <Plus className="mr-2 h-4 w-4" />
+          Add Voucher
+        </Button>
+      </PermissionGuard>
     </div>
   );
 }
