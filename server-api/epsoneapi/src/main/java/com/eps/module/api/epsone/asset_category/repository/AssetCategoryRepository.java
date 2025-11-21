@@ -13,17 +13,14 @@ import java.util.List;
 @Repository
 public interface AssetCategoryRepository extends JpaRepository<AssetCategory, Long> {
 
-    @Query("SELECT ac FROM AssetCategory ac LEFT JOIN FETCH ac.assetType " +
+    @Query("SELECT ac FROM AssetCategory ac " +
            "WHERE LOWER(ac.categoryName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(ac.categoryCode) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-           "OR LOWER(ac.assetCodeAlt) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-           "OR LOWER(ac.assetType.typeName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+           "OR LOWER(ac.assetCodeAlt) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<AssetCategory> searchAssetCategories(@Param("searchTerm") String searchTerm, Pageable pageable);
 
-    @Query("SELECT ac FROM AssetCategory ac LEFT JOIN FETCH ac.assetType")
+    @Query("SELECT ac FROM AssetCategory ac ORDER BY ac.categoryName")
     List<AssetCategory> findAllForExport();
-
-    Page<AssetCategory> findByAssetTypeId(Long assetTypeId, Pageable pageable);
 
     boolean existsByCategoryNameIgnoreCase(String categoryName);
 
@@ -40,6 +37,6 @@ public interface AssetCategoryRepository extends JpaRepository<AssetCategory, Lo
     /**
      * Find asset category by name (case-insensitive) - for bulk upload
      */
-    @Query("SELECT ac FROM AssetCategory ac LEFT JOIN FETCH ac.assetType WHERE LOWER(ac.categoryName) = LOWER(:categoryName)")
+    @Query("SELECT ac FROM AssetCategory ac WHERE LOWER(ac.categoryName) = LOWER(:categoryName)")
     java.util.Optional<AssetCategory> findByCategoryNameIgnoreCase(@Param("categoryName") String categoryName);
 }

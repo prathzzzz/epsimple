@@ -16,8 +16,6 @@ public class AssetCategoryResponseDto {
     private Long id;
     private String categoryName;
     private String categoryCode;
-    private Long assetTypeId;
-    private String assetTypeName;
     private String assetCodeAlt;
     private String description;
     private LocalDateTime createdAt;

@@ -21,15 +21,12 @@ public class AssetCategoryErrorReportDto {
     @ExcelColumn(value = "Category Code", order = 3)
     private String categoryCode;
 
-    @ExcelColumn(value = "Asset Type Code", order = 4)
-    private String assetTypeCode;
-
-    @ExcelColumn(value = "Asset Code Alt", order = 5)
+    @ExcelColumn(value = "Asset Code Alt", order = 4)
     private String assetCodeAlt;
 
-    @ExcelColumn(value = "Description", order = 6)
+    @ExcelColumn(value = "Description", order = 5)
     private String description;
 
-    @ExcelColumn(value = "Error Message", order = 7)
+    @ExcelColumn(value = "Error Message", order = 6)
     private String errorMessage;
 }

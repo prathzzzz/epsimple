@@ -1,6 +1,6 @@
 package com.eps.module.api.epsone.asset_type.service;
 
-import com.eps.module.api.epsone.asset_category.repository.AssetCategoryRepository;
+import com.eps.module.api.epsone.asset.repository.AssetRepository;
 import com.eps.module.api.epsone.asset_type.dto.AssetTypeBulkUploadDto;
 import com.eps.module.api.epsone.asset_type.dto.AssetTypeErrorReportDto;
 import com.eps.module.api.epsone.asset_type.dto.AssetTypeRequestDto;
@@ -8,7 +8,6 @@ import com.eps.module.api.epsone.asset_type.dto.AssetTypeResponseDto;
 import com.eps.module.api.epsone.asset_type.mapper.AssetTypeMapper;
 import com.eps.module.api.epsone.asset_type.processor.AssetTypeBulkUploadProcessor;
 import com.eps.module.api.epsone.asset_type.repository.AssetTypeRepository;
-import com.eps.module.asset.AssetCategory;
 import com.eps.module.asset.AssetType;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
@@ -16,7 +15,6 @@ import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +29,7 @@ import java.util.stream.Collectors;
 public class AssetTypeServiceImpl extends BaseBulkUploadService<AssetTypeBulkUploadDto, AssetType> implements AssetTypeService {
 
     private final AssetTypeRepository assetTypeRepository;
-    private final AssetCategoryRepository assetCategoryRepository;
+    private final AssetRepository assetRepository;
     private final AssetTypeMapper assetTypeMapper;
     private final AssetTypeBulkUploadProcessor assetTypeBulkUploadProcessor;
 
@@ -82,26 +80,17 @@ public class AssetTypeServiceImpl extends BaseBulkUploadService<AssetTypeBulkUpl
         AssetType assetType = assetTypeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Asset type not found with id: " + id));
 
-        // Check for dependent asset categories
-        Page<AssetCategory> dependentCategories = assetCategoryRepository.findByAssetTypeId(id, PageRequest.of(0, 6));
-
-        if (!dependentCategories.isEmpty()) {
-            long totalCount = dependentCategories.getTotalElements();
-            List<String> categoryNames = dependentCategories.getContent().stream()
-                    .limit(5)
-                    .map(AssetCategory::getCategoryName)
-                    .collect(Collectors.toList());
-
+        // Check for dependent assets
+        long assetCount = assetRepository.countByAssetTypeId(id);
+        if (assetCount > 0) {
             String errorMessage = String.format(
-                    "Cannot delete '%s' asset type because it is being used by %d asset %s: %s%s. Please delete or reassign these asset categories first.",
+                    "Cannot delete '%s' asset type because it is being used by %d asset%s. Please delete or reassign these assets first.",
                     assetType.getTypeName(),
-                    totalCount,
-                    totalCount == 1 ? "category" : "categories",
-                    String.join(", ", categoryNames),
-                    totalCount > 5 ? " and " + (totalCount - 5) + " more" : ""
+                    assetCount,
+                    assetCount == 1 ? "" : "s"
             );
 
-            log.warn("Cannot delete asset type ID {} - has {} dependent asset categories", id, totalCount);
+            log.warn("Cannot delete asset type ID {} - has {} dependent assets", id, assetCount);
             throw new IllegalStateException(errorMessage);
         }
 

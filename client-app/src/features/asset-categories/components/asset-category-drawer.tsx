@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,20 +15,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { cn } from "@/lib/utils";
-import {
   Sheet,
   SheetClose,
   SheetContent,
@@ -40,27 +26,19 @@ import {
 import { useAssetCategoryContext } from "../context/asset-category-provider";
 import { assetCategoryApi } from "../api/asset-categories-api";
 import { assetCategoryFormSchema, type AssetCategoryFormData } from "../api/schema";
-import { assetTypesApi } from "@/features/asset-types/api/asset-types-api";
 
 export function AssetCategoryDrawer() {
   const { isDrawerOpen, setIsDrawerOpen, editingAssetCategory, setEditingAssetCategory } =
     useAssetCategoryContext();
 
-  const [assetTypeSearch, setAssetTypeSearch] = useState("");
-  const [assetTypeOpen, setAssetTypeOpen] = useState(false);
-
   const createMutation = assetCategoryApi.useCreate();
   const updateMutation = assetCategoryApi.useUpdate();
-
-  const { data: assetTypes = [], isLoading: isLoadingAssetTypes } = 
-    assetTypesApi.useSearch(assetTypeSearch);
 
   const form = useForm<AssetCategoryFormData>({
     resolver: zodResolver(assetCategoryFormSchema),
     defaultValues: {
       categoryName: "",
       categoryCode: "",
-      assetTypeId: 0,
       assetCodeAlt: "",
       description: "",
     },
@@ -71,7 +49,6 @@ export function AssetCategoryDrawer() {
       form.reset({
         categoryName: editingAssetCategory.categoryName,
         categoryCode: editingAssetCategory.categoryCode,
-        assetTypeId: editingAssetCategory.assetTypeId,
         assetCodeAlt: editingAssetCategory.assetCodeAlt,
         description: editingAssetCategory.description || "",
       });
@@ -79,7 +56,6 @@ export function AssetCategoryDrawer() {
       form.reset({
         categoryName: "",
         categoryCode: "",
-        assetTypeId: 0,
         assetCodeAlt: "",
         description: "",
       });
@@ -140,76 +116,6 @@ export function AssetCategoryDrawer() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex-1 space-y-6 overflow-y-auto px-4"
           >
-            <FormField
-              control={form.control}
-              name="assetTypeId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Asset Type *</FormLabel>
-                  <Popover open={assetTypeOpen} onOpenChange={setAssetTypeOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            "w-full justify-between",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value
-                            ? assetTypes.find((type) => type.id === field.value)?.typeName
-                            : "Select an asset type"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0" align="start">
-                      <Command shouldFilter={false}>
-                        <CommandInput
-                          placeholder="Search asset types..."
-                          value={assetTypeSearch}
-                          onValueChange={setAssetTypeSearch}
-                        />
-                        <CommandList>
-                          {isLoadingAssetTypes ? (
-                            <div className="flex items-center justify-center py-6">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            </div>
-                          ) : assetTypes.length === 0 ? (
-                            <CommandEmpty>No asset types found.</CommandEmpty>
-                          ) : (
-                            <CommandGroup>
-                              {assetTypes.map((type) => (
-                                <CommandItem
-                                  key={type.id}
-                                  value={String(type.id)}
-                                  onSelect={() => {
-                                    field.onChange(type.id);
-                                    setAssetTypeOpen(false);
-                                    setAssetTypeSearch("");
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      type.id === field.value ? "opacity-100" : "opacity-0"
-                                    )}
-                                  />
-                                  {type.typeName}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          )}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <FormField
               control={form.control}
               name="categoryName"

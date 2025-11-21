@@ -88,4 +88,10 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
      */
     @Query("SELECT COUNT(a) FROM Asset a WHERE a.assetCategory.id = :categoryId")
     long countByAssetCategoryId(@Param("categoryId") Long categoryId);
+
+    /**
+     * Count assets by asset type ID
+     */
+    @Query("SELECT COUNT(a) FROM Asset a WHERE a.assetType.id = :typeId")
+    long countByAssetTypeId(@Param("typeId") Long typeId);
 }

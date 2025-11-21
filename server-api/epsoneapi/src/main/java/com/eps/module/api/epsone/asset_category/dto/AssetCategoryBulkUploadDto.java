@@ -18,12 +18,9 @@ public class AssetCategoryBulkUploadDto {
     @ExcelColumn(value = "Category Code", order = 2, example = "ATM")
     private String categoryCode;
 
-    @ExcelColumn(value = "Asset Type Code", order = 3, example = "ATM")
-    private String assetTypeCode;
-
-    @ExcelColumn(value = "Asset Code Alt", order = 4, example = "ATM")
+    @ExcelColumn(value = "Asset Code Alt", order = 3, example = "ATM")
     private String assetCodeAlt;
 
-    @ExcelColumn(value = "Description", order = 5, example = "Cash Dispensing Machine")
+    @ExcelColumn(value = "Description", order = 4, example = "Cash Dispensing Machine")
     private String description;
 }

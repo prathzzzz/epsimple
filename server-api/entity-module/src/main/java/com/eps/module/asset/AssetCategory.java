@@ -23,10 +23,6 @@ public class AssetCategory extends BaseEntity {
     @Column(name = "category_code", nullable = false, unique = true, length = 20)
     private String categoryCode;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "asset_type_id")
-    private AssetType assetType;
-
     @Column(name = "asset_code_alt", nullable = false, unique = true, length = 10)
     private String assetCodeAlt;
 

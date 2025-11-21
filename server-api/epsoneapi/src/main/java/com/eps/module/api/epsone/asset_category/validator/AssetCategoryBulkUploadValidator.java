@@ -2,7 +2,6 @@ package com.eps.module.api.epsone.asset_category.validator;
 
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryBulkUploadDto;
 import com.eps.module.api.epsone.asset_category.repository.AssetCategoryRepository;
-import com.eps.module.api.epsone.asset_type.repository.AssetTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.validator.BulkRowValidator;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,6 @@ import java.util.List;
 public class AssetCategoryBulkUploadValidator implements BulkRowValidator<AssetCategoryBulkUploadDto> {
 
     private final AssetCategoryRepository assetCategoryRepository;
-    private final AssetTypeRepository assetTypeRepository;
 
     @Override
     public List<BulkUploadErrorDto> validate(AssetCategoryBulkUploadDto dto, int rowNumber) {
@@ -63,26 +61,6 @@ public class AssetCategoryBulkUploadValidator implements BulkRowValidator<AssetC
                         .fieldName("categoryCode")
                         .errorMessage("Category code must contain only uppercase letters, numbers, hyphens, and underscores")
                         .rejectedValue(dto.getCategoryCode())
-                        .build());
-            }
-        }
-
-        // Validate asset type code
-        if (dto.getAssetTypeCode() == null || dto.getAssetTypeCode().trim().isEmpty()) {
-            errors.add(BulkUploadErrorDto.builder()
-                    .rowNumber(rowNumber)
-                    .fieldName("assetTypeCode")
-                    .errorMessage("Asset type code is required")
-                    .rejectedValue(dto.getAssetTypeCode())
-                    .build());
-        } else {
-            // Check if asset type exists
-            if (!assetTypeRepository.existsByTypeCodeIgnoreCase(dto.getAssetTypeCode())) {
-                errors.add(BulkUploadErrorDto.builder()
-                        .rowNumber(rowNumber)
-                        .fieldName("assetTypeCode")
-                        .errorMessage("Asset type with code '" + dto.getAssetTypeCode() + "' does not exist")
-                        .rejectedValue(dto.getAssetTypeCode())
                         .build());
             }
         }

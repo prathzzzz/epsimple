@@ -11,17 +11,13 @@ import java.util.List;
 public interface AssetCategoryMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "assetType", ignore = true)
     AssetCategory toEntity(AssetCategoryRequestDto requestDto);
 
-    @Mapping(source = "assetType.id", target = "assetTypeId")
-    @Mapping(source = "assetType.typeName", target = "assetTypeName")
     AssetCategoryResponseDto toResponseDto(AssetCategory assetCategory);
 
     List<AssetCategoryResponseDto> toResponseDtoList(List<AssetCategory> assetCategories);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "assetType", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(AssetCategoryRequestDto requestDto, @MappingTarget AssetCategory assetCategory);
 }

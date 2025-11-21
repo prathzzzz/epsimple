@@ -8,9 +8,7 @@ import com.eps.module.api.epsone.asset_category.dto.AssetCategoryResponseDto;
 import com.eps.module.api.epsone.asset_category.mapper.AssetCategoryMapper;
 import com.eps.module.api.epsone.asset_category.processor.AssetCategoryBulkUploadProcessor;
 import com.eps.module.api.epsone.asset_category.repository.AssetCategoryRepository;
-import com.eps.module.api.epsone.asset_type.repository.AssetTypeRepository;
 import com.eps.module.asset.AssetCategory;
-import com.eps.module.asset.AssetType;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
@@ -31,7 +29,6 @@ import java.util.stream.Collectors;
 public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategoryBulkUploadDto, AssetCategory> implements AssetCategoryService {
 
     private final AssetCategoryRepository assetCategoryRepository;
-    private final AssetTypeRepository assetTypeRepository;
     private final AssetRepository assetRepository;
     private final AssetCategoryMapper assetCategoryMapper;
     private final AssetCategoryBulkUploadProcessor assetCategoryBulkUploadProcessor;
@@ -40,10 +37,6 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
     @Transactional
     public AssetCategoryResponseDto createAssetCategory(AssetCategoryRequestDto requestDto) {
         log.info("Creating asset category: {}", requestDto.getCategoryName());
-
-        // Validate asset type exists
-        AssetType assetType = assetTypeRepository.findById(requestDto.getAssetTypeId())
-                .orElseThrow(() -> new IllegalArgumentException("Asset type not found with id: " + requestDto.getAssetTypeId()));
 
         // Check for duplicates
         if (assetCategoryRepository.existsByCategoryNameIgnoreCase(requestDto.getCategoryName())) {
@@ -59,7 +52,6 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
         }
 
         AssetCategory assetCategory = assetCategoryMapper.toEntity(requestDto);
-        assetCategory.setAssetType(assetType);
         AssetCategory saved = assetCategoryRepository.save(assetCategory);
 
         log.info("Asset category created successfully with ID: {}", saved.getId());
@@ -108,10 +100,6 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
         AssetCategory existing = assetCategoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Asset category not found with id: " + id));
 
-        // Validate asset type exists
-        AssetType assetType = assetTypeRepository.findById(requestDto.getAssetTypeId())
-                .orElseThrow(() -> new IllegalArgumentException("Asset type not found with id: " + requestDto.getAssetTypeId()));
-
         // Check for duplicates (excluding current record)
         if (assetCategoryRepository.existsByCategoryNameAndIdNot(requestDto.getCategoryName(), id)) {
             throw new IllegalArgumentException("Asset category with name '" + requestDto.getCategoryName() + "' already exists");
@@ -126,7 +114,6 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
         }
 
         assetCategoryMapper.updateEntityFromDto(requestDto, existing);
-        existing.setAssetType(assetType);
         AssetCategory updated = assetCategoryRepository.save(existing);
 
         log.info("Asset category updated successfully with ID: {}", id);
@@ -178,7 +165,6 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
         return entity -> AssetCategoryBulkUploadDto.builder()
                 .categoryName(entity.getCategoryName())
                 .categoryCode(entity.getCategoryCode())
-                .assetTypeCode(entity.getAssetType() != null ? entity.getAssetType().getTypeCode() : null)
                 .assetCodeAlt(entity.getAssetCodeAlt())
                 .description(entity.getDescription())
                 .build();
@@ -194,7 +180,6 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
         if (error.getRowData() != null) {
             builder.categoryName((String) error.getRowData().get("categoryName"))
                     .categoryCode((String) error.getRowData().get("categoryCode"))
-                    .assetTypeCode((String) error.getRowData().get("assetTypeCode"))
                     .assetCodeAlt((String) error.getRowData().get("assetCodeAlt"))
                     .description((String) error.getRowData().get("description"));
         }
