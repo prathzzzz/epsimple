@@ -283,32 +283,39 @@ GET    /api/permissions/my            → Current user's permissions
 
 ---
 
-## 🔄 FEATURE 7: ACTIVITY MANAGEMENT
+## ✅ FEATURE 7: ACTIVITY MANAGEMENT (COMPLETE)
 
-### Backend 🔄
+### Backend ✅
 **Controllers**: 
-- `ActivitiesListController` - `/api/activities-list`
+- `ActivitiesController` - `/api/activities`
 - `ActivityWorkController` - `/api/activity-works`
 
 **Activities List**:
-- [ ] Apply `@RequirePermission("ACTIVITY_LIST:READ")` to GET
-- [ ] Apply `@RequirePermission("ACTIVITY_LIST:CREATE")` to POST
-- [ ] Apply `@RequirePermission("ACTIVITY_LIST:UPDATE")` to PUT
-- [ ] Apply `@RequirePermission("ACTIVITY_LIST:DELETE")` to DELETE
+- [x] Apply `@RequirePermission("ACTIVITY_LIST:READ")` to GET
+- [x] Apply `@RequirePermission("ACTIVITY_LIST:CREATE")` to POST
+- [x] Apply `@RequirePermission("ACTIVITY_LIST:UPDATE")` to PUT
+- [x] Apply `@RequirePermission("ACTIVITY_LIST:DELETE")` to DELETE
+- [x] Apply `@RequirePermission("ACTIVITY_LIST:BULK_UPLOAD")` to bulk upload
+- [x] Apply `@RequirePermission("ACTIVITY_LIST:EXPORT")` to export
 
 **Activity Works**:
-- [ ] Apply `@RequirePermission("ACTIVITY_WORK:READ")` to GET
-- [ ] Apply `@RequirePermission("ACTIVITY_WORK:CREATE")` to POST
-- [ ] Apply `@RequirePermission("ACTIVITY_WORK:UPDATE")` to PUT
-- [ ] Apply `@RequirePermission("ACTIVITY_WORK:DELETE")` to DELETE
-- [ ] Apply `@RequirePermission("ACTIVITY_WORK:ASSIGN")` to assignment endpoints
+- [x] Apply `@RequirePermission("ACTIVITY_WORK:READ")` to GET
+- [x] Apply `@RequirePermission("ACTIVITY_WORK:CREATE")` to POST
+- [x] Apply `@RequirePermission("ACTIVITY_WORK:UPDATE")` to PUT
+- [x] Apply `@RequirePermission("ACTIVITY_WORK:DELETE")` to DELETE
+- [x] Apply `@RequirePermission("ACTIVITY_WORK:BULK_UPLOAD")` to bulk upload
+- [x] Apply `@RequirePermission("ACTIVITY_WORK:EXPORT")` to export
 
-### Frontend 🔄
+### Frontend ✅
 **Location**: `client-app/src/features/activities*/`
 
-- [ ] Apply permission guards to all CRUD operations
-- [ ] Protect assignment functionality
-- [ ] Update list/detail pages
+**Activities List**:
+- [x] Apply permission guards to all CRUD operations
+- [x] Protect bulk upload and export functionality
+
+**Activity Works**:
+- [x] Apply permission guards to all CRUD operations
+- [x] Protect bulk upload and export functionality
 
 ---
 
@@ -417,14 +424,14 @@ Apply permissions per controller:
 | 4. User Management | ✅ | ✅ | 100% |
 | 5. Asset Management | ✅ | ✅ | 100% |
 | 6. Site Management | ✅ | ✅ | 100% |
-| 7. Core Masters Protection | 🔄 | 🔄 | 0% |
-| 8. Activity Management | 🔄 | 🔄 | 0% |
+| 7. Activity Management | ✅ | ✅ | 100% |
+| 8. Core Masters Protection | 🔄 | 🔄 | 0% |
 | 9. Financial Management | 🔄 | 🔄 | 0% |
 | 10. People & Vendor Mgmt | 🔄 | 🔄 | 0% |
 | 11. Asset Placement | 🔄 | 🔄 | 0% |
 | 12. Testing & Validation | 🔄 | 🔄 | 0% |
 
-**Overall Progress**: ~50% (6/12 backends complete, 6/12 frontends complete)
+**Overall Progress**: ~58% (7/12 backends complete, 7/12 frontends complete)
 
 ---
 
@@ -437,14 +444,13 @@ Apply permissions per controller:
 4. ✅ Complete Feature 4 Backend & Frontend (User Management) - **DONE**
 5. ✅ Feature 5 Backend & Frontend (Asset Management) - **DONE**
 6. ✅ Feature 6 Backend & Frontend (Site Management) - **DONE**
-7. 🔄 Feature 7 Backend & Frontend (Core Masters Protection)
+7. ✅ Feature 7 Backend & Frontend (Activity Management) - **DONE**
 8. 🔄 Continue feature-by-feature...
 
-**Current Priority**: Feature 7 - Activity Management
+**Current Priority**: Feature 8 - Core Masters Protection
 
 **Recent Updates**:
-- Completed Asset Management RBAC (Feature 5)
-- Completed Site Management RBAC (Feature 6)
-  - Backend: Added @RequirePermission annotations to all SiteController endpoints
-  - Frontend: Added PermissionGuard components to site-primary-buttons.tsx and site-row-actions.tsx
-- Overall progress: 50% (6/12 features complete)
+- Completed Activity Management RBAC (Feature 7)
+  - Backend: Added @RequirePermission annotations to ActivitiesController and ActivityWorkController
+  - Frontend: Added PermissionGuard components to activities-list and activity-works features
+- Overall progress: 58% (7/12 features complete)

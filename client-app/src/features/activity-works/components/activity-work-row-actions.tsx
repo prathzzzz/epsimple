@@ -3,6 +3,7 @@ import type { Row } from '@tanstack/react-table';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { PermissionGuard } from '@/components/permission-guard';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,14 +63,18 @@ export function ActivityWorkRowActions({ row }: ActivityWorkRowActionsProps) {
               </Badge>
             )}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleEdit}>
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-            <Trash className="mr-2 h-4 w-4" />
-            Delete
-          </DropdownMenuItem>
+          <PermissionGuard permission="ACTIVITY_WORK:UPDATE">
+            <DropdownMenuItem onClick={handleEdit}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+          </PermissionGuard>
+          <PermissionGuard permission="ACTIVITY_WORK:DELETE">
+            <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+              <Trash className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </PermissionGuard>
         </DropdownMenuContent>
       </DropdownMenu>
 

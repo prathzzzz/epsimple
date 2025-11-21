@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.activity_work.controller;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkRequestDto;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkResponseDto;
 import com.eps.module.api.epsone.activity_work.service.ActivityWorkService;
+import com.eps.module.auth.rbac.annotation.RequirePermission;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
 import com.eps.module.common.response.ApiResponse;
@@ -32,18 +33,21 @@ public class ActivityWorkController {
     // ========== Bulk Upload Endpoints ==========
 
     @PostMapping(value = "/bulk-upload", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RequirePermission("ACTIVITY_WORK:BULK_UPLOAD")
     public SseEmitter bulkUploadActivityWorks(@RequestParam("file") MultipartFile file) throws Exception {
         log.info("POST /api/activity-works/bulk-upload - Starting bulk upload");
         return bulkUploadControllerHelper.bulkUpload(file, activityWorkService);
     }
 
     @GetMapping("/bulk-upload/template")
+    @RequirePermission("ACTIVITY_WORK:READ")
     public ResponseEntity<byte[]> downloadTemplate() throws Exception {
         log.info("GET /api/activity-works/bulk-upload/template - Downloading template");
         return bulkUploadControllerHelper.downloadTemplate(activityWorkService);
     }
 
     @PostMapping("/bulk-upload/errors")
+    @RequirePermission("ACTIVITY_WORK:READ")
     public ResponseEntity<byte[]> downloadErrorReport(@RequestBody BulkUploadProgressDto progressData) throws Exception {
         log.info("POST /api/activity-works/bulk-upload/errors - Downloading error report");
         return bulkUploadControllerHelper.exportErrors(progressData, activityWorkService);
@@ -52,6 +56,7 @@ public class ActivityWorkController {
     // ========== CRUD Endpoints ==========
 
     @PostMapping
+    @RequirePermission("ACTIVITY_WORK:CREATE")
     public ResponseEntity<ApiResponse<ActivityWorkResponseDto>> createActivityWork(
             @Valid @RequestBody ActivityWorkRequestDto requestDto) {
         log.info("POST /api/activity-works - Creating activity work");
@@ -60,6 +65,7 @@ public class ActivityWorkController {
     }
 
     @GetMapping
+    @RequirePermission("ACTIVITY_WORK:READ")
     public ResponseEntity<ApiResponse<Page<ActivityWorkResponseDto>>> getAllActivityWorks(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -71,6 +77,7 @@ public class ActivityWorkController {
     }
 
     @GetMapping("/search")
+    @RequirePermission("ACTIVITY_WORK:READ")
     public ResponseEntity<ApiResponse<Page<ActivityWorkResponseDto>>> searchActivityWorks(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
@@ -83,6 +90,7 @@ public class ActivityWorkController {
     }
 
     @GetMapping("/list")
+    @RequirePermission("ACTIVITY_WORK:READ")
     public ResponseEntity<ApiResponse<List<ActivityWorkResponseDto>>> getAllActivityWorksList() {
         log.info("GET /api/activity-works/list - Fetching all activity works as list");
         List<ActivityWorkResponseDto> activityWorks = activityWorkService.getAllActivityWorksList();
@@ -92,6 +100,7 @@ public class ActivityWorkController {
     // ========== Export Endpoint (must be before /{id}) ==========
 
     @GetMapping("/export")
+    @RequirePermission("ACTIVITY_WORK:EXPORT")
     public ResponseEntity<byte[]> exportData() throws Exception {
         log.info("GET /api/activity-works/export - Exporting all activity works");
         return bulkUploadControllerHelper.export(activityWorkService);
@@ -100,6 +109,7 @@ public class ActivityWorkController {
     // ========== CRUD Endpoints ==========
 
     @GetMapping("/{id}")
+    @RequirePermission("ACTIVITY_WORK:READ")
     public ResponseEntity<ApiResponse<ActivityWorkResponseDto>> getActivityWorkById(@PathVariable Long id) {
         log.info("GET /api/activity-works/{} - Fetching activity work", id);
         ActivityWorkResponseDto responseDto = activityWorkService.getActivityWorkById(id);
@@ -107,6 +117,7 @@ public class ActivityWorkController {
     }
 
     @PutMapping("/{id}")
+    @RequirePermission("ACTIVITY_WORK:UPDATE")
     public ResponseEntity<ApiResponse<ActivityWorkResponseDto>> updateActivityWork(
             @PathVariable Long id,
             @Valid @RequestBody ActivityWorkRequestDto requestDto) {
@@ -116,6 +127,7 @@ public class ActivityWorkController {
     }
 
     @DeleteMapping("/{id}")
+    @RequirePermission("ACTIVITY_WORK:DELETE")
     public ResponseEntity<ApiResponse<Void>> deleteActivityWork(@PathVariable Long id) {
         log.info("DELETE /api/activity-works/{} - Deleting activity work", id);
         activityWorkService.deleteActivityWork(id);
