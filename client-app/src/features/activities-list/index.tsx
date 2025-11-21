@@ -10,7 +10,7 @@ import { activitiesListColumns } from "./components/activities-list-columns";
 import { ActivitiesListDialogs } from "./components/activities-list-dialogs";
 import { ActivitiesListPrimaryButtons } from "./components/activities-list-primary-buttons";
 
-export default function ActivitiesList() {
+export function ActivitiesList() {
   return (
     <ActivitiesListProvider>
       <Header fixed>
