@@ -18,9 +18,9 @@ export function RolesProvider({ children }: { children: React.ReactNode }) {
   const [currentRow, setCurrentRow] = useState<RoleDTO | null>(null)
 
   return (
-    <RolesContext value={{ open, setOpen, currentRow, setCurrentRow }}>
+    <RolesContext.Provider value={{ open, setOpen, currentRow, setCurrentRow }}>
       {children}
-    </RolesContext>
+    </RolesContext.Provider>
   )
 }
 

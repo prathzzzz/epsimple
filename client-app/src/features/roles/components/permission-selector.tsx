@@ -215,20 +215,21 @@ export function PermissionSelector({
                 {isExpanded && (
                   <div className="p-2 space-y-0.5">
                     {permissions.map((permission) => (
-                      <div
+                      <label
                         key={permission.id}
+                        htmlFor={`permission-${permission.id}`}
                         className={cn(
                           "flex items-start gap-3 rounded-md p-2 transition-colors",
                           "hover:bg-accent cursor-pointer",
                           value.includes(permission.id) && "bg-accent/50"
                         )}
-                        onClick={() => togglePermission(permission.id)}
                       >
                         <Checkbox
                           id={`permission-${permission.id}`}
                           checked={value.includes(permission.id)}
+                          onCheckedChange={() => togglePermission(permission.id)}
                           disabled={disabled}
-                          className="mt-0.5 pointer-events-none"
+                          className="mt-0.5"
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
@@ -242,7 +243,7 @@ export function PermissionSelector({
                             </p>
                           )}
                         </div>
-                      </div>
+                      </label>
                     ))}
                   </div>
                 )}
