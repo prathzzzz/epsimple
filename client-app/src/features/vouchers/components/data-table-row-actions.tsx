@@ -1,5 +1,6 @@
 import type { Row } from "@tanstack/react-table";
-import { MoreHorizontal, Pen, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash } from "lucide-react";
+import { PermissionGuard } from "@/components/permission-guard";
 
 import { Button } from "@/components/ui/button";
 import {

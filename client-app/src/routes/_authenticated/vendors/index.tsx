@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Vendors } from '@/features/vendors'
 import VendorsPage from '@/features/vendors'
 import { requirePermission } from '@/lib/route-guards'
 
