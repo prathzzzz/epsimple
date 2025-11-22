@@ -80,7 +80,10 @@ export function CommandMenu() {
   return (
     <CommandDialog modal open={open} onOpenChange={setOpen}>
       <CommandInput placeholder='Type a command or search...' />
-      <CommandList className='max-h-[300px]'>
+      <CommandList 
+        className='max-h-[300px]'
+        style={{ scrollBehavior: 'auto' }}
+      >
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading='Navigation'>
           {navItems.map((item) => (
