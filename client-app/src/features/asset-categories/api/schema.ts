@@ -19,7 +19,7 @@ export const assetCategoryFormSchema = z.object({
     .string()
     .min(1, "Category code is required")
     .max(20, "Category code cannot exceed 20 characters")
-    .regex(/^[A-Z0-9_-]+$/, "Category code must be uppercase with no spaces"),
+    .regex(/^[A-Z0-9_&-]+$/, "Category code must be uppercase with no spaces"),
   assetCodeAlt: z
     .string()
     .min(1, "Asset code alt is required")

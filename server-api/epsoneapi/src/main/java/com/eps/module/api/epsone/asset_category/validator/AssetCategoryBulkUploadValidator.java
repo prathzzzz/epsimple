@@ -54,12 +54,12 @@ public class AssetCategoryBulkUploadValidator implements BulkRowValidator<AssetC
                         .rejectedValue(dto.getCategoryCode())
                         .build());
             }
-            // Validate format: uppercase alphanumeric with optional hyphens/underscores
-            if (!dto.getCategoryCode().matches("^[A-Z0-9_-]+$")) {
+            // Validate format: uppercase alphanumeric with optional hyphens/underscores/ampersand
+            if (!dto.getCategoryCode().matches("^[A-Z0-9_&-]+$")) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("categoryCode")
-                        .errorMessage("Category code must contain only uppercase letters, numbers, hyphens, and underscores")
+                        .errorMessage("Category code must contain only uppercase letters, numbers, ampersand, hyphens, and underscores")
                         .rejectedValue(dto.getCategoryCode())
                         .build());
             }

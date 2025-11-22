@@ -21,7 +21,7 @@ public class AssetCategoryRequestDto {
 
     @NotBlank(message = "Category code is required")
     @Size(max = 20, message = "Category code must not exceed 20 characters")
-    @Pattern(regexp = "^[A-Z0-9_-]+$", message = "Category code must contain only uppercase letters, numbers, hyphens and underscores")
+    @Pattern(regexp = "^[A-Z0-9_&-]+$", message = "Category code must contain only uppercase letters, numbers, ampersand, hyphens and underscores")
     private String categoryCode;
 
     @NotBlank(message = "Asset code alt is required")

@@ -17,17 +17,9 @@ public class SiteCategoryRequestDto {
     private String categoryName;
 
     @Size(max = 20, message = "Category code cannot exceed 20 characters")
+    @Pattern(regexp = "^[A-Z0-9_-]+$", message = "Category code must contain only uppercase letters, numbers, hyphens and underscores")
     private String categoryCode;
 
     @Size(max = 5000, message = "Description cannot exceed 5000 characters")
     private String description;
-    
-    // Automatically uppercase and remove hyphens from category code
-    public void setCategoryCode(String categoryCode) {
-        if (categoryCode != null) {
-            this.categoryCode = categoryCode.toUpperCase().trim().replace("-", "");
-        } else {
-            this.categoryCode = null;
-        }
-    }
 }

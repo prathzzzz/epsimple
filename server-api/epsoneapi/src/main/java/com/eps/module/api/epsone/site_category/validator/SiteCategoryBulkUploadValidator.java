@@ -39,13 +39,22 @@ public class SiteCategoryBulkUploadValidator implements BulkRowValidator<SiteCat
                     .build());
         }
 
-        // Validate Category Code (optional but with length limit)
+        // Validate Category Code (optional but with length limit and format)
         if (dto.getCategoryCode() != null && !dto.getCategoryCode().isBlank()) {
             if (dto.getCategoryCode().length() > 20) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Category Code")
                         .errorMessage("Category Code cannot exceed 20 characters")
+                        .rejectedValue(dto.getCategoryCode())
+                        .build());
+            }
+            // Validate format: uppercase alphanumeric with optional hyphens/underscores
+            if (!dto.getCategoryCode().matches("^[A-Z0-9_-]+$")) {
+                errors.add(BulkUploadErrorDto.builder()
+                        .rowNumber(rowNumber)
+                        .fieldName("Category Code")
+                        .errorMessage("Category Code must contain only uppercase letters, numbers, hyphens, and underscores")
                         .rejectedValue(dto.getCategoryCode())
                         .build());
             }

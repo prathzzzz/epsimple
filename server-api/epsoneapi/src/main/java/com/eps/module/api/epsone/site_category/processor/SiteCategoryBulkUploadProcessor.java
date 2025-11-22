@@ -33,7 +33,7 @@ public class SiteCategoryBulkUploadProcessor extends BulkUploadProcessor<SiteCat
         return SiteCategory.builder()
                 .categoryName(dto.getCategoryName() != null ? dto.getCategoryName().trim() : null)
                 .categoryCode(dto.getCategoryCode() != null 
-                        ? dto.getCategoryCode().trim().toUpperCase().replace("-", "") 
+                        ? dto.getCategoryCode().trim().toUpperCase()
                         : null)
                 .description(dto.getDescription() != null && !dto.getDescription().isBlank() 
                         ? dto.getDescription().trim() 

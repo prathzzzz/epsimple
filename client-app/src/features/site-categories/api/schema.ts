@@ -9,7 +9,7 @@ export const siteCategoryFormSchema = z.object({
     .string()
     .max(20, "Category code cannot exceed 20 characters")
     .regex(
-      /^[A-Z0-9_-]*$/,
+      /^[A-Z0-9_-]+$/,
       "Category code must be uppercase alphanumeric with hyphens/underscores"
     )
     .optional()
