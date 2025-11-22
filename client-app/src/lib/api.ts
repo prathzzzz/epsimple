@@ -36,6 +36,13 @@ api.interceptors.response.use(
         return Promise.reject(error)
       }
 
+      // Ignore 401 for change-password endpoint - it means incorrect current password
+      if (error.config?.url?.includes('/auth/change-password')) {
+        const customError = new Error(backendMessage || 'Current password is incorrect')
+        Object.assign(customError, { response: error.response, config: error.config })
+        return Promise.reject(customError)
+      }
+
       // Unauthorized - redirect to login
       // Only redirect if we're not already on login/auth pages
       const currentPath = window.location.pathname

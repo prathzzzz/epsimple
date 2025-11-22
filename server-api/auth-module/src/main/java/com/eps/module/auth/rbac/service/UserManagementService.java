@@ -89,8 +89,9 @@ public class UserManagementService {
 
         // Send welcome email with credentials
         try {
+            log.info("Triggering welcome email for user: {} with temporary password", user.getEmail());
             emailService.sendWelcomeEmail(user.getEmail(), user.getName(), temporaryPassword);
-            log.info("Welcome email sent to: {}", user.getEmail());
+            log.info("Welcome email trigger completed for: {}", user.getEmail());
         } catch (Exception e) {
             log.error("Failed to send welcome email to: {}", user.getEmail(), e);
             // Don't fail user creation if email fails

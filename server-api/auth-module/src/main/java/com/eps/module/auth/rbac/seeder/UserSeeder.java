@@ -26,7 +26,7 @@ public class UserSeeder extends AbstractSeeder {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${app.seeder.default-password:password}")
+    @Value("${app.seeder.default-password}")
     private String defaultPassword;
 
     @Value("${app.seeder.admin-email}")

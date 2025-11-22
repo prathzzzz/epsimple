@@ -57,7 +57,9 @@ public class EmailService {
 
     @Async
     public void sendWelcomeEmail(String toEmail, String userName, String temporaryPassword) {
+        log.info("[ASYNC] Starting to send welcome email to: {}", toEmail);
         try {
+            log.debug("Creating MIME message for welcome email to: {}", toEmail);
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
@@ -72,8 +74,9 @@ public class EmailService {
                     .replace("{{loginUrl}}", "http://epsone.electronicpay.in:9090/sign-in");
             helper.setText(htmlContent, true);
 
+            log.info("Sending welcome email via mail sender to: {}", toEmail);
             mailSender.send(message);
-            log.info("Welcome email sent successfully to: {}", toEmail);
+            log.info("[SUCCESS] Welcome email sent successfully to: {}", toEmail);
         } catch (MessagingException e) {
             log.error("Failed to send welcome email to: {}", toEmail, e);
             // Don't throw - user creation should succeed even if email fails
@@ -90,7 +93,10 @@ public class EmailService {
     private String loadEmailTemplate(String templateName) {
         try {
             ClassPathResource resource = new ClassPathResource("email-templates/" + templateName);
-            return Files.readString(resource.getFile().toPath(), StandardCharsets.UTF_8);
+            // Use InputStream instead of getFile() to work in JAR files
+            try (var inputStream = resource.getInputStream()) {
+                return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            }
         } catch (IOException e) {
             log.error("Failed to load email template: {}", templateName, e);
             throw new RuntimeException("Failed to load email template: " + templateName, e);

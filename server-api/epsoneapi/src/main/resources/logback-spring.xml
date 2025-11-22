@@ -143,35 +143,6 @@
         <appender-ref ref="ERROR_FILE"/>
     </appender>
     
-    <!-- Logger for Auth Module -->
-    <logger name="com.eps.module.auth" level="INFO" additivity="false">
-        <appender-ref ref="ASYNC_AUTH"/>
-        <appender-ref ref="ASYNC_ERROR"/>
-        <appender-ref ref="CONSOLE"/>
-    </logger>
-    
-    <!-- Logger for Crypto Module -->
-    <logger name="com.eps.module.crypto" level="INFO" additivity="false">
-        <appender-ref ref="ASYNC_CRYPTO"/>
-        <appender-ref ref="ASYNC_ERROR"/>
-        <appender-ref ref="CONSOLE"/>
-    </logger>
-    
-    <!-- Logger for Database/Hibernate -->
-    <logger name="org.hibernate.SQL" level="INFO" additivity="false">
-        <appender-ref ref="ASYNC_DATABASE"/>
-        <appender-ref ref="CONSOLE"/>
-    </logger>
-    
-    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="INFO" additivity="false">
-        <appender-ref ref="ASYNC_DATABASE"/>
-    </logger>
-    
-    <logger name="org.springframework.jdbc" level="INFO" additivity="false">
-        <appender-ref ref="ASYNC_DATABASE"/>
-        <appender-ref ref="CONSOLE"/>
-    </logger>
-    
     <!-- Disable repository scanning logs -->
     <logger name="org.springframework.data.repository.config.RepositoryConfigurationDelegate" level="ERROR"/>
     <logger name="org.springframework.data.repository" level="WARN"/>
@@ -192,21 +163,25 @@
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="ASYNC_APPLICATION"/>
-            <appender-ref ref="ASYNC_ERROR"/>
         </root>
     </springProfile>
     
     <!-- Prod Profile Configuration -->
     <springProfile name="prod">
+        <!-- Application modules - INFO level only -->
         <logger name="com.eps.module" level="INFO"/>
+        <logger name="com.eps.module.auth" level="INFO"/>
         <logger name="com.eps.module.crypto" level="INFO"/>
+        
+        <!-- Frameworks - WARN level to reduce noise -->
         <logger name="org.hibernate.SQL" level="WARN"/>
         <logger name="org.springframework" level="WARN"/>
         <logger name="org.springframework.security" level="WARN"/>
+        <logger name="org.springframework.web" level="WARN"/>
         
         <root level="WARN">
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="ASYNC_APPLICATION"/>
-            <appender-ref ref="ASYNC_ERROR"/>
         </root>
     </springProfile>
     
@@ -217,7 +192,6 @@
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="ASYNC_APPLICATION"/>
-            <appender-ref ref="ASYNC_ERROR"/>
         </root>
     </springProfile>
     
