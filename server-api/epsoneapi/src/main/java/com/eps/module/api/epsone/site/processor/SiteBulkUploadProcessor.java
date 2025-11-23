@@ -4,6 +4,7 @@ import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTyp
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
 import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.site.constant.SiteErrorMessages;
 import com.eps.module.api.epsone.site.dto.SiteBulkUploadDto;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
 import com.eps.module.api.epsone.site_category.repository.SiteCategoryRepository;
@@ -98,11 +99,11 @@ public class SiteBulkUploadProcessor extends BulkUploadProcessor<SiteBulkUploadD
                     if (generatedCode == null || generatedCode.length() < 5 || generatedCode.length() > 50) {
                         log.error("Generated site code '{}' is invalid (must be 5-50 characters). Project: {}, State: {}", 
                                 generatedCode, project.getProjectCode(), location.getCity().getState().getStateCode());
-                        throw new IllegalStateException("Generated site code is too short or too long");
+                        throw new IllegalStateException(SiteErrorMessages.GENERATED_SITE_CODE_INVALID_LENGTH);
                     } else if (!generatedCode.matches("^[A-Z0-9]+$")) {
                         log.error("Generated site code '{}' contains invalid characters (must be uppercase alphanumeric). Project: {}, State: {}", 
                                 generatedCode, project.getProjectCode(), location.getCity().getState().getStateCode());
-                        throw new IllegalStateException("Generated site code contains invalid characters");
+                        throw new IllegalStateException(SiteErrorMessages.GENERATED_SITE_CODE_INVALID_CHARS);
                     } else {
                         builder.siteCode(generatedCode);
                         log.info("Auto-generated site code: {} for project: {}, state: {}", 
@@ -111,7 +112,7 @@ public class SiteBulkUploadProcessor extends BulkUploadProcessor<SiteBulkUploadD
                 } catch (Exception e) {
                     log.error("Failed to auto-generate site code for project: {}, location: {}", 
                             dto.getProjectCode(), dto.getLocationName(), e);
-                    throw new IllegalStateException("Cannot auto-generate site code: " + e.getMessage(), e);
+                    throw new IllegalStateException(SiteErrorMessages.AUTO_GENERATE_SITE_CODE_ERROR + e.getMessage(), e);
                 }
             } else {
                 log.error("Cannot auto-generate site code - missing project or location data. Project: {}, Location: {}, City: {}, State: {}", 
@@ -119,7 +120,7 @@ public class SiteBulkUploadProcessor extends BulkUploadProcessor<SiteBulkUploadD
                         location != null ? location.getLocationName() : "null",
                         (location != null && location.getCity() != null) ? location.getCity().getCityName() : "null",
                         (location != null && location.getCity() != null && location.getCity().getState() != null) ? location.getCity().getState().getStateCode() : "null");
-                throw new IllegalStateException("Cannot auto-generate site code - missing required project or location data");
+                throw new IllegalStateException(SiteErrorMessages.AUTO_GENERATE_SITE_CODE_MISSING_DATA);
             }
         } else {
             // User provided a site code - use it as-is (should have been validated already)
@@ -129,7 +130,7 @@ public class SiteBulkUploadProcessor extends BulkUploadProcessor<SiteBulkUploadD
             // Double-check for duplicates (safety check - should never happen if validator works correctly)
             if (siteRepository.existsBySiteCode(trimmedCode)) {
                 log.error("CRITICAL: Duplicate site code '{}' reached processor despite validation. This should not happen!", trimmedCode);
-                throw new IllegalStateException("Duplicate site code: " + trimmedCode + " - This row should have been skipped by validator");
+                throw new IllegalStateException(SiteErrorMessages.DUPLICATE_SITE_CODE + trimmedCode + SiteErrorMessages.DUPLICATE_SITE_CODE_SUFFIX);
             }
             
             builder.siteCode(trimmedCode);

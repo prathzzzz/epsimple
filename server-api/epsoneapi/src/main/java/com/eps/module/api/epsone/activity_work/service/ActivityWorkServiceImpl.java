@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.activity_work.service;
 import com.eps.module.activity.Activities;
 import com.eps.module.activity.ActivityWork;
 import com.eps.module.api.epsone.activities.repository.ActivitiesRepository;
+import com.eps.module.api.epsone.activity_work.constant.ActivityWorkErrorMessages;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkBulkUploadDto;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkErrorReportDto;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkRequestDto;
@@ -16,6 +17,7 @@ import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.status.GenericStatusType;
 import com.eps.module.vendor.Vendor;
@@ -126,24 +128,24 @@ public class ActivityWorkServiceImpl extends BaseBulkUploadService<ActivityWorkB
         // Validate activity exists
         Activities activities = activitiesRepository.findById(requestDto.getActivitiesId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Activity not found with id: " + requestDto.getActivitiesId()));
+                        ActivityWorkErrorMessages.ACTIVITIES_NOT_FOUND_ID + requestDto.getActivitiesId()));
 
         // Validate vendor exists
         Vendor vendor = vendorRepository.findById(requestDto.getVendorId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Vendor not found with id: " + requestDto.getVendorId()));
+                        ActivityWorkErrorMessages.VENDOR_NOT_FOUND_ID + requestDto.getVendorId()));
 
         // Validate status type exists
         GenericStatusType statusType = genericStatusTypeRepository.findById(requestDto.getStatusTypeId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Status type not found with id: " + requestDto.getStatusTypeId()));
+                        ActivityWorkErrorMessages.STATUS_TYPE_NOT_FOUND_ID + requestDto.getStatusTypeId()));
 
         ActivityWork activityWork = activityWorkMapper.toEntity(requestDto, activities, vendor, statusType);
         ActivityWork savedActivityWork = activityWorkRepository.save(activityWork);
 
         // Fetch with details for response
         ActivityWork activityWorkWithDetails = activityWorkRepository.findByIdWithDetails(savedActivityWork.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Activity work not found after save"));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivityWorkErrorMessages.ACTIVITY_WORK_NOT_FOUND_AFTER_SAVE));
 
         log.info("Activity work created successfully with ID: {}", savedActivityWork.getId());
         return activityWorkMapper.toDto(activityWorkWithDetails);
@@ -190,7 +192,7 @@ public class ActivityWorkServiceImpl extends BaseBulkUploadService<ActivityWorkB
     public ActivityWorkResponseDto getActivityWorkById(Long id) {
         log.info("Fetching activity work with ID: {}", id);
         ActivityWork activityWork = activityWorkRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Activity work not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivityWorkErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + id));
         return activityWorkMapper.toDto(activityWork);
     }
 
@@ -200,29 +202,29 @@ public class ActivityWorkServiceImpl extends BaseBulkUploadService<ActivityWorkB
         log.info("Updating activity work with ID: {}", id);
         
         ActivityWork activityWork = activityWorkRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Activity work not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivityWorkErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + id));
 
         // Validate activity exists
         Activities activities = activitiesRepository.findById(requestDto.getActivitiesId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Activity not found with id: " + requestDto.getActivitiesId()));
+                        ActivityWorkErrorMessages.ACTIVITIES_NOT_FOUND_ID + requestDto.getActivitiesId()));
 
         // Validate vendor exists
         Vendor vendor = vendorRepository.findById(requestDto.getVendorId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Vendor not found with id: " + requestDto.getVendorId()));
+                        ActivityWorkErrorMessages.VENDOR_NOT_FOUND_ID + requestDto.getVendorId()));
 
         // Validate status type exists
         GenericStatusType statusType = genericStatusTypeRepository.findById(requestDto.getStatusTypeId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Status type not found with id: " + requestDto.getStatusTypeId()));
+                        ActivityWorkErrorMessages.STATUS_TYPE_NOT_FOUND_ID + requestDto.getStatusTypeId()));
 
         activityWorkMapper.updateEntity(activityWork, requestDto, activities, vendor, statusType);
         ActivityWork updatedActivityWork = activityWorkRepository.save(activityWork);
 
         // Fetch with details for response
         ActivityWork activityWorkWithDetails = activityWorkRepository.findByIdWithDetails(updatedActivityWork.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Activity work not found after update"));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivityWorkErrorMessages.ACTIVITY_WORK_NOT_FOUND_AFTER_UPDATE));
 
         log.info("Activity work updated successfully with ID: {}", id);
         return activityWorkMapper.toDto(activityWorkWithDetails);
@@ -234,12 +236,12 @@ public class ActivityWorkServiceImpl extends BaseBulkUploadService<ActivityWorkB
         log.info("Deleting activity work with ID: {}", id);
         
         ActivityWork activityWork = activityWorkRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Activity work not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivityWorkErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + id));
 
         // Check if activity work has remarks
         long remarksCount = activityWorkRemarksRepository.countByActivityWorkId(id);
         if (remarksCount > 0) {
-            throw new IllegalStateException("Cannot delete activity work. It has " + remarksCount + " remark(s) associated with it.");
+            throw new ConflictException(String.format(ActivityWorkErrorMessages.CANNOT_DELETE_ACTIVITY_WORK_REMARKS, remarksCount));
         }
 
         activityWorkRepository.delete(activityWork);

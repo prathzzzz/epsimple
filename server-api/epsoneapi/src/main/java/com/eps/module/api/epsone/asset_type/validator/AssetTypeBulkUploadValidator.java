@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.asset_type.validator;
 
+import com.eps.module.api.epsone.asset_type.constant.AssetTypeErrorMessages;
 import com.eps.module.api.epsone.asset_type.dto.AssetTypeBulkUploadDto;
 import com.eps.module.api.epsone.asset_type.repository.AssetTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -27,14 +28,14 @@ public class AssetTypeBulkUploadValidator implements BulkRowValidator<AssetTypeB
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Name")
-                    .errorMessage("Type name is required")
+                    .errorMessage(AssetTypeErrorMessages.TYPE_NAME_REQUIRED)
                     .rejectedValue(dto.getTypeName())
                     .build());
         } else if (dto.getTypeName().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Name")
-                    .errorMessage("Type name cannot exceed 100 characters")
+                    .errorMessage(AssetTypeErrorMessages.TYPE_NAME_MAX_LENGTH)
                     .rejectedValue(dto.getTypeName())
                     .build());
         }
@@ -44,21 +45,21 @@ public class AssetTypeBulkUploadValidator implements BulkRowValidator<AssetTypeB
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Code")
-                    .errorMessage("Type code is required")
+                    .errorMessage(AssetTypeErrorMessages.TYPE_CODE_REQUIRED)
                     .rejectedValue(dto.getTypeCode())
                     .build());
         } else if (dto.getTypeCode().length() > 20) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Code")
-                    .errorMessage("Type code cannot exceed 20 characters")
+                    .errorMessage(AssetTypeErrorMessages.TYPE_CODE_MAX_LENGTH)
                     .rejectedValue(dto.getTypeCode())
                     .build());
         } else if (!dto.getTypeCode().matches("^[A-Z0-9_-]+$")) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Code")
-                    .errorMessage("Type code must be uppercase alphanumeric with hyphens/underscores")
+                    .errorMessage(AssetTypeErrorMessages.TYPE_CODE_INVALID_FORMAT)
                     .rejectedValue(dto.getTypeCode())
                     .build());
         }
@@ -68,7 +69,7 @@ public class AssetTypeBulkUploadValidator implements BulkRowValidator<AssetTypeB
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Description")
-                    .errorMessage("Description cannot exceed 5000 characters")
+                    .errorMessage(AssetTypeErrorMessages.DESCRIPTION_MAX_LENGTH)
                     .rejectedValue(dto.getDescription())
                     .build());
         }

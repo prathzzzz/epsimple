@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.generic_status_type.service;
 
+import com.eps.module.api.epsone.generic_status_type.constant.GenericStatusTypeErrorMessages;
 import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeBulkUploadDto;
 import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeErrorReportDto;
 import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeRequestDto;
@@ -11,6 +12,8 @@ import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.status.GenericStatusType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,12 +42,12 @@ public class GenericStatusTypeServiceImpl extends BaseBulkUploadService<GenericS
         log.info("Creating new generic status type: {}", requestDto.getStatusName());
 
         if (genericStatusTypeRepository.existsByStatusNameIgnoreCase(requestDto.getStatusName())) {
-            throw new IllegalArgumentException("Status type with name '" + requestDto.getStatusName() + "' already exists");
+            throw new ConflictException(String.format(GenericStatusTypeErrorMessages.STATUS_NAME_EXISTS, requestDto.getStatusName()));
         }
 
         if (requestDto.getStatusCode() != null && !requestDto.getStatusCode().isEmpty() &&
             genericStatusTypeRepository.existsByStatusCode(requestDto.getStatusCode())) {
-            throw new IllegalArgumentException("Status type with code '" + requestDto.getStatusCode() + "' already exists");
+            throw new ConflictException(String.format(GenericStatusTypeErrorMessages.STATUS_CODE_EXISTS, requestDto.getStatusCode()));
         }
 
         GenericStatusType genericStatusType = genericStatusTypeMapper.toEntity(requestDto);
@@ -85,7 +88,7 @@ public class GenericStatusTypeServiceImpl extends BaseBulkUploadService<GenericS
     public GenericStatusTypeResponseDto getGenericStatusTypeById(Long id) {
         log.info("Fetching generic status type by ID: {}", id);
         GenericStatusType genericStatusType = genericStatusTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Generic status type not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(GenericStatusTypeErrorMessages.STATUS_TYPE_NOT_FOUND_ID + id));
         return genericStatusTypeMapper.toResponseDto(genericStatusType);
     }
 
@@ -95,15 +98,15 @@ public class GenericStatusTypeServiceImpl extends BaseBulkUploadService<GenericS
         log.info("Updating generic status type with ID: {}", id);
 
         GenericStatusType genericStatusType = genericStatusTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Generic status type not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(GenericStatusTypeErrorMessages.STATUS_TYPE_NOT_FOUND_ID + id));
 
         if (genericStatusTypeRepository.existsByStatusNameAndIdNot(requestDto.getStatusName(), id)) {
-            throw new IllegalArgumentException("Status type with name '" + requestDto.getStatusName() + "' already exists");
+            throw new ConflictException(String.format(GenericStatusTypeErrorMessages.STATUS_NAME_EXISTS, requestDto.getStatusName()));
         }
 
         if (requestDto.getStatusCode() != null && !requestDto.getStatusCode().isEmpty() &&
             genericStatusTypeRepository.existsByStatusCodeAndIdNot(requestDto.getStatusCode(), id)) {
-            throw new IllegalArgumentException("Status type with code '" + requestDto.getStatusCode() + "' already exists");
+            throw new ConflictException(String.format(GenericStatusTypeErrorMessages.STATUS_CODE_EXISTS, requestDto.getStatusCode()));
         }
 
         genericStatusTypeMapper.updateEntityFromDto(requestDto, genericStatusType);
@@ -119,12 +122,12 @@ public class GenericStatusTypeServiceImpl extends BaseBulkUploadService<GenericS
         log.info("Deleting generic status type with ID: {}", id);
 
         GenericStatusType genericStatusType = genericStatusTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Generic status type not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(GenericStatusTypeErrorMessages.STATUS_TYPE_NOT_FOUND_ID + id));
 
         // Check for dependencies - activity work orders
         long activityWorkCount = activityWorkRepository.countByStatusTypeId(id);
         if (activityWorkCount > 0) {
-            throw new IllegalStateException("Cannot delete status type as it has " + activityWorkCount + " associated activity work orders");
+            throw new ConflictException(String.format(GenericStatusTypeErrorMessages.CANNOT_DELETE_STATUS_ACTIVITY_WORK, activityWorkCount));
         }
 
         genericStatusTypeRepository.deleteById(id);

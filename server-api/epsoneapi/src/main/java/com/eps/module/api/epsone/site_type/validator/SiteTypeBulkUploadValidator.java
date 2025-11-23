@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.site_type.validator;
 
+import com.eps.module.api.epsone.site_type.constant.SiteTypeErrorMessages;
 import com.eps.module.api.epsone.site_type.dto.SiteTypeBulkUploadDto;
 import com.eps.module.api.epsone.site_type.repository.SiteTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -27,14 +28,14 @@ public class SiteTypeBulkUploadValidator implements BulkRowValidator<SiteTypeBul
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Name")
-                    .errorMessage("Type name is required")
+                    .errorMessage(SiteTypeErrorMessages.SITE_TYPE_NAME_REQUIRED)
                     .rejectedValue(dto.getTypeName())
                     .build());
         } else if (dto.getTypeName().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Name")
-                    .errorMessage("Type name cannot exceed 100 characters")
+                    .errorMessage(SiteTypeErrorMessages.SITE_TYPE_NAME_MAX_LENGTH)
                     .rejectedValue(dto.getTypeName())
                     .build());
         }
@@ -44,7 +45,7 @@ public class SiteTypeBulkUploadValidator implements BulkRowValidator<SiteTypeBul
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Description")
-                    .errorMessage("Description cannot exceed 5000 characters")
+                    .errorMessage(SiteTypeErrorMessages.DESCRIPTION_MAX_LENGTH)
                     .rejectedValue(dto.getDescription())
                     .build());
         }

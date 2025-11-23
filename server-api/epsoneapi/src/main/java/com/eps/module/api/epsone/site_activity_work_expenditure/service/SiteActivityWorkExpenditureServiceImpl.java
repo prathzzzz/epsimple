@@ -5,6 +5,7 @@ import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository
 import com.eps.module.api.epsone.expenditures_invoice.repository.ExpendituresInvoiceRepository;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
 import com.eps.module.api.epsone.site_activity_work_expenditure.bulk.SiteActivityWorkExpenditureBulkUploadProcessor;
+import com.eps.module.api.epsone.site_activity_work_expenditure.constant.SiteActivityWorkExpenditureErrorMessages;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureBulkUploadDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureErrorReportDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureRequestDto;
@@ -14,6 +15,7 @@ import com.eps.module.api.epsone.site_activity_work_expenditure.repository.SiteA
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.BadRequestException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.ExpendituresInvoice;
 import com.eps.module.site.Site;
@@ -135,23 +137,22 @@ public class SiteActivityWorkExpenditureServiceImpl
         // Validate site exists
         Site site = siteRepository.findById(requestDto.getSiteId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Site not found with id: " + requestDto.getSiteId()));
+                        SiteActivityWorkExpenditureErrorMessages.SITE_NOT_FOUND_ID + requestDto.getSiteId()));
 
         // Validate activity work exists
         ActivityWork activityWork = activityWorkRepository.findById(requestDto.getActivityWorkId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Activity work not found with id: " + requestDto.getActivityWorkId()));
+                        SiteActivityWorkExpenditureErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + requestDto.getActivityWorkId()));
 
         // Validate expenditures invoice exists
         ExpendituresInvoice expendituresInvoice = expendituresInvoiceRepository.findById(requestDto.getExpendituresInvoiceId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Expenditures invoice not found with id: " + requestDto.getExpendituresInvoiceId()));
+                        SiteActivityWorkExpenditureErrorMessages.EXPENDITURES_INVOICE_NOT_FOUND_ID + requestDto.getExpendituresInvoiceId()));
 
         // Check for duplicate
         if (repository.existsBySiteIdAndActivityWorkIdAndExpendituresInvoiceId(
                 requestDto.getSiteId(), requestDto.getActivityWorkId(), requestDto.getExpendituresInvoiceId())) {
-            throw new IllegalStateException(
-                    "This site-activity-work-expenditure combination already exists");
+            throw new BadRequestException(SiteActivityWorkExpenditureErrorMessages.DUPLICATE_EXPENDITURE);
         }
 
         // Create entity
@@ -161,7 +162,7 @@ public class SiteActivityWorkExpenditureServiceImpl
         // Fetch with details for response
         SiteActivityWorkExpenditure savedWithDetails = repository.findByIdWithDetails(saved.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Site activity work expenditure not found after save"));
+                        SiteActivityWorkExpenditureErrorMessages.EXPENDITURE_NOT_FOUND_AFTER_SAVE));
 
         log.info("Site activity work expenditure created successfully with ID: {}", saved.getId());
         return mapper.toDto(savedWithDetails);
@@ -192,7 +193,7 @@ public class SiteActivityWorkExpenditureServiceImpl
 
         // Validate site exists
         if (!siteRepository.existsById(siteId)) {
-            throw new ResourceNotFoundException("Site not found with id: " + siteId);
+            throw new ResourceNotFoundException(SiteActivityWorkExpenditureErrorMessages.SITE_NOT_FOUND_ID + siteId);
         }
 
         Sort sort = sortOrder.equalsIgnoreCase("desc")
@@ -213,7 +214,7 @@ public class SiteActivityWorkExpenditureServiceImpl
 
         // Validate activity work exists
         if (!activityWorkRepository.existsById(activityWorkId)) {
-            throw new ResourceNotFoundException("Activity work not found with id: " + activityWorkId);
+            throw new ResourceNotFoundException(SiteActivityWorkExpenditureErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + activityWorkId);
         }
 
         Sort sort = sortOrder.equalsIgnoreCase("desc")
@@ -248,7 +249,7 @@ public class SiteActivityWorkExpenditureServiceImpl
         
         SiteActivityWorkExpenditure expenditure = repository.findByIdWithDetails(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Site activity work expenditure not found with id: " + id));
+                        SiteActivityWorkExpenditureErrorMessages.EXPENDITURE_NOT_FOUND_ID + id));
         
         return mapper.toDto(expenditure);
     }
@@ -262,22 +263,22 @@ public class SiteActivityWorkExpenditureServiceImpl
 
         SiteActivityWorkExpenditure existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Site activity work expenditure not found with id: " + id));
+                        SiteActivityWorkExpenditureErrorMessages.EXPENDITURE_NOT_FOUND_ID + id));
 
         // Validate site exists
         Site site = siteRepository.findById(requestDto.getSiteId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Site not found with id: " + requestDto.getSiteId()));
+                        SiteActivityWorkExpenditureErrorMessages.SITE_NOT_FOUND_ID + requestDto.getSiteId()));
 
         // Validate activity work exists
         ActivityWork activityWork = activityWorkRepository.findById(requestDto.getActivityWorkId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Activity work not found with id: " + requestDto.getActivityWorkId()));
+                        SiteActivityWorkExpenditureErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + requestDto.getActivityWorkId()));
 
         // Validate expenditures invoice exists
         ExpendituresInvoice expendituresInvoice = expendituresInvoiceRepository.findById(requestDto.getExpendituresInvoiceId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Expenditures invoice not found with id: " + requestDto.getExpendituresInvoiceId()));
+                        SiteActivityWorkExpenditureErrorMessages.EXPENDITURES_INVOICE_NOT_FOUND_ID + requestDto.getExpendituresInvoiceId()));
 
         // Check for duplicate (excluding current record)
         boolean duplicateExists = repository.existsBySiteIdAndActivityWorkIdAndExpendituresInvoiceId(
@@ -286,8 +287,7 @@ public class SiteActivityWorkExpenditureServiceImpl
         if (duplicateExists && !existing.getSite().getId().equals(requestDto.getSiteId()) ||
             duplicateExists && !existing.getActivityWork().getId().equals(requestDto.getActivityWorkId()) ||
             duplicateExists && !existing.getExpendituresInvoice().getId().equals(requestDto.getExpendituresInvoiceId())) {
-            throw new IllegalStateException(
-                    "This site-activity-work-expenditure combination already exists");
+            throw new BadRequestException(SiteActivityWorkExpenditureErrorMessages.DUPLICATE_EXPENDITURE);
         }
 
         // Update entity
@@ -297,7 +297,7 @@ public class SiteActivityWorkExpenditureServiceImpl
         // Fetch with details for response
         SiteActivityWorkExpenditure updatedWithDetails = repository.findByIdWithDetails(updated.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Site activity work expenditure not found after update"));
+                        SiteActivityWorkExpenditureErrorMessages.EXPENDITURE_NOT_FOUND_AFTER_UPDATE));
 
         log.info("Site activity work expenditure updated successfully with ID: {}", id);
         return mapper.toDto(updatedWithDetails);
@@ -310,7 +310,7 @@ public class SiteActivityWorkExpenditureServiceImpl
 
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException(
-                    "Site activity work expenditure not found with id: " + id);
+                    SiteActivityWorkExpenditureErrorMessages.EXPENDITURE_NOT_FOUND_ID + id);
         }
 
         repository.deleteById(id);

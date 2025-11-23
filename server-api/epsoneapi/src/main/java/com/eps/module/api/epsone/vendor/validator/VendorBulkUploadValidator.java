@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.vendor.validator;
 
 import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.vendor.constant.VendorErrorMessages;
 import com.eps.module.api.epsone.vendor.dto.VendorBulkUploadDto;
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.api.epsone.vendor_type.repository.VendorTypeRepository;
@@ -32,14 +33,14 @@ public class VendorBulkUploadValidator implements BulkRowValidator<VendorBulkUpl
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Contact Number")
-                    .errorMessage("Contact Number is required")
+                    .errorMessage(VendorErrorMessages.CONTACT_NUMBER_REQUIRED)
                     .rejectedValue(dto.getContactNumber())
                     .build());
         } else if (!dto.getContactNumber().matches("^[0-9]{10}$")) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Contact Number")
-                    .errorMessage("Contact Number must be exactly 10 digits")
+                    .errorMessage(VendorErrorMessages.CONTACT_NUMBER_INVALID_FORMAT)
                     .rejectedValue(dto.getContactNumber())
                     .build());
         } else {
@@ -48,7 +49,7 @@ public class VendorBulkUploadValidator implements BulkRowValidator<VendorBulkUpl
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Contact Number")
-                        .errorMessage("Person Details not found with contact number: " + dto.getContactNumber())
+                        .errorMessage(String.format(VendorErrorMessages.PERSON_DETAILS_NOT_FOUND_CONTACT, dto.getContactNumber()))
                         .rejectedValue(dto.getContactNumber())
                         .build());
             } else {
@@ -59,7 +60,7 @@ public class VendorBulkUploadValidator implements BulkRowValidator<VendorBulkUpl
                         errors.add(BulkUploadErrorDto.builder()
                                 .rowNumber(rowNumber)
                                 .fieldName("Contact Number")
-                                .errorMessage("Person with contact number " + dto.getContactNumber() + " is already a vendor")
+                                .errorMessage(String.format(VendorErrorMessages.PERSON_ALREADY_VENDOR, dto.getContactNumber()))
                                 .rejectedValue(dto.getContactNumber())
                                 .build());
                     }
@@ -69,7 +70,7 @@ public class VendorBulkUploadValidator implements BulkRowValidator<VendorBulkUpl
                     errors.add(BulkUploadErrorDto.builder()
                             .rowNumber(rowNumber)
                             .fieldName("Contact Number")
-                            .errorMessage("Multiple person records found with contact number " + dto.getContactNumber() + ". Please contact administrator to resolve data duplication.")
+                            .errorMessage(String.format(VendorErrorMessages.MULTIPLE_PERSON_RECORDS, dto.getContactNumber()))
                             .rejectedValue(dto.getContactNumber())
                             .build());
                 }
@@ -81,14 +82,14 @@ public class VendorBulkUploadValidator implements BulkRowValidator<VendorBulkUpl
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Vendor Type Name")
-                    .errorMessage("Vendor Type Name is required")
+                    .errorMessage(VendorErrorMessages.VENDOR_TYPE_NAME_REQUIRED)
                     .rejectedValue(dto.getVendorTypeName())
                     .build());
         } else if (dto.getVendorTypeName().length() > 150) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Vendor Type Name")
-                    .errorMessage("Vendor Type Name cannot exceed 150 characters")
+                    .errorMessage(VendorErrorMessages.VENDOR_TYPE_NAME_TOO_LONG)
                     .rejectedValue(dto.getVendorTypeName())
                     .build());
         } else {
@@ -97,7 +98,7 @@ public class VendorBulkUploadValidator implements BulkRowValidator<VendorBulkUpl
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Vendor Type Name")
-                        .errorMessage("Vendor Type not found: " + dto.getVendorTypeName())
+                        .errorMessage(String.format(VendorErrorMessages.VENDOR_TYPE_NOT_FOUND_NAME, dto.getVendorTypeName()))
                         .rejectedValue(dto.getVendorTypeName())
                         .build());
             }
@@ -108,21 +109,21 @@ public class VendorBulkUploadValidator implements BulkRowValidator<VendorBulkUpl
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Vendor Code")
-                    .errorMessage("Vendor Code is required")
+                    .errorMessage(VendorErrorMessages.VENDOR_CODE_REQUIRED)
                     .rejectedValue(dto.getVendorCodeAlt())
                     .build());
         } else if (dto.getVendorCodeAlt().length() > 10) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Vendor Code")
-                    .errorMessage("Vendor Code cannot exceed 10 characters")
+                    .errorMessage(VendorErrorMessages.VENDOR_CODE_TOO_LONG)
                     .rejectedValue(dto.getVendorCodeAlt())
                     .build());
         } else if (!dto.getVendorCodeAlt().matches("^[A-Z0-9_-]+$")) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Vendor Code")
-                    .errorMessage("Vendor Code must contain only uppercase letters, numbers, hyphens, and underscores")
+                    .errorMessage(VendorErrorMessages.VENDOR_CODE_INVALID_FORMAT)
                     .rejectedValue(dto.getVendorCodeAlt())
                     .build());
         }

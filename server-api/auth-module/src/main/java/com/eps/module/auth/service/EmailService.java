@@ -1,5 +1,7 @@
 package com.eps.module.auth.service;
 
+import com.eps.module.auth.constant.AuthErrorMessages;
+import com.eps.module.common.exception.InternalServerErrorException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -48,10 +50,10 @@ public class EmailService {
             log.info("Password reset email sent successfully to: {}", toEmail);
         } catch (MessagingException e) {
             log.error("Failed to send password reset email to: {}", toEmail, e);
-            throw new RuntimeException("Failed to send password reset email", e);
+            throw new InternalServerErrorException(AuthErrorMessages.PASSWORD_RESET_EMAIL_FAILURE, e);
         } catch (Exception e) {
             log.error("Unexpected error while sending email to: {}", toEmail, e);
-            throw new RuntimeException("Failed to send email", e);
+            throw new InternalServerErrorException(AuthErrorMessages.EMAIL_SEND_FAILURE, e);
         }
     }
 
@@ -99,7 +101,7 @@ public class EmailService {
             }
         } catch (IOException e) {
             log.error("Failed to load email template: {}", templateName, e);
-            throw new RuntimeException("Failed to load email template: " + templateName, e);
+            throw new InternalServerErrorException(AuthErrorMessages.EMAIL_TEMPLATE_LOAD_FAILURE + templateName, e);
         }
     }
 }

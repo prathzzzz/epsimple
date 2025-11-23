@@ -23,6 +23,8 @@ import com.eps.module.auth.entity.User;
 import com.eps.module.auth.mapper.UserMapper;
 import com.eps.module.auth.repository.RoleRepository;
 import com.eps.module.auth.repository.UserRepository;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ConflictException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.common.exception.UnauthorizedException;
 
@@ -56,7 +58,7 @@ public class AuthService {
         // Check if user already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             log.warn("Registration failed: Email already exists: {}", request.getEmail());
-            throw new RuntimeException("Email already exists");
+            throw new ConflictException("Email already exists");
         }
 
         // Get default USER role
@@ -200,7 +202,7 @@ public class AuthService {
 
         // Validate that new password matches confirmation
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new RuntimeException("New password and confirm password do not match");
+            throw new BadRequestException("New password and confirm password do not match");
         }
 
         String email = authentication.getName();

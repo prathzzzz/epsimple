@@ -14,6 +14,7 @@ import com.eps.module.auth.entity.PasswordResetToken;
 import com.eps.module.auth.entity.User;
 import com.eps.module.auth.repository.PasswordResetTokenRepository;
 import com.eps.module.auth.repository.UserRepository;
+import com.eps.module.common.exception.BadRequestException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -66,15 +67,15 @@ public class PasswordResetService {
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
         PasswordResetToken resetToken = tokenRepository.findByToken(request.getToken())
-                .orElseThrow(() -> new RuntimeException("Invalid or expired reset token"));
+                .orElseThrow(() -> new BadRequestException("Invalid or expired reset token"));
 
         // Validate token
         if (resetToken.getIsUsed()) {
-            throw new RuntimeException("Reset token has already been used");
+            throw new BadRequestException("Reset token has already been used");
         }
 
         if (resetToken.isExpired()) {
-            throw new RuntimeException("Reset token has expired");
+            throw new BadRequestException("Reset token has expired");
         }
 
         // Update user password

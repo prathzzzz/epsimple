@@ -4,12 +4,12 @@ import com.eps.module.auth.entity.Role;
 import com.eps.module.auth.entity.User;
 import com.eps.module.auth.repository.RoleRepository;
 import com.eps.module.auth.repository.UserRepository;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Set;
 
@@ -28,10 +28,10 @@ public class UserRoleService {
     @Transactional
     public void assignRoleToUser(Long userId, Long roleId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
         user.getRoles().add(role);
         userRepository.save(user);
@@ -45,13 +45,13 @@ public class UserRoleService {
     @Transactional
     public void removeRoleFromUser(Long userId, Long roleId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
         if (!user.getRoles().remove(role)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User does not have this role");
+            throw new BadRequestException("User does not have this role");
         }
 
         userRepository.save(user);
@@ -64,7 +64,7 @@ public class UserRoleService {
      */
     public Set<String> getUserPermissions(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return permissionService.getUserPermissions(user);
     }

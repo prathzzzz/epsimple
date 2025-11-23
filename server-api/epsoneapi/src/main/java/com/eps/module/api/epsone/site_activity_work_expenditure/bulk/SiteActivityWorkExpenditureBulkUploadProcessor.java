@@ -7,6 +7,8 @@ import com.eps.module.api.epsone.site.repository.SiteRepository;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureBulkUploadDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.repository.SiteActivityWorkExpenditureRepository;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.ExpendituresInvoice;
 import com.eps.module.site.Site;
 import com.eps.module.site.SiteActivityWorkExpenditure;
@@ -39,7 +41,7 @@ public class SiteActivityWorkExpenditureBulkUploadProcessor extends BulkUploadPr
     protected SiteActivityWorkExpenditure convertToEntity(SiteActivityWorkExpenditureBulkUploadDto dto) {
         // Fetch site by code
         Site site = siteRepository.findBySiteCodeIgnoreCase(dto.getSiteCode().trim())
-                .orElseThrow(() -> new RuntimeException("Site not found with code: " + dto.getSiteCode()));
+                .orElseThrow(() -> new ResourceNotFoundException("Site not found with code: " + dto.getSiteCode()));
 
         // Fetch activity work by activity name and vendor order number (required)
         ActivityWork activityWork;
@@ -47,12 +49,12 @@ public class SiteActivityWorkExpenditureBulkUploadProcessor extends BulkUploadPr
             activityWork = activityWorkRepository.findByActivityNameAndVendorOrderNumber(
                     dto.getActivityName().trim(),
                     dto.getVendorOrderNumber().trim())
-                    .orElseThrow(() -> new RuntimeException(
+                    .orElseThrow(() -> new ResourceNotFoundException(
                             "No Activity Work found for Activity '" + dto.getActivityName() + 
                             "' with Vendor Order Number '" + dto.getVendorOrderNumber() + "'. " +
                             "Please verify both values are correct."));
         } catch (jakarta.persistence.NonUniqueResultException e) {
-            throw new RuntimeException(
+            throw new ConflictException(
                     "Multiple Activity Works found for Activity '" + dto.getActivityName() + 
                     "' with Vendor Order Number '" + dto.getVendorOrderNumber() + "'. " +
                     "This indicates duplicate records in the database. Please contact your administrator.");
@@ -71,7 +73,7 @@ public class SiteActivityWorkExpenditureBulkUploadProcessor extends BulkUploadPr
             }
             
             if (expendituresInvoice == null) {
-                throw new RuntimeException("Expenditure Invoice not found with invoice number: " + dto.getInvoiceNumber());
+                throw new ResourceNotFoundException("Expenditure Invoice not found with invoice number: " + dto.getInvoiceNumber());
             }
         }
 

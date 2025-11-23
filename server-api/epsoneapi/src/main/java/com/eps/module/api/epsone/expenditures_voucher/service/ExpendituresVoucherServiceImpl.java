@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.expenditures_voucher.service;
 
 import com.eps.module.api.epsone.cost_item.repository.CostItemRepository;
+import com.eps.module.api.epsone.expenditures_voucher.constant.ExpendituresVoucherErrorMessages;
 import com.eps.module.api.epsone.expenditures_voucher.dto.ExpendituresVoucherBulkUploadDto;
 import com.eps.module.api.epsone.expenditures_voucher.dto.ExpendituresVoucherErrorReportDto;
 import com.eps.module.api.epsone.expenditures_voucher.dto.ExpendituresVoucherRequestDto;
@@ -114,17 +115,17 @@ public class ExpendituresVoucherServiceImpl extends BaseBulkUploadService<Expend
 
         // Validate cost item exists
         if (!costItemRepository.existsById(requestDto.getCostItemId())) {
-            throw new ResourceNotFoundException("Cost item not found with ID: " + requestDto.getCostItemId());
+            throw new ResourceNotFoundException(ExpendituresVoucherErrorMessages.COST_ITEM_NOT_FOUND + requestDto.getCostItemId());
         }
 
         // Validate voucher exists
         if (!voucherRepository.existsById(requestDto.getVoucherId())) {
-            throw new ResourceNotFoundException("Voucher not found with ID: " + requestDto.getVoucherId());
+            throw new ResourceNotFoundException(ExpendituresVoucherErrorMessages.VOUCHER_NOT_FOUND + requestDto.getVoucherId());
         }
 
         // Validate Managed Project exists
         if (!managedProjectRepository.existsById(requestDto.getManagedProjectId())) {
-            throw new ResourceNotFoundException("Managed Project not found with ID: " + requestDto.getManagedProjectId());
+            throw new ResourceNotFoundException(ExpendituresVoucherErrorMessages.MANAGED_PROJECT_NOT_FOUND + requestDto.getManagedProjectId());
         }
 
         ExpendituresVoucher expendituresVoucher = expendituresVoucherMapper.toEntity(requestDto);
@@ -155,7 +156,7 @@ public class ExpendituresVoucherServiceImpl extends BaseBulkUploadService<Expend
     public ExpendituresVoucherResponseDto getExpendituresVoucherById(Long id) {
         log.info("Fetching expenditures voucher with ID: {}", id);
         ExpendituresVoucher expendituresVoucher = expendituresVoucherRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Expenditures voucher not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ExpendituresVoucherErrorMessages.EXPENDITURES_VOUCHER_NOT_FOUND + id));
         return expendituresVoucherMapper.toResponseDto(expendituresVoucher);
     }
 
@@ -165,26 +166,26 @@ public class ExpendituresVoucherServiceImpl extends BaseBulkUploadService<Expend
         log.info("Updating expenditures voucher with ID: {}", id);
 
         ExpendituresVoucher existingExpendituresVoucher = expendituresVoucherRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Expenditures voucher not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ExpendituresVoucherErrorMessages.EXPENDITURES_VOUCHER_NOT_FOUND + id));
 
         // Validate cost item exists if changed
         if (!requestDto.getCostItemId().equals(existingExpendituresVoucher.getCostItem().getId())) {
             if (!costItemRepository.existsById(requestDto.getCostItemId())) {
-                throw new ResourceNotFoundException("Cost item not found with ID: " + requestDto.getCostItemId());
+                throw new ResourceNotFoundException(ExpendituresVoucherErrorMessages.COST_ITEM_NOT_FOUND + requestDto.getCostItemId());
             }
         }
 
         // Validate voucher exists if changed
         if (!requestDto.getVoucherId().equals(existingExpendituresVoucher.getVoucher().getId())) {
             if (!voucherRepository.existsById(requestDto.getVoucherId())) {
-                throw new ResourceNotFoundException("Voucher not found with ID: " + requestDto.getVoucherId());
+                throw new ResourceNotFoundException(ExpendituresVoucherErrorMessages.VOUCHER_NOT_FOUND + requestDto.getVoucherId());
             }
         }
 
         // Validate Managed Project exists if changed
         if (!requestDto.getManagedProjectId().equals(existingExpendituresVoucher.getManagedProject().getId())) {
             if (!managedProjectRepository.existsById(requestDto.getManagedProjectId())) {
-                throw new ResourceNotFoundException("Managed Project not found with ID: " + requestDto.getManagedProjectId());
+                throw new ResourceNotFoundException(ExpendituresVoucherErrorMessages.MANAGED_PROJECT_NOT_FOUND + requestDto.getManagedProjectId());
             }
         }
 
@@ -200,7 +201,7 @@ public class ExpendituresVoucherServiceImpl extends BaseBulkUploadService<Expend
     public void deleteExpendituresVoucher(Long id) {
         log.info("Deleting expenditures voucher with ID: {}", id);
         if (!expendituresVoucherRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Expenditures voucher not found with ID: " + id);
+            throw new ResourceNotFoundException(ExpendituresVoucherErrorMessages.EXPENDITURES_VOUCHER_NOT_FOUND + id);
         }
         expendituresVoucherRepository.deleteById(id);
         log.info("Successfully deleted expenditures voucher with ID: {}", id);

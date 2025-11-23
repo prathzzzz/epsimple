@@ -2,6 +2,7 @@ package com.eps.module.api.epsone.asset_expenditure_and_activity_work.validator;
 
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
+import com.eps.module.api.epsone.asset_expenditure_and_activity_work.constant.AssetExpenditureAndActivityWorkErrorMessages;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkBulkUploadDto;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.repository.AssetExpenditureAndActivityWorkRepository;
 import com.eps.module.api.epsone.expenditures_invoice.repository.ExpendituresInvoiceRepository;
@@ -35,7 +36,7 @@ public class AssetExpenditureAndActivityWorkBulkUploadValidator implements BulkR
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Asset Tag ID")
-                    .errorMessage("Asset tag ID is required")
+                    .errorMessage(AssetExpenditureAndActivityWorkErrorMessages.ASSET_TAG_ID_REQUIRED)
                     .rejectedValue(rowData.getAssetTagId())
                     .build());
         } else {
@@ -45,7 +46,7 @@ public class AssetExpenditureAndActivityWorkBulkUploadValidator implements BulkR
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Asset Tag ID")
-                        .errorMessage("Asset '" + rowData.getAssetTagId() + "' not found")
+                        .errorMessage(String.format(AssetExpenditureAndActivityWorkErrorMessages.ASSET_NOT_FOUND_TAG, rowData.getAssetTagId()))
                         .rejectedValue(rowData.getAssetTagId())
                         .build());
             }
@@ -58,7 +59,7 @@ public class AssetExpenditureAndActivityWorkBulkUploadValidator implements BulkR
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Invoice Number")
-                        .errorMessage("Invoice '" + rowData.getInvoiceNumber() + "' not found")
+                        .errorMessage(String.format(AssetExpenditureAndActivityWorkErrorMessages.INVOICE_NOT_FOUND, rowData.getInvoiceNumber()))
                         .rejectedValue(rowData.getInvoiceNumber())
                         .build());
             }
@@ -73,7 +74,7 @@ public class AssetExpenditureAndActivityWorkBulkUploadValidator implements BulkR
                     errors.add(BulkUploadErrorDto.builder()
                             .rowNumber(rowNumber)
                             .fieldName("Activity Work ID")
-                            .errorMessage("Activity Work with ID '" + rowData.getActivityWorkId() + "' not found")
+                            .errorMessage(String.format(AssetExpenditureAndActivityWorkErrorMessages.ACTIVITY_WORK_NOT_FOUND_MSG, rowData.getActivityWorkId()))
                             .rejectedValue(rowData.getActivityWorkId())
                             .build());
                 }
@@ -81,7 +82,7 @@ public class AssetExpenditureAndActivityWorkBulkUploadValidator implements BulkR
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Activity Work ID")
-                        .errorMessage("Activity Work ID must be a valid number")
+                        .errorMessage(AssetExpenditureAndActivityWorkErrorMessages.ACTIVITY_WORK_ID_INVALID)
                         .rejectedValue(rowData.getActivityWorkId())
                         .build());
             }

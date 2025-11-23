@@ -35,24 +35,14 @@ public class AssetLocationController {
     }
 
     @PostMapping("/bulk-upload")
-    public SseEmitter bulkUploadPlacements(@RequestParam("file") MultipartFile file) {
+    public SseEmitter bulkUploadPlacements(@RequestParam("file") MultipartFile file) throws java.io.IOException {
         log.info("POST /api/asset-location/bulk-upload - Starting bulk placement upload");
-        try {
-            return assetLocationService.bulkUploadPlacements(file);
-        } catch (Exception e) {
-            log.error("Error in bulk upload: {}", e.getMessage(), e);
-            throw new RuntimeException("Bulk upload failed: " + e.getMessage(), e);
-        }
+        return assetLocationService.bulkUploadPlacements(file);
     }
 
     @GetMapping("/export-template")
-    public ResponseEntity<byte[]> exportPlacementTemplate() {
+    public ResponseEntity<byte[]> exportPlacementTemplate() throws java.io.IOException {
         log.info("GET /api/asset-location/export-template - Exporting placement template");
-        try {
-            return assetLocationService.exportPlacementTemplate();
-        } catch (Exception e) {
-            log.error("Error exporting template: {}", e.getMessage(), e);
-            throw new RuntimeException("Template export failed: " + e.getMessage(), e);
-        }
+        return assetLocationService.exportPlacementTemplate();
     }
 }

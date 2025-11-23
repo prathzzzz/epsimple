@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.asset_placement.validator;
 
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
+import com.eps.module.api.epsone.asset_placement.constants.AssetPlacementErrorMessages;
 import com.eps.module.api.epsone.asset_placement.dto.AssetPlacementBulkUploadDto;
 import com.eps.module.api.epsone.data_center.repository.DatacenterRepository;
 import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTypeRepository;
@@ -35,7 +36,7 @@ public class AssetPlacementBulkUploadValidator implements BulkRowValidator<Asset
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Asset Tag ID")
-                    .errorMessage("Asset Tag ID is required")
+                    .errorMessage(AssetPlacementErrorMessages.ASSET_TAG_ID_REQUIRED)
                     .build());
         } else {
             // Check if asset exists
@@ -43,7 +44,7 @@ public class AssetPlacementBulkUploadValidator implements BulkRowValidator<Asset
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Asset Tag ID")
-                        .errorMessage("Asset with tag ID '" + dto.getAssetTagId() + "' not found")
+                        .errorMessage(String.format(AssetPlacementErrorMessages.ASSET_TAG_NOT_FOUND, dto.getAssetTagId()))
                         .build());
             }
         }
@@ -53,7 +54,7 @@ public class AssetPlacementBulkUploadValidator implements BulkRowValidator<Asset
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Location Code")
-                    .errorMessage("Location Code is required")
+                    .errorMessage(AssetPlacementErrorMessages.LOCATION_CODE_REQUIRED)
                     .build());
         } else {
             String locationCode = dto.getLocationCode().trim();
@@ -66,7 +67,7 @@ public class AssetPlacementBulkUploadValidator implements BulkRowValidator<Asset
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Location Code")
-                        .errorMessage("Location with code '" + locationCode + "' not found in Sites, Datacenters, or Warehouses")
+                        .errorMessage(String.format(AssetPlacementErrorMessages.LOCATION_NOT_FOUND, locationCode))
                         .build());
             }
         }
@@ -76,14 +77,14 @@ public class AssetPlacementBulkUploadValidator implements BulkRowValidator<Asset
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Placement Status Code")
-                    .errorMessage("Placement Status Code is required")
+                    .errorMessage(AssetPlacementErrorMessages.PLACEMENT_STATUS_CODE_REQUIRED)
                     .build());
         } else {
             if (!genericStatusTypeRepository.existsByStatusCode(dto.getPlacementStatusCode().trim())) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Placement Status Code")
-                        .errorMessage("Placement Status with code '" + dto.getPlacementStatusCode() + "' not found")
+                        .errorMessage(String.format(AssetPlacementErrorMessages.PLACEMENT_STATUS_NOT_FOUND, dto.getPlacementStatusCode()))
                         .build());
             }
         }

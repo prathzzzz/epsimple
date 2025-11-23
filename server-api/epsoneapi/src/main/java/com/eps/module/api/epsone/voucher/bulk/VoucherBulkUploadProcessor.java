@@ -6,6 +6,8 @@ import com.eps.module.api.epsone.voucher.dto.VoucherBulkUploadDto;
 import com.eps.module.api.epsone.voucher.repository.VoucherRepository;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.validator.BulkRowValidator;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.payment.Payee;
 import com.eps.module.payment.PaymentDetails;
 import com.eps.module.payment.Voucher;
@@ -44,7 +46,7 @@ public class VoucherBulkUploadProcessor extends BulkUploadProcessor<VoucherBulkU
     @Override
     public Voucher convertToEntity(VoucherBulkUploadDto dto) {
         Payee payee = payeeRepository.findByPayeeNameIgnoreCase(dto.getPayeeName().trim())
-                .orElseThrow(() -> new RuntimeException("Payee not found: " + dto.getPayeeName()));
+                .orElseThrow(() -> new ResourceNotFoundException("Payee not found: " + dto.getPayeeName()));
 
         PaymentDetails paymentDetails = null;
         if (dto.getPaymentTransactionNumber() != null && !dto.getPaymentTransactionNumber().trim().isEmpty()) {
@@ -125,7 +127,7 @@ public class VoucherBulkUploadProcessor extends BulkUploadProcessor<VoucherBulkU
                 // Try next formatter
             }
         }
-        throw new RuntimeException("Unable to parse date: " + dateStr);
+        throw new BadRequestException("Unable to parse date: " + dateStr);
     }
 
     private LocalDate parseOptionalDate(String dateStr) {

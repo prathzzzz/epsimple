@@ -2,6 +2,7 @@ package com.eps.module.api.epsone.vendor.service;
 
 
 import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.vendor.constant.VendorErrorMessages;
 import com.eps.module.api.epsone.vendor.dto.VendorBulkUploadDto;
 import com.eps.module.api.epsone.vendor.dto.VendorErrorReportDto;
 import com.eps.module.api.epsone.vendor.dto.VendorRequestDto;
@@ -15,6 +16,8 @@ import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.vendor.Vendor;
 import com.eps.module.vendor.VendorType;
@@ -45,26 +48,25 @@ public class VendorServiceImpl extends BaseBulkUploadService<VendorBulkUploadDto
     public VendorResponseDto createVendor(VendorRequestDto requestDto) {
         // Validate vendor type exists
         VendorType vendorType = vendorTypeRepository.findById(requestDto.getVendorTypeId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Vendor type not found with id: " + requestDto.getVendorTypeId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        VendorErrorMessages.VENDOR_TYPE_NOT_FOUND + requestDto.getVendorTypeId()));
 
         // Validate person details exists
         PersonDetails personDetails = personDetailsRepository.findById(requestDto.getVendorDetailsId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Person details not found with id: " + requestDto.getVendorDetailsId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        VendorErrorMessages.PERSON_DETAILS_NOT_FOUND + requestDto.getVendorDetailsId()));
 
         // Check if person details is already used by another vendor
         if (vendorRepository.findByVendorDetailsId(requestDto.getVendorDetailsId()).isPresent()) {
-            throw new IllegalArgumentException(
-                    "Person details with id " + requestDto.getVendorDetailsId() + 
-                    " is already associated with another vendor");
+            throw new BadRequestException(String.format(
+                    VendorErrorMessages.PERSON_DETAILS_ALREADY_ASSOCIATED, requestDto.getVendorDetailsId()));
         }
 
         // Validate vendor code uniqueness (if provided)
         if (requestDto.getVendorCodeAlt() != null && !requestDto.getVendorCodeAlt().isEmpty()) {
             if (vendorRepository.existsByVendorCodeAlt(requestDto.getVendorCodeAlt())) {
-                throw new IllegalArgumentException(
-                        "Vendor code '" + requestDto.getVendorCodeAlt() + "' already exists");
+                throw new BadRequestException(String.format(
+                        VendorErrorMessages.VENDOR_CODE_EXISTS, requestDto.getVendorCodeAlt()));
             }
         }
 
@@ -103,7 +105,7 @@ public class VendorServiceImpl extends BaseBulkUploadService<VendorBulkUploadDto
     public Page<VendorResponseDto> getVendorsByType(Long vendorTypeId, Pageable pageable) {
         // Validate vendor type exists
         if (!vendorTypeRepository.existsById(vendorTypeId)) {
-            throw new IllegalArgumentException("Vendor type not found with id: " + vendorTypeId);
+            throw new ResourceNotFoundException(VendorErrorMessages.VENDOR_TYPE_NOT_FOUND + vendorTypeId);
         }
 
         return vendorRepository.findByVendorTypeId(vendorTypeId, pageable)
@@ -114,7 +116,7 @@ public class VendorServiceImpl extends BaseBulkUploadService<VendorBulkUploadDto
     @Transactional(readOnly = true)
     public VendorResponseDto getVendorById(Long id) {
         Vendor vendor = vendorRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vendor not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(VendorErrorMessages.VENDOR_NOT_FOUND_ID + id));
         return vendorMapper.toDto(vendor);
     }
 
@@ -122,33 +124,32 @@ public class VendorServiceImpl extends BaseBulkUploadService<VendorBulkUploadDto
     @Transactional
     public VendorResponseDto updateVendor(Long id, VendorRequestDto requestDto) {
         Vendor vendor = vendorRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vendor not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(VendorErrorMessages.VENDOR_NOT_FOUND_ID + id));
 
         // Validate vendor type exists
         VendorType vendorType = vendorTypeRepository.findById(requestDto.getVendorTypeId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Vendor type not found with id: " + requestDto.getVendorTypeId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        VendorErrorMessages.VENDOR_TYPE_NOT_FOUND + requestDto.getVendorTypeId()));
 
         // Validate person details exists
         PersonDetails personDetails = personDetailsRepository.findById(requestDto.getVendorDetailsId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Person details not found with id: " + requestDto.getVendorDetailsId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        VendorErrorMessages.PERSON_DETAILS_NOT_FOUND + requestDto.getVendorDetailsId()));
 
         // Check if person details is already used by another vendor (excluding current)
         vendorRepository.findByVendorDetailsId(requestDto.getVendorDetailsId())
                 .ifPresent(existingVendor -> {
                     if (!existingVendor.getId().equals(id)) {
-                        throw new IllegalArgumentException(
-                                "Person details with id " + requestDto.getVendorDetailsId() + 
-                                " is already associated with another vendor");
+                        throw new BadRequestException(String.format(
+                                VendorErrorMessages.PERSON_DETAILS_ALREADY_ASSOCIATED, requestDto.getVendorDetailsId()));
                     }
                 });
 
         // Validate vendor code uniqueness (if provided and changed)
         if (requestDto.getVendorCodeAlt() != null && !requestDto.getVendorCodeAlt().isEmpty()) {
             if (vendorRepository.existsByVendorCodeAltAndIdNot(requestDto.getVendorCodeAlt(), id)) {
-                throw new IllegalArgumentException(
-                        "Vendor code '" + requestDto.getVendorCodeAlt() + "' already exists");
+                throw new BadRequestException(String.format(
+                        VendorErrorMessages.VENDOR_CODE_EXISTS, requestDto.getVendorCodeAlt()));
             }
         }
 
@@ -164,19 +165,19 @@ public class VendorServiceImpl extends BaseBulkUploadService<VendorBulkUploadDto
     @Transactional
     public void deleteVendor(Long id) {
         if (!vendorRepository.existsById(id)) {
-            throw new IllegalArgumentException("Vendor not found with id: " + id);
+            throw new ResourceNotFoundException(VendorErrorMessages.VENDOR_NOT_FOUND_ID + id);
         }
 
         // Check for dependencies - activity work orders
         long activityWorkCount = activityWorkRepository.countByVendorId(id);
         if (activityWorkCount > 0) {
-            throw new IllegalStateException("Cannot delete vendor as it has " + activityWorkCount + " associated activity work orders");
+            throw new BadRequestException(String.format(VendorErrorMessages.CANNOT_DELETE_VENDOR_ACTIVITY_WORK, activityWorkCount));
         }
 
         // Check for dependencies - payees
         long payeeCount = payeeRepository.countByVendorId(id);
         if (payeeCount > 0) {
-            throw new IllegalStateException("Cannot delete vendor as it has " + payeeCount + " associated payees");
+            throw new BadRequestException(String.format(VendorErrorMessages.CANNOT_DELETE_VENDOR_PAYEES, payeeCount));
         }
 
         vendorRepository.deleteById(id);

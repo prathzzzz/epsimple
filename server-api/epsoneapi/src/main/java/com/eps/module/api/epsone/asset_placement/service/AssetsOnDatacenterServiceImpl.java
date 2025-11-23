@@ -5,7 +5,7 @@ import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
 import com.eps.module.api.epsone.asset_movement.constants.LocationType;
 import com.eps.module.api.epsone.asset_movement.service.AssetMovementService;
-import com.eps.module.api.epsone.asset_placement.constants.ErrorMessages;
+import com.eps.module.api.epsone.asset_placement.constants.AssetPlacementErrorMessages;
 import com.eps.module.api.epsone.asset_placement.dto.AssetsOnDatacenterRequestDto;
 import com.eps.module.api.epsone.asset_placement.dto.AssetsOnDatacenterResponseDto;
 import com.eps.module.api.epsone.asset_placement.mapper.AssetsOnDatacenterMapper;
@@ -53,22 +53,22 @@ public class AssetsOnDatacenterServiceImpl implements AssetsOnDatacenterService 
         // Validate asset exists
         Asset asset = assetRepository.findById(requestDto.getAssetId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ErrorMessages.ASSET_NOT_FOUND + requestDto.getAssetId()));
+                        AssetPlacementErrorMessages.ASSET_NOT_FOUND + requestDto.getAssetId()));
 
         // Validate datacenter exists
         Datacenter datacenter = datacenterRepository.findById(requestDto.getDatacenterId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ErrorMessages.DATACENTER_NOT_FOUND + requestDto.getDatacenterId()));
+                        AssetPlacementErrorMessages.DATACENTER_NOT_FOUND + requestDto.getDatacenterId()));
 
         // Validate asset status exists
         GenericStatusType assetStatus = genericStatusTypeRepository.findById(requestDto.getAssetStatusId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ErrorMessages.ASSET_STATUS_NOT_FOUND + requestDto.getAssetStatusId()));
+                        AssetPlacementErrorMessages.ASSET_STATUS_NOT_FOUND + requestDto.getAssetStatusId()));
 
         // Check for active placements and handle movement tracking
         Object fromPlacement = null;
         String fromType = LocationType.NEWLY_PLACED_DISPLAY;
-        
+
         // Check if asset has active placement on site
         Optional<AssetsOnSite> activeSite = assetsOnSiteRepository.findActiveByAssetId(requestDto.getAssetId());
         if (activeSite.isPresent()) {
@@ -78,7 +78,7 @@ public class AssetsOnDatacenterServiceImpl implements AssetsOnDatacenterService 
             activeSite.get().setVacatedOn(LocalDate.now());
             assetsOnSiteRepository.save(activeSite.get());
         }
-        
+
         // Check if asset has active placement in warehouse
         Optional<AssetsOnWarehouse> activeWarehouse = assetsOnWarehouseRepository.findActiveByAssetId(requestDto.getAssetId());
         if (activeWarehouse.isPresent()) {
@@ -88,7 +88,7 @@ public class AssetsOnDatacenterServiceImpl implements AssetsOnDatacenterService 
             activeWarehouse.get().setVacatedOn(LocalDate.now());
             assetsOnWarehouseRepository.save(activeWarehouse.get());
         }
-        
+
         // Check if asset has active placement in datacenter
         Optional<AssetsOnDatacenter> activeDatacenter = assetsOnDatacenterRepository.findActiveByAssetId(requestDto.getAssetId());
         if (activeDatacenter.isPresent()) {
@@ -104,7 +104,7 @@ public class AssetsOnDatacenterServiceImpl implements AssetsOnDatacenterService 
         if (requestDto.getActivityWorkId() != null) {
             activityWork = activityWorkRepository.findById(requestDto.getActivityWorkId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            ErrorMessages.ACTIVITY_WORK_NOT_FOUND + requestDto.getActivityWorkId()));
+                            AssetPlacementErrorMessages.ACTIVITY_WORK_NOT_FOUND + requestDto.getActivityWorkId()));
         }
 
         // Create new placement
@@ -116,14 +116,14 @@ public class AssetsOnDatacenterServiceImpl implements AssetsOnDatacenterService 
         AssetMovementType movementType = assetMovementService.determineMovementType(fromType, LocationType.DATACENTER_DISPLAY);
         AssetMovementTracker tracker = assetMovementService.trackMovement(
                 asset, movementType, fromType.equals(LocationType.NEWLY_PLACED_DISPLAY) ? LocationType.NEWLY_PLACED_DISPLAY : null, fromPlacement, saved);
-        
+
         // Update placement with tracker
         saved.setAssetMovementTracker(tracker);
         saved = assetsOnDatacenterRepository.save(saved);
 
         // Fetch with details for response
         AssetsOnDatacenter savedWithDetails = assetsOnDatacenterRepository.findByIdWithDetails(saved.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ASSET_PLACEMENT_NOT_FOUND_AFTER_SAVE));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetPlacementErrorMessages.ASSET_PLACEMENT_NOT_FOUND_AFTER_SAVE));
 
         log.info("Asset placed in datacenter successfully with ID: {}", saved.getId());
         return assetsOnDatacenterMapper.toDto(savedWithDetails);
@@ -159,10 +159,10 @@ public class AssetsOnDatacenterServiceImpl implements AssetsOnDatacenterService 
     @Transactional(readOnly = true)
     public Page<AssetsOnDatacenterResponseDto> getAssetsByDatacenterId(Long datacenterId, int page, int size, String sortBy, String sortOrder) {
         log.info("Fetching assets for datacenter ID: {}", datacenterId);
-        
+
         // Validate datacenter exists
         if (!datacenterRepository.existsById(datacenterId)) {
-            throw new ResourceNotFoundException(ErrorMessages.DATACENTER_NOT_FOUND + datacenterId);
+            throw new ResourceNotFoundException(AssetPlacementErrorMessages.DATACENTER_NOT_FOUND + datacenterId);
         }
 
         Sort sort = sortOrder.equalsIgnoreCase("desc")
@@ -180,7 +180,7 @@ public class AssetsOnDatacenterServiceImpl implements AssetsOnDatacenterService 
         log.info("Fetching asset in datacenter with ID: {}", id);
         AssetsOnDatacenter assetsOnDatacenter = assetsOnDatacenterRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ErrorMessages.ASSET_PLACEMENT_NOT_FOUND + id));
+                        AssetPlacementErrorMessages.ASSET_PLACEMENT_NOT_FOUND + id));
         return assetsOnDatacenterMapper.toDto(assetsOnDatacenter);
     }
 
@@ -191,29 +191,29 @@ public class AssetsOnDatacenterServiceImpl implements AssetsOnDatacenterService 
 
         AssetsOnDatacenter assetsOnDatacenter = assetsOnDatacenterRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ErrorMessages.ASSET_PLACEMENT_NOT_FOUND + id));
+                        AssetPlacementErrorMessages.ASSET_PLACEMENT_NOT_FOUND + id));
 
         // Validate asset exists
         Asset asset = assetRepository.findById(requestDto.getAssetId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ErrorMessages.ASSET_NOT_FOUND + requestDto.getAssetId()));
+                        AssetPlacementErrorMessages.ASSET_NOT_FOUND + requestDto.getAssetId()));
 
         // Validate datacenter exists
         Datacenter datacenter = datacenterRepository.findById(requestDto.getDatacenterId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ErrorMessages.DATACENTER_NOT_FOUND + requestDto.getDatacenterId()));
+                        AssetPlacementErrorMessages.DATACENTER_NOT_FOUND + requestDto.getDatacenterId()));
 
         // Validate asset status exists
         GenericStatusType assetStatus = genericStatusTypeRepository.findById(requestDto.getAssetStatusId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ErrorMessages.ASSET_STATUS_NOT_FOUND + requestDto.getAssetStatusId()));
+                        AssetPlacementErrorMessages.ASSET_STATUS_NOT_FOUND + requestDto.getAssetStatusId()));
 
         // Validate optional activity work if provided
         ActivityWork activityWork = null;
         if (requestDto.getActivityWorkId() != null) {
             activityWork = activityWorkRepository.findById(requestDto.getActivityWorkId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            ErrorMessages.ACTIVITY_WORK_NOT_FOUND + requestDto.getActivityWorkId()));
+                            AssetPlacementErrorMessages.ACTIVITY_WORK_NOT_FOUND + requestDto.getActivityWorkId()));
         }
 
         AssetMovementTracker assetMovementTracker = null;
@@ -223,7 +223,7 @@ public class AssetsOnDatacenterServiceImpl implements AssetsOnDatacenterService 
 
         // Fetch with details for response
         AssetsOnDatacenter updatedWithDetails = assetsOnDatacenterRepository.findByIdWithDetails(updated.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ASSET_PLACEMENT_NOT_FOUND_AFTER_UPDATE));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetPlacementErrorMessages.ASSET_PLACEMENT_NOT_FOUND_AFTER_UPDATE));
 
         log.info("Asset in datacenter updated successfully");
         return assetsOnDatacenterMapper.toDto(updatedWithDetails);
@@ -235,7 +235,7 @@ public class AssetsOnDatacenterServiceImpl implements AssetsOnDatacenterService 
         log.info("Removing asset from datacenter with ID: {}", id);
 
         if (!assetsOnDatacenterRepository.existsById(id)) {
-            throw new ResourceNotFoundException(ErrorMessages.ASSET_PLACEMENT_NOT_FOUND + id);
+            throw new ResourceNotFoundException(AssetPlacementErrorMessages.ASSET_PLACEMENT_NOT_FOUND + id);
         }
 
         assetsOnDatacenterRepository.deleteById(id);

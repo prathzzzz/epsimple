@@ -3,9 +3,11 @@ package com.eps.module.api.epsone.cost_type.processor;
 import com.eps.module.api.epsone.cost_category.repository.CostCategoryRepository;
 import com.eps.module.api.epsone.cost_type.dto.CostTypeBulkUploadDto;
 import com.eps.module.api.epsone.cost_type.repository.CostTypeRepository;
+import com.eps.module.api.epsone.cost_category.constant.CostCategoryErrorMessages;
 import com.eps.module.api.epsone.cost_type.validator.CostTypeBulkUploadValidator;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.validator.BulkRowValidator;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.CostCategory;
 import com.eps.module.cost.CostType;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +36,7 @@ public class CostTypeBulkUploadProcessor extends BulkUploadProcessor<CostTypeBul
         // Look up cost category by name
         CostCategory costCategory = costCategoryRepository
                 .findByCategoryNameIgnoreCase(dto.getCostCategoryName())
-                .orElseThrow(() -> new RuntimeException("Cost category not found: " + dto.getCostCategoryName()));
+                .orElseThrow(() -> new ResourceNotFoundException(CostCategoryErrorMessages.COST_CATEGORY_NOT_FOUND + dto.getCostCategoryName()));
 
         return CostType.builder()
                 .typeName(capitalizeFirstLetter(dto.getTypeName()))

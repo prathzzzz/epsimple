@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.managed_project.validator;
 
+import com.eps.module.api.epsone.managed_project.constant.ManagedProjectErrorMessages;
 import com.eps.module.api.epsone.managed_project.dto.ManagedProjectBulkUploadDto;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -26,12 +27,12 @@ public class ManagedProjectBulkUploadValidator implements BulkRowValidator<Manag
         if (dto.getProjectName() == null || dto.getProjectName().trim().isEmpty()) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Project name is required")
+                    .errorMessage(ManagedProjectErrorMessages.PROJECT_NAME_REQUIRED)
                     .build());
         } else if (dto.getProjectName().length() > 255) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Project name cannot exceed 255 characters")
+                    .errorMessage(ManagedProjectErrorMessages.PROJECT_NAME_TOO_LONG)
                     .build());
         }
 
@@ -40,20 +41,20 @@ public class ManagedProjectBulkUploadValidator implements BulkRowValidator<Manag
             if (dto.getProjectCode().length() > 50) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Project code cannot exceed 50 characters")
+                        .errorMessage(ManagedProjectErrorMessages.PROJECT_CODE_TOO_LONG)
                         .build());
             }
             if (!dto.getProjectCode().matches("^[A-Za-z0-9_-]+$")) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Project code can only contain letters, numbers, hyphens and underscores")
+                        .errorMessage(ManagedProjectErrorMessages.PROJECT_CODE_INVALID_FORMAT)
                         .build());
             }
             // Check for duplicate project code
             if (managedProjectRepository.existsByProjectCode(dto.getProjectCode())) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Project code '" + dto.getProjectCode() + "' already exists")
+                        .errorMessage(String.format(ManagedProjectErrorMessages.DUPLICATE_PROJECT_CODE, dto.getProjectCode()))
                         .errorType("DUPLICATE")
                         .build());
             }
@@ -63,7 +64,7 @@ public class ManagedProjectBulkUploadValidator implements BulkRowValidator<Manag
         if (dto.getProjectType() != null && dto.getProjectType().length() > 50) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Project type cannot exceed 50 characters")
+                    .errorMessage(ManagedProjectErrorMessages.PROJECT_TYPE_TOO_LONG)
                     .build());
         }
 
@@ -71,7 +72,7 @@ public class ManagedProjectBulkUploadValidator implements BulkRowValidator<Manag
         if (dto.getProjectDescription() != null && dto.getProjectDescription().length() > 5000) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Project description cannot exceed 5000 characters")
+                    .errorMessage(ManagedProjectErrorMessages.PROJECT_DESCRIPTION_TOO_LONG)
                     .build());
         }
 
@@ -79,7 +80,7 @@ public class ManagedProjectBulkUploadValidator implements BulkRowValidator<Manag
         if (dto.getBankName() == null || dto.getBankName().trim().isEmpty()) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Bank name is required")
+                    .errorMessage(ManagedProjectErrorMessages.BANK_NAME_REQUIRED)
                     .build());
         }
 

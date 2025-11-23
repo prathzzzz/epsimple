@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.landlord.validator;
 
+import com.eps.module.api.epsone.landlord.constant.LandlordErrorMessages;
 import com.eps.module.api.epsone.landlord.dto.LandlordBulkUploadDto;
 import com.eps.module.api.epsone.landlord.repository.LandlordRepository;
 import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
@@ -30,7 +31,7 @@ public class LandlordBulkUploadValidator implements BulkRowValidator<LandlordBul
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Contact Number")
-                    .errorMessage("Contact Number is required")
+                    .errorMessage(LandlordErrorMessages.CONTACT_NUMBER_REQUIRED)
                     .rejectedValue(dto.getContactNumber())
                     .build());
         } else {
@@ -41,7 +42,7 @@ public class LandlordBulkUploadValidator implements BulkRowValidator<LandlordBul
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Contact Number")
-                        .errorMessage("Contact Number must be exactly 10 digits")
+                        .errorMessage(LandlordErrorMessages.CONTACT_NUMBER_INVALID_FORMAT)
                         .rejectedValue(dto.getContactNumber())
                         .build());
             } else {
@@ -50,7 +51,7 @@ public class LandlordBulkUploadValidator implements BulkRowValidator<LandlordBul
                     errors.add(BulkUploadErrorDto.builder()
                             .rowNumber(rowNumber)
                             .fieldName("Contact Number")
-                            .errorMessage("Person Details not found with Contact Number: " + contactNumber + ". Please upload Person Details first.")
+                            .errorMessage(String.format(LandlordErrorMessages.PERSON_DETAILS_NOT_FOUND_CONTACT, contactNumber))
                             .rejectedValue(dto.getContactNumber())
                             .build());
                 } else {
@@ -60,7 +61,7 @@ public class LandlordBulkUploadValidator implements BulkRowValidator<LandlordBul
                         errors.add(BulkUploadErrorDto.builder()
                                 .rowNumber(rowNumber)
                                 .fieldName("Contact Number")
-                                .errorMessage("Person with Contact Number " + contactNumber + " is already assigned as a landlord")
+                                .errorMessage(String.format(LandlordErrorMessages.PERSON_ALREADY_LANDLORD, contactNumber))
                                 .rejectedValue(dto.getContactNumber())
                                 .build());
                     }
@@ -75,7 +76,7 @@ public class LandlordBulkUploadValidator implements BulkRowValidator<LandlordBul
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Rent Share Percentage")
-                        .errorMessage("Rent Share Percentage must be between 0 and 100")
+                        .errorMessage(LandlordErrorMessages.RENT_SHARE_INVALID_RANGE)
                         .rejectedValue(dto.getRentSharePercentage() != null ? dto.getRentSharePercentage().toString() : null)
                         .build());
             }
@@ -83,7 +84,7 @@ public class LandlordBulkUploadValidator implements BulkRowValidator<LandlordBul
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Rent Share Percentage")
-                        .errorMessage("Rent Share Percentage can have maximum 2 decimal places")
+                        .errorMessage(LandlordErrorMessages.RENT_SHARE_INVALID_SCALE)
                         .rejectedValue(dto.getRentSharePercentage() != null ? dto.getRentSharePercentage().toString() : null)
                         .build());
             }

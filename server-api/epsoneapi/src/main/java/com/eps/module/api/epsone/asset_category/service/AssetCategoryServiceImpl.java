@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.asset_category.service;
 
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
+import com.eps.module.api.epsone.asset_category.constant.AssetCategoryErrorMessages;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryBulkUploadDto;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryErrorReportDto;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryRequestDto;
@@ -12,6 +13,8 @@ import com.eps.module.asset.AssetCategory;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -40,15 +43,15 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
 
         // Check for duplicates
         if (assetCategoryRepository.existsByCategoryNameIgnoreCase(requestDto.getCategoryName())) {
-            throw new IllegalArgumentException("Asset category with name '" + requestDto.getCategoryName() + "' already exists");
+            throw new ConflictException(String.format(AssetCategoryErrorMessages.ASSET_CATEGORY_NAME_ALREADY_EXISTS, requestDto.getCategoryName()));
         }
 
         if (assetCategoryRepository.existsByCategoryCodeIgnoreCase(requestDto.getCategoryCode())) {
-            throw new IllegalArgumentException("Asset category with code '" + requestDto.getCategoryCode() + "' already exists");
+            throw new ConflictException(String.format(AssetCategoryErrorMessages.ASSET_CATEGORY_CODE_ALREADY_EXISTS, requestDto.getCategoryCode()));
         }
 
         if (assetCategoryRepository.existsByAssetCodeAltIgnoreCase(requestDto.getAssetCodeAlt())) {
-            throw new IllegalArgumentException("Asset code alt '" + requestDto.getAssetCodeAlt() + "' already exists");
+            throw new ConflictException(String.format(AssetCategoryErrorMessages.ASSET_CODE_ALT_ALREADY_EXISTS, requestDto.getAssetCodeAlt()));
         }
 
         AssetCategory assetCategory = assetCategoryMapper.toEntity(requestDto);
@@ -88,7 +91,7 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
     public AssetCategoryResponseDto getAssetCategoryById(Long id) {
         log.info("Fetching asset category by ID: {}", id);
         AssetCategory assetCategory = assetCategoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asset category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetCategoryErrorMessages.ASSET_CATEGORY_NOT_FOUND_ID + id));
         return assetCategoryMapper.toResponseDto(assetCategory);
     }
 
@@ -98,19 +101,19 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
         log.info("Updating asset category with ID: {}", id);
 
         AssetCategory existing = assetCategoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asset category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetCategoryErrorMessages.ASSET_CATEGORY_NOT_FOUND_ID + id));
 
         // Check for duplicates (excluding current record)
         if (assetCategoryRepository.existsByCategoryNameAndIdNot(requestDto.getCategoryName(), id)) {
-            throw new IllegalArgumentException("Asset category with name '" + requestDto.getCategoryName() + "' already exists");
+            throw new ConflictException(String.format(AssetCategoryErrorMessages.ASSET_CATEGORY_NAME_ALREADY_EXISTS, requestDto.getCategoryName()));
         }
 
         if (assetCategoryRepository.existsByCategoryCodeAndIdNot(requestDto.getCategoryCode(), id)) {
-            throw new IllegalArgumentException("Asset category with code '" + requestDto.getCategoryCode() + "' already exists");
+            throw new ConflictException(String.format(AssetCategoryErrorMessages.ASSET_CATEGORY_CODE_ALREADY_EXISTS, requestDto.getCategoryCode()));
         }
 
         if (assetCategoryRepository.existsByAssetCodeAltAndIdNot(requestDto.getAssetCodeAlt(), id)) {
-            throw new IllegalArgumentException("Asset code alt '" + requestDto.getAssetCodeAlt() + "' already exists");
+            throw new ConflictException(String.format(AssetCategoryErrorMessages.ASSET_CODE_ALT_ALREADY_EXISTS, requestDto.getAssetCodeAlt()));
         }
 
         assetCategoryMapper.updateEntityFromDto(requestDto, existing);
@@ -126,12 +129,12 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
         log.info("Deleting asset category with ID: {}", id);
 
         AssetCategory assetCategory = assetCategoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asset category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetCategoryErrorMessages.ASSET_CATEGORY_NOT_FOUND_ID + id));
 
         // Check if this asset category is being used by any assets
         long assetCount = assetRepository.countByAssetCategoryId(id);
         if (assetCount > 0) {
-            throw new IllegalStateException("Cannot delete asset category. It is referenced in " + assetCount + " asset(s).");
+            throw new ConflictException(String.format(AssetCategoryErrorMessages.CANNOT_DELETE_ASSET_CATEGORY_IN_USE, assetCount));
         }
 
         assetCategoryRepository.deleteById(id);

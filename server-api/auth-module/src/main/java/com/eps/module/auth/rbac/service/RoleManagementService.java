@@ -9,12 +9,14 @@ import com.eps.module.auth.entity.Permission;
 import com.eps.module.auth.entity.Role;
 import com.eps.module.auth.repository.PermissionRepository;
 import com.eps.module.auth.repository.RoleRepository;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ForbiddenException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -44,7 +46,7 @@ public class RoleManagementService {
      */
     public RoleDTO getRoleById(Long id) {
         Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         return roleMapper.toDTO(role);
     }
 
@@ -55,7 +57,7 @@ public class RoleManagementService {
     public RoleDTO createRole(CreateRoleRequest request) {
         // Check if role name already exists
         if (roleRepository.existsByName(request.getName())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Role with this name already exists");
+            throw new ConflictException("Role with this name already exists");
         }
 
         // Fetch permissions
@@ -64,7 +66,7 @@ public class RoleManagementService {
         );
 
         if (permissions.size() != request.getPermissionIds().size()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some permissions not found");
+            throw new BadRequestException("Some permissions not found");
         }
 
         // Create role
@@ -88,16 +90,16 @@ public class RoleManagementService {
     @Transactional
     public RoleDTO updateRole(Long id, UpdateRoleRequest request) {
         Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
         // Prevent updating system roles
         if (role.getIsSystemRole()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot update system role");
+            throw new ForbiddenException("Cannot update system role");
         }
 
         // Check if new name conflicts with existing role
         if (!role.getName().equals(request.getName()) && roleRepository.existsByName(request.getName())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Role with this name already exists");
+            throw new ConflictException("Role with this name already exists");
         }
 
         role.setName(request.getName());
@@ -115,11 +117,11 @@ public class RoleManagementService {
     @Transactional
     public void deleteRole(Long id) {
         Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
         // Prevent deleting system roles
         if (role.getIsSystemRole()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete system role");
+            throw new ForbiddenException("Cannot delete system role");
         }
 
         roleRepository.delete(role);
@@ -132,11 +134,11 @@ public class RoleManagementService {
     @Transactional
     public RoleDTO updateRolePermissions(Long id, UpdateRolePermissionsRequest request) {
         Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
         // Prevent updating system role permissions
         if (role.getIsSystemRole()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot update system role permissions");
+            throw new ForbiddenException("Cannot update system role permissions");
         }
 
         // Fetch permissions
@@ -145,7 +147,7 @@ public class RoleManagementService {
         );
 
         if (permissions.size() != request.getPermissionIds().size()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some permissions not found");
+            throw new BadRequestException("Some permissions not found");
         }
 
         role.setPermissions(permissions);

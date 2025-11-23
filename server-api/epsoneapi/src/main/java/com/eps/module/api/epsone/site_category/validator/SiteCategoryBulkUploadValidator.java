@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.site_category.validator;
 
+import com.eps.module.api.epsone.site_category.constant.SiteCategoryErrorMessages;
 import com.eps.module.api.epsone.site_category.dto.SiteCategoryBulkUploadDto;
 import com.eps.module.api.epsone.site_category.repository.SiteCategoryRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -27,14 +28,14 @@ public class SiteCategoryBulkUploadValidator implements BulkRowValidator<SiteCat
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Category Name")
-                    .errorMessage("Category Name is required")
+                    .errorMessage(SiteCategoryErrorMessages.SITE_CATEGORY_NAME_REQUIRED)
                     .rejectedValue(dto.getCategoryName())
                     .build());
         } else if (dto.getCategoryName().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Category Name")
-                    .errorMessage("Category Name cannot exceed 100 characters")
+                    .errorMessage(SiteCategoryErrorMessages.SITE_CATEGORY_NAME_MAX_LENGTH)
                     .rejectedValue(dto.getCategoryName())
                     .build());
         }
@@ -45,7 +46,7 @@ public class SiteCategoryBulkUploadValidator implements BulkRowValidator<SiteCat
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Category Code")
-                        .errorMessage("Category Code cannot exceed 20 characters")
+                        .errorMessage(SiteCategoryErrorMessages.SITE_CATEGORY_CODE_MAX_LENGTH)
                         .rejectedValue(dto.getCategoryCode())
                         .build());
             }
@@ -54,7 +55,7 @@ public class SiteCategoryBulkUploadValidator implements BulkRowValidator<SiteCat
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Category Code")
-                        .errorMessage("Category Code must contain only uppercase letters, numbers, hyphens, and underscores")
+                        .errorMessage(SiteCategoryErrorMessages.SITE_CATEGORY_CODE_FORMAT)
                         .rejectedValue(dto.getCategoryCode())
                         .build());
             }
@@ -65,7 +66,7 @@ public class SiteCategoryBulkUploadValidator implements BulkRowValidator<SiteCat
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Description")
-                    .errorMessage("Description cannot exceed 5000 characters")
+                    .errorMessage(SiteCategoryErrorMessages.DESCRIPTION_MAX_LENGTH)
                     .rejectedValue(dto.getDescription())
                     .build());
         }

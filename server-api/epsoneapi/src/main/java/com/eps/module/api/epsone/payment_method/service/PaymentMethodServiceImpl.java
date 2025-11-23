@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.payment_method.service;
 
+import com.eps.module.api.epsone.payment_method.constant.PaymentMethodErrorMessages;
 import com.eps.module.api.epsone.payment_method.dto.PaymentMethodBulkUploadDto;
 import com.eps.module.api.epsone.payment_method.dto.PaymentMethodErrorReportDto;
 import com.eps.module.api.epsone.payment_method.dto.PaymentMethodRequestDto;
@@ -10,6 +11,8 @@ import com.eps.module.api.epsone.payment_method.repository.PaymentMethodReposito
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.payment.PaymentMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +40,7 @@ public class PaymentMethodServiceImpl extends BaseBulkUploadService<PaymentMetho
         log.info("Creating payment method: {}", requestDto.getMethodName());
 
         if (paymentMethodRepository.existsByMethodNameIgnoreCase(requestDto.getMethodName())) {
-            throw new IllegalArgumentException("Payment method '" + requestDto.getMethodName() + "' already exists");
+            throw new ConflictException(String.format(PaymentMethodErrorMessages.PAYMENT_METHOD_EXISTS, requestDto.getMethodName()));
         }
 
         PaymentMethod paymentMethod = paymentMethodMapper.toEntity(requestDto);
@@ -77,7 +80,7 @@ public class PaymentMethodServiceImpl extends BaseBulkUploadService<PaymentMetho
     public PaymentMethodResponseDto getPaymentMethodById(Long id) {
         log.info("Fetching payment method with ID: {}", id);
         PaymentMethod paymentMethod = paymentMethodRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payment method not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(PaymentMethodErrorMessages.PAYMENT_METHOD_NOT_FOUND_ID + id));
         return paymentMethodMapper.toResponseDto(paymentMethod);
     }
 
@@ -87,10 +90,10 @@ public class PaymentMethodServiceImpl extends BaseBulkUploadService<PaymentMetho
         log.info("Updating payment method with ID: {}", id);
 
         PaymentMethod paymentMethod = paymentMethodRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payment method not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(PaymentMethodErrorMessages.PAYMENT_METHOD_NOT_FOUND_ID + id));
 
         if (paymentMethodRepository.existsByMethodNameAndIdNot(requestDto.getMethodName(), id)) {
-            throw new IllegalArgumentException("Payment method '" + requestDto.getMethodName() + "' already exists");
+            throw new ConflictException(String.format(PaymentMethodErrorMessages.PAYMENT_METHOD_EXISTS, requestDto.getMethodName()));
         }
 
         paymentMethodMapper.updateEntityFromDto(requestDto, paymentMethod);
@@ -106,7 +109,7 @@ public class PaymentMethodServiceImpl extends BaseBulkUploadService<PaymentMetho
         log.info("Deleting payment method with ID: {}", id);
 
         if (!paymentMethodRepository.existsById(id)) {
-            throw new IllegalArgumentException("Payment method not found with ID: " + id);
+            throw new ResourceNotFoundException(PaymentMethodErrorMessages.PAYMENT_METHOD_NOT_FOUND_ID + id);
         }
 
         paymentMethodRepository.deleteById(id);

@@ -10,13 +10,14 @@ import com.eps.module.auth.repository.RoleRepository;
 import com.eps.module.auth.repository.UserRepository;
 import com.eps.module.auth.repository.PasswordResetTokenRepository;
 import com.eps.module.auth.service.EmailService;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
 import java.util.HashSet;
@@ -50,7 +51,7 @@ public class UserManagementService {
      */
     public UserDTO getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return userMapper.toDTO(user);
     }
 
@@ -61,7 +62,7 @@ public class UserManagementService {
     public UserDTO createUser(CreateUserRequest request) {
         // Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User with this email already exists");
+            throw new ConflictException("User with this email already exists");
         }
 
         // Generate temporary password if not provided
@@ -73,7 +74,7 @@ public class UserManagementService {
         if (request.getRoleIds() != null && !request.getRoleIds().isEmpty()) {
             roles = new HashSet<>(roleRepository.findAllById(request.getRoleIds()));
             if (roles.size() != request.getRoleIds().size()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some roles not found");
+                throw new BadRequestException("Some roles not found");
             }
         }
 
@@ -123,13 +124,13 @@ public class UserManagementService {
     @Transactional
     public UserDTO updateUser(Long id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         // Update fields if provided
         if (request.getEmail() != null) {
             // Check if new email is already taken by another user
             if (!request.getEmail().equals(user.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already taken");
+                throw new ConflictException("Email already taken");
             }
             user.setEmail(request.getEmail());
         }
@@ -154,7 +155,7 @@ public class UserManagementService {
     @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         // Delete related password reset tokens first
         passwordResetTokenRepository.deleteByUser(user);

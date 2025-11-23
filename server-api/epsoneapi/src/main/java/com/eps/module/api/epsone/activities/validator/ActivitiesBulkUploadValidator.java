@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.activities.validator;
 
+import com.eps.module.api.epsone.activities.constant.ActivitiesErrorMessages;
 import com.eps.module.api.epsone.activities.dto.ActivitiesBulkUploadDto;
 import com.eps.module.api.epsone.activities.repository.ActivitiesRepository;
 import com.eps.module.api.epsone.activity.repository.ActivityRepository;
@@ -29,7 +30,7 @@ public class ActivitiesBulkUploadValidator implements BulkRowValidator<Activitie
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Activity Name (Master)")
-                    .errorMessage("Master activity name is required")
+                    .errorMessage(ActivitiesErrorMessages.MASTER_ACTIVITY_NAME_REQUIRED)
                     .rejectedValue(rowData.getMasterActivityName())
                     .build());
         } else {
@@ -42,7 +43,7 @@ public class ActivitiesBulkUploadValidator implements BulkRowValidator<Activitie
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Activity Name (Master)")
-                        .errorMessage("Master activity '" + rowData.getMasterActivityName() + "' not found")
+                        .errorMessage(String.format(ActivitiesErrorMessages.MASTER_ACTIVITY_NOT_FOUND_NAME, rowData.getMasterActivityName()))
                         .rejectedValue(rowData.getMasterActivityName())
                         .build());
             }
@@ -53,14 +54,14 @@ public class ActivitiesBulkUploadValidator implements BulkRowValidator<Activitie
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Activity Name")
-                    .errorMessage("Activity name is required")
+                    .errorMessage(ActivitiesErrorMessages.ACTIVITY_NAME_REQUIRED)
                     .rejectedValue(rowData.getActivityName())
                     .build());
         } else if (rowData.getActivityName().trim().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Activity Name")
-                    .errorMessage("Activity name cannot exceed 100 characters")
+                    .errorMessage(ActivitiesErrorMessages.ACTIVITY_NAME_MAX_LENGTH)
                     .rejectedValue(rowData.getActivityName())
                     .build());
         }
@@ -71,7 +72,7 @@ public class ActivitiesBulkUploadValidator implements BulkRowValidator<Activitie
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Activity Category")
-                        .errorMessage("Activity category cannot exceed 100 characters")
+                        .errorMessage(ActivitiesErrorMessages.ACTIVITY_CATEGORY_MAX_LENGTH)
                         .rejectedValue(rowData.getActivityCategory())
                         .build());
             }
@@ -83,7 +84,7 @@ public class ActivitiesBulkUploadValidator implements BulkRowValidator<Activitie
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Activity Description")
-                        .errorMessage("Activity description cannot exceed 5000 characters")
+                        .errorMessage(ActivitiesErrorMessages.ACTIVITY_DESCRIPTION_MAX_LENGTH)
                         .rejectedValue(rowData.getActivityDescription())
                         .build());
             }

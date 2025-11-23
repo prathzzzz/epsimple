@@ -5,8 +5,10 @@ import com.eps.module.activity.Activity;
 import com.eps.module.api.epsone.activities.dto.ActivitiesBulkUploadDto;
 import com.eps.module.api.epsone.activities.repository.ActivitiesRepository;
 import com.eps.module.api.epsone.activities.validator.ActivitiesBulkUploadValidator;
+import com.eps.module.api.epsone.activity.constant.ActivityErrorMessages;
 import com.eps.module.api.epsone.activity.repository.ActivityRepository;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -35,7 +37,7 @@ public class ActivitiesBulkUploadProcessor extends BulkUploadProcessor<Activitie
         // Find master activity by name - fetch eagerly to avoid lazy initialization exception
         Activity masterActivity = activityRepository
                 .findByActivityNameIgnoreCase(dto.getMasterActivityName().trim())
-                .orElseThrow(() -> new RuntimeException("Master activity not found: " + dto.getMasterActivityName()));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivityErrorMessages.MASTER_ACTIVITY_NOT_FOUND + dto.getMasterActivityName()));
 
         // Build Activities entity with the fetched Activity
         Activities activities = Activities.builder()

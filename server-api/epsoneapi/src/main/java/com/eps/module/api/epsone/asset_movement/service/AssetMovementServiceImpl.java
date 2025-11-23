@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.asset_movement.service;
 
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
+import com.eps.module.api.epsone.asset_movement.constants.AssetMovementErrorMessages;
 import com.eps.module.api.epsone.asset_movement.constants.LocationType;
 import com.eps.module.api.epsone.asset_movement.dto.AssetCurrentLocationDto;
 import com.eps.module.api.epsone.asset_movement.dto.AssetMovementHistoryDto;
@@ -119,7 +120,7 @@ public class AssetMovementServiceImpl implements AssetMovementService {
 
         // Verify asset exists
         assetRepository.findById(assetId)
-                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id: " + assetId));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetMovementErrorMessages.ASSET_NOT_FOUND_ID + assetId));
 
         // Get page of movements (IDs only)
         Page<AssetMovementTracker> movementsPage = movementTrackerRepository.findByAssetIdWithDetails(assetId, pageable);
@@ -157,7 +158,7 @@ public class AssetMovementServiceImpl implements AssetMovementService {
         log.info("Fetching current location for asset ID: {}", assetId);
 
         Asset asset = assetRepository.findById(assetId)
-                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id: " + assetId));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetMovementErrorMessages.ASSET_NOT_FOUND_ID + assetId));
 
         // Check site
         Optional<AssetsOnSite> siteOpt = assetsOnSiteRepository.findActiveByAssetId(assetId);
@@ -193,7 +194,7 @@ public class AssetMovementServiceImpl implements AssetMovementService {
         
         return movementTypeRepository.findByMovementType(movementTypeName)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Movement type not found: " + movementTypeName));
+                        AssetMovementErrorMessages.MOVEMENT_TYPE_NOT_FOUND + movementTypeName));
     }
 
     private String buildMovementTypeName(String fromType, String toType) {

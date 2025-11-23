@@ -2,13 +2,17 @@ package com.eps.module.api.epsone.activity_work.processor;
 
 import com.eps.module.activity.Activities;
 import com.eps.module.activity.ActivityWork;
+import com.eps.module.api.epsone.activities.constant.ActivitiesErrorMessages;
 import com.eps.module.api.epsone.activities.repository.ActivitiesRepository;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkBulkUploadDto;
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
 import com.eps.module.api.epsone.activity_work.validator.ActivityWorkBulkUploadValidator;
+import com.eps.module.api.epsone.generic_status_type.constant.GenericStatusTypeErrorMessages;
 import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTypeRepository;
+import com.eps.module.api.epsone.vendor.constant.VendorErrorMessages;
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.status.GenericStatusType;
 import com.eps.module.vendor.Vendor;
 import lombok.RequiredArgsConstructor;
@@ -51,17 +55,17 @@ public class ActivityWorkBulkUploadProcessor extends BulkUploadProcessor<Activit
         // Find activities by name
         Activities activities = activitiesRepository
                 .findByActivityNameIgnoreCase(dto.getActivitiesName().trim())
-                .orElseThrow(() -> new RuntimeException("Activities not found: " + dto.getActivitiesName()));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivitiesErrorMessages.ACTIVITIES_NOT_FOUND_NAME + dto.getActivitiesName()));
 
         // Find vendor by name
         Vendor vendor = vendorRepository
                 .findByVendorNameIgnoreCase(dto.getVendorName().trim())
-                .orElseThrow(() -> new RuntimeException("Vendor not found: " + dto.getVendorName()));
+                .orElseThrow(() -> new ResourceNotFoundException(VendorErrorMessages.VENDOR_NOT_FOUND + dto.getVendorName()));
 
         // Find status type by code
         GenericStatusType statusType = genericStatusTypeRepository
                 .findByStatusCodeIgnoreCase(dto.getStatusTypeCode().trim())
-                .orElseThrow(() -> new RuntimeException("Status type not found: " + dto.getStatusTypeCode()));
+                .orElseThrow(() -> new ResourceNotFoundException(GenericStatusTypeErrorMessages.STATUS_TYPE_NOT_FOUND + dto.getStatusTypeCode()));
 
         // Build ActivityWork entity
         ActivityWork activityWork = ActivityWork.builder()

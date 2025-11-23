@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.expenditures_invoice.validator;
 
 import com.eps.module.api.epsone.cost_item.repository.CostItemRepository;
+import com.eps.module.api.epsone.expenditures_invoice.constant.ExpendituresInvoiceErrorMessages;
 import com.eps.module.api.epsone.expenditures_invoice.dto.ExpendituresInvoiceBulkUploadDto;
 import com.eps.module.api.epsone.invoice.repository.InvoiceRepository;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
@@ -38,41 +39,41 @@ public class ExpendituresInvoiceBulkUploadValidator implements BulkRowValidator<
 
         // Validate Cost Item Name (Required, FK)
         if (rowData.getCostItemName() == null || rowData.getCostItemName().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "Cost Item Name", "Cost item name is required", rowData.getCostItemName()));
+            errors.add(createError(rowNumber, "Cost Item Name", ExpendituresInvoiceErrorMessages.COST_ITEM_NAME_REQUIRED, rowData.getCostItemName()));
         } else {
             String costItemName = rowData.getCostItemName().trim();
             boolean exists = costItemRepository.existsByCostItemForIgnoreCase(costItemName);
             if (!exists) {
-                errors.add(createError(rowNumber, "Cost Item Name", "Cost item '" + costItemName + "' not found", costItemName));
+                errors.add(createError(rowNumber, "Cost Item Name", ExpendituresInvoiceErrorMessages.COST_ITEM_NOT_FOUND_NAME + costItemName, costItemName));
             }
         }
 
         // Validate Invoice Number (Required, FK)
         if (rowData.getInvoiceNumber() == null || rowData.getInvoiceNumber().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "Invoice Number", "Invoice number is required", rowData.getInvoiceNumber()));
+            errors.add(createError(rowNumber, "Invoice Number", ExpendituresInvoiceErrorMessages.INVOICE_NUMBER_REQUIRED, rowData.getInvoiceNumber()));
         } else {
             String invoiceNumber = rowData.getInvoiceNumber().trim();
             boolean exists = invoiceRepository.existsByInvoiceNumber(invoiceNumber);
             if (!exists) {
-                errors.add(createError(rowNumber, "Invoice Number", "Invoice '" + invoiceNumber + "' not found", invoiceNumber));
+                errors.add(createError(rowNumber, "Invoice Number", ExpendituresInvoiceErrorMessages.INVOICE_NOT_FOUND_NUMBER + invoiceNumber, invoiceNumber));
             }
         }
 
         // Validate Managed Project Code (Required, FK)
         if (rowData.getManagedProjectCode() == null || rowData.getManagedProjectCode().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "Managed Project Code", "Managed Project code is required", rowData.getManagedProjectCode()));
+            errors.add(createError(rowNumber, "Managed Project Code", ExpendituresInvoiceErrorMessages.MANAGED_PROJECT_CODE_REQUIRED, rowData.getManagedProjectCode()));
         } else {
             String projectCode = rowData.getManagedProjectCode().trim();
             boolean exists = managedProjectRepository.existsByProjectCodeIgnoreCase(projectCode);
             if (!exists) {
-                errors.add(createError(rowNumber, "Managed Project Code", "Managed Project '" + projectCode + "' not found", projectCode));
+                errors.add(createError(rowNumber, "Managed Project Code", ExpendituresInvoiceErrorMessages.MANAGED_PROJECT_NOT_FOUND_CODE + projectCode, projectCode));
             }
         }
 
         // Validate Incurred Date (Optional)
         if (rowData.getIncurredDate() != null && !rowData.getIncurredDate().trim().isEmpty()) {
             if (!isValidDate(rowData.getIncurredDate().trim())) {
-                errors.add(createError(rowNumber, "Incurred Date", "Invalid date format. Use yyyy-MM-dd, dd/MM/yyyy, or MM/dd/yyyy", rowData.getIncurredDate()));
+                errors.add(createError(rowNumber, "Incurred Date", ExpendituresInvoiceErrorMessages.INCURRED_DATE_INVALID, rowData.getIncurredDate()));
             }
         }
 

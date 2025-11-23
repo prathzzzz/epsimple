@@ -23,6 +23,8 @@ import com.eps.module.site.Site;
 import com.eps.module.status.GenericStatusType;
 import com.eps.module.warehouse.Datacenter;
 import com.eps.module.warehouse.Warehouse;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -85,14 +87,14 @@ public class AssetPlacementBulkUploadProcessor extends BulkUploadProcessor<Asset
         try {
             AssetPlacementBulkUploadDto dto = currentDto.get();
             if (dto == null) {
-                throw new RuntimeException("DTO not found in thread-local storage");
+                throw new BadRequestException("DTO not found in thread-local storage");
             }
 
             log.debug("Processing placement for asset: {}", dto.getAssetTagId());
 
             // Get the asset
             Asset asset = assetRepository.findByAssetTagId(dto.getAssetTagId().trim())
-                    .orElseThrow(() -> new RuntimeException("Asset not found: " + dto.getAssetTagId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Asset not found: " + dto.getAssetTagId()));
 
             String locationCode = dto.getLocationCode().trim();
             
@@ -107,14 +109,14 @@ public class AssetPlacementBulkUploadProcessor extends BulkUploadProcessor<Asset
                 log.debug("Placing asset {} at Warehouse: {}", asset.getAssetTagId(), locationCode);
                 createWarehousePlacement(dto, asset, locationCode);
             } else {
-                throw new RuntimeException("Location code not found: " + locationCode);
+                throw new ResourceNotFoundException("Location code not found: " + locationCode);
             }
 
             log.debug("Successfully placed asset: {}", asset.getAssetTagId());
 
         } catch (Exception e) {
             log.error("Error processing placement: {}", e.getMessage(), e);
-            throw new RuntimeException("Error processing placement: " + e.getMessage(), e);
+            throw new BadRequestException("Error processing placement: " + e.getMessage());
         } finally {
             // Clean up thread-local storage
             currentDto.remove();
@@ -123,10 +125,10 @@ public class AssetPlacementBulkUploadProcessor extends BulkUploadProcessor<Asset
 
     private void createSitePlacement(AssetPlacementBulkUploadDto dto, Asset asset, String siteCode) {
         Site site = siteRepository.findBySiteCode(siteCode)
-                .orElseThrow(() -> new RuntimeException("Site not found: " + siteCode));
+                .orElseThrow(() -> new ResourceNotFoundException("Site not found: " + siteCode));
 
         GenericStatusType placementStatus = genericStatusTypeRepository.findByStatusCodeIgnoreCase(dto.getPlacementStatusCode())
-                .orElseThrow(() -> new RuntimeException("Placement Status not found: " + dto.getPlacementStatusCode()));
+                .orElseThrow(() -> new ResourceNotFoundException("Placement Status not found: " + dto.getPlacementStatusCode()));
 
         // Check for existing active placements and vacate them
         Object fromPlacement = null;
@@ -194,10 +196,10 @@ public class AssetPlacementBulkUploadProcessor extends BulkUploadProcessor<Asset
 
     private void createDatacenterPlacement(AssetPlacementBulkUploadDto dto, Asset asset, String datacenterCode) {
         Datacenter datacenter = datacenterRepository.findByDatacenterCode(datacenterCode)
-                .orElseThrow(() -> new RuntimeException("Datacenter not found: " + datacenterCode));
+                .orElseThrow(() -> new ResourceNotFoundException("Datacenter not found: " + datacenterCode));
 
         GenericStatusType placementStatus = genericStatusTypeRepository.findByStatusCodeIgnoreCase(dto.getPlacementStatusCode())
-                .orElseThrow(() -> new RuntimeException("Placement Status not found: " + dto.getPlacementStatusCode()));
+                .orElseThrow(() -> new ResourceNotFoundException("Placement Status not found: " + dto.getPlacementStatusCode()));
 
         // Check for existing active placements and vacate them
         Object fromPlacement = null;
@@ -265,10 +267,10 @@ public class AssetPlacementBulkUploadProcessor extends BulkUploadProcessor<Asset
 
     private void createWarehousePlacement(AssetPlacementBulkUploadDto dto, Asset asset, String warehouseCode) {
         Warehouse warehouse = warehouseRepository.findByWarehouseCode(warehouseCode)
-                .orElseThrow(() -> new RuntimeException("Warehouse not found: " + warehouseCode));
+                .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found: " + warehouseCode));
 
         GenericStatusType placementStatus = genericStatusTypeRepository.findByStatusCodeIgnoreCase(dto.getPlacementStatusCode())
-                .orElseThrow(() -> new RuntimeException("Placement Status not found: " + dto.getPlacementStatusCode()));
+                .orElseThrow(() -> new ResourceNotFoundException("Placement Status not found: " + dto.getPlacementStatusCode()));
 
         // Check for existing active placements and vacate them
         Object fromPlacement = null;

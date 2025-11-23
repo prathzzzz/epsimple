@@ -1,5 +1,6 @@
 package com.eps.module.auth.rbac.seeder;
 
+import com.eps.module.auth.constant.AuthErrorMessages;
 import com.eps.module.auth.entity.Role;
 import com.eps.module.auth.entity.User;
 import com.eps.module.auth.repository.RoleRepository;
@@ -49,7 +50,7 @@ public class UserSeeder extends AbstractSeeder {
 
         // Get roles
         Role adminRole = roleRepository.findByName("ADMIN")
-                .orElseThrow(() -> new RuntimeException("ADMIN role not found"));
+                .orElseThrow(() -> new IllegalStateException(AuthErrorMessages.ADMIN_ROLE_NOT_FOUND));
 
         int usersCreated = 0;
 

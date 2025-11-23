@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.cost_category.validator;
 
+import com.eps.module.api.epsone.cost_category.constant.CostCategoryErrorMessages;
 import com.eps.module.api.epsone.cost_category.dto.CostCategoryBulkUploadDto;
 import com.eps.module.api.epsone.cost_category.repository.CostCategoryRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -24,14 +25,14 @@ public class CostCategoryBulkUploadValidator implements BulkRowValidator<CostCat
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Category Name")
-                    .errorMessage("Category name is required")
+                    .errorMessage(CostCategoryErrorMessages.COST_CATEGORY_NAME_REQUIRED)
                     .rejectedValue(rowData.getCategoryName())
                     .build());
         } else if (rowData.getCategoryName().length() > 50) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Category Name")
-                    .errorMessage("Category name cannot exceed 50 characters")
+                    .errorMessage(CostCategoryErrorMessages.COST_CATEGORY_NAME_MAX_LENGTH)
                     .rejectedValue(rowData.getCategoryName())
                     .build());
         }
@@ -40,7 +41,7 @@ public class CostCategoryBulkUploadValidator implements BulkRowValidator<CostCat
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Category Description")
-                    .errorMessage("Category description is required")
+                    .errorMessage(CostCategoryErrorMessages.COST_CATEGORY_DESCRIPTION_REQUIRED)
                     .rejectedValue(rowData.getCategoryDescription())
                     .build());
         }

@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.payee_details.validator;
 
+import com.eps.module.api.epsone.payee_details.constant.PayeeDetailsErrorMessages;
 import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsBulkUploadDto;
 import com.eps.module.api.epsone.payee_details.repository.PayeeDetailsRepository;
 import com.eps.module.api.epsone.bank.repository.BankRepository;
@@ -30,14 +31,14 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Payee Name")
-                    .errorMessage("Payee name is required")
+                    .errorMessage(PayeeDetailsErrorMessages.PAYEE_NAME_REQUIRED)
                     .rejectedValue(rowData.getPayeeName())
                     .build());
         } else if (rowData.getPayeeName().length() > 255) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Payee Name")
-                    .errorMessage("Payee name cannot exceed 255 characters")
+                    .errorMessage(PayeeDetailsErrorMessages.PAYEE_NAME_TOO_LONG)
                     .rejectedValue(rowData.getPayeeName())
                     .build());
         }
@@ -49,7 +50,7 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Bank Name")
-                        .errorMessage("Bank '" + rowData.getBankName() + "' does not exist")
+                        .errorMessage(String.format(PayeeDetailsErrorMessages.BANK_NOT_FOUND_NAME, rowData.getBankName()))
                         .rejectedValue(rowData.getBankName())
                         .build());
             }
@@ -62,7 +63,7 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("PAN Number")
-                        .errorMessage("PAN number '" + rowData.getPanNumber() + "' is already registered")
+                        .errorMessage(String.format(PayeeDetailsErrorMessages.PAN_ALREADY_REGISTERED_VALUE, rowData.getPanNumber()))
                         .rejectedValue(rowData.getPanNumber())
                         .build());
             }
@@ -75,7 +76,7 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Aadhaar Number")
-                        .errorMessage("Aadhaar number '" + rowData.getAadhaarNumber() + "' is already registered")
+                        .errorMessage(String.format(PayeeDetailsErrorMessages.AADHAAR_ALREADY_REGISTERED_VALUE, rowData.getAadhaarNumber()))
                         .rejectedValue(rowData.getAadhaarNumber())
                         .build());
             }
@@ -92,8 +93,8 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
                     errors.add(BulkUploadErrorDto.builder()
                             .rowNumber(rowNumber)
                             .fieldName("Account Number")
-                            .errorMessage("Account number '" + rowData.getAccountNumber() + 
-                                    "' is already registered with " + bank.getBankName())
+                            .errorMessage(String.format(PayeeDetailsErrorMessages.ACCOUNT_ALREADY_REGISTERED_BANK, 
+                                    rowData.getAccountNumber(), bank.getBankName()))
                             .rejectedValue(rowData.getAccountNumber())
                             .build());
                 }
@@ -105,7 +106,7 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("PAN Number")
-                    .errorMessage("PAN number cannot exceed 255 characters")
+                    .errorMessage(PayeeDetailsErrorMessages.PAN_TOO_LONG)
                     .rejectedValue(rowData.getPanNumber())
                     .build());
         }
@@ -114,7 +115,7 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Aadhaar Number")
-                    .errorMessage("Aadhaar number cannot exceed 255 characters")
+                    .errorMessage(PayeeDetailsErrorMessages.AADHAAR_TOO_LONG)
                     .rejectedValue(rowData.getAadhaarNumber())
                     .build());
         }
@@ -123,7 +124,7 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("IFSC Code")
-                    .errorMessage("IFSC code cannot exceed 20 characters")
+                    .errorMessage(PayeeDetailsErrorMessages.IFSC_TOO_LONG)
                     .rejectedValue(rowData.getIfscCode())
                     .build());
         }
@@ -132,7 +133,7 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Beneficiary Name")
-                    .errorMessage("Beneficiary name cannot exceed 255 characters")
+                    .errorMessage(PayeeDetailsErrorMessages.BENEFICIARY_NAME_TOO_LONG)
                     .rejectedValue(rowData.getBeneficiaryName())
                     .build());
         }
@@ -141,7 +142,7 @@ public class PayeeDetailsBulkUploadValidator implements BulkRowValidator<PayeeDe
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Account Number")
-                    .errorMessage("Account number cannot exceed 255 characters")
+                    .errorMessage(PayeeDetailsErrorMessages.ACCOUNT_NUMBER_TOO_LONG)
                     .rejectedValue(rowData.getAccountNumber())
                     .build());
         }

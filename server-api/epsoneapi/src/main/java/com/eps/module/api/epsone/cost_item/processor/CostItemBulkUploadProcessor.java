@@ -3,9 +3,11 @@ package com.eps.module.api.epsone.cost_item.processor;
 import com.eps.module.api.epsone.cost_item.dto.CostItemBulkUploadDto;
 import com.eps.module.api.epsone.cost_item.repository.CostItemRepository;
 import com.eps.module.api.epsone.cost_item.validator.CostItemBulkUploadValidator;
+import com.eps.module.api.epsone.cost_type.constant.CostTypeErrorMessages;
 import com.eps.module.api.epsone.cost_type.repository.CostTypeRepository;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.validator.BulkRowValidator;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.CostItem;
 import com.eps.module.cost.CostType;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +36,7 @@ public class CostItemBulkUploadProcessor extends BulkUploadProcessor<CostItemBul
         // Look up cost type by name
         CostType costType = costTypeRepository
                 .findByTypeNameIgnoreCase(dto.getCostTypeName())
-                .orElseThrow(() -> new RuntimeException("Cost type not found: " + dto.getCostTypeName()));
+                .orElseThrow(() -> new ResourceNotFoundException(CostTypeErrorMessages.COST_TYPE_NOT_FOUND + dto.getCostTypeName()));
 
         return CostItem.builder()
                 .costItemFor(capitalizeFirstLetter(dto.getCostItemFor()))

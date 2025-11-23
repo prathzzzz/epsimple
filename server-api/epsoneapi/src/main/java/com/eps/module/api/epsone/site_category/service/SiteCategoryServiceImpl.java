@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.site_category.service;
 
+import com.eps.module.api.epsone.site_category.constant.SiteCategoryErrorMessages;
 import com.eps.module.api.epsone.site_category.dto.SiteCategoryBulkUploadDto;
 import com.eps.module.api.epsone.site_category.dto.SiteCategoryErrorReportDto;
 import com.eps.module.api.epsone.site_category.dto.SiteCategoryRequestDto;
@@ -10,6 +11,7 @@ import com.eps.module.api.epsone.site_category.repository.SiteCategoryRepository
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.site.SiteCategory;
 import lombok.RequiredArgsConstructor;
@@ -37,13 +39,13 @@ public class SiteCategoryServiceImpl extends BaseBulkUploadService<SiteCategoryB
     public SiteCategoryResponseDto createSiteCategory(SiteCategoryRequestDto requestDto) {
         // Check if category name already exists
         if (repository.existsByCategoryName(requestDto.getCategoryName())) {
-            throw new IllegalArgumentException("Site category with name '" + requestDto.getCategoryName() + "' already exists");
+            throw new ConflictException(String.format(SiteCategoryErrorMessages.SITE_CATEGORY_NAME_EXISTS, requestDto.getCategoryName()));
         }
         
         // Check if category code already exists (if provided)
         if (requestDto.getCategoryCode() != null && !requestDto.getCategoryCode().trim().isEmpty()) {
             if (repository.existsByCategoryCode(requestDto.getCategoryCode())) {
-                throw new IllegalArgumentException("Site category with code '" + requestDto.getCategoryCode() + "' already exists");
+                throw new ConflictException(String.format(SiteCategoryErrorMessages.SITE_CATEGORY_CODE_EXISTS, requestDto.getCategoryCode()));
             }
         }
         
@@ -78,7 +80,7 @@ public class SiteCategoryServiceImpl extends BaseBulkUploadService<SiteCategoryB
     @Transactional(readOnly = true)
     public SiteCategoryResponseDto getSiteCategoryById(Long id) {
         SiteCategory siteCategory = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Site Category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(SiteCategoryErrorMessages.SITE_CATEGORY_NOT_FOUND_ID + id));
         return mapper.toResponseDto(siteCategory);
     }
 
@@ -86,12 +88,12 @@ public class SiteCategoryServiceImpl extends BaseBulkUploadService<SiteCategoryB
     @Transactional
     public SiteCategoryResponseDto updateSiteCategory(Long id, SiteCategoryRequestDto requestDto) {
         SiteCategory siteCategory = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Site Category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(SiteCategoryErrorMessages.SITE_CATEGORY_NOT_FOUND_ID + id));
         
         // Check if category name is being changed and if it already exists
         if (!siteCategory.getCategoryName().equals(requestDto.getCategoryName())) {
             if (repository.existsByCategoryName(requestDto.getCategoryName())) {
-                throw new IllegalArgumentException("Site category with name '" + requestDto.getCategoryName() + "' already exists");
+                throw new ConflictException(String.format(SiteCategoryErrorMessages.SITE_CATEGORY_NAME_EXISTS, requestDto.getCategoryName()));
             }
         }
         
@@ -99,7 +101,7 @@ public class SiteCategoryServiceImpl extends BaseBulkUploadService<SiteCategoryB
         if (requestDto.getCategoryCode() != null && !requestDto.getCategoryCode().trim().isEmpty()) {
             if (!requestDto.getCategoryCode().equals(siteCategory.getCategoryCode())) {
                 if (repository.existsByCategoryCode(requestDto.getCategoryCode())) {
-                    throw new IllegalArgumentException("Site category with code '" + requestDto.getCategoryCode() + "' already exists");
+                    throw new ConflictException(String.format(SiteCategoryErrorMessages.SITE_CATEGORY_CODE_EXISTS, requestDto.getCategoryCode()));
                 }
             }
         }
@@ -113,7 +115,7 @@ public class SiteCategoryServiceImpl extends BaseBulkUploadService<SiteCategoryB
     @Transactional
     public void deleteSiteCategory(Long id) {
         if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Site Category not found with id: " + id);
+            throw new ResourceNotFoundException(SiteCategoryErrorMessages.SITE_CATEGORY_NOT_FOUND_ID + id);
         }
         repository.deleteById(id);
     }

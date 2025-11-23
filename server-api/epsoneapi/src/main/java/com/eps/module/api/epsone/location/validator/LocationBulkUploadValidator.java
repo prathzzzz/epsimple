@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.location.validator;
 
 import com.eps.module.api.epsone.city.repository.CityRepository;
+import com.eps.module.api.epsone.location.constant.LocationErrorMessages;
 import com.eps.module.api.epsone.location.dto.LocationBulkUploadDto;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -27,12 +28,12 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
         if (dto.getLocationName() == null || dto.getLocationName().trim().isEmpty()) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Location name is required")
+                    .errorMessage(LocationErrorMessages.LOCATION_NAME_REQUIRED)
                     .build());
         } else if (dto.getLocationName().length() > 255) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Location name cannot exceed 255 characters")
+                    .errorMessage(LocationErrorMessages.LOCATION_NAME_TOO_LONG)
                     .build());
         }
 
@@ -40,7 +41,7 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
         if (dto.getAddress() != null && dto.getAddress().length() > 5000) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Address cannot exceed 5000 characters")
+                    .errorMessage(LocationErrorMessages.ADDRESS_TOO_LONG)
                     .build());
         }
 
@@ -48,7 +49,7 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
         if (dto.getDistrict() != null && dto.getDistrict().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("District name cannot exceed 100 characters")
+                    .errorMessage(LocationErrorMessages.DISTRICT_TOO_LONG)
                     .build());
         }
 
@@ -56,7 +57,7 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
         if (dto.getCityName() == null || dto.getCityName().trim().isEmpty()) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("City name is required")
+                    .errorMessage(LocationErrorMessages.CITY_NAME_REQUIRED)
                     .build());
         } else {
             // Check if city exists
@@ -64,7 +65,7 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
             if (!cityExists) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("City not found: " + dto.getCityName())
+                        .errorMessage(LocationErrorMessages.CITY_NOT_FOUND_NAME + dto.getCityName())
                         .build());
             }
         }
@@ -74,7 +75,7 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
             if (!dto.getPincode().matches("^[0-9]{6}$")) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Pincode must be exactly 6 digits")
+                        .errorMessage(LocationErrorMessages.PINCODE_INVALID_FORMAT)
                         .build());
             }
         }
@@ -83,7 +84,7 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
         if (dto.getRegion() != null && dto.getRegion().length() > 50) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Region cannot exceed 50 characters")
+                    .errorMessage(LocationErrorMessages.REGION_TOO_LONG)
                     .build());
         }
 
@@ -91,7 +92,7 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
         if (dto.getZone() != null && dto.getZone().length() > 50) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Zone cannot exceed 50 characters")
+                    .errorMessage(LocationErrorMessages.ZONE_TOO_LONG)
                     .build());
         }
 
@@ -102,13 +103,13 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
                 if (longitude.compareTo(new BigDecimal("-180")) < 0 || longitude.compareTo(new BigDecimal("180")) > 0) {
                     errors.add(BulkUploadErrorDto.builder()
                             .rowNumber(rowNumber)
-                            .errorMessage("Longitude must be between -180 and 180")
+                            .errorMessage(LocationErrorMessages.LONGITUDE_INVALID_RANGE)
                             .build());
                 }
             } catch (NumberFormatException e) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Invalid longitude format")
+                        .errorMessage(LocationErrorMessages.LONGITUDE_INVALID_FORMAT)
                         .build());
             }
         }
@@ -120,13 +121,13 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
                 if (latitude.compareTo(new BigDecimal("-90")) < 0 || latitude.compareTo(new BigDecimal("90")) > 0) {
                     errors.add(BulkUploadErrorDto.builder()
                             .rowNumber(rowNumber)
-                            .errorMessage("Latitude must be between -90 and 90")
+                            .errorMessage(LocationErrorMessages.LATITUDE_INVALID_RANGE)
                             .build());
                 }
             } catch (NumberFormatException e) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Invalid latitude format")
+                        .errorMessage(LocationErrorMessages.LATITUDE_INVALID_FORMAT)
                         .build());
             }
         }

@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.invoice.service;
 
+import com.eps.module.api.epsone.invoice.constant.InvoiceErrorMessages;
 import com.eps.module.api.epsone.invoice.dto.InvoiceBulkUploadDto;
 import com.eps.module.api.epsone.invoice.dto.InvoiceErrorReportDto;
 import com.eps.module.api.epsone.invoice.dto.InvoiceRequestDto;
@@ -12,6 +13,8 @@ import com.eps.module.api.epsone.payment_details.repository.PaymentDetailsReposi
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.payment.Invoice;
 import com.eps.module.payment.Payee;
 import com.eps.module.payment.PaymentDetails;
@@ -175,21 +178,21 @@ public class InvoiceServiceImpl extends BaseBulkUploadService<InvoiceBulkUploadD
 
         // Validate unique invoice number
         if (invoiceRepository.existsByInvoiceNumber(requestDto.getInvoiceNumber())) {
-            throw new IllegalArgumentException(
-                    "Invoice number '" + requestDto.getInvoiceNumber() + "' already exists");
+            throw new ConflictException(
+                    String.format(InvoiceErrorMessages.INVOICE_NUMBER_EXISTS, requestDto.getInvoiceNumber()));
         }
 
         // Validate that payee exists
         Payee payee = payeeRepository.findById(requestDto.getPayeeId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Payee not found with ID: " + requestDto.getPayeeId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        InvoiceErrorMessages.PAYEE_NOT_FOUND_ID + requestDto.getPayeeId()));
 
         // Validate payment details if provided
         PaymentDetails paymentDetails = null;
         if (requestDto.getPaymentDetailsId() != null) {
             paymentDetails = paymentDetailsRepository.findById(requestDto.getPaymentDetailsId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Payment details not found with ID: " + requestDto.getPaymentDetailsId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            InvoiceErrorMessages.PAYMENT_DETAILS_NOT_FOUND_ID + requestDto.getPaymentDetailsId()));
         }
 
         Invoice invoice = invoiceMapper.toEntity(requestDto);
@@ -234,7 +237,7 @@ public class InvoiceServiceImpl extends BaseBulkUploadService<InvoiceBulkUploadD
         
         // Validate payee exists
         if (!payeeRepository.existsById(payeeId)) {
-            throw new IllegalArgumentException("Payee not found with ID: " + payeeId);
+            throw new ResourceNotFoundException(InvoiceErrorMessages.PAYEE_NOT_FOUND_ID + payeeId);
         }
         
         return invoiceRepository.findByPayeeId(payeeId).stream()
@@ -247,7 +250,7 @@ public class InvoiceServiceImpl extends BaseBulkUploadService<InvoiceBulkUploadD
     public InvoiceResponseDto getInvoiceById(Long id) {
         log.info("Fetching invoice with ID: {}", id);
         Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invoice not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(InvoiceErrorMessages.INVOICE_NOT_FOUND_ID + id));
         return invoiceMapper.toResponseDto(invoice);
     }
 
@@ -257,28 +260,28 @@ public class InvoiceServiceImpl extends BaseBulkUploadService<InvoiceBulkUploadD
         log.info("Updating invoice with ID: {}", id);
 
         Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invoice not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(InvoiceErrorMessages.INVOICE_NOT_FOUND_ID + id));
 
         // Validate unique invoice number if it's being changed
         if (!invoice.getInvoiceNumber().equals(requestDto.getInvoiceNumber()) &&
                 invoiceRepository.existsByInvoiceNumberAndIdNot(requestDto.getInvoiceNumber(), id)) {
-            throw new IllegalArgumentException(
-                    "Invoice number '" + requestDto.getInvoiceNumber() + "' already exists");
+            throw new ConflictException(
+                    String.format(InvoiceErrorMessages.INVOICE_NUMBER_EXISTS, requestDto.getInvoiceNumber()));
         }
 
         // Validate that payee exists if it's being updated
         if (requestDto.getPayeeId() != null && !requestDto.getPayeeId().equals(invoice.getPayee().getId())) {
             Payee payee = payeeRepository.findById(requestDto.getPayeeId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Payee not found with ID: " + requestDto.getPayeeId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            InvoiceErrorMessages.PAYEE_NOT_FOUND_ID + requestDto.getPayeeId()));
             invoice.setPayee(payee);
         }
 
         // Validate payment details if provided
         if (requestDto.getPaymentDetailsId() != null) {
             PaymentDetails paymentDetails = paymentDetailsRepository.findById(requestDto.getPaymentDetailsId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Payment details not found with ID: " + requestDto.getPaymentDetailsId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            InvoiceErrorMessages.PAYMENT_DETAILS_NOT_FOUND_ID + requestDto.getPaymentDetailsId()));
             invoice.setPaymentDetails(paymentDetails);
         } else {
             invoice.setPaymentDetails(null);
@@ -297,7 +300,7 @@ public class InvoiceServiceImpl extends BaseBulkUploadService<InvoiceBulkUploadD
         log.info("Updating payment status for invoice ID: {} to: {}", id, paymentStatus);
 
         Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invoice not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(InvoiceErrorMessages.INVOICE_NOT_FOUND_ID + id));
 
         invoice.setPaymentStatus(paymentStatus);
         Invoice updatedInvoice = invoiceRepository.save(invoice);
@@ -312,7 +315,7 @@ public class InvoiceServiceImpl extends BaseBulkUploadService<InvoiceBulkUploadD
         log.info("Deleting invoice with ID: {}", id);
 
         if (!invoiceRepository.existsById(id)) {
-            throw new IllegalArgumentException("Invoice not found with ID: " + id);
+            throw new ResourceNotFoundException(InvoiceErrorMessages.INVOICE_NOT_FOUND_ID + id);
         }
 
         invoiceRepository.deleteById(id);

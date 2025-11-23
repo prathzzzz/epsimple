@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.activity.service;
 
 import com.eps.module.activity.Activity;
+import com.eps.module.api.epsone.activity.constant.ActivityErrorMessages;
 import com.eps.module.api.epsone.activity.dto.ActivityBulkUploadDto;
 import com.eps.module.api.epsone.activity.dto.ActivityErrorReportDto;
 import com.eps.module.api.epsone.activity.dto.ActivityRequestDto;
@@ -11,6 +12,8 @@ import com.eps.module.api.epsone.activity.repository.ActivityRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -85,7 +88,7 @@ public class ActivityServiceImpl extends BaseBulkUploadService<ActivityBulkUploa
         log.info("Creating new activity: {}", requestDto.getActivityName());
 
         if (activityRepository.existsByActivityNameIgnoreCase(requestDto.getActivityName())) {
-            throw new IllegalArgumentException("Activity with name '" + requestDto.getActivityName() + "' already exists");
+            throw new ConflictException(String.format(ActivityErrorMessages.ACTIVITY_NAME_EXISTS, requestDto.getActivityName()));
         }
 
         Activity activity = activityMapper.toEntity(requestDto);
@@ -126,7 +129,7 @@ public class ActivityServiceImpl extends BaseBulkUploadService<ActivityBulkUploa
     public ActivityResponseDto getActivityById(Long id) {
         log.info("Fetching activity by ID: {}", id);
         Activity activity = activityRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Activity not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivityErrorMessages.ACTIVITY_NOT_FOUND_ID + id));
         return activityMapper.toResponseDto(activity);
     }
 
@@ -136,10 +139,10 @@ public class ActivityServiceImpl extends BaseBulkUploadService<ActivityBulkUploa
         log.info("Updating activity with ID: {}", id);
 
         Activity activity = activityRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Activity not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivityErrorMessages.ACTIVITY_NOT_FOUND_ID + id));
 
         if (activityRepository.existsByActivityNameAndIdNot(activityRequestDto.getActivityName(), id)) {
-            throw new IllegalArgumentException("Activity with name '" + activityRequestDto.getActivityName() + "' already exists");
+            throw new ConflictException(String.format(ActivityErrorMessages.ACTIVITY_NAME_EXISTS, activityRequestDto.getActivityName()));
         }
 
         activityMapper.updateEntityFromDto(activityRequestDto, activity);
@@ -155,24 +158,24 @@ public class ActivityServiceImpl extends BaseBulkUploadService<ActivityBulkUploa
         log.info("Deleting activity with ID: {}", id);
 
         Activity activity = activityRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Activity not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivityErrorMessages.ACTIVITY_NOT_FOUND_ID + id));
 
         // Check if activity is being used by Activities records
         List<com.eps.module.activity.Activities> dependentActivities = activitiesRepository.findByActivityId((long) id.intValue());
         if (!dependentActivities.isEmpty()) {
             String activityNames = dependentActivities.stream()
-                .limit(3) // Show max 3 names
-                .map(com.eps.module.activity.Activities::getActivityName)
-                .collect(Collectors.joining(", "));
-            
+                    .limit(3) // Show max 3 names
+                    .map(com.eps.module.activity.Activities::getActivityName)
+                    .collect(Collectors.joining(", "));
+
             // If there are more than 3, add "and X more"
             if (dependentActivities.size() > 3) {
                 activityNames += " and " + (dependentActivities.size() - 3) + " more";
             }
-            
-            throw new IllegalStateException(
-                String.format("Activity '%s' cannot be deleted because it is being used by the following Activities: %s. Please remove these dependencies first.",
-                    activity.getActivityName(), activityNames)
+
+            throw new ConflictException(
+                    String.format(ActivityErrorMessages.CANNOT_DELETE_ACTIVITY_USED,
+                            activity.getActivityName(), activityNames)
             );
         }
 

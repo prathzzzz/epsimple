@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.generic_status_type.validator;
 
+import com.eps.module.api.epsone.generic_status_type.constant.GenericStatusTypeErrorMessages;
 import com.eps.module.api.epsone.generic_status_type.dto.GenericStatusTypeBulkUploadDto;
 import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -27,14 +28,14 @@ public class GenericStatusTypeBulkUploadValidator implements BulkRowValidator<Ge
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Status Name")
-                    .errorMessage("Status Name is required")
+                    .errorMessage(GenericStatusTypeErrorMessages.STATUS_NAME_REQUIRED)
                     .rejectedValue(dto.getStatusName())
                     .build());
         } else if (dto.getStatusName().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Status Name")
-                    .errorMessage("Status Name cannot exceed 100 characters")
+                    .errorMessage(GenericStatusTypeErrorMessages.STATUS_NAME_LENGTH_EXCEEDED)
                     .rejectedValue(dto.getStatusName())
                     .build());
         }
@@ -45,14 +46,14 @@ public class GenericStatusTypeBulkUploadValidator implements BulkRowValidator<Ge
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Status Code")
-                        .errorMessage("Status Code cannot exceed 20 characters")
+                        .errorMessage(GenericStatusTypeErrorMessages.STATUS_CODE_LENGTH_EXCEEDED)
                         .rejectedValue(dto.getStatusCode())
                         .build());
             } else if (!dto.getStatusCode().matches("^[A-Z ]*$")) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Status Code")
-                        .errorMessage("Status Code must contain only uppercase letters and spaces")
+                        .errorMessage(GenericStatusTypeErrorMessages.STATUS_CODE_INVALID_FORMAT)
                         .rejectedValue(dto.getStatusCode())
                         .build());
             }
@@ -63,7 +64,7 @@ public class GenericStatusTypeBulkUploadValidator implements BulkRowValidator<Ge
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Description")
-                    .errorMessage("Description cannot exceed 5000 characters")
+                    .errorMessage(GenericStatusTypeErrorMessages.DESCRIPTION_LENGTH_EXCEEDED)
                     .rejectedValue(dto.getDescription())
                     .build());
         }

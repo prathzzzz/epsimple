@@ -4,6 +4,7 @@ import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTyp
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
 import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.site.constant.SiteErrorMessages;
 import com.eps.module.api.epsone.site.dto.SiteBulkUploadDto;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
 import com.eps.module.api.epsone.site_category.repository.SiteCategoryRepository;
@@ -56,18 +57,18 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
 
         // Validate Project Code (required)
         if (rowData.getProjectCode() == null || rowData.getProjectCode().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "VALIDATION_ERROR", "Project Code is required"));
+            errors.add(createError(rowNumber, "VALIDATION_ERROR", SiteErrorMessages.PROJECT_CODE_REQUIRED));
         } else if (!managedProjectRepository.findByProjectCode(rowData.getProjectCode()).isPresent()) {
             errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                    "Project with code '" + rowData.getProjectCode() + "' does not exist"));
+                    String.format(SiteErrorMessages.PROJECT_NOT_FOUND_CODE, rowData.getProjectCode())));
         }
 
         // Validate Location Name (required)
         if (rowData.getLocationName() == null || rowData.getLocationName().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "VALIDATION_ERROR", "Location Name is required"));
+            errors.add(createError(rowNumber, "VALIDATION_ERROR", SiteErrorMessages.LOCATION_NAME_REQUIRED));
         } else if (!locationRepository.findByLocationNameIgnoreCase(rowData.getLocationName()).isPresent()) {
             errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                    "Location with name '" + rowData.getLocationName() + "' does not exist"));
+                    String.format(SiteErrorMessages.LOCATION_NOT_FOUND_NAME, rowData.getLocationName())));
         }
 
         // Validate Site Code (optional - will be auto-generated if not provided)
@@ -78,11 +79,11 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
             if (!SITE_CODE_PATTERN.matcher(siteCode).matches()) {
                 log.warn("Site code '{}' does not match pattern", siteCode);
                 errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                        "Site Code must be 5-50 uppercase alphanumeric characters"));
+                        SiteErrorMessages.SITE_CODE_INVALID_FORMAT));
             } else if (siteRepository.existsBySiteCode(siteCode)) {
                 log.warn("Duplicate site code detected: '{}'", siteCode);
                 errors.add(createError(rowNumber, "DUPLICATE_ERROR", 
-                        "Site with code '" + siteCode + "' already exists"));
+                        String.format(SiteErrorMessages.SITE_CODE_EXISTS, siteCode)));
             }
         } else {
             log.debug("No site code provided - will be auto-generated");
@@ -92,7 +93,7 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
         if (rowData.getSiteCategoryName() != null && !rowData.getSiteCategoryName().trim().isEmpty()) {
             if (!siteCategoryRepository.findByCategoryNameIgnoreCase(rowData.getSiteCategoryName()).isPresent()) {
                 errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                        "Site Category '" + rowData.getSiteCategoryName() + "' does not exist"));
+                        String.format(SiteErrorMessages.SITE_CATEGORY_NOT_FOUND_NAME, rowData.getSiteCategoryName())));
             }
         }
 
@@ -100,7 +101,7 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
         if (rowData.getSiteTypeName() != null && !rowData.getSiteTypeName().trim().isEmpty()) {
             if (!siteTypeRepository.findByTypeNameIgnoreCase(rowData.getSiteTypeName()).isPresent()) {
                 errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                        "Site Type '" + rowData.getSiteTypeName() + "' does not exist"));
+                        String.format(SiteErrorMessages.SITE_TYPE_NOT_FOUND_NAME, rowData.getSiteTypeName())));
             }
         }
 
@@ -108,7 +109,7 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
         if (rowData.getSiteStatusCode() != null && !rowData.getSiteStatusCode().trim().isEmpty()) {
             if (!genericStatusTypeRepository.findByStatusCodeIgnoreCase(rowData.getSiteStatusCode()).isPresent()) {
                 errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                        "Site Status '" + rowData.getSiteStatusCode() + "' does not exist"));
+                        String.format(SiteErrorMessages.SITE_STATUS_NOT_FOUND_CODE, rowData.getSiteStatusCode())));
             }
         }
 
@@ -201,7 +202,7 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
             }
 
             errors.add(createError(rowNumber, "VALIDATION_ERROR",
-                    fieldName + " must be in YYYY-MM-DD format or a valid Excel date/serial (e.g. 44927) or common formats like dd/MM/yyyy"));
+                    String.format(SiteErrorMessages.DATE_FORMAT_INVALID, fieldName)));
         }
     }
 
@@ -209,7 +210,7 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
         if (ip != null && !ip.trim().isEmpty()) {
             if (!IP_PATTERN.matcher(ip.trim()).matches()) {
                 errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                        fieldName + " must be a valid IPv4 address"));
+                        String.format(SiteErrorMessages.IP_ADDRESS_INVALID, fieldName)));
             }
         }
     }
@@ -220,11 +221,11 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
                 java.math.BigDecimal decimal = new java.math.BigDecimal(value.trim());
                 if (decimal.compareTo(java.math.BigDecimal.ZERO) < 0) {
                     errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                            fieldName + " cannot be negative"));
+                            String.format(SiteErrorMessages.DECIMAL_NEGATIVE, fieldName)));
                 }
             } catch (NumberFormatException e) {
                 errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                        fieldName + " must be a valid decimal number"));
+                        String.format(SiteErrorMessages.DECIMAL_INVALID, fieldName)));
             }
         }
     }
@@ -232,7 +233,7 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
     private void validateLength(String value, String fieldName, int maxLength, int rowNumber, List<BulkUploadErrorDto> errors) {
         if (value != null && value.length() > maxLength) {
             errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                    fieldName + " cannot exceed " + maxLength + " characters"));
+                    String.format(SiteErrorMessages.LENGTH_EXCEEDED, fieldName, maxLength)));
         }
     }
 
@@ -243,14 +244,14 @@ public class SiteBulkUploadValidator implements BulkRowValidator<SiteBulkUploadD
             // Validate phone number format (10 digits)
             if (!trimmed.matches("^[0-9]{10}$")) {
                 errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                        fieldName + " must be a 10-digit phone number"));
+                        String.format(SiteErrorMessages.PHONE_NUMBER_INVALID, fieldName)));
                 return;
             }
             
             // Check if person exists with this contact number
             if (!personDetailsRepository.findByContactNumber(trimmed).isPresent()) {
                 errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                        fieldName + " '" + trimmed + "' not found in person details. Please ensure the person is registered first."));
+                        String.format(SiteErrorMessages.PERSON_CONTACT_NOT_FOUND, fieldName, trimmed)));
             }
         }
     }

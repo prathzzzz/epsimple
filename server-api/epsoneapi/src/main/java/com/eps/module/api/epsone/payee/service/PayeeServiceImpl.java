@@ -2,6 +2,7 @@ package com.eps.module.api.epsone.payee.service;
 
 import com.eps.module.api.epsone.invoice.repository.InvoiceRepository;
 import com.eps.module.api.epsone.landlord.repository.LandlordRepository;
+import com.eps.module.api.epsone.payee.constant.PayeeErrorMessages;
 import com.eps.module.api.epsone.payee.dto.PayeeBulkUploadDto;
 import com.eps.module.api.epsone.payee.dto.PayeeErrorReportDto;
 import com.eps.module.api.epsone.payee.dto.PayeeRequestDto;
@@ -16,6 +17,9 @@ import com.eps.module.api.epsone.voucher.repository.VoucherRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.payment.Payee;
 import com.eps.module.payment.PayeeDetails;
 import com.eps.module.payment.PayeeType;
@@ -55,34 +59,34 @@ public class PayeeServiceImpl extends BaseBulkUploadService<PayeeBulkUploadDto, 
 
         // Validate payee type exists
         PayeeType payeeType = payeeTypeRepository.findById(requestDto.getPayeeTypeId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Payee type not found with id: " + requestDto.getPayeeTypeId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        PayeeErrorMessages.PAYEE_TYPE_NOT_FOUND + requestDto.getPayeeTypeId()));
 
         // Validate payee details exists
         PayeeDetails payeeDetails = payeeDetailsRepository.findById(requestDto.getPayeeDetailsId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Payee details not found with id: " + requestDto.getPayeeDetailsId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        PayeeErrorMessages.PAYEE_DETAILS_NOT_FOUND + requestDto.getPayeeDetailsId()));
 
         // Check if payee details already used
         if (payeeRepository.countByPayeeDetailsId(requestDto.getPayeeDetailsId()) > 0) {
-            throw new IllegalArgumentException(
-                    "Payee details with id " + requestDto.getPayeeDetailsId() + " is already assigned to another payee");
+            throw new ConflictException(
+                    String.format(PayeeErrorMessages.PAYEE_DETAILS_ALREADY_ASSIGNED, requestDto.getPayeeDetailsId()));
         }
 
         // Validate vendor if provided
         Vendor vendor = null;
         if (requestDto.getVendorId() != null) {
             vendor = vendorRepository.findById(requestDto.getVendorId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Vendor not found with id: " + requestDto.getVendorId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            PayeeErrorMessages.VENDOR_NOT_FOUND + requestDto.getVendorId()));
         }
 
         // Validate landlord if provided
         Landlord landlord = null;
         if (requestDto.getLandlordId() != null) {
             landlord = landlordRepository.findById(requestDto.getLandlordId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Landlord not found with id: " + requestDto.getLandlordId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            PayeeErrorMessages.LANDLORD_NOT_FOUND + requestDto.getLandlordId()));
         }
 
         Payee payee = payeeMapper.toEntity(requestDto, payeeType, payeeDetails, vendor, landlord);
@@ -123,7 +127,7 @@ public class PayeeServiceImpl extends BaseBulkUploadService<PayeeBulkUploadDto, 
     public PayeeResponseDto getPayeeById(Long id) {
         log.info("Fetching payee by id: {}", id);
         Payee payee = payeeRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payee not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(PayeeErrorMessages.PAYEE_NOT_FOUND + id));
         return payeeMapper.toDto(payee);
     }
 
@@ -133,39 +137,39 @@ public class PayeeServiceImpl extends BaseBulkUploadService<PayeeBulkUploadDto, 
         log.info("Updating payee with id: {}", id);
 
         Payee payee = payeeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payee not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(PayeeErrorMessages.PAYEE_NOT_FOUND + id));
 
         // Validate payee type exists
         PayeeType payeeType = payeeTypeRepository.findById(requestDto.getPayeeTypeId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Payee type not found with id: " + requestDto.getPayeeTypeId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        PayeeErrorMessages.PAYEE_TYPE_NOT_FOUND + requestDto.getPayeeTypeId()));
 
         // Validate payee details exists
         PayeeDetails payeeDetails = payeeDetailsRepository.findById(requestDto.getPayeeDetailsId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Payee details not found with id: " + requestDto.getPayeeDetailsId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        PayeeErrorMessages.PAYEE_DETAILS_NOT_FOUND + requestDto.getPayeeDetailsId()));
 
         // Check if payee details already used by another payee
         long count = payeeRepository.countByPayeeDetailsId(requestDto.getPayeeDetailsId());
         if (count > 0 && !payee.getPayeeDetails().getId().equals(requestDto.getPayeeDetailsId())) {
-            throw new IllegalArgumentException(
-                    "Payee details with id " + requestDto.getPayeeDetailsId() + " is already assigned to another payee");
+            throw new ConflictException(
+                    String.format(PayeeErrorMessages.PAYEE_DETAILS_ALREADY_ASSIGNED, requestDto.getPayeeDetailsId()));
         }
 
         // Validate vendor if provided
         Vendor vendor = null;
         if (requestDto.getVendorId() != null) {
             vendor = vendorRepository.findById(requestDto.getVendorId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Vendor not found with id: " + requestDto.getVendorId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            PayeeErrorMessages.VENDOR_NOT_FOUND + requestDto.getVendorId()));
         }
 
         // Validate landlord if provided
         Landlord landlord = null;
         if (requestDto.getLandlordId() != null) {
             landlord = landlordRepository.findById(requestDto.getLandlordId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Landlord not found with id: " + requestDto.getLandlordId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            PayeeErrorMessages.LANDLORD_NOT_FOUND + requestDto.getLandlordId()));
         }
 
         payeeMapper.updateEntity(payee, requestDto, payeeType, payeeDetails, vendor, landlord);
@@ -181,19 +185,19 @@ public class PayeeServiceImpl extends BaseBulkUploadService<PayeeBulkUploadDto, 
         log.info("Deleting payee with id: {}", id);
 
         if (!payeeRepository.existsById(id)) {
-            throw new IllegalArgumentException("Payee not found with id: " + id);
+            throw new ResourceNotFoundException(PayeeErrorMessages.PAYEE_NOT_FOUND + id);
         }
 
         // Check if payee is used in invoices
         var invoices = invoiceRepository.findByPayeeId(id);
         if (!invoices.isEmpty()) {
-            throw new IllegalStateException("Cannot delete payee. It is referenced in " + invoices.size() + " invoice(s).");
+            throw new BadRequestException(String.format(PayeeErrorMessages.CANNOT_DELETE_PAYEE_INVOICE_REF, invoices.size()));
         }
 
         // Check if payee is used in vouchers
         var vouchers = voucherRepository.findByPayeeId(id, Pageable.unpaged());
         if (vouchers.hasContent()) {
-            throw new IllegalStateException("Cannot delete payee. It is referenced in " + vouchers.getTotalElements() + " voucher(s).");
+            throw new BadRequestException(String.format(PayeeErrorMessages.CANNOT_DELETE_PAYEE_VOUCHER_REF, vouchers.getTotalElements()));
         }
 
         payeeRepository.deleteById(id);

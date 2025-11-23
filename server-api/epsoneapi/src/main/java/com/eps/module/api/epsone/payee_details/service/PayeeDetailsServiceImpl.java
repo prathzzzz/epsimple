@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.payee_details.service;
 
 import com.eps.module.api.epsone.bank.repository.BankRepository;
+import com.eps.module.api.epsone.payee_details.constant.PayeeDetailsErrorMessages;
 import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsBulkUploadDto;
 import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsErrorReportDto;
 import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsRequestDto;
@@ -13,6 +14,8 @@ import com.eps.module.bank.Bank;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.crypto.service.CryptoService;
 import com.eps.module.payment.PayeeDetails;
 import lombok.RequiredArgsConstructor;
@@ -44,16 +47,15 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
         Bank bank = null;
         if (requestDto.getBankId() != null) {
             bank = bankRepository.findById(requestDto.getBankId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Bank with ID " + requestDto.getBankId() + " not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            String.format(PayeeDetailsErrorMessages.BANK_NOT_FOUND_ID, requestDto.getBankId())));
         }
 
         // Validate PAN uniqueness if provided (using hash)
         if (requestDto.getPanNumber() != null && !requestDto.getPanNumber().isEmpty()) {
             String panHash = cryptoService.hash(requestDto.getPanNumber());
             if (payeeDetailsRepository.existsByPanNumberHash(panHash)) {
-                throw new IllegalArgumentException(
-                        "PAN number is already registered");
+                throw new BadRequestException(PayeeDetailsErrorMessages.PAN_ALREADY_REGISTERED);
             }
         }
 
@@ -61,8 +63,7 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
         if (requestDto.getAadhaarNumber() != null && !requestDto.getAadhaarNumber().isEmpty()) {
             String aadhaarHash = cryptoService.hash(requestDto.getAadhaarNumber());
             if (payeeDetailsRepository.existsByAadhaarNumberHash(aadhaarHash)) {
-                throw new IllegalArgumentException(
-                        "Aadhaar number is already registered");
+                throw new BadRequestException(PayeeDetailsErrorMessages.AADHAAR_ALREADY_REGISTERED);
             }
         }
 
@@ -71,8 +72,8 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
                 && requestDto.getBankId() != null) {
             String accountHash = cryptoService.hash(requestDto.getAccountNumber());
             if (payeeDetailsRepository.existsByAccountNumberHashAndBankId(accountHash, requestDto.getBankId())) {
-                throw new IllegalArgumentException(
-                        "Account number is already registered with " + bank.getBankName());
+                throw new BadRequestException(
+                        String.format(PayeeDetailsErrorMessages.ACCOUNT_ALREADY_REGISTERED, bank.getBankName()));
             }
         }
 
@@ -110,7 +111,8 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
     @Transactional(readOnly = true)
     public PayeeDetailsResponseDto getPayeeDetailsById(Long id) {
         PayeeDetails payeeDetails = payeeDetailsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payee details with ID " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format(PayeeDetailsErrorMessages.PAYEE_DETAILS_NOT_FOUND_ID, id)));
         return payeeDetailsMapper.toDto(payeeDetails);
     }
 
@@ -118,22 +120,22 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
     @Transactional
     public PayeeDetailsResponseDto updatePayeeDetails(Long id, PayeeDetailsRequestDto requestDto) {
         PayeeDetails existingPayeeDetails = payeeDetailsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payee details with ID " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format(PayeeDetailsErrorMessages.PAYEE_DETAILS_NOT_FOUND_ID, id)));
 
         // Validate bank if provided
         Bank bank = null;
         if (requestDto.getBankId() != null) {
             bank = bankRepository.findById(requestDto.getBankId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Bank with ID " + requestDto.getBankId() + " not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            String.format(PayeeDetailsErrorMessages.BANK_NOT_FOUND_ID, requestDto.getBankId())));
         }
 
         // Validate PAN uniqueness if changed (using hash)
         if (requestDto.getPanNumber() != null && !requestDto.getPanNumber().isEmpty()) {
             String panHash = cryptoService.hash(requestDto.getPanNumber());
             if (payeeDetailsRepository.existsByPanNumberHashAndIdNot(panHash, id)) {
-                throw new IllegalArgumentException(
-                        "PAN number is already registered with another payee");
+                throw new BadRequestException(PayeeDetailsErrorMessages.PAN_ALREADY_REGISTERED_OTHER);
             }
         }
 
@@ -141,8 +143,7 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
         if (requestDto.getAadhaarNumber() != null && !requestDto.getAadhaarNumber().isEmpty()) {
             String aadhaarHash = cryptoService.hash(requestDto.getAadhaarNumber());
             if (payeeDetailsRepository.existsByAadhaarNumberHashAndIdNot(aadhaarHash, id)) {
-                throw new IllegalArgumentException(
-                        "Aadhaar number is already registered with another payee");
+                throw new BadRequestException(PayeeDetailsErrorMessages.AADHAAR_ALREADY_REGISTERED_OTHER);
             }
         }
 
@@ -152,8 +153,8 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
             String accountHash = cryptoService.hash(requestDto.getAccountNumber());
             if (payeeDetailsRepository.existsByAccountNumberHashAndBankIdAndIdNot(
                     accountHash, requestDto.getBankId(), id)) {
-                throw new IllegalArgumentException(
-                        "Account number is already registered with " + bank.getBankName() + " for another payee");
+                throw new BadRequestException(
+                        String.format(PayeeDetailsErrorMessages.ACCOUNT_ALREADY_REGISTERED_OTHER, bank.getBankName()));
             }
         }
 
@@ -192,13 +193,15 @@ public class PayeeDetailsServiceImpl extends BaseBulkUploadService<PayeeDetailsB
     @Transactional
     public void deletePayeeDetails(Long id) {
         if (!payeeDetailsRepository.existsById(id)) {
-            throw new IllegalArgumentException("Payee details with ID " + id + " not found");
+            throw new ResourceNotFoundException(
+                    String.format(PayeeDetailsErrorMessages.PAYEE_DETAILS_NOT_FOUND_ID, id));
         }
 
         // Check for dependencies - payees
         long payeeCount = payeeRepository.countByPayeeDetailsId(id);
         if (payeeCount > 0) {
-            throw new IllegalStateException("Cannot delete payee details as it has " + payeeCount + " associated payees");
+            throw new BadRequestException(
+                    String.format(PayeeDetailsErrorMessages.CANNOT_DELETE_PAYEE_DETAILS_USED, payeeCount));
         }
         
         payeeDetailsRepository.deleteById(id);

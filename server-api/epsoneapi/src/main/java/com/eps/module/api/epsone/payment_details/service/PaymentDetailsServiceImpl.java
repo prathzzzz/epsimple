@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.payment_details.service;
 
+import com.eps.module.api.epsone.payment_details.constant.PaymentDetailsErrorMessages;
 import com.eps.module.api.epsone.payment_details.dto.PaymentDetailsBulkUploadDto;
 import com.eps.module.api.epsone.payment_details.dto.PaymentDetailsErrorReportDto;
 import com.eps.module.api.epsone.payment_details.dto.PaymentDetailsRequestDto;
@@ -11,6 +12,7 @@ import com.eps.module.api.epsone.payment_method.repository.PaymentMethodReposito
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.crypto.service.CryptoService;
 import com.eps.module.payment.PaymentDetails;
 import com.eps.module.payment.PaymentMethod;
@@ -48,8 +50,8 @@ public class PaymentDetailsServiceImpl extends BaseBulkUploadService<PaymentDeta
 
         // Validate that payment method exists
         PaymentMethod paymentMethod = paymentMethodRepository.findById(requestDto.getPaymentMethodId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Payment method not found with ID: " + requestDto.getPaymentMethodId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        PaymentDetailsErrorMessages.PAYMENT_METHOD_NOT_FOUND_ID + requestDto.getPaymentMethodId()));
 
         PaymentDetails paymentDetails = paymentDetailsMapper.toEntity(requestDto);
         paymentDetails.setPaymentMethod(paymentMethod);
@@ -94,7 +96,7 @@ public class PaymentDetailsServiceImpl extends BaseBulkUploadService<PaymentDeta
     public PaymentDetailsResponseDto getPaymentDetailsById(Long id) {
         log.info("Fetching payment details with ID: {}", id);
         PaymentDetails paymentDetails = paymentDetailsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payment details not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(PaymentDetailsErrorMessages.PAYMENT_DETAILS_NOT_FOUND_ID + id));
         return paymentDetailsMapper.toResponseDto(paymentDetails);
     }
 
@@ -104,13 +106,13 @@ public class PaymentDetailsServiceImpl extends BaseBulkUploadService<PaymentDeta
         log.info("Updating payment details with ID: {}", id);
 
         PaymentDetails paymentDetails = paymentDetailsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payment details not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(PaymentDetailsErrorMessages.PAYMENT_DETAILS_NOT_FOUND_ID + id));
 
         // Validate that payment method exists if it's being updated
         if (requestDto.getPaymentMethodId() != null) {
             PaymentMethod paymentMethod = paymentMethodRepository.findById(requestDto.getPaymentMethodId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Payment method not found with ID: " + requestDto.getPaymentMethodId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            PaymentDetailsErrorMessages.PAYMENT_METHOD_NOT_FOUND_ID + requestDto.getPaymentMethodId()));
             paymentDetails.setPaymentMethod(paymentMethod);
         }
 
@@ -127,7 +129,7 @@ public class PaymentDetailsServiceImpl extends BaseBulkUploadService<PaymentDeta
         log.info("Deleting payment details with ID: {}", id);
 
         if (!paymentDetailsRepository.existsById(id)) {
-            throw new IllegalArgumentException("Payment details not found with ID: " + id);
+            throw new ResourceNotFoundException(PaymentDetailsErrorMessages.PAYMENT_DETAILS_NOT_FOUND_ID + id);
         }
 
         paymentDetailsRepository.deleteById(id);

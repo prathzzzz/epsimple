@@ -28,12 +28,13 @@ export function handleServerError(error: unknown, options: ErrorHandlerOptions =
     statusCode = 204
   }
 
-  if (error instanceof AxiosError) {
-    statusCode = error.response?.status
+  if (error instanceof AxiosError || (error instanceof Error && 'response' in error)) {
+    const err = error as any
+    statusCode = err.response?.status
     
     // Extract error message from various possible locations in the response
-    const responseData = error.response?.data
-    errMsg = responseData?.message || responseData?.title || responseData?.error || error.message
+    const responseData = err.response?.data
+    errMsg = responseData?.message || responseData?.title || responseData?.error || err.message
     
     // Handle specific error cases (only override if we don't have a server message)
     switch (statusCode) {

@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.person_type.service;
 
 import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.person_type.constant.PersonTypeErrorMessages;
 import com.eps.module.api.epsone.person_type.dto.PersonTypeBulkUploadDto;
 import com.eps.module.api.epsone.person_type.dto.PersonTypeErrorReportDto;
 import com.eps.module.api.epsone.person_type.dto.PersonTypeRequestDto;
@@ -11,6 +12,8 @@ import com.eps.module.api.epsone.person_type.repository.PersonTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.person.PersonType;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +41,7 @@ public class PersonTypeServiceImpl extends BaseBulkUploadService<PersonTypeBulkU
     public PersonTypeResponseDto createPersonType(PersonTypeRequestDto requestDto) {
         // Check if person type name already exists
         if (personTypeRepository.existsByTypeNameIgnoreCase(requestDto.getTypeName())) {
-            throw new IllegalArgumentException("Person type with name '" + requestDto.getTypeName() + "' already exists");
+            throw new ConflictException(String.format(PersonTypeErrorMessages.PERSON_TYPE_NAME_EXISTS, requestDto.getTypeName()));
         }
         
         PersonType personType = personTypeMapper.toEntity(requestDto);
@@ -50,11 +53,11 @@ public class PersonTypeServiceImpl extends BaseBulkUploadService<PersonTypeBulkU
     @Transactional
     public PersonTypeResponseDto updatePersonType(Long id, PersonTypeRequestDto requestDto) {
         PersonType existingPersonType = personTypeRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Person type not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(PersonTypeErrorMessages.PERSON_TYPE_NOT_FOUND_ID + id));
         
         // Check if person type name already exists for another person type
         if (personTypeRepository.existsByTypeNameAndIdNot(requestDto.getTypeName(), id)) {
-            throw new IllegalArgumentException("Person type with name '" + requestDto.getTypeName() + "' already exists");
+            throw new ConflictException(String.format(PersonTypeErrorMessages.PERSON_TYPE_NAME_EXISTS, requestDto.getTypeName()));
         }
         
         personTypeMapper.updateEntityFromDto(requestDto, existingPersonType);
@@ -66,7 +69,7 @@ public class PersonTypeServiceImpl extends BaseBulkUploadService<PersonTypeBulkU
     @Transactional
     public void deletePersonType(Long id) {
         PersonType personType = personTypeRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Person type not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(PersonTypeErrorMessages.PERSON_TYPE_NOT_FOUND_ID + id));
         
         // Check if this person type is being used by any person details
         Page<PersonDetails> personDetailsPage = personDetailsRepository.findByPersonTypeId(id, PageRequest.of(0, 6));
@@ -82,19 +85,16 @@ public class PersonTypeServiceImpl extends BaseBulkUploadService<PersonTypeBulkU
                 .collect(Collectors.toList());
             
             StringBuilder errorMessage = new StringBuilder();
-            errorMessage.append("Cannot delete '").append(personType.getTypeName())
-                       .append("' person type because it is being used by ")
-                       .append(totalCount).append(" person detail")
-                       .append(totalCount > 1 ? "s" : "").append(": ")
-                       .append(String.join(", ", personNames));
+            errorMessage.append(String.format(PersonTypeErrorMessages.CANNOT_DELETE_PERSON_TYPE_USED,
+                    personType.getTypeName(), totalCount, totalCount > 1 ? "s" : "", String.join(", ", personNames)));
             
             if (totalCount > 5) {
-                errorMessage.append(" and ").append(totalCount - 5).append(" more");
+                errorMessage.append(String.format(PersonTypeErrorMessages.CANNOT_DELETE_PERSON_TYPE_USED_MORE, totalCount - 5));
             }
             
-            errorMessage.append(". Please delete or reassign these person details first.");
+            errorMessage.append(PersonTypeErrorMessages.CANNOT_DELETE_PERSON_TYPE_SUFFIX);
             
-            throw new IllegalStateException(errorMessage.toString());
+            throw new ConflictException(errorMessage.toString());
         }
         
         personTypeRepository.deleteById(id);
@@ -124,7 +124,7 @@ public class PersonTypeServiceImpl extends BaseBulkUploadService<PersonTypeBulkU
     @Transactional(readOnly = true)
     public PersonTypeResponseDto getPersonTypeById(Long id) {
         PersonType personType = personTypeRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Person type not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(PersonTypeErrorMessages.PERSON_TYPE_NOT_FOUND_ID + id));
         return personTypeMapper.toResponseDto(personType);
     }
 

@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.payment_details.validator;
 
+import com.eps.module.api.epsone.payment_details.constant.PaymentDetailsErrorMessages;
 import com.eps.module.api.epsone.payment_details.dto.PaymentDetailsBulkUploadDto;
 import com.eps.module.api.epsone.payment_method.repository.PaymentMethodRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -25,7 +26,7 @@ public class PaymentDetailsBulkUploadValidator implements BulkRowValidator<Payme
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Payment Method Name")
-                    .errorMessage("Payment method name is required")
+                    .errorMessage(PaymentDetailsErrorMessages.PAYMENT_METHOD_NAME_REQUIRED)
                     .rejectedValue(rowData.getPaymentMethodName())
                     .build());
         } else {
@@ -35,7 +36,7 @@ public class PaymentDetailsBulkUploadValidator implements BulkRowValidator<Payme
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Payment Method Name")
-                        .errorMessage("Payment method '" + rowData.getPaymentMethodName() + "' does not exist")
+                        .errorMessage(String.format(PaymentDetailsErrorMessages.PAYMENT_METHOD_NOT_FOUND_NAME, rowData.getPaymentMethodName()))
                         .rejectedValue(rowData.getPaymentMethodName())
                         .build());
             }
@@ -46,7 +47,7 @@ public class PaymentDetailsBulkUploadValidator implements BulkRowValidator<Payme
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Transaction Number")
-                    .errorMessage("Transaction number cannot exceed 255 characters")
+                    .errorMessage(PaymentDetailsErrorMessages.TRANSACTION_NUMBER_TOO_LONG)
                     .rejectedValue(rowData.getTransactionNumber())
                     .build());
         }
@@ -55,7 +56,7 @@ public class PaymentDetailsBulkUploadValidator implements BulkRowValidator<Payme
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("VPA")
-                    .errorMessage("VPA cannot exceed 255 characters")
+                    .errorMessage(PaymentDetailsErrorMessages.VPA_TOO_LONG)
                     .rejectedValue(rowData.getVpa())
                     .build());
         }
@@ -64,7 +65,7 @@ public class PaymentDetailsBulkUploadValidator implements BulkRowValidator<Payme
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Beneficiary Name")
-                    .errorMessage("Beneficiary name cannot exceed 255 characters")
+                    .errorMessage(PaymentDetailsErrorMessages.BENEFICIARY_NAME_TOO_LONG)
                     .rejectedValue(rowData.getBeneficiaryName())
                     .build());
         }
@@ -73,7 +74,7 @@ public class PaymentDetailsBulkUploadValidator implements BulkRowValidator<Payme
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Beneficiary Account Number")
-                    .errorMessage("Beneficiary account number cannot exceed 255 characters")
+                    .errorMessage(PaymentDetailsErrorMessages.BENEFICIARY_ACCOUNT_NUMBER_TOO_LONG)
                     .rejectedValue(rowData.getBeneficiaryAccountNumber())
                     .build());
         }

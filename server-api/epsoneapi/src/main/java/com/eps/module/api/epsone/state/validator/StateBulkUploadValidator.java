@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.state.validator;
 
+import com.eps.module.api.epsone.state.constant.StateErrorMessages;
 import com.eps.module.api.epsone.state.dto.StateBulkUploadDto;
 import com.eps.module.api.epsone.state.repository.StateRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -30,14 +31,14 @@ public class StateBulkUploadValidator implements BulkRowValidator<StateBulkUploa
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("State Name")
-                    .errorMessage("State name is required")
+                    .errorMessage(StateErrorMessages.STATE_NAME_REQUIRED)
                     .rejectedValue(rowData.getStateName())
                     .build());
         } else if (rowData.getStateName().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("State Name")
-                    .errorMessage("State name cannot exceed 100 characters")
+                    .errorMessage(StateErrorMessages.STATE_NAME_LENGTH_EXCEEDED)
                     .rejectedValue(rowData.getStateName())
                     .build());
         }
@@ -47,21 +48,21 @@ public class StateBulkUploadValidator implements BulkRowValidator<StateBulkUploa
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("State Code")
-                    .errorMessage("State code is required")
+                    .errorMessage(StateErrorMessages.STATE_CODE_REQUIRED)
                     .rejectedValue(rowData.getStateCode())
                     .build());
         } else if (rowData.getStateCode().length() < 2 || rowData.getStateCode().length() > 10) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("State Code")
-                    .errorMessage("State code must be between 2 and 10 characters")
+                    .errorMessage(StateErrorMessages.STATE_CODE_LENGTH_INVALID)
                     .rejectedValue(rowData.getStateCode())
                     .build());
         } else if (!CODE_PATTERN.matcher(rowData.getStateCode()).matches()) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("State Code")
-                    .errorMessage("State code can only contain letters, numbers, hyphens and underscores")
+                    .errorMessage(StateErrorMessages.STATE_CODE_INVALID_FORMAT)
                     .rejectedValue(rowData.getStateCode())
                     .build());
         }
@@ -72,14 +73,14 @@ public class StateBulkUploadValidator implements BulkRowValidator<StateBulkUploa
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Alternate State Code")
-                        .errorMessage("Alternate state code cannot exceed 10 characters")
+                        .errorMessage(StateErrorMessages.STATE_CODE_ALT_LENGTH_EXCEEDED)
                         .rejectedValue(rowData.getStateCodeAlt())
                         .build());
             } else if (!CODE_PATTERN.matcher(rowData.getStateCodeAlt()).matches()) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Alternate State Code")
-                        .errorMessage("Alternate state code can only contain letters, numbers, hyphens and underscores")
+                        .errorMessage(StateErrorMessages.STATE_CODE_ALT_INVALID_FORMAT)
                         .rejectedValue(rowData.getStateCodeAlt())
                         .build());
             }

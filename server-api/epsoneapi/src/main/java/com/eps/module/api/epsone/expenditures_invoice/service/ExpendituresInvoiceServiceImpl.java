@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.expenditures_invoice.service;
 
 import com.eps.module.api.epsone.cost_item.repository.CostItemRepository;
+import com.eps.module.api.epsone.expenditures_invoice.constant.ExpendituresInvoiceErrorMessages;
 import com.eps.module.api.epsone.expenditures_invoice.dto.ExpendituresInvoiceBulkUploadDto;
 import com.eps.module.api.epsone.expenditures_invoice.dto.ExpendituresInvoiceErrorReportDto;
 import com.eps.module.api.epsone.expenditures_invoice.dto.ExpendituresInvoiceRequestDto;
@@ -114,17 +115,17 @@ public class ExpendituresInvoiceServiceImpl extends BaseBulkUploadService<Expend
 
         // Validate cost item exists
         if (!costItemRepository.existsById(requestDto.getCostItemId())) {
-            throw new ResourceNotFoundException("Cost item not found with ID: " + requestDto.getCostItemId());
+            throw new ResourceNotFoundException(ExpendituresInvoiceErrorMessages.COST_ITEM_NOT_FOUND + requestDto.getCostItemId());
         }
 
         // Validate invoice exists
         if (!invoiceRepository.existsById(requestDto.getInvoiceId())) {
-            throw new ResourceNotFoundException("Invoice not found with ID: " + requestDto.getInvoiceId());
+            throw new ResourceNotFoundException(ExpendituresInvoiceErrorMessages.INVOICE_NOT_FOUND + requestDto.getInvoiceId());
         }
 
         // Validate Managed Project exists
         if (!managedProjectRepository.existsById(requestDto.getManagedProjectId())) {
-            throw new ResourceNotFoundException("Managed Project not found with ID: " + requestDto.getManagedProjectId());
+            throw new ResourceNotFoundException(ExpendituresInvoiceErrorMessages.MANAGED_PROJECT_NOT_FOUND + requestDto.getManagedProjectId());
         }
 
         ExpendituresInvoice expendituresInvoice = expendituresInvoiceMapper.toEntity(requestDto);
@@ -155,7 +156,7 @@ public class ExpendituresInvoiceServiceImpl extends BaseBulkUploadService<Expend
     public ExpendituresInvoiceResponseDto getExpendituresInvoiceById(Long id) {
         log.info("Fetching expenditures invoice with ID: {}", id);
         ExpendituresInvoice expendituresInvoice = expendituresInvoiceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Expenditures invoice not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ExpendituresInvoiceErrorMessages.EXPENDITURES_INVOICE_NOT_FOUND + id));
         return expendituresInvoiceMapper.toResponseDto(expendituresInvoice);
     }
 
@@ -165,26 +166,26 @@ public class ExpendituresInvoiceServiceImpl extends BaseBulkUploadService<Expend
         log.info("Updating expenditures invoice with ID: {}", id);
 
         ExpendituresInvoice existingExpendituresInvoice = expendituresInvoiceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Expenditures invoice not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ExpendituresInvoiceErrorMessages.EXPENDITURES_INVOICE_NOT_FOUND + id));
 
         // Validate cost item exists if changed
         if (!requestDto.getCostItemId().equals(existingExpendituresInvoice.getCostItem().getId())) {
             if (!costItemRepository.existsById(requestDto.getCostItemId())) {
-                throw new ResourceNotFoundException("Cost item not found with ID: " + requestDto.getCostItemId());
+                throw new ResourceNotFoundException(ExpendituresInvoiceErrorMessages.COST_ITEM_NOT_FOUND + requestDto.getCostItemId());
             }
         }
 
         // Validate invoice exists if changed
         if (!requestDto.getInvoiceId().equals(existingExpendituresInvoice.getInvoice().getId())) {
             if (!invoiceRepository.existsById(requestDto.getInvoiceId())) {
-                throw new ResourceNotFoundException("Invoice not found with ID: " + requestDto.getInvoiceId());
+                throw new ResourceNotFoundException(ExpendituresInvoiceErrorMessages.INVOICE_NOT_FOUND + requestDto.getInvoiceId());
             }
         }
 
         // Validate Managed Project exists if changed
         if (!requestDto.getManagedProjectId().equals(existingExpendituresInvoice.getManagedProject().getId())) {
             if (!managedProjectRepository.existsById(requestDto.getManagedProjectId())) {
-                throw new ResourceNotFoundException("Managed Project not found with ID: " + requestDto.getManagedProjectId());
+                throw new ResourceNotFoundException(ExpendituresInvoiceErrorMessages.MANAGED_PROJECT_NOT_FOUND + requestDto.getManagedProjectId());
             }
         }
 
@@ -200,7 +201,7 @@ public class ExpendituresInvoiceServiceImpl extends BaseBulkUploadService<Expend
     public void deleteExpendituresInvoice(Long id) {
         log.info("Deleting expenditures invoice with ID: {}", id);
         if (!expendituresInvoiceRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Expenditures invoice not found with ID: " + id);
+            throw new ResourceNotFoundException(ExpendituresInvoiceErrorMessages.EXPENDITURES_INVOICE_NOT_FOUND + id);
         }
         expendituresInvoiceRepository.deleteById(id);
         log.info("Successfully deleted expenditures invoice with ID: {}", id);

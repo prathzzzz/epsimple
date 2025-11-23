@@ -4,6 +4,7 @@ import com.eps.module.api.epsone.activities.repository.ActivitiesRepository;
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
 import com.eps.module.api.epsone.expenditures_invoice.repository.ExpendituresInvoiceRepository;
 import com.eps.module.api.epsone.site.repository.SiteRepository;
+import com.eps.module.api.epsone.site_activity_work_expenditure.constant.SiteActivityWorkExpenditureErrorMessages;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureBulkUploadDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.repository.SiteActivityWorkExpenditureRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -35,7 +36,7 @@ public class SiteActivityWorkExpenditureBulkUploadValidator implements BulkRowVa
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Site Code")
-                    .errorMessage("Site Code is required")
+                    .errorMessage(SiteActivityWorkExpenditureErrorMessages.SITE_CODE_REQUIRED)
                     .rejectedValue(dto.getSiteCode())
                     .build());
         } else {
@@ -43,7 +44,7 @@ public class SiteActivityWorkExpenditureBulkUploadValidator implements BulkRowVa
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Site Code")
-                        .errorMessage("Site with code '" + dto.getSiteCode() + "' not found")
+                        .errorMessage(String.format(SiteActivityWorkExpenditureErrorMessages.SITE_NOT_FOUND_CODE, dto.getSiteCode()))
                         .rejectedValue(dto.getSiteCode())
                         .build());
             }
@@ -54,7 +55,7 @@ public class SiteActivityWorkExpenditureBulkUploadValidator implements BulkRowVa
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Activity Name")
-                    .errorMessage("Activity Name is required")
+                    .errorMessage(SiteActivityWorkExpenditureErrorMessages.ACTIVITY_NAME_REQUIRED)
                     .rejectedValue(dto.getActivityName())
                     .build());
         } else {
@@ -62,7 +63,7 @@ public class SiteActivityWorkExpenditureBulkUploadValidator implements BulkRowVa
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Activity Name")
-                        .errorMessage("Activity with name '" + dto.getActivityName() + "' not found")
+                        .errorMessage(String.format(SiteActivityWorkExpenditureErrorMessages.ACTIVITY_NOT_FOUND_NAME, dto.getActivityName()))
                         .rejectedValue(dto.getActivityName())
                         .build());
             }
@@ -73,7 +74,7 @@ public class SiteActivityWorkExpenditureBulkUploadValidator implements BulkRowVa
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Vendor Order Number")
-                    .errorMessage("Vendor Order Number is required")
+                    .errorMessage(SiteActivityWorkExpenditureErrorMessages.VENDOR_ORDER_NUMBER_REQUIRED)
                     .rejectedValue(dto.getVendorOrderNumber())
                     .build());
         } else if (dto.getActivityName() != null && !dto.getActivityName().trim().isEmpty()) {
@@ -85,8 +86,7 @@ public class SiteActivityWorkExpenditureBulkUploadValidator implements BulkRowVa
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Vendor Order Number")
-                        .errorMessage("Activity Work not found for activity '" + dto.getActivityName() + 
-                                     "' and vendor order number '" + dto.getVendorOrderNumber() + "'")
+                        .errorMessage(String.format(SiteActivityWorkExpenditureErrorMessages.ACTIVITY_WORK_NOT_FOUND_DETAILS, dto.getActivityName(), dto.getVendorOrderNumber()))
                         .rejectedValue(dto.getVendorOrderNumber())
                         .build());
             }
@@ -94,6 +94,14 @@ public class SiteActivityWorkExpenditureBulkUploadValidator implements BulkRowVa
 
         // Validate Invoice Number (optional, but must exist if provided)
         if (dto.getInvoiceNumber() != null && !dto.getInvoiceNumber().trim().isEmpty()) {
+             if (!expendituresInvoiceRepository.existsByInvoiceNumber(dto.getInvoiceNumber().trim())) {
+                errors.add(BulkUploadErrorDto.builder()
+                        .rowNumber(rowNumber)
+                        .fieldName("Invoice Number")
+                        .errorMessage(String.format(SiteActivityWorkExpenditureErrorMessages.EXPENDITURES_INVOICE_NOT_FOUND_NUMBER, dto.getInvoiceNumber()))
+                        .rejectedValue(dto.getInvoiceNumber())
+                        .build());
+            }
         }
 
         return errors;

@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.payee.validator;
 
 import com.eps.module.api.epsone.landlord.repository.LandlordRepository;
+import com.eps.module.api.epsone.payee.constant.PayeeErrorMessages;
 import com.eps.module.api.epsone.payee.dto.PayeeBulkUploadDto;
 import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.api.epsone.payee_details.repository.PayeeDetailsRepository;
@@ -35,7 +36,7 @@ public class PayeeBulkUploadValidator implements BulkRowValidator<PayeeBulkUploa
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Payee Type")
-                    .errorMessage("Payee type is required")
+                    .errorMessage(PayeeErrorMessages.PAYEE_TYPE_REQUIRED)
                     .rejectedValue(rowData.getPayeeType())
                     .build());
         } else {
@@ -44,7 +45,7 @@ public class PayeeBulkUploadValidator implements BulkRowValidator<PayeeBulkUploa
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Payee Type")
-                        .errorMessage("Payee type '" + rowData.getPayeeType() + "' does not exist")
+                        .errorMessage(String.format(PayeeErrorMessages.PAYEE_TYPE_NOT_FOUND_NAME, rowData.getPayeeType()))
                         .rejectedValue(rowData.getPayeeType())
                         .build());
             }
@@ -55,7 +56,7 @@ public class PayeeBulkUploadValidator implements BulkRowValidator<PayeeBulkUploa
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Payee Name")
-                    .errorMessage("Payee name is required")
+                    .errorMessage(PayeeErrorMessages.PAYEE_NAME_REQUIRED)
                     .rejectedValue(rowData.getPayeeName())
                     .build());
         } else {
@@ -65,7 +66,7 @@ public class PayeeBulkUploadValidator implements BulkRowValidator<PayeeBulkUploa
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Payee Name")
-                        .errorMessage("Payee details with name '" + rowData.getPayeeName() + "' does not exist")
+                        .errorMessage(String.format(PayeeErrorMessages.PAYEE_DETAILS_NOT_FOUND_NAME, rowData.getPayeeName()))
                         .rejectedValue(rowData.getPayeeName())
                         .build());
             } else {
@@ -74,7 +75,7 @@ public class PayeeBulkUploadValidator implements BulkRowValidator<PayeeBulkUploa
                     errors.add(BulkUploadErrorDto.builder()
                             .rowNumber(rowNumber)
                             .fieldName("Payee Name")
-                            .errorMessage("Payee details '" + rowData.getPayeeName() + "' is already assigned to another payee")
+                            .errorMessage(String.format(PayeeErrorMessages.PAYEE_DETAILS_ALREADY_ASSIGNED_NAME, rowData.getPayeeName()))
                             .rejectedValue(rowData.getPayeeName())
                             .build());
                 }
@@ -88,7 +89,7 @@ public class PayeeBulkUploadValidator implements BulkRowValidator<PayeeBulkUploa
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Vendor Contact Number")
-                        .errorMessage("Vendor with contact number '" + rowData.getVendorContactNumber() + "' does not exist")
+                        .errorMessage(String.format(PayeeErrorMessages.VENDOR_NOT_FOUND_CONTACT, rowData.getVendorContactNumber()))
                         .rejectedValue(rowData.getVendorContactNumber())
                         .build());
             }
@@ -101,7 +102,7 @@ public class PayeeBulkUploadValidator implements BulkRowValidator<PayeeBulkUploa
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Landlord Contact Number")
-                        .errorMessage("Landlord with contact number '" + rowData.getLandlordContactNumber() + "' does not exist")
+                        .errorMessage(String.format(PayeeErrorMessages.LANDLORD_NOT_FOUND_CONTACT, rowData.getLandlordContactNumber()))
                         .rejectedValue(rowData.getLandlordContactNumber())
                         .build());
             }

@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.movement_type.validator;
 
+import com.eps.module.api.epsone.movement_type.constant.MovementTypeErrorMessages;
 import com.eps.module.api.epsone.movement_type.dto.MovementTypeBulkUploadDto;
 import com.eps.module.api.epsone.movement_type.repository.MovementTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -22,17 +23,17 @@ public class MovementTypeBulkUploadValidator implements BulkRowValidator<Movemen
 
         // Validate movement type
         if (dto.getMovementType() == null || dto.getMovementType().isBlank()) {
-            errors.add(createError(rowNumber, "Movement type is required"));
+            errors.add(createError(rowNumber, MovementTypeErrorMessages.MOVEMENT_TYPE_REQUIRED));
         } else {
             if (dto.getMovementType().length() > 100) {
-                errors.add(createError(rowNumber, "Movement type must not exceed 100 characters"));
+                errors.add(createError(rowNumber, MovementTypeErrorMessages.MOVEMENT_TYPE_LENGTH_EXCEEDED));
             }
         }
 
         // Description is optional, but validate length if provided
         if (dto.getDescription() != null && !dto.getDescription().isBlank()) {
             if (dto.getDescription().length() > 5000) {
-                errors.add(createError(rowNumber, "Description must not exceed 5000 characters"));
+                errors.add(createError(rowNumber, MovementTypeErrorMessages.DESCRIPTION_LENGTH_EXCEEDED));
             }
         }
 

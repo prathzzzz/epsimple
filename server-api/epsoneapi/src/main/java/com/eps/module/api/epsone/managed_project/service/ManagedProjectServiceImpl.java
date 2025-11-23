@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.managed_project.service;
 
+import com.eps.module.api.epsone.managed_project.constant.ManagedProjectErrorMessages;
 import com.eps.module.api.epsone.managed_project.dto.ManagedProjectBulkUploadDto;
 import com.eps.module.api.epsone.managed_project.dto.ManagedProjectErrorReportDto;
 import com.eps.module.api.epsone.managed_project.dto.ManagedProjectRequestDto;
@@ -13,6 +14,9 @@ import com.eps.module.bank.ManagedProject;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.site.Site;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,12 +46,12 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
     public ManagedProjectResponseDto createManagedProject(ManagedProjectRequestDto requestDto) {
         // Validate bank exists
         Bank bank = bankRepository.findById(requestDto.getBankId())
-            .orElseThrow(() -> new IllegalArgumentException("Bank not found with id: " + requestDto.getBankId()));
+            .orElseThrow(() -> new ResourceNotFoundException(ManagedProjectErrorMessages.BANK_NOT_FOUND + requestDto.getBankId()));
 
         // Check if project code already exists (if provided)
         if (requestDto.getProjectCode() != null && !requestDto.getProjectCode().trim().isEmpty()) {
             if (managedProjectRepository.existsByProjectCode(requestDto.getProjectCode())) {
-                throw new IllegalArgumentException("Project with code '" + requestDto.getProjectCode() + "' already exists");
+                throw new ConflictException(String.format(ManagedProjectErrorMessages.PROJECT_CODE_ALREADY_EXISTS, requestDto.getProjectCode()));
             }
         }
 
@@ -62,16 +66,16 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
     @Transactional
     public ManagedProjectResponseDto updateManagedProject(Long id, ManagedProjectRequestDto requestDto) {
         ManagedProject existingManagedProject = managedProjectRepository.findByIdWithBank(id)
-            .orElseThrow(() -> new IllegalArgumentException("Managed project not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(ManagedProjectErrorMessages.MANAGED_PROJECT_NOT_FOUND + id));
 
         // Validate bank exists
         Bank bank = bankRepository.findById(requestDto.getBankId())
-            .orElseThrow(() -> new IllegalArgumentException("Bank not found with id: " + requestDto.getBankId()));
+            .orElseThrow(() -> new ResourceNotFoundException(ManagedProjectErrorMessages.BANK_NOT_FOUND + requestDto.getBankId()));
 
         // Check if project code is being changed and if it already exists
         if (requestDto.getProjectCode() != null && !requestDto.getProjectCode().trim().isEmpty()) {
             if (managedProjectRepository.existsByProjectCodeAndIdNot(requestDto.getProjectCode(), id)) {
-                throw new IllegalArgumentException("Project with code '" + requestDto.getProjectCode() + "' already exists");
+                throw new ConflictException(String.format(ManagedProjectErrorMessages.PROJECT_CODE_ALREADY_EXISTS, requestDto.getProjectCode()));
             }
         }
 
@@ -88,7 +92,7 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
         log.info("Deleting managed project with ID: {}", id);
         
         ManagedProject managedProject = managedProjectRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Managed Project not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(ManagedProjectErrorMessages.MANAGED_PROJECT_NOT_FOUND + id));
         
         // Check for dependent sites
         Page<Site> dependentSites = managedProjectRepository.findSitesByProjectId(id, PageRequest.of(0, 6));
@@ -102,14 +106,14 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
             
             String siteCodesList = String.join(", ", siteCodes);
             String errorMessage = String.format(
-                    "Cannot delete '%s' Managed Project because it is being used by %d site%s: %s. Please delete or reassign these sites first.",
+                    ManagedProjectErrorMessages.CANNOT_DELETE_USED_BY_SITES,
                     managedProject.getProjectName(),
                     totalCount,
                     totalCount > 1 ? "s" : "",
                     siteCodesList
             );
             log.warn("Failed to delete Managed Project with ID {}: {}", id, errorMessage);
-            throw new IllegalStateException(errorMessage);
+            throw new BadRequestException(errorMessage);
         }
         
         managedProjectRepository.deleteById(id);
@@ -120,7 +124,7 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
     @Transactional(readOnly = true)
     public ManagedProjectResponseDto getManagedProjectById(Long id) {
         ManagedProject managedProject = managedProjectRepository.findByIdWithBank(id)
-            .orElseThrow(() -> new IllegalArgumentException("Managed project not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(ManagedProjectErrorMessages.MANAGED_PROJECT_NOT_FOUND + id));
         return managedProjectMapper.toResponseDto(managedProject);
     }
 
@@ -146,7 +150,7 @@ public class ManagedProjectServiceImpl extends BaseBulkUploadService<ManagedProj
     public Page<ManagedProjectResponseDto> getManagedProjectsByBank(Long bankId, Pageable pageable) {
         // Validate bank exists
         if (!bankRepository.existsById(bankId)) {
-            throw new IllegalArgumentException("Bank not found with id: " + bankId);
+            throw new ResourceNotFoundException(ManagedProjectErrorMessages.BANK_NOT_FOUND + bankId);
         }
         
         Page<ManagedProject> managedProjects = managedProjectRepository.findByBankId(bankId, pageable);

@@ -1,7 +1,9 @@
 package com.eps.module.api.epsone.storage.service;
 
+import com.eps.module.api.epsone.storage.constant.StorageErrorMessages;
 import com.eps.module.api.epsone.storage.dto.FileUploadResponseDto;
-import com.eps.module.common.exception.CustomException;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -79,7 +81,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
         } catch (IOException ex) {
             log.error("Failed to upload file: {}", file.getOriginalFilename(), ex);
-            throw new CustomException("Failed to upload file: " + ex.getMessage());
+            throw new BadRequestException(String.format(StorageErrorMessages.FILE_UPLOAD_FAILED, ex.getMessage()));
         }
     }
 
@@ -91,7 +93,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             log.info("File deleted successfully: {}", filePath);
         } catch (IOException ex) {
             log.error("Failed to delete file: {}", filePath, ex);
-            throw new CustomException("Failed to delete file: " + ex.getMessage());
+            throw new BadRequestException(String.format(StorageErrorMessages.FILE_DELETE_FAILED, ex.getMessage()));
         }
     }
 
@@ -100,12 +102,12 @@ public class FileStorageServiceImpl implements FileStorageService {
         try {
             Path path = Paths.get(baseUploadDir, filePath);
             if (!Files.exists(path)) {
-                throw new CustomException("File not found: " + filePath);
+                throw new ResourceNotFoundException(String.format(StorageErrorMessages.FILE_NOT_FOUND, filePath));
             }
             return Files.readAllBytes(path);
         } catch (IOException ex) {
             log.error("Failed to download file: {}", filePath, ex);
-            throw new CustomException("Failed to download file: " + ex.getMessage());
+            throw new BadRequestException(String.format(StorageErrorMessages.FILE_DOWNLOAD_FAILED, ex.getMessage()));
         }
     }
 
@@ -117,21 +119,21 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     private void validateFile(MultipartFile file) {
         if (file.isEmpty()) {
-            throw new CustomException("File is empty");
+            throw new BadRequestException(StorageErrorMessages.FILE_EMPTY);
         }
 
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new CustomException("File size exceeds maximum limit of 5MB");
+            throw new BadRequestException(StorageErrorMessages.FILE_SIZE_EXCEEDED);
         }
 
         String contentType = file.getContentType();
         if (contentType == null || !ALLOWED_IMAGE_TYPES.contains(contentType.toLowerCase())) {
-            throw new CustomException("Invalid file type. Allowed types: PNG, JPEG, JPG, SVG, WEBP");
+            throw new BadRequestException(StorageErrorMessages.INVALID_FILE_TYPE);
         }
 
         String filename = file.getOriginalFilename();
         if (filename == null || filename.contains("..")) {
-            throw new CustomException("Invalid filename");
+            throw new BadRequestException(StorageErrorMessages.INVALID_FILENAME);
         }
     }
 

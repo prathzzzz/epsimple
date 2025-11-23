@@ -1,13 +1,17 @@
 package com.eps.module.api.epsone.expenditures_voucher.processor;
 
+import com.eps.module.api.epsone.cost_item.constant.CostItemErrorMessages;
 import com.eps.module.api.epsone.cost_item.repository.CostItemRepository;
 import com.eps.module.api.epsone.expenditures_voucher.dto.ExpendituresVoucherBulkUploadDto;
 import com.eps.module.api.epsone.expenditures_voucher.repository.ExpendituresVoucherRepository;
 import com.eps.module.api.epsone.expenditures_voucher.validator.ExpendituresVoucherBulkUploadValidator;
+import com.eps.module.api.epsone.managed_project.constant.ManagedProjectErrorMessages;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
+import com.eps.module.api.epsone.voucher.constant.VoucherErrorMessages;
 import com.eps.module.api.epsone.voucher.repository.VoucherRepository;
 import com.eps.module.bank.ManagedProject;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.CostItem;
 import com.eps.module.cost.ExpendituresVoucher;
 import com.eps.module.payment.Voucher;
@@ -51,7 +55,7 @@ public class ExpendituresVoucherBulkUploadProcessor extends BulkUploadProcessor<
         // Find Cost Item
         CostItem costItem = costItemRepository
                 .findByCostItemForIgnoreCase(dto.getCostItemName().trim())
-                .orElseThrow(() -> new RuntimeException("Cost item not found: " + dto.getCostItemName()));
+                .orElseThrow(() -> new ResourceNotFoundException(CostItemErrorMessages.COST_ITEM_NOT_FOUND + dto.getCostItemName()));
 
         // Find Voucher
         Voucher voucher = voucherRepository
@@ -59,12 +63,12 @@ public class ExpendituresVoucherBulkUploadProcessor extends BulkUploadProcessor<
                 .stream()
                 .filter(v -> v.getVoucherNumber().equalsIgnoreCase(dto.getVoucherNumber().trim()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Voucher not found: " + dto.getVoucherNumber()));
+                .orElseThrow(() -> new ResourceNotFoundException(VoucherErrorMessages.VOUCHER_NOT_FOUND + dto.getVoucherNumber()));
 
         // Find Managed Project
         ManagedProject managedProject = managedProjectRepository
                 .findByProjectCodeIgnoreCase(dto.getManagedProjectCode().trim())
-                .orElseThrow(() -> new RuntimeException("Managed Project not found: " + dto.getManagedProjectCode()));
+                .orElseThrow(() -> new ResourceNotFoundException(ManagedProjectErrorMessages.MANAGED_PROJECT_NOT_FOUND + dto.getManagedProjectCode()));
 
         // Build ExpendituresVoucher entity
         return ExpendituresVoucher.builder()

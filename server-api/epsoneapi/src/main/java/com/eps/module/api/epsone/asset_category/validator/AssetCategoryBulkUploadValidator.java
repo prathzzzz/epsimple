@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.asset_category.validator;
 
+import com.eps.module.api.epsone.asset_category.constant.AssetCategoryErrorMessages;
 import com.eps.module.api.epsone.asset_category.dto.AssetCategoryBulkUploadDto;
 import com.eps.module.api.epsone.asset_category.repository.AssetCategoryRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -25,14 +26,14 @@ public class AssetCategoryBulkUploadValidator implements BulkRowValidator<AssetC
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("categoryName")
-                    .errorMessage("Category name is required")
+                    .errorMessage(AssetCategoryErrorMessages.ASSET_CATEGORY_NAME_REQUIRED)
                     .rejectedValue(dto.getCategoryName())
                     .build());
         } else if (dto.getCategoryName().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("categoryName")
-                    .errorMessage("Category name must not exceed 100 characters")
+                    .errorMessage(AssetCategoryErrorMessages.ASSET_CATEGORY_NAME_MAX_LENGTH)
                     .rejectedValue(dto.getCategoryName())
                     .build());
         }
@@ -42,7 +43,7 @@ public class AssetCategoryBulkUploadValidator implements BulkRowValidator<AssetC
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("categoryCode")
-                    .errorMessage("Category code is required")
+                    .errorMessage(AssetCategoryErrorMessages.ASSET_CATEGORY_CODE_REQUIRED)
                     .rejectedValue(dto.getCategoryCode())
                     .build());
         } else {
@@ -50,7 +51,7 @@ public class AssetCategoryBulkUploadValidator implements BulkRowValidator<AssetC
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("categoryCode")
-                        .errorMessage("Category code must not exceed 20 characters")
+                        .errorMessage(AssetCategoryErrorMessages.ASSET_CATEGORY_CODE_MAX_LENGTH)
                         .rejectedValue(dto.getCategoryCode())
                         .build());
             }
@@ -59,7 +60,7 @@ public class AssetCategoryBulkUploadValidator implements BulkRowValidator<AssetC
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("categoryCode")
-                        .errorMessage("Category code must contain only uppercase letters, numbers, ampersand, hyphens, and underscores")
+                        .errorMessage(AssetCategoryErrorMessages.ASSET_CATEGORY_CODE_FORMAT)
                         .rejectedValue(dto.getCategoryCode())
                         .build());
             }
@@ -70,14 +71,14 @@ public class AssetCategoryBulkUploadValidator implements BulkRowValidator<AssetC
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("assetCodeAlt")
-                    .errorMessage("Asset code alt is required")
+                    .errorMessage(AssetCategoryErrorMessages.ASSET_CODE_ALT_REQUIRED)
                     .rejectedValue(dto.getAssetCodeAlt())
                     .build());
         } else if (dto.getAssetCodeAlt().length() > 10) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("assetCodeAlt")
-                    .errorMessage("Asset code alt must not exceed 10 characters")
+                    .errorMessage(AssetCategoryErrorMessages.ASSET_CODE_ALT_MAX_LENGTH)
                     .rejectedValue(dto.getAssetCodeAlt())
                     .build());
         }
@@ -87,7 +88,7 @@ public class AssetCategoryBulkUploadValidator implements BulkRowValidator<AssetC
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("description")
-                    .errorMessage("Description must not exceed 5000 characters")
+                    .errorMessage(AssetCategoryErrorMessages.DESCRIPTION_MAX_LENGTH)
                     .rejectedValue(dto.getDescription())
                     .build());
         }

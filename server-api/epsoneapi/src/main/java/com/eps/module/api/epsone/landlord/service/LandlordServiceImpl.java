@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.landlord.service;
 
+import com.eps.module.api.epsone.landlord.constant.LandlordErrorMessages;
 import com.eps.module.api.epsone.landlord.dto.LandlordBulkUploadDto;
 import com.eps.module.api.epsone.landlord.dto.LandlordErrorReportDto;
 import com.eps.module.api.epsone.landlord.dto.LandlordRequestDto;
@@ -12,6 +13,8 @@ import com.eps.module.api.epsone.payee.repository.PayeeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.vendor.Landlord;
 import lombok.RequiredArgsConstructor;
@@ -39,14 +42,13 @@ public class LandlordServiceImpl extends BaseBulkUploadService<LandlordBulkUploa
     public LandlordResponseDto createLandlord(LandlordRequestDto requestDto) {
         // Validate person details exists
         PersonDetails personDetails = personDetailsRepository.findById(requestDto.getLandlordDetailsId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Person details not found with id: " + requestDto.getLandlordDetailsId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        LandlordErrorMessages.PERSON_DETAILS_NOT_FOUND_ID + requestDto.getLandlordDetailsId()));
 
         // Check if person details is already used by another landlord
         if (landlordRepository.findByLandlordDetailsId(requestDto.getLandlordDetailsId()).isPresent()) {
-            throw new IllegalArgumentException(
-                    "Person details with id " + requestDto.getLandlordDetailsId() + 
-                    " is already associated with another landlord");
+            throw new ConflictException(String.format(
+                    LandlordErrorMessages.PERSON_DETAILS_ALREADY_ASSOCIATED, requestDto.getLandlordDetailsId()));
         }
 
         Landlord landlord = landlordMapper.toEntity(requestDto);
@@ -82,7 +84,7 @@ public class LandlordServiceImpl extends BaseBulkUploadService<LandlordBulkUploa
     @Transactional(readOnly = true)
     public LandlordResponseDto getLandlordById(Long id) {
         Landlord landlord = landlordRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Landlord not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(LandlordErrorMessages.LANDLORD_NOT_FOUND_ID + id));
         return landlordMapper.toDto(landlord);
     }
 
@@ -90,20 +92,19 @@ public class LandlordServiceImpl extends BaseBulkUploadService<LandlordBulkUploa
     @Transactional
     public LandlordResponseDto updateLandlord(Long id, LandlordRequestDto requestDto) {
         Landlord landlord = landlordRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Landlord not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(LandlordErrorMessages.LANDLORD_NOT_FOUND_ID + id));
 
         // Validate person details exists
         PersonDetails personDetails = personDetailsRepository.findById(requestDto.getLandlordDetailsId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Person details not found with id: " + requestDto.getLandlordDetailsId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        LandlordErrorMessages.PERSON_DETAILS_NOT_FOUND_ID + requestDto.getLandlordDetailsId()));
 
         // Check if person details is already used by another landlord (excluding current)
         landlordRepository.findByLandlordDetailsId(requestDto.getLandlordDetailsId())
                 .ifPresent(existingLandlord -> {
                     if (!existingLandlord.getId().equals(id)) {
-                        throw new IllegalArgumentException(
-                                "Person details with id " + requestDto.getLandlordDetailsId() + 
-                                " is already associated with another landlord");
+                        throw new ConflictException(String.format(
+                                LandlordErrorMessages.PERSON_DETAILS_ALREADY_ASSOCIATED, requestDto.getLandlordDetailsId()));
                     }
                 });
 
@@ -118,13 +119,13 @@ public class LandlordServiceImpl extends BaseBulkUploadService<LandlordBulkUploa
     @Transactional
     public void deleteLandlord(Long id) {
         if (!landlordRepository.existsById(id)) {
-            throw new IllegalArgumentException("Landlord not found with id: " + id);
+            throw new ResourceNotFoundException(LandlordErrorMessages.LANDLORD_NOT_FOUND_ID + id);
         }
 
         // Check for dependencies - payees
         long payeeCount = payeeRepository.countByLandlordId(id);
         if (payeeCount > 0) {
-            throw new IllegalStateException("Cannot delete landlord as it has " + payeeCount + " associated payees");
+            throw new ConflictException(String.format(LandlordErrorMessages.CANNOT_DELETE_LANDLORD_PAYEES, payeeCount));
         }
 
         landlordRepository.deleteById(id);

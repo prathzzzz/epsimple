@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.data_center.service;
 
+import com.eps.module.api.epsone.data_center.constant.DatacenterErrorMessages;
 import com.eps.module.api.epsone.data_center.dto.DatacenterBulkUploadDto;
 import com.eps.module.api.epsone.data_center.dto.DatacenterErrorReportDto;
 import com.eps.module.api.epsone.data_center.dto.DatacenterRequestDto;
@@ -12,6 +13,7 @@ import com.eps.module.api.epsone.asset_placement.repository.AssetsOnDatacenterRe
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.Location;
 import com.eps.module.warehouse.Datacenter;
@@ -35,8 +37,6 @@ import java.util.stream.Collectors;
 public class DatacenterServiceImpl extends BaseBulkUploadService<DatacenterBulkUploadDto, Datacenter> 
         implements DatacenterService {
 
-    private static final String DATACENTER_NOT_FOUND_WITH_ID_MSG = "Datacenter not found with id: ";
-
     private final DatacenterRepository datacenterRepository;
     private final LocationRepository locationRepository;
     private final DatacenterMapper datacenterMapper;
@@ -51,13 +51,13 @@ public class DatacenterServiceImpl extends BaseBulkUploadService<DatacenterBulkU
         // Validate location exists
         Location location = locationRepository.findById(requestDto.getLocationId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Location not found with id: " + requestDto.getLocationId()));
+                        DatacenterErrorMessages.LOCATION_NOT_FOUND_ID + requestDto.getLocationId()));
 
         // Validate unique datacenter code if provided
         if (requestDto.getDatacenterCode() != null && !requestDto.getDatacenterCode().isEmpty() &&
             datacenterRepository.existsByDatacenterCode(requestDto.getDatacenterCode())) {
-            throw new IllegalArgumentException(
-                    "Datacenter code '" + requestDto.getDatacenterCode() + "' already exists");
+            throw new ConflictException(String.format(
+                    DatacenterErrorMessages.DATACENTER_CODE_EXISTS, requestDto.getDatacenterCode()));
         }
 
         Datacenter datacenter = datacenterMapper.toEntity(requestDto, location);
@@ -65,7 +65,7 @@ public class DatacenterServiceImpl extends BaseBulkUploadService<DatacenterBulkU
 
         // Fetch with details for response
         Datacenter datacenterWithDetails = datacenterRepository.findByIdWithDetails(savedDatacenter.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Datacenter not found after save"));
+                .orElseThrow(() -> new ResourceNotFoundException(DatacenterErrorMessages.DATACENTER_NOT_FOUND_AFTER_SAVE));
 
         log.info("Datacenter created successfully with ID: {}", savedDatacenter.getId());
         return datacenterMapper.toDto(datacenterWithDetails);
@@ -112,7 +112,7 @@ public class DatacenterServiceImpl extends BaseBulkUploadService<DatacenterBulkU
     public DatacenterResponseDto getDatacenterById(Long id) {
         log.info("Fetching datacenter with ID: {}", id);
         Datacenter datacenter = datacenterRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new ResourceNotFoundException(DATACENTER_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(DatacenterErrorMessages.DATACENTER_NOT_FOUND_ID + id));
         return datacenterMapper.toDto(datacenter);
     }
 
@@ -122,18 +122,18 @@ public class DatacenterServiceImpl extends BaseBulkUploadService<DatacenterBulkU
         log.info("Updating datacenter with ID: {}", id);
         
         Datacenter datacenter = datacenterRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(DATACENTER_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(DatacenterErrorMessages.DATACENTER_NOT_FOUND_ID + id));
 
         // Validate location exists
         Location location = locationRepository.findById(requestDto.getLocationId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Location not found with id: " + requestDto.getLocationId()));
+                        DatacenterErrorMessages.LOCATION_NOT_FOUND_ID + requestDto.getLocationId()));
 
         // Validate unique datacenter code if provided and changed
         if (requestDto.getDatacenterCode() != null && !requestDto.getDatacenterCode().isEmpty() &&
             datacenterRepository.existsByDatacenterCodeAndIdNot(requestDto.getDatacenterCode(), id)) {
-            throw new IllegalArgumentException(
-                    "Datacenter code '" + requestDto.getDatacenterCode() + "' already exists");
+            throw new ConflictException(String.format(
+                    DatacenterErrorMessages.DATACENTER_CODE_EXISTS, requestDto.getDatacenterCode()));
         }
 
         datacenterMapper.updateEntity(datacenter, requestDto, location);
@@ -141,7 +141,7 @@ public class DatacenterServiceImpl extends BaseBulkUploadService<DatacenterBulkU
 
         // Fetch with details for response
         Datacenter datacenterWithDetails = datacenterRepository.findByIdWithDetails(updatedDatacenter.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Datacenter not found after update"));
+                .orElseThrow(() -> new ResourceNotFoundException(DatacenterErrorMessages.DATACENTER_NOT_FOUND_AFTER_UPDATE));
 
         log.info("Datacenter updated successfully with ID: {}", id);
         return datacenterMapper.toDto(datacenterWithDetails);
@@ -153,13 +153,13 @@ public class DatacenterServiceImpl extends BaseBulkUploadService<DatacenterBulkU
         log.info("Deleting datacenter with ID: {}", id);
         
         Datacenter datacenter = datacenterRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(DATACENTER_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(DatacenterErrorMessages.DATACENTER_NOT_FOUND_ID + id));
 
         // Check if datacenter has assets
         long assetCount = assetsOnDatacenterRepository.countByDatacenterId(id);
         if (assetCount > 0) {
-            throw new IllegalStateException(String.format(
-                "Cannot delete datacenter '%s' because it has %d asset%s. Please remove the assets from this datacenter first.",
+            throw new ConflictException(String.format(
+                DatacenterErrorMessages.CANNOT_DELETE_DATACENTER_ASSETS,
                 datacenter.getDatacenterName(), assetCount, assetCount > 1 ? "s" : ""
             ));
         }

@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.cost_item.service;
 
+import com.eps.module.api.epsone.cost_item.constant.CostItemErrorMessages;
 import com.eps.module.api.epsone.cost_item.dto.CostItemBulkUploadDto;
 import com.eps.module.api.epsone.cost_item.dto.CostItemErrorReportDto;
 import com.eps.module.api.epsone.cost_item.dto.CostItemRequestDto;
@@ -11,6 +12,8 @@ import com.eps.module.api.epsone.cost_type.repository.CostTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.CostItem;
 import com.eps.module.cost.CostType;
 import lombok.RequiredArgsConstructor;
@@ -41,14 +44,14 @@ public class CostItemServiceImpl extends BaseBulkUploadService<CostItemBulkUploa
 
         // Validate cost type exists
         CostType costType = costTypeRepository.findById(requestDto.getCostTypeId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Cost type not found with ID: " + requestDto.getCostTypeId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        CostItemErrorMessages.COST_TYPE_NOT_FOUND_ID + requestDto.getCostTypeId()));
 
         // Check if cost item already exists for this cost type
         costItemRepository.findByCostTypeId(requestDto.getCostTypeId())
                 .ifPresent(existing -> {
-                    throw new IllegalStateException(
-                            "Cost item already exists for cost type: " + costType.getTypeName());
+                    throw new ConflictException(
+                            CostItemErrorMessages.COST_ITEM_ALREADY_EXISTS_FOR_TYPE + costType.getTypeName());
                 });
 
         CostItem costItem = costItemMapper.toEntity(requestDto, costType);
@@ -89,7 +92,7 @@ public class CostItemServiceImpl extends BaseBulkUploadService<CostItemBulkUploa
     public CostItemResponseDto getCostItemById(Long id) {
         log.info("Fetching cost item by ID: {}", id);
         CostItem costItem = costItemRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost item not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(CostItemErrorMessages.COST_ITEM_NOT_FOUND_ID + id));
         return costItemMapper.toDto(costItem);
     }
 
@@ -98,19 +101,19 @@ public class CostItemServiceImpl extends BaseBulkUploadService<CostItemBulkUploa
         log.info("Updating cost item with ID: {}", id);
 
         CostItem existingCostItem = costItemRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost item not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(CostItemErrorMessages.COST_ITEM_NOT_FOUND_ID + id));
 
         // Validate cost type exists
         CostType costType = costTypeRepository.findById(requestDto.getCostTypeId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Cost type not found with ID: " + requestDto.getCostTypeId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        CostItemErrorMessages.COST_TYPE_NOT_FOUND_ID + requestDto.getCostTypeId()));
 
         // Check if cost type is being changed and if another cost item already uses the new cost type
         if (!existingCostItem.getCostType().getId().equals(requestDto.getCostTypeId())) {
             costItemRepository.findByCostTypeId(requestDto.getCostTypeId())
                     .ifPresent(existing -> {
-                        throw new IllegalStateException(
-                                "Cost item already exists for cost type: " + costType.getTypeName());
+                        throw new ConflictException(
+                                CostItemErrorMessages.COST_ITEM_ALREADY_EXISTS_FOR_TYPE + costType.getTypeName());
                     });
         }
 
@@ -126,7 +129,7 @@ public class CostItemServiceImpl extends BaseBulkUploadService<CostItemBulkUploa
         log.info("Deleting cost item with ID: {}", id);
 
         CostItem costItem = costItemRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost item not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(CostItemErrorMessages.COST_ITEM_NOT_FOUND_ID + id));
 
         costItemRepository.delete(costItem);
         log.info("Cost item deleted successfully with ID: {}", id);

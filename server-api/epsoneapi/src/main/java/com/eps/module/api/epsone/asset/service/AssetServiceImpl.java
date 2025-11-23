@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.asset.service;
 
+import com.eps.module.api.epsone.asset.constant.AssetErrorMessages;
 import com.eps.module.api.epsone.asset.dto.AssetBulkUploadDto;
 import com.eps.module.api.epsone.asset.dto.AssetErrorReportDto;
 import com.eps.module.api.epsone.asset.dto.AssetRequestDto;
@@ -14,6 +15,7 @@ import com.eps.module.asset.Asset;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,8 +30,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, Asset> implements AssetService {
-
-    private static final String ASSET_NOT_FOUND_WITH_ID_MSG = "Asset not found with id: ";
 
     private final AssetRepository assetRepository;
     private final AssetMapper assetMapper;
@@ -244,13 +244,13 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
         // Validate asset tag uniqueness
         if (requestDto.getAssetTagId() != null &&
                 assetRepository.findByAssetTagId(requestDto.getAssetTagId()).isPresent()) {
-            throw new IllegalArgumentException("Asset tag already exists: " + requestDto.getAssetTagId());
+            throw new ConflictException(AssetErrorMessages.ASSET_TAG_ALREADY_EXISTS + requestDto.getAssetTagId());
         }
 
         // Validate serial number uniqueness if provided
         if (requestDto.getSerialNumber() != null &&
                 assetRepository.findBySerialNumber(requestDto.getSerialNumber()).isPresent()) {
-            throw new IllegalArgumentException("Serial number already exists: " + requestDto.getSerialNumber());
+            throw new ConflictException(AssetErrorMessages.SERIAL_NUMBER_ALREADY_EXISTS + requestDto.getSerialNumber());
         }
 
         Asset asset = assetMapper.toEntity(requestDto);
@@ -259,7 +259,7 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
         // Reload with all relationships
         return assetMapper.toDto(
                 assetRepository.findById(savedAsset.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Asset not found after save"))
+                        .orElseThrow(() -> new ResourceNotFoundException(AssetErrorMessages.ASSET_NOT_FOUND_AFTER_SAVE))
         );
     }
 
@@ -289,7 +289,7 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
     @Transactional(readOnly = true)
     public AssetResponseDto getAssetById(Long id) {
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ASSET_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetErrorMessages.ASSET_NOT_FOUND_ID + id));
         return assetMapper.toDto(asset);
     }
 
@@ -297,13 +297,13 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
     @Transactional
     public AssetResponseDto updateAsset(Long id, AssetRequestDto requestDto) {
         Asset existingAsset = assetRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ASSET_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetErrorMessages.ASSET_NOT_FOUND_ID + id));
 
         // Validate asset tag uniqueness (if changed)
         if (requestDto.getAssetTagId() != null &&
                 !requestDto.getAssetTagId().equals(existingAsset.getAssetTagId())) {
             assetRepository.findByAssetTagId(requestDto.getAssetTagId()).ifPresent(asset -> {
-                throw new IllegalArgumentException("Asset tag already exists: " + requestDto.getAssetTagId());
+                throw new ConflictException(AssetErrorMessages.ASSET_TAG_ALREADY_EXISTS + requestDto.getAssetTagId());
             });
         }
 
@@ -311,7 +311,7 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
         if (requestDto.getSerialNumber() != null &&
                 !requestDto.getSerialNumber().equals(existingAsset.getSerialNumber())) {
             assetRepository.findBySerialNumber(requestDto.getSerialNumber()).ifPresent(asset -> {
-                throw new IllegalArgumentException("Serial number already exists: " + requestDto.getSerialNumber());
+                throw new ConflictException(AssetErrorMessages.SERIAL_NUMBER_ALREADY_EXISTS + requestDto.getSerialNumber());
             });
         }
 
@@ -321,7 +321,7 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
         // Reload with all relationships
         return assetMapper.toDto(
                 assetRepository.findById(updatedAsset.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Asset not found after update"))
+                        .orElseThrow(() -> new ResourceNotFoundException(AssetErrorMessages.ASSET_NOT_FOUND_AFTER_UPDATE))
         );
     }
 
@@ -329,13 +329,13 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
     @Transactional
     public void deleteAsset(Long id) {
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ASSET_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetErrorMessages.ASSET_NOT_FOUND_ID + id));
 
         // Check for placements on sites
         long siteCount = assetsOnSiteRepository.countByAssetId(id);
         if (siteCount > 0) {
-            throw new IllegalStateException(String.format(
-                    "Cannot delete asset '%s' because it is placed on %d site%s. Please remove the asset from these sites first.",
+            throw new ConflictException(String.format(
+                    AssetErrorMessages.CANNOT_DELETE_ASSET_PLACED_ON_SITE,
                     asset.getAssetTagId(), siteCount, siteCount > 1 ? "s" : ""
             ));
         }
@@ -343,8 +343,8 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
         // Check for placements in warehouses
         long warehouseCount = assetsOnWarehouseRepository.countByAssetId(id);
         if (warehouseCount > 0) {
-            throw new IllegalStateException(String.format(
-                    "Cannot delete asset '%s' because it is placed in %d warehouse%s. Please remove the asset from these warehouses first.",
+            throw new ConflictException(String.format(
+                    AssetErrorMessages.CANNOT_DELETE_ASSET_PLACED_IN_WAREHOUSE,
                     asset.getAssetTagId(), warehouseCount, warehouseCount > 1 ? "s" : ""
             ));
         }
@@ -352,8 +352,8 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
         // Check for placements in datacenters
         long datacenterCount = assetsOnDatacenterRepository.countByAssetId(id);
         if (datacenterCount > 0) {
-            throw new IllegalStateException(String.format(
-                    "Cannot delete asset '%s' because it is placed in %d datacenter%s. Please remove the asset from these datacenters first.",
+            throw new ConflictException(String.format(
+                    AssetErrorMessages.CANNOT_DELETE_ASSET_PLACED_IN_DATACENTER,
                     asset.getAssetTagId(), datacenterCount, datacenterCount > 1 ? "s" : ""
             ));
         }

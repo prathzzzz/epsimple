@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.payment_method.validator;
 
+import com.eps.module.api.epsone.payment_method.constant.PaymentMethodErrorMessages;
 import com.eps.module.api.epsone.payment_method.dto.PaymentMethodBulkUploadDto;
 import com.eps.module.api.epsone.payment_method.repository.PaymentMethodRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -25,14 +26,14 @@ public class PaymentMethodBulkUploadValidator implements BulkRowValidator<Paymen
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Method Name")
-                    .errorMessage("Method name is required")
+                    .errorMessage(PaymentMethodErrorMessages.METHOD_NAME_REQUIRED)
                     .rejectedValue(rowData.getMethodName())
                     .build());
         } else if (rowData.getMethodName().length() > 50) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Method Name")
-                    .errorMessage("Method name cannot exceed 50 characters")
+                    .errorMessage(PaymentMethodErrorMessages.METHOD_NAME_TOO_LONG)
                     .rejectedValue(rowData.getMethodName())
                     .build());
         }

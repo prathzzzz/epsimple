@@ -2,6 +2,7 @@ package com.eps.module.api.epsone.asset_tag_code.service;
 
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
 import com.eps.module.api.epsone.asset_category.repository.AssetCategoryRepository;
+import com.eps.module.api.epsone.asset_tag_code.constant.AssetTagCodeErrorMessages;
 import com.eps.module.api.epsone.asset_tag_code.dto.AssetTagCodeGeneratorRequestDto;
 import com.eps.module.api.epsone.asset_tag_code.dto.AssetTagCodeGeneratorResponseDto;
 import com.eps.module.api.epsone.asset_tag_code.dto.GeneratedAssetTagDto;
@@ -12,6 +13,7 @@ import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.asset.AssetCategory;
 import com.eps.module.asset.AssetTagCodeGenerator;
 import com.eps.module.bank.Bank;
+import com.eps.module.common.exception.ConflictException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.vendor.Vendor;
 import lombok.RequiredArgsConstructor;
@@ -47,24 +49,22 @@ public class AssetTagCodeGeneratorServiceImpl implements AssetTagCodeGeneratorSe
         // Check if generator already exists
         if (generatorRepository.existsByAssetCategoryIdAndVendorIdAndBankId(
                 dto.getAssetCategoryId(), dto.getVendorId(), dto.getBankId())) {
-            throw new IllegalArgumentException(
-                "Asset tag code generator already exists for this category-vendor-bank combination"
-            );
+            throw new ConflictException(AssetTagCodeErrorMessages.GENERATOR_EXISTS);
         }
 
         AssetCategory category = assetCategoryRepository.findById(dto.getAssetCategoryId())
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Asset category not found with id: " + dto.getAssetCategoryId()
+                AssetTagCodeErrorMessages.ASSET_CATEGORY_NOT_FOUND_ID + dto.getAssetCategoryId()
             ));
 
         Vendor vendor = vendorRepository.findById(dto.getVendorId())
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Vendor not found with id: " + dto.getVendorId()
+                AssetTagCodeErrorMessages.VENDOR_NOT_FOUND_ID + dto.getVendorId()
             ));
 
         Bank bank = bankRepository.findById(dto.getBankId())
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Bank not found with id: " + dto.getBankId()
+                AssetTagCodeErrorMessages.BANK_NOT_FOUND_ID + dto.getBankId()
             ));
 
         AssetTagCodeGenerator generator = mapper.toEntity(dto, category, vendor, bank);
@@ -105,7 +105,7 @@ public class AssetTagCodeGeneratorServiceImpl implements AssetTagCodeGeneratorSe
         log.info("Fetching asset tag code generator with id: {}", id);
         AssetTagCodeGenerator generator = generatorRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Asset tag code generator not found with id: " + id
+                AssetTagCodeErrorMessages.GENERATOR_NOT_FOUND_ID + id
             ));
         return mapper.toResponseDto(generator);
     }
@@ -117,7 +117,7 @@ public class AssetTagCodeGeneratorServiceImpl implements AssetTagCodeGeneratorSe
 
         AssetTagCodeGenerator existing = generatorRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Asset tag code generator not found with id: " + id
+                AssetTagCodeErrorMessages.GENERATOR_NOT_FOUND_ID + id
             ));
 
         // Check for duplicate if changing the combination
@@ -127,25 +127,23 @@ public class AssetTagCodeGeneratorServiceImpl implements AssetTagCodeGeneratorSe
             
             if (generatorRepository.existsByAssetCategoryIdAndVendorIdAndBankId(
                     dto.getAssetCategoryId(), dto.getVendorId(), dto.getBankId())) {
-                throw new IllegalArgumentException(
-                    "Asset tag code generator already exists for this category-vendor-bank combination"
-                );
+                throw new ConflictException(AssetTagCodeErrorMessages.GENERATOR_EXISTS);
             }
         }
 
         AssetCategory category = assetCategoryRepository.findById(dto.getAssetCategoryId())
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Asset category not found with id: " + dto.getAssetCategoryId()
+                AssetTagCodeErrorMessages.ASSET_CATEGORY_NOT_FOUND_ID + dto.getAssetCategoryId()
             ));
 
         Vendor vendor = vendorRepository.findById(dto.getVendorId())
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Vendor not found with id: " + dto.getVendorId()
+                AssetTagCodeErrorMessages.VENDOR_NOT_FOUND_ID + dto.getVendorId()
             ));
 
         Bank bank = bankRepository.findById(dto.getBankId())
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Bank not found with id: " + dto.getBankId()
+                AssetTagCodeErrorMessages.BANK_NOT_FOUND_ID + dto.getBankId()
             ));
 
         existing.setAssetCategory(category);
@@ -166,7 +164,7 @@ public class AssetTagCodeGeneratorServiceImpl implements AssetTagCodeGeneratorSe
         
         AssetTagCodeGenerator generator = generatorRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Asset tag code generator not found with id: " + id
+                AssetTagCodeErrorMessages.GENERATOR_NOT_FOUND_ID + id
             ));
 
         // Check if any assets are using this generator's pattern
@@ -186,10 +184,9 @@ public class AssetTagCodeGeneratorServiceImpl implements AssetTagCodeGeneratorSe
         );
         
         if (!existingTags.isEmpty()) {
-            throw new IllegalStateException(
-                "Cannot delete asset tag code generator. " + existingTags.size() + 
-                " asset(s) are using tags generated by this pattern (prefix: " + tagPrefix + ")."
-            );
+            throw new ConflictException(String.format(
+                AssetTagCodeErrorMessages.CANNOT_DELETE_GENERATOR_USED, existingTags.size(), tagPrefix
+            ));
         }
         
         generatorRepository.deleteById(id);
@@ -268,17 +265,17 @@ public class AssetTagCodeGeneratorServiceImpl implements AssetTagCodeGeneratorSe
     ) {
         AssetCategory category = assetCategoryRepository.findById(assetCategoryId)
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Asset category not found with id: " + assetCategoryId
+                AssetTagCodeErrorMessages.ASSET_CATEGORY_NOT_FOUND_ID + assetCategoryId
             ));
 
         Vendor vendor = vendorRepository.findById(vendorId)
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Vendor not found with id: " + vendorId
+                AssetTagCodeErrorMessages.VENDOR_NOT_FOUND_ID + vendorId
             ));
 
         Bank bank = bankRepository.findById(bankId)
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Bank not found with id: " + bankId
+                AssetTagCodeErrorMessages.BANK_NOT_FOUND_ID + bankId
             ));
 
         return AssetTagCodeGenerator.builder()
@@ -300,17 +297,17 @@ public class AssetTagCodeGeneratorServiceImpl implements AssetTagCodeGeneratorSe
 
         AssetCategory category = assetCategoryRepository.findById(assetCategoryId)
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Asset category not found with id: " + assetCategoryId
+                AssetTagCodeErrorMessages.ASSET_CATEGORY_NOT_FOUND_ID + assetCategoryId
             ));
 
         Vendor vendor = vendorRepository.findById(vendorId)
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Vendor not found with id: " + vendorId
+                AssetTagCodeErrorMessages.VENDOR_NOT_FOUND_ID + vendorId
             ));
 
         Bank bank = bankRepository.findById(bankId)
             .orElseThrow(() -> new ResourceNotFoundException(
-                "Bank not found with id: " + bankId
+                AssetTagCodeErrorMessages.BANK_NOT_FOUND_ID + bankId
             ));
 
         AssetTagCodeGenerator generator = AssetTagCodeGenerator.builder()

@@ -1,13 +1,17 @@
 package com.eps.module.api.epsone.expenditures_invoice.processor;
 
+import com.eps.module.api.epsone.cost_item.constant.CostItemErrorMessages;
 import com.eps.module.api.epsone.cost_item.repository.CostItemRepository;
 import com.eps.module.api.epsone.expenditures_invoice.dto.ExpendituresInvoiceBulkUploadDto;
 import com.eps.module.api.epsone.expenditures_invoice.repository.ExpendituresInvoiceRepository;
 import com.eps.module.api.epsone.expenditures_invoice.validator.ExpendituresInvoiceBulkUploadValidator;
+import com.eps.module.api.epsone.invoice.constant.InvoiceErrorMessages;
 import com.eps.module.api.epsone.invoice.repository.InvoiceRepository;
+import com.eps.module.api.epsone.managed_project.constant.ManagedProjectErrorMessages;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
 import com.eps.module.bank.ManagedProject;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.CostItem;
 import com.eps.module.cost.ExpendituresInvoice;
 import com.eps.module.payment.Invoice;
@@ -51,7 +55,7 @@ public class ExpendituresInvoiceBulkUploadProcessor extends BulkUploadProcessor<
         // Find Cost Item
         CostItem costItem = costItemRepository
                 .findByCostItemForIgnoreCase(dto.getCostItemName().trim())
-                .orElseThrow(() -> new RuntimeException("Cost item not found: " + dto.getCostItemName()));
+                .orElseThrow(() -> new ResourceNotFoundException(CostItemErrorMessages.COST_ITEM_NOT_FOUND + dto.getCostItemName()));
 
         // Find Invoice
         Invoice invoice = invoiceRepository
@@ -59,12 +63,12 @@ public class ExpendituresInvoiceBulkUploadProcessor extends BulkUploadProcessor<
                 .stream()
                 .filter(inv -> inv.getInvoiceNumber().equalsIgnoreCase(dto.getInvoiceNumber().trim()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Invoice not found: " + dto.getInvoiceNumber()));
+                .orElseThrow(() -> new ResourceNotFoundException(InvoiceErrorMessages.INVOICE_NOT_FOUND_GENERIC + dto.getInvoiceNumber()));
 
         // Find Managed Project
         ManagedProject managedProject = managedProjectRepository
                 .findByProjectCodeIgnoreCase(dto.getManagedProjectCode().trim())
-                .orElseThrow(() -> new RuntimeException("Managed Project not found: " + dto.getManagedProjectCode()));
+                .orElseThrow(() -> new ResourceNotFoundException(ManagedProjectErrorMessages.MANAGED_PROJECT_NOT_FOUND + dto.getManagedProjectCode()));
 
         // Build ExpendituresInvoice entity
         return ExpendituresInvoice.builder()

@@ -2,6 +2,7 @@ package com.eps.module.api.epsone.warehouse.service;
 
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.warehouse.bulk.WarehouseBulkUploadProcessor;
+import com.eps.module.api.epsone.warehouse.constant.WarehouseErrorMessages;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseBulkUploadDto;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseErrorReportDto;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseRequestDto;
@@ -12,6 +13,7 @@ import com.eps.module.api.epsone.asset_placement.repository.AssetsOnWarehouseRep
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.Location;
 import com.eps.module.warehouse.Warehouse;
@@ -33,8 +35,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WarehouseServiceImpl extends BaseBulkUploadService<WarehouseBulkUploadDto, Warehouse> 
         implements WarehouseService {
-
-    private static final String WAREHOUSE_NOT_FOUND_WITH_ID_MSG = "Warehouse not found with id: ";
 
     private final WarehouseRepository warehouseRepository;
     private final LocationRepository locationRepository;
@@ -108,13 +108,13 @@ public class WarehouseServiceImpl extends BaseBulkUploadService<WarehouseBulkUpl
         // Validate location exists
         Location location = locationRepository.findById(requestDto.getLocationId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Location not found with id: " + requestDto.getLocationId()));
+                        WarehouseErrorMessages.LOCATION_NOT_FOUND_ID + requestDto.getLocationId()));
 
         // Validate unique warehouse code if provided
         if (requestDto.getWarehouseCode() != null && !requestDto.getWarehouseCode().isEmpty() &&
             warehouseRepository.existsByWarehouseCode(requestDto.getWarehouseCode())) {
-            throw new IllegalArgumentException(
-                    "Warehouse code '" + requestDto.getWarehouseCode() + "' already exists");
+            throw new ConflictException(String.format(
+                    WarehouseErrorMessages.WAREHOUSE_CODE_EXISTS, requestDto.getWarehouseCode()));
         }
 
         Warehouse warehouse = warehouseMapper.toEntity(requestDto, location);
@@ -122,7 +122,7 @@ public class WarehouseServiceImpl extends BaseBulkUploadService<WarehouseBulkUpl
 
         // Fetch with details for response
         Warehouse warehouseWithDetails = warehouseRepository.findByIdWithDetails(savedWarehouse.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found after save"));
+                .orElseThrow(() -> new ResourceNotFoundException(WarehouseErrorMessages.WAREHOUSE_NOT_FOUND_AFTER_SAVE));
 
         log.info("Warehouse created successfully with ID: {}", savedWarehouse.getId());
         return warehouseMapper.toDto(warehouseWithDetails);
@@ -169,7 +169,7 @@ public class WarehouseServiceImpl extends BaseBulkUploadService<WarehouseBulkUpl
     public WarehouseResponseDto getWarehouseById(Long id) {
         log.info("Fetching warehouse with ID: {}", id);
         Warehouse warehouse = warehouseRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new ResourceNotFoundException(WAREHOUSE_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(WarehouseErrorMessages.WAREHOUSE_NOT_FOUND_ID + id));
         return warehouseMapper.toDto(warehouse);
     }
 
@@ -179,18 +179,18 @@ public class WarehouseServiceImpl extends BaseBulkUploadService<WarehouseBulkUpl
         log.info("Updating warehouse with ID: {}", id);
         
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(WAREHOUSE_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(WarehouseErrorMessages.WAREHOUSE_NOT_FOUND_ID + id));
 
         // Validate location exists
         Location location = locationRepository.findById(requestDto.getLocationId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Location not found with id: " + requestDto.getLocationId()));
+                        WarehouseErrorMessages.LOCATION_NOT_FOUND_ID + requestDto.getLocationId()));
 
         // Validate unique warehouse code if provided and changed
         if (requestDto.getWarehouseCode() != null && !requestDto.getWarehouseCode().isEmpty() &&
             warehouseRepository.existsByWarehouseCodeAndIdNot(requestDto.getWarehouseCode(), id)) {
-            throw new IllegalArgumentException(
-                    "Warehouse code '" + requestDto.getWarehouseCode() + "' already exists");
+            throw new ConflictException(String.format(
+                    WarehouseErrorMessages.WAREHOUSE_CODE_EXISTS, requestDto.getWarehouseCode()));
         }
 
         warehouseMapper.updateEntity(warehouse, requestDto, location);
@@ -198,7 +198,7 @@ public class WarehouseServiceImpl extends BaseBulkUploadService<WarehouseBulkUpl
 
         // Fetch with details for response
         Warehouse warehouseWithDetails = warehouseRepository.findByIdWithDetails(updatedWarehouse.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found after update"));
+                .orElseThrow(() -> new ResourceNotFoundException(WarehouseErrorMessages.WAREHOUSE_NOT_FOUND_AFTER_UPDATE));
 
         log.info("Warehouse updated successfully with ID: {}", id);
         return warehouseMapper.toDto(warehouseWithDetails);
@@ -210,13 +210,13 @@ public class WarehouseServiceImpl extends BaseBulkUploadService<WarehouseBulkUpl
         log.info("Deleting warehouse with ID: {}", id);
         
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(WAREHOUSE_NOT_FOUND_WITH_ID_MSG + id));
+                .orElseThrow(() -> new ResourceNotFoundException(WarehouseErrorMessages.WAREHOUSE_NOT_FOUND_ID + id));
 
         // Check if warehouse has assets
         long assetCount = assetsOnWarehouseRepository.countByWarehouseId(id);
         if (assetCount > 0) {
-            throw new IllegalStateException(String.format(
-                "Cannot delete warehouse '%s' because it has %d asset%s. Please remove the assets from this warehouse first.",
+            throw new ConflictException(String.format(
+                WarehouseErrorMessages.CANNOT_DELETE_WAREHOUSE_ASSETS,
                 warehouse.getWarehouseName(), assetCount, assetCount > 1 ? "s" : ""
             ));
         }

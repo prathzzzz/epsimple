@@ -2,6 +2,7 @@ package com.eps.module.api.epsone.activities.service;
 
 import com.eps.module.activity.Activities;
 import com.eps.module.activity.Activity;
+import com.eps.module.api.epsone.activities.constant.ActivitiesErrorMessages;
 import com.eps.module.api.epsone.activities.dto.ActivitiesBulkUploadDto;
 import com.eps.module.api.epsone.activities.dto.ActivitiesErrorReportDto;
 import com.eps.module.api.epsone.activities.dto.ActivitiesRequestDto;
@@ -14,6 +15,8 @@ import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -93,11 +96,11 @@ public class ActivitiesServiceImpl extends BaseBulkUploadService<ActivitiesBulkU
         log.info("Creating new activities: {}", activitiesRequestDto.getActivityName());
 
         if (activitiesRepository.existsByActivityNameIgnoreCase(activitiesRequestDto.getActivityName())) {
-            throw new IllegalArgumentException("Activities with name '" + activitiesRequestDto.getActivityName() + "' already exists");
+            throw new ConflictException(String.format(ActivitiesErrorMessages.ACTIVITIES_NAME_EXISTS, activitiesRequestDto.getActivityName()));
         }
 
         Activity activity = activityRepository.findById(activitiesRequestDto.getActivityId())
-                .orElseThrow(() -> new IllegalArgumentException("Activity not found with ID: " + activitiesRequestDto.getActivityId()));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivitiesErrorMessages.ACTIVITY_NOT_FOUND_ID + activitiesRequestDto.getActivityId()));
 
         Activities activities = activitiesMapper.toEntityWithActivity(activitiesRequestDto, activity);
         Activities savedActivities = activitiesRepository.save(activities);
@@ -137,7 +140,7 @@ public class ActivitiesServiceImpl extends BaseBulkUploadService<ActivitiesBulkU
     public ActivitiesResponseDto getActivitiesById(Long id) {
         log.info("Fetching activities by ID: {}", id);
         Activities activities = activitiesRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Activities not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivitiesErrorMessages.ACTIVITIES_NOT_FOUND_ID + id));
         return activitiesMapper.toResponseDto(activities);
     }
 
@@ -147,14 +150,14 @@ public class ActivitiesServiceImpl extends BaseBulkUploadService<ActivitiesBulkU
         log.info("Updating activities with ID: {}", id);
 
         Activities activities = activitiesRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Activities not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivitiesErrorMessages.ACTIVITIES_NOT_FOUND_ID + id));
 
         if (activitiesRepository.existsByActivityNameAndIdNot(activitiesRequestDto.getActivityName(), id)) {
-            throw new IllegalArgumentException("Activities with name '" + activitiesRequestDto.getActivityName() + "' already exists");
+            throw new ConflictException(String.format(ActivitiesErrorMessages.ACTIVITIES_NAME_EXISTS, activitiesRequestDto.getActivityName()));
         }
 
         Activity activity = activityRepository.findById(activitiesRequestDto.getActivityId())
-                .orElseThrow(() -> new IllegalArgumentException("Activity not found with ID: " + activitiesRequestDto.getActivityId()));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivitiesErrorMessages.ACTIVITY_NOT_FOUND_ID + activitiesRequestDto.getActivityId()));
 
         activitiesMapper.updateEntityFromDto(activitiesRequestDto, activities);
         activities.setActivity(activity);
@@ -170,13 +173,13 @@ public class ActivitiesServiceImpl extends BaseBulkUploadService<ActivitiesBulkU
         log.info("Deleting activities with ID: {}", id);
 
         if (!activitiesRepository.existsById(id)) {
-            throw new IllegalArgumentException("Activities not found with ID: " + id);
+            throw new ResourceNotFoundException(ActivitiesErrorMessages.ACTIVITIES_NOT_FOUND_ID + id);
         }
 
         // Check for dependencies - activity work orders
         long activityWorkCount = activityWorkRepository.countByActivitiesId(id);
         if (activityWorkCount > 0) {
-            throw new IllegalStateException("Cannot delete activities as it has " + activityWorkCount + " associated activity work orders");
+            throw new ConflictException(String.format(ActivitiesErrorMessages.CANNOT_DELETE_ACTIVITIES_USED, activityWorkCount));
         }
 
         activitiesRepository.deleteById(id);

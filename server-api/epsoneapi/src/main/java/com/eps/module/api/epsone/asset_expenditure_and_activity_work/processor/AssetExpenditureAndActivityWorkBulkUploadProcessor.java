@@ -4,12 +4,16 @@ import com.eps.module.activity.ActivityWork;
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkBulkUploadDto;
+import com.eps.module.api.epsone.activity_work.constant.ActivityWorkErrorMessages;
+import com.eps.module.api.epsone.asset.constant.AssetErrorMessages;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.repository.AssetExpenditureAndActivityWorkRepository;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.validator.AssetExpenditureAndActivityWorkBulkUploadValidator;
 import com.eps.module.api.epsone.expenditures_invoice.repository.ExpendituresInvoiceRepository;
+import com.eps.module.api.epsone.invoice.constant.InvoiceErrorMessages;
 import com.eps.module.asset.Asset;
 import com.eps.module.asset.AssetExpenditureAndActivityWork;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.ExpendituresInvoice;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +45,7 @@ public class AssetExpenditureAndActivityWorkBulkUploadProcessor extends BulkUplo
         // Find asset by tag ID
         Asset asset = assetRepository
                 .findByAssetTagId(dto.getAssetTagId().trim())
-                .orElseThrow(() -> new RuntimeException("Asset not found: " + dto.getAssetTagId()));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetErrorMessages.ASSET_NOT_FOUND_TAG + dto.getAssetTagId()));
 
         // Find expenditure invoice by invoice number (if provided)
         ExpendituresInvoice expendituresInvoice = null;
@@ -55,7 +59,7 @@ public class AssetExpenditureAndActivityWorkBulkUploadProcessor extends BulkUplo
                 }
             }
             if (expendituresInvoice == null) {
-                throw new RuntimeException("Expenditure Invoice not found for invoice number: " + dto.getInvoiceNumber());
+                throw new ResourceNotFoundException(InvoiceErrorMessages.EXPENDITURE_INVOICE_NOT_FOUND + dto.getInvoiceNumber());
             }
         }
 
@@ -64,7 +68,7 @@ public class AssetExpenditureAndActivityWorkBulkUploadProcessor extends BulkUplo
         if (dto.getActivityWorkId() != null && !dto.getActivityWorkId().trim().isEmpty()) {
             Long activityWorkId = Long.parseLong(dto.getActivityWorkId().trim());
             activityWork = activityWorkRepository.findById(activityWorkId)
-                    .orElseThrow(() -> new RuntimeException("Activity Work not found with ID: " + activityWorkId));
+                    .orElseThrow(() -> new ResourceNotFoundException(ActivityWorkErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + activityWorkId));
         }
 
         // Build AssetExpenditureAndActivityWork entity

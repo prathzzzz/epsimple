@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.payee_type.validator;
 
+import com.eps.module.api.epsone.payee_type.constant.PayeeTypeErrorMessages;
 import com.eps.module.api.epsone.payee_type.dto.PayeeTypeBulkUploadDto;
 import com.eps.module.api.epsone.payee_type.repository.PayeeTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -25,14 +26,14 @@ public class PayeeTypeBulkUploadValidator implements BulkRowValidator<PayeeTypeB
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Payee Type")
-                    .errorMessage("Payee type is required")
+                    .errorMessage(PayeeTypeErrorMessages.PAYEE_TYPE_REQUIRED)
                     .rejectedValue(rowData.getPayeeType())
                     .build());
         } else if (rowData.getPayeeType().length() > 50) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Payee Type")
-                    .errorMessage("Payee type cannot exceed 50 characters")
+                    .errorMessage(PayeeTypeErrorMessages.PAYEE_TYPE_MAX_LENGTH)
                     .rejectedValue(rowData.getPayeeType())
                     .build());
         }
@@ -42,7 +43,7 @@ public class PayeeTypeBulkUploadValidator implements BulkRowValidator<PayeeTypeB
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Payee Category")
-                    .errorMessage("Payee category cannot exceed 100 characters")
+                    .errorMessage(PayeeTypeErrorMessages.PAYEE_CATEGORY_MAX_LENGTH)
                     .rejectedValue(rowData.getPayeeCategory())
                     .build());
         }

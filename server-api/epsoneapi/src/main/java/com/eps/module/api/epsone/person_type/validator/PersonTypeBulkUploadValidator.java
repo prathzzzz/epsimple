@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.person_type.validator;
 
+import com.eps.module.api.epsone.person_type.constant.PersonTypeErrorMessages;
 import com.eps.module.api.epsone.person_type.dto.PersonTypeBulkUploadDto;
 import com.eps.module.api.epsone.person_type.repository.PersonTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -25,14 +26,14 @@ public class PersonTypeBulkUploadValidator implements BulkRowValidator<PersonTyp
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Name")
-                    .errorMessage("Person type name is required")
+                    .errorMessage(PersonTypeErrorMessages.PERSON_TYPE_NAME_REQUIRED)
                     .rejectedValue(rowData.getTypeName())
                     .build());
         } else if (rowData.getTypeName().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Name")
-                    .errorMessage("Person type name cannot exceed 100 characters")
+                    .errorMessage(PersonTypeErrorMessages.PERSON_TYPE_NAME_MAX_LENGTH)
                     .rejectedValue(rowData.getTypeName())
                     .build());
         }
@@ -42,7 +43,7 @@ public class PersonTypeBulkUploadValidator implements BulkRowValidator<PersonTyp
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Description")
-                    .errorMessage("Description cannot exceed 5000 characters")
+                    .errorMessage(PersonTypeErrorMessages.DESCRIPTION_MAX_LENGTH)
                     .rejectedValue(rowData.getDescription())
                     .build());
         }

@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.city.validator;
 
+import com.eps.module.api.epsone.city.constant.CityErrorMessages;
 import com.eps.module.api.epsone.city.dto.CityBulkUploadDto;
 import com.eps.module.api.epsone.city.repository.CityRepository;
 import com.eps.module.api.epsone.state.repository.StateRepository;
@@ -32,14 +33,14 @@ public class CityBulkUploadValidator implements BulkRowValidator<CityBulkUploadD
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("City Name")
-                    .errorMessage("City name is required")
+                    .errorMessage(CityErrorMessages.CITY_NAME_REQUIRED)
                     .rejectedValue(rowData.getCityName())
                     .build());
         } else if (rowData.getCityName().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("City Name")
-                    .errorMessage("City name cannot exceed 100 characters")
+                    .errorMessage(CityErrorMessages.CITY_NAME_LENGTH_EXCEEDED)
                     .rejectedValue(rowData.getCityName())
                     .build());
         }
@@ -50,14 +51,14 @@ public class CityBulkUploadValidator implements BulkRowValidator<CityBulkUploadD
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("City Code")
-                        .errorMessage("City code cannot exceed 10 characters")
+                        .errorMessage(CityErrorMessages.CITY_CODE_LENGTH_EXCEEDED)
                         .rejectedValue(rowData.getCityCode())
                         .build());
             } else if (!CODE_PATTERN.matcher(rowData.getCityCode()).matches()) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("City Code")
-                        .errorMessage("City code can only contain letters, numbers, hyphens and underscores")
+                        .errorMessage(CityErrorMessages.CITY_CODE_INVALID_FORMAT)
                         .rejectedValue(rowData.getCityCode())
                         .build());
             }
@@ -68,7 +69,7 @@ public class CityBulkUploadValidator implements BulkRowValidator<CityBulkUploadD
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("State Name")
-                    .errorMessage("State name is required")
+                    .errorMessage(CityErrorMessages.STATE_NAME_REQUIRED)
                     .rejectedValue(rowData.getStateName())
                     .build());
             
@@ -77,7 +78,7 @@ public class CityBulkUploadValidator implements BulkRowValidator<CityBulkUploadD
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("State Code")
-                        .errorMessage("State code is required (or provide State Name to look it up)")
+                        .errorMessage(CityErrorMessages.STATE_CODE_REQUIRED)
                         .rejectedValue(rowData.getStateCode())
                         .build());
             }
@@ -86,7 +87,7 @@ public class CityBulkUploadValidator implements BulkRowValidator<CityBulkUploadD
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("State Code Alt")
-                        .errorMessage("Alternate state code is required (or provide State Name to look it up)")
+                        .errorMessage(CityErrorMessages.STATE_CODE_ALT_REQUIRED)
                         .rejectedValue(rowData.getStateCodeAlt())
                         .build());
             }
@@ -97,7 +98,7 @@ public class CityBulkUploadValidator implements BulkRowValidator<CityBulkUploadD
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("State Name")
-                        .errorMessage("State not found with name: " + rowData.getStateName())
+                        .errorMessage(CityErrorMessages.STATE_NOT_FOUND_NAME + rowData.getStateName())
                         .rejectedValue(rowData.getStateName())
                         .build());
             } else {
@@ -109,7 +110,7 @@ public class CityBulkUploadValidator implements BulkRowValidator<CityBulkUploadD
                         errors.add(BulkUploadErrorDto.builder()
                                 .rowNumber(rowNumber)
                                 .fieldName("State Code")
-                                .errorMessage("State code '" + rowData.getStateCode() + "' does not match state '" + rowData.getStateName() + "' (expected: " + state.getStateCode() + ")")
+                                .errorMessage(String.format(CityErrorMessages.STATE_CODE_MISMATCH, rowData.getStateCode(), rowData.getStateName(), state.getStateCode()))
                                 .rejectedValue(rowData.getStateCode())
                                 .build());
                     }
@@ -121,14 +122,14 @@ public class CityBulkUploadValidator implements BulkRowValidator<CityBulkUploadD
                         errors.add(BulkUploadErrorDto.builder()
                                 .rowNumber(rowNumber)
                                 .fieldName("State Code Alt")
-                                .errorMessage("Alternate state code '" + rowData.getStateCodeAlt() + "' does not match state '" + rowData.getStateName() + "' (expected: " + expectedAlt + ")")
+                                .errorMessage(String.format(CityErrorMessages.STATE_CODE_ALT_MISMATCH, rowData.getStateCodeAlt(), rowData.getStateName(), expectedAlt))
                                 .rejectedValue(rowData.getStateCodeAlt())
                                 .build());
                     } else if (expectedAlt == null) {
                         errors.add(BulkUploadErrorDto.builder()
                                 .rowNumber(rowNumber)
                                 .fieldName("State Code Alt")
-                                .errorMessage("State '" + rowData.getStateName() + "' does not have an alternate code")
+                                .errorMessage(String.format(CityErrorMessages.STATE_NO_ALT_CODE, rowData.getStateName()))
                                 .rejectedValue(rowData.getStateCodeAlt())
                                 .build());
                     }

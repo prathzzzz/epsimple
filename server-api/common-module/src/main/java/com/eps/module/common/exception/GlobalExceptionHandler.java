@@ -1,6 +1,8 @@
 package com.eps.module.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +16,27 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @Autowired
+    private Environment env;
+
+    private void logError(String message, Exception ex) {
+        boolean isProduction = Arrays.asList(env.getActiveProfiles()).contains("prod") || 
+                               Arrays.asList(env.getActiveProfiles()).contains("production");
+        
+        if (isProduction) {
+            log.error("{}: {}", message, ex.getMessage());
+        } else {
+            log.error(message, ex);
+        }
+    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(ResourceNotFoundException ex) {
@@ -56,6 +73,24 @@ public class GlobalExceptionHandler {
         
         log.warn("Validation failed: {}", errors);
         return ResponseBuilder.validationError(errors);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiResponse<Object>> handleConflictException(ConflictException ex) {
+        log.warn("Conflict: {}", ex.getMessage());
+        return ResponseBuilder.error(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiResponse<Object>> handleBadRequestException(BadRequestException ex) {
+        log.warn("Bad request: {}", ex.getMessage());
+        return ResponseBuilder.error(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ApiResponse<Object>> handleForbiddenException(ForbiddenException ex) {
+        log.warn("Forbidden: {}", ex.getMessage());
+        return ResponseBuilder.error(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(IllegalStateException.class)
@@ -247,13 +282,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<Object>> handleRuntimeException(RuntimeException ex) {
-        log.error("Runtime exception occurred: {}", ex.getMessage(), ex);
+        logError("Runtime exception occurred", ex);
         return ResponseBuilder.error(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGlobalException(Exception ex) {
-        log.error("Unexpected error occurred: {}", ex.getMessage(), ex);
+        logError("Unexpected error occurred", ex);
         return ResponseBuilder.error("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

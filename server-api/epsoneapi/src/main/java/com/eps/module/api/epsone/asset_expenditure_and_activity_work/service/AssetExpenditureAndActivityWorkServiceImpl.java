@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.asset_expenditure_and_activity_work.service;
 import com.eps.module.activity.ActivityWork;
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
+import com.eps.module.api.epsone.asset_expenditure_and_activity_work.constant.AssetExpenditureAndActivityWorkErrorMessages;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkBulkUploadDto;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkErrorReportDto;
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkRequestDto;
@@ -16,6 +17,7 @@ import com.eps.module.asset.AssetExpenditureAndActivityWork;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.ExpendituresInvoice;
 import lombok.RequiredArgsConstructor;
@@ -113,14 +115,14 @@ public class AssetExpenditureAndActivityWorkServiceImpl extends BaseBulkUploadSe
         // Validate asset exists
         Asset asset = assetRepository.findById(requestDto.getAssetId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Asset not found with id: " + requestDto.getAssetId()));
+                        AssetExpenditureAndActivityWorkErrorMessages.ASSET_NOT_FOUND_ID + requestDto.getAssetId()));
 
         // Validate expenditures invoice exists (optional)
         ExpendituresInvoice expendituresInvoice = null;
         if (requestDto.getExpendituresInvoiceId() != null) {
             expendituresInvoice = expendituresInvoiceRepository.findById(requestDto.getExpendituresInvoiceId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Expenditures invoice not found with id: " + requestDto.getExpendituresInvoiceId()));
+                            AssetExpenditureAndActivityWorkErrorMessages.EXPENDITURES_INVOICE_NOT_FOUND_ID + requestDto.getExpendituresInvoiceId()));
         }
 
         // Validate activity work exists (optional)
@@ -128,14 +130,13 @@ public class AssetExpenditureAndActivityWorkServiceImpl extends BaseBulkUploadSe
         if (requestDto.getActivityWorkId() != null) {
             activityWork = activityWorkRepository.findById(requestDto.getActivityWorkId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Activity work not found with id: " + requestDto.getActivityWorkId()));
+                            AssetExpenditureAndActivityWorkErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + requestDto.getActivityWorkId()));
         }
 
         // Check for duplicate
         if (repository.existsByAssetIdAndExpendituresInvoiceIdAndActivityWorkId(
                 requestDto.getAssetId(), requestDto.getExpendituresInvoiceId(), requestDto.getActivityWorkId())) {
-            throw new IllegalStateException(
-                    "This asset-expenditure-activity work combination already exists");
+            throw new ConflictException(AssetExpenditureAndActivityWorkErrorMessages.DUPLICATE_COMBINATION);
         }
 
         // Create entity
@@ -145,7 +146,7 @@ public class AssetExpenditureAndActivityWorkServiceImpl extends BaseBulkUploadSe
         // Fetch with details for response
         AssetExpenditureAndActivityWork savedWithDetails = repository.findByIdWithDetails(saved.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Asset expenditure and activity work not found after save"));
+                        AssetExpenditureAndActivityWorkErrorMessages.NOT_FOUND_AFTER_SAVE));
 
         log.info("Asset expenditure and activity work created successfully with ID: {}", saved.getId());
         return mapper.toDto(savedWithDetails);
@@ -176,7 +177,7 @@ public class AssetExpenditureAndActivityWorkServiceImpl extends BaseBulkUploadSe
 
         // Validate asset exists
         if (!assetRepository.existsById(assetId)) {
-            throw new ResourceNotFoundException("Asset not found with id: " + assetId);
+            throw new ResourceNotFoundException(AssetExpenditureAndActivityWorkErrorMessages.ASSET_NOT_FOUND_ID + assetId);
         }
 
         Sort sort = sortOrder.equalsIgnoreCase("desc")
@@ -197,7 +198,7 @@ public class AssetExpenditureAndActivityWorkServiceImpl extends BaseBulkUploadSe
 
         // Validate activity work exists
         if (!activityWorkRepository.existsById(activityWorkId)) {
-            throw new ResourceNotFoundException("Activity work not found with id: " + activityWorkId);
+            throw new ResourceNotFoundException(AssetExpenditureAndActivityWorkErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + activityWorkId);
         }
 
         Sort sort = sortOrder.equalsIgnoreCase("desc")
@@ -232,7 +233,7 @@ public class AssetExpenditureAndActivityWorkServiceImpl extends BaseBulkUploadSe
         
         AssetExpenditureAndActivityWork expenditure = repository.findByIdWithDetails(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Asset expenditure and activity work not found with id: " + id));
+                        AssetExpenditureAndActivityWorkErrorMessages.NOT_FOUND_ID + id));
         
         return mapper.toDto(expenditure);
     }
@@ -246,19 +247,19 @@ public class AssetExpenditureAndActivityWorkServiceImpl extends BaseBulkUploadSe
 
         AssetExpenditureAndActivityWork existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Asset expenditure and activity work not found with id: " + id));
+                        AssetExpenditureAndActivityWorkErrorMessages.NOT_FOUND_ID + id));
 
         // Validate asset exists
         Asset asset = assetRepository.findById(requestDto.getAssetId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Asset not found with id: " + requestDto.getAssetId()));
+                        AssetExpenditureAndActivityWorkErrorMessages.ASSET_NOT_FOUND_ID + requestDto.getAssetId()));
 
         // Validate expenditures invoice exists (optional)
         ExpendituresInvoice expendituresInvoice = null;
         if (requestDto.getExpendituresInvoiceId() != null) {
             expendituresInvoice = expendituresInvoiceRepository.findById(requestDto.getExpendituresInvoiceId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Expenditures invoice not found with id: " + requestDto.getExpendituresInvoiceId()));
+                            AssetExpenditureAndActivityWorkErrorMessages.EXPENDITURES_INVOICE_NOT_FOUND_ID + requestDto.getExpendituresInvoiceId()));
         }
 
         // Validate activity work exists (optional)
@@ -266,7 +267,7 @@ public class AssetExpenditureAndActivityWorkServiceImpl extends BaseBulkUploadSe
         if (requestDto.getActivityWorkId() != null) {
             activityWork = activityWorkRepository.findById(requestDto.getActivityWorkId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Activity work not found with id: " + requestDto.getActivityWorkId()));
+                            AssetExpenditureAndActivityWorkErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + requestDto.getActivityWorkId()));
         }
 
         // Update entity
@@ -276,7 +277,7 @@ public class AssetExpenditureAndActivityWorkServiceImpl extends BaseBulkUploadSe
         // Fetch with details for response
         AssetExpenditureAndActivityWork updatedWithDetails = repository.findByIdWithDetails(updated.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Asset expenditure and activity work not found after update"));
+                        AssetExpenditureAndActivityWorkErrorMessages.NOT_FOUND_AFTER_UPDATE));
 
         log.info("Asset expenditure and activity work updated successfully with ID: {}", id);
         return mapper.toDto(updatedWithDetails);
@@ -289,7 +290,7 @@ public class AssetExpenditureAndActivityWorkServiceImpl extends BaseBulkUploadSe
 
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException(
-                    "Asset expenditure and activity work not found with id: " + id);
+                    AssetExpenditureAndActivityWorkErrorMessages.NOT_FOUND_ID + id);
         }
 
         repository.deleteById(id);

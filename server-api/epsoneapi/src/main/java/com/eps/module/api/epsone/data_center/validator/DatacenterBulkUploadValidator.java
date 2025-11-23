@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.data_center.validator;
 
+import com.eps.module.api.epsone.data_center.constant.DatacenterErrorMessages;
 import com.eps.module.api.epsone.data_center.dto.DatacenterBulkUploadDto;
 import com.eps.module.api.epsone.data_center.repository.DatacenterRepository;
 import com.eps.module.api.epsone.location.repository.LocationRepository;
@@ -26,12 +27,12 @@ public class DatacenterBulkUploadValidator implements BulkRowValidator<Datacente
         if (dto.getDatacenterName() == null || dto.getDatacenterName().trim().isEmpty()) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Datacenter name is required")
+                    .errorMessage(DatacenterErrorMessages.DATACENTER_NAME_REQUIRED)
                     .build());
         } else if (dto.getDatacenterName().length() > 255) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Datacenter name cannot exceed 255 characters")
+                    .errorMessage(DatacenterErrorMessages.DATACENTER_NAME_LENGTH_EXCEEDED)
                     .build());
         }
 
@@ -40,21 +41,21 @@ public class DatacenterBulkUploadValidator implements BulkRowValidator<Datacente
             if (dto.getDatacenterCode().length() > 50) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Datacenter code cannot exceed 50 characters")
+                        .errorMessage(DatacenterErrorMessages.DATACENTER_CODE_LENGTH_EXCEEDED)
                         .build());
             }
             // Check format (uppercase letters, numbers, hyphens, underscores)
             if (!dto.getDatacenterCode().matches("^[A-Z0-9_-]*$")) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Datacenter code must contain only uppercase letters, numbers, hyphens, and underscores")
+                        .errorMessage(DatacenterErrorMessages.DATACENTER_CODE_INVALID_FORMAT)
                         .build());
             }
             // Check for duplicate code
             if (datacenterRepository.existsByDatacenterCode(dto.getDatacenterCode())) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Datacenter code '" + dto.getDatacenterCode() + "' already exists")
+                        .errorMessage(String.format(DatacenterErrorMessages.DATACENTER_CODE_EXISTS, dto.getDatacenterCode()))
                         .build());
             }
         }
@@ -63,7 +64,7 @@ public class DatacenterBulkUploadValidator implements BulkRowValidator<Datacente
         if (dto.getDatacenterType() != null && dto.getDatacenterType().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Datacenter type cannot exceed 100 characters")
+                    .errorMessage(DatacenterErrorMessages.DATACENTER_TYPE_LENGTH_EXCEEDED)
                     .build());
         }
 
@@ -71,7 +72,7 @@ public class DatacenterBulkUploadValidator implements BulkRowValidator<Datacente
         if (dto.getLocationName() == null || dto.getLocationName().trim().isEmpty()) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Location name is required")
+                    .errorMessage(DatacenterErrorMessages.LOCATION_NAME_REQUIRED)
                     .build());
         } else {
             // Check if location exists
@@ -79,7 +80,7 @@ public class DatacenterBulkUploadValidator implements BulkRowValidator<Datacente
             if (!locationExists) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Location not found: " + dto.getLocationName())
+                        .errorMessage(DatacenterErrorMessages.LOCATION_NOT_FOUND_NAME + dto.getLocationName())
                         .build());
             }
         }

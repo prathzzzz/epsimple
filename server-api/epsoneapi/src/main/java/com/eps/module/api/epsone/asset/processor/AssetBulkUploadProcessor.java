@@ -1,13 +1,16 @@
 package com.eps.module.api.epsone.asset.processor;
 
+import com.eps.module.api.epsone.asset.constant.AssetErrorMessages;
 import com.eps.module.api.epsone.asset.dto.AssetBulkUploadDto;
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
 import com.eps.module.api.epsone.asset.validator.AssetBulkUploadValidator;
 import com.eps.module.api.epsone.asset_category.repository.AssetCategoryRepository;
 import com.eps.module.api.epsone.asset_tag_code.service.AssetTagCodeGeneratorService;
 import com.eps.module.api.epsone.asset_type.repository.AssetTypeRepository;
+import com.eps.module.api.epsone.bank.constant.BankErrorMessages;
 import com.eps.module.api.epsone.bank.repository.BankRepository;
 import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTypeRepository;
+import com.eps.module.api.epsone.vendor.constant.VendorErrorMessages;
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.asset.Asset;
 import com.eps.module.asset.AssetCategory;
@@ -15,6 +18,9 @@ import com.eps.module.asset.AssetType;
 import com.eps.module.bank.Bank;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.validator.BulkRowValidator;
+import com.eps.module.common.constant.CommonErrorMessages;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.status.GenericStatusType;
 import com.eps.module.vendor.Vendor;
 import lombok.RequiredArgsConstructor;
@@ -70,13 +76,13 @@ public class AssetBulkUploadProcessor extends BulkUploadProcessor<AssetBulkUploa
             
             // Get required entities for potential auto-generation
             AssetCategory assetCategory = assetCategoryRepository.findByCategoryNameIgnoreCase(dto.getAssetCategoryName())
-                    .orElseThrow(() -> new RuntimeException("Asset Category not found: " + dto.getAssetCategoryName()));
+                    .orElseThrow(() -> new ResourceNotFoundException(AssetErrorMessages.ASSET_CATEGORY_NOT_FOUND + dto.getAssetCategoryName()));
             
             Vendor vendor = vendorRepository.findByVendorCodeIgnoreCase(dto.getVendorCode())
-                    .orElseThrow(() -> new RuntimeException("Vendor not found with code: " + dto.getVendorCode()));
+                    .orElseThrow(() -> new ResourceNotFoundException(VendorErrorMessages.VENDOR_NOT_FOUND_CODE + dto.getVendorCode()));
             
             Bank lenderBank = bankRepository.findByBankNameIgnoreCase(dto.getLenderBankName())
-                    .orElseThrow(() -> new RuntimeException("Bank not found: " + dto.getLenderBankName()));
+                    .orElseThrow(() -> new ResourceNotFoundException(BankErrorMessages.BANK_NOT_FOUND + dto.getLenderBankName()));
             
             // Handle Asset Tag ID - auto-generate if not provided
             String assetTagId = dto.getAssetTagId();
@@ -94,11 +100,11 @@ public class AssetBulkUploadProcessor extends BulkUploadProcessor<AssetBulkUploa
                     if (generatedTag == null || generatedTag.length() < 5 || generatedTag.length() > 50) {
                         log.error("Generated asset tag '{}' is invalid (must be 5-50 characters). Category: {}, Vendor: {}, Bank: {}", 
                                 generatedTag, assetCategory.getCategoryName(), vendor.getVendorCodeAlt(), lenderBank.getBankName());
-                        throw new IllegalStateException("Generated asset tag is too short or too long");
+                        throw new IllegalStateException(AssetErrorMessages.GENERATED_TAG_INVALID_LENGTH);
                     } else if (!generatedTag.matches("^[A-Z0-9]+$")) {
                         log.error("Generated asset tag '{}' contains invalid characters (must be uppercase alphanumeric). Category: {}, Vendor: {}, Bank: {}", 
                                 generatedTag, assetCategory.getCategoryName(), vendor.getVendorCodeAlt(), lenderBank.getBankName());
-                        throw new IllegalStateException("Generated asset tag contains invalid characters");
+                        throw new IllegalStateException(AssetErrorMessages.GENERATED_TAG_INVALID_CHARS);
                     } else {
                         asset.setAssetTagId(generatedTag);
                         log.info("Auto-generated asset tag: {} for category: {}, vendor: {}, bank: {}", 
@@ -107,7 +113,7 @@ public class AssetBulkUploadProcessor extends BulkUploadProcessor<AssetBulkUploa
                 } catch (Exception e) {
                     log.error("Failed to auto-generate asset tag for category: {}, vendor: {}, bank: {}", 
                             dto.getAssetCategoryName(), dto.getVendorCode(), dto.getLenderBankName(), e);
-                    throw new IllegalStateException("Cannot auto-generate asset tag: " + e.getMessage(), e);
+                    throw new IllegalStateException(AssetErrorMessages.AUTO_GENERATE_TAG_ERROR + e.getMessage(), e);
                 }
             } else {
                 asset.setAssetTagId(assetTagId.trim());
@@ -120,7 +126,7 @@ public class AssetBulkUploadProcessor extends BulkUploadProcessor<AssetBulkUploa
 
             // Set Asset Type (required)
             AssetType assetType = assetTypeRepository.findByTypeNameIgnoreCase(dto.getAssetTypeName())
-                    .orElseThrow(() -> new RuntimeException("Asset Type not found: " + dto.getAssetTypeName()));
+                    .orElseThrow(() -> new ResourceNotFoundException(AssetErrorMessages.ASSET_TYPE_NOT_FOUND + dto.getAssetTypeName()));
             asset.setAssetType(assetType);
 
             // Set Asset Category (already fetched above)
@@ -179,7 +185,10 @@ public class AssetBulkUploadProcessor extends BulkUploadProcessor<AssetBulkUploa
 
         } catch (Exception e) {
             log.error("Error converting DTO to Asset entity: {}", e.getMessage(), e);
-            throw new RuntimeException("Error converting DTO to Asset entity: " + e.getMessage(), e);
+            if (e instanceof ResourceNotFoundException || e instanceof BadRequestException) {
+                throw e;
+            }
+            throw new BadRequestException(CommonErrorMessages.DTO_CONVERSION_ERROR + e.getMessage());
         }
     }
 
@@ -196,7 +205,7 @@ public class AssetBulkUploadProcessor extends BulkUploadProcessor<AssetBulkUploa
             // Clean up thread-local storage on error
             currentDto.remove();
             log.error("Error saving Asset entity: {}", e.getMessage(), e);
-            throw new RuntimeException("Error saving Asset entity: " + e.getMessage(), e);
+            throw new BadRequestException(CommonErrorMessages.ENTITY_SAVE_ERROR + e.getMessage());
         }
     }
 

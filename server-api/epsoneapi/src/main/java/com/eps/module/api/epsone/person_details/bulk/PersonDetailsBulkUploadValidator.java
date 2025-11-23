@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.person_details.bulk;
 
+import com.eps.module.api.epsone.person_details.constant.PersonDetailsErrorMessages;
 import com.eps.module.api.epsone.person_details.dto.PersonDetailsBulkUploadDto;
 import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
 import com.eps.module.api.epsone.person_type.repository.PersonTypeRepository;
@@ -29,14 +30,14 @@ public class PersonDetailsBulkUploadValidator implements BulkRowValidator<Person
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Person Type Name")
-                    .errorMessage("Person type name is required")
+                    .errorMessage(PersonDetailsErrorMessages.PERSON_TYPE_NAME_REQUIRED)
                     .rejectedValue(dto.getPersonTypeName())
                     .build());
         } else if (dto.getPersonTypeName().length() > 150) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Person Type Name")
-                    .errorMessage("Person type name cannot exceed 150 characters")
+                    .errorMessage(PersonDetailsErrorMessages.PERSON_TYPE_NAME_TOO_LONG)
                     .rejectedValue(dto.getPersonTypeName())
                     .build());
         } else {
@@ -45,7 +46,7 @@ public class PersonDetailsBulkUploadValidator implements BulkRowValidator<Person
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Person Type Name")
-                        .errorMessage("Person type not found: " + dto.getPersonTypeName())
+                        .errorMessage(PersonDetailsErrorMessages.PERSON_TYPE_NOT_FOUND_NAME + dto.getPersonTypeName())
                         .rejectedValue(dto.getPersonTypeName())
                         .build());
             }
@@ -56,7 +57,7 @@ public class PersonDetailsBulkUploadValidator implements BulkRowValidator<Person
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("First Name")
-                    .errorMessage("First name cannot exceed 100 characters")
+                    .errorMessage(PersonDetailsErrorMessages.FIRST_NAME_TOO_LONG)
                     .rejectedValue(dto.getFirstName())
                     .build());
         }
@@ -66,7 +67,7 @@ public class PersonDetailsBulkUploadValidator implements BulkRowValidator<Person
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Middle Name")
-                    .errorMessage("Middle name cannot exceed 100 characters")
+                    .errorMessage(PersonDetailsErrorMessages.MIDDLE_NAME_TOO_LONG)
                     .rejectedValue(dto.getMiddleName())
                     .build());
         }
@@ -76,7 +77,7 @@ public class PersonDetailsBulkUploadValidator implements BulkRowValidator<Person
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Last Name")
-                    .errorMessage("Last name cannot exceed 100 characters")
+                    .errorMessage(PersonDetailsErrorMessages.LAST_NAME_TOO_LONG)
                     .rejectedValue(dto.getLastName())
                     .build());
         }
@@ -87,7 +88,7 @@ public class PersonDetailsBulkUploadValidator implements BulkRowValidator<Person
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Contact Number")
-                        .errorMessage("Contact number must be exactly 10 digits")
+                        .errorMessage(PersonDetailsErrorMessages.CONTACT_NUMBER_INVALID)
                         .rejectedValue(dto.getContactNumber())
                         .build());
             }
@@ -98,7 +99,7 @@ public class PersonDetailsBulkUploadValidator implements BulkRowValidator<Person
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Permanent Address")
-                    .errorMessage("Permanent address cannot exceed 5000 characters")
+                    .errorMessage(PersonDetailsErrorMessages.PERMANENT_ADDRESS_TOO_LONG)
                     .rejectedValue(dto.getPermanentAddress())
                     .build());
         }
@@ -108,7 +109,7 @@ public class PersonDetailsBulkUploadValidator implements BulkRowValidator<Person
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Correspondence Address")
-                    .errorMessage("Correspondence address cannot exceed 5000 characters")
+                    .errorMessage(PersonDetailsErrorMessages.CORRESPONDENCE_ADDRESS_TOO_LONG)
                     .rejectedValue(dto.getCorrespondenceAddress())
                     .build());
         }

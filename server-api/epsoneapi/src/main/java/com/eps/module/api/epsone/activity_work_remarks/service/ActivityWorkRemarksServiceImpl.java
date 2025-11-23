@@ -3,6 +3,7 @@ package com.eps.module.api.epsone.activity_work_remarks.service;
 import com.eps.module.activity.ActivityWork;
 import com.eps.module.activity.ActivityWorkRemarks;
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
+import com.eps.module.api.epsone.activity_work_remarks.constant.ActivityWorkRemarksErrorMessages;
 import com.eps.module.api.epsone.activity_work_remarks.dto.ActivityWorkRemarksRequestDto;
 import com.eps.module.api.epsone.activity_work_remarks.dto.ActivityWorkRemarksResponseDto;
 import com.eps.module.api.epsone.activity_work_remarks.mapper.ActivityWorkRemarksMapper;
@@ -35,7 +36,7 @@ public class ActivityWorkRemarksServiceImpl implements ActivityWorkRemarksServic
         // Validate activity work exists
         ActivityWork activityWork = activityWorkRepository.findById(requestDto.getActivityWorkId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Activity work not found with id: " + requestDto.getActivityWorkId()));
+                        ActivityWorkRemarksErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + requestDto.getActivityWorkId()));
 
         ActivityWorkRemarks remark = mapper.toEntity(requestDto, activityWork);
         ActivityWorkRemarks savedRemark = remarksRepository.save(remark);
@@ -53,7 +54,7 @@ public class ActivityWorkRemarksServiceImpl implements ActivityWorkRemarksServic
 
         // Validate activity work exists
         if (!activityWorkRepository.existsById(activityWorkId)) {
-            throw new ResourceNotFoundException("Activity work not found with id: " + activityWorkId);
+            throw new ResourceNotFoundException(ActivityWorkRemarksErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + activityWorkId);
         }
 
         return remarksRepository.findByActivityWorkId(activityWorkId, pageable)
@@ -67,7 +68,7 @@ public class ActivityWorkRemarksServiceImpl implements ActivityWorkRemarksServic
 
         // Validate activity work exists
         if (!activityWorkRepository.existsById(activityWorkId)) {
-            throw new ResourceNotFoundException("Activity work not found with id: " + activityWorkId);
+            throw new ResourceNotFoundException(ActivityWorkRemarksErrorMessages.ACTIVITY_WORK_NOT_FOUND_ID + activityWorkId);
         }
 
         return remarksRepository.findAllByActivityWorkId(activityWorkId).stream()
@@ -81,7 +82,7 @@ public class ActivityWorkRemarksServiceImpl implements ActivityWorkRemarksServic
         log.info("Fetching remark with ID: {}", id);
 
         ActivityWorkRemarks remark = remarksRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Remark not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivityWorkRemarksErrorMessages.REMARK_NOT_FOUND_ID + id));
 
         return mapper.toDto(remark);
     }
@@ -92,7 +93,7 @@ public class ActivityWorkRemarksServiceImpl implements ActivityWorkRemarksServic
         log.info("Updating remark with ID: {}", id);
 
         ActivityWorkRemarks existingRemark = remarksRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Remark not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivityWorkRemarksErrorMessages.REMARK_NOT_FOUND_ID + id));
 
         // Update only the comment and commentedBy fields
         mapper.updateEntityFromDto(requestDto, existingRemark);
@@ -109,7 +110,7 @@ public class ActivityWorkRemarksServiceImpl implements ActivityWorkRemarksServic
         log.info("Deleting remark with ID: {}", id);
 
         ActivityWorkRemarks remark = remarksRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Remark not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ActivityWorkRemarksErrorMessages.REMARK_NOT_FOUND_ID + id));
 
         remarksRepository.deleteById(id);
 

@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.person_details.service;
 
 import com.eps.module.api.epsone.person_details.bulk.PersonDetailsBulkUploadProcessor;
+import com.eps.module.api.epsone.person_details.constant.PersonDetailsErrorMessages;
 import com.eps.module.api.epsone.person_details.dto.PersonDetailsBulkUploadDto;
 import com.eps.module.api.epsone.person_details.dto.PersonDetailsErrorReportDto;
 import com.eps.module.api.epsone.person_details.dto.PersonDetailsRequestDto;
@@ -13,9 +14,10 @@ import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.BadRequestException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.person.PersonType;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -46,7 +48,7 @@ public class PersonDetailsServiceImpl extends BaseBulkUploadService<PersonDetail
 
         // Validate person type exists
         PersonType personType = personTypeRepository.findById(requestDto.getPersonTypeId())
-                .orElseThrow(() -> new EntityNotFoundException("Person type not found with ID: " + requestDto.getPersonTypeId()));
+                .orElseThrow(() -> new ResourceNotFoundException(PersonDetailsErrorMessages.PERSON_TYPE_NOT_FOUND_ID + requestDto.getPersonTypeId()));
 
         PersonDetails personDetails = personDetailsMapper.toEntity(requestDto);
         personDetails.setPersonType(personType);
@@ -80,7 +82,7 @@ public class PersonDetailsServiceImpl extends BaseBulkUploadService<PersonDetail
         
         // Validate person type exists
         personTypeRepository.findById(personTypeId)
-                .orElseThrow(() -> new EntityNotFoundException("Person type not found with ID: " + personTypeId));
+                .orElseThrow(() -> new ResourceNotFoundException(PersonDetailsErrorMessages.PERSON_TYPE_NOT_FOUND_ID + personTypeId));
 
         Page<PersonDetails> personDetails = personDetailsRepository.findByPersonTypeId(personTypeId, pageable);
         return personDetails.map(personDetailsMapper::toResponseDto);
@@ -101,7 +103,7 @@ public class PersonDetailsServiceImpl extends BaseBulkUploadService<PersonDetail
     public PersonDetailsResponseDto getPersonDetailsById(Long id) {
         log.info("Fetching person details with ID: {}", id);
         PersonDetails personDetails = personDetailsRepository.findByIdWithPersonType(id)
-                .orElseThrow(() -> new EntityNotFoundException("Person details not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(PersonDetailsErrorMessages.PERSON_DETAILS_NOT_FOUND_ID + id));
         return personDetailsMapper.toResponseDto(personDetails);
     }
 
@@ -111,11 +113,11 @@ public class PersonDetailsServiceImpl extends BaseBulkUploadService<PersonDetail
         log.info("Updating person details with ID: {}", id);
 
         PersonDetails personDetails = personDetailsRepository.findByIdWithPersonType(id)
-                .orElseThrow(() -> new EntityNotFoundException("Person details not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(PersonDetailsErrorMessages.PERSON_DETAILS_NOT_FOUND_ID + id));
 
         // Validate person type exists
         PersonType personType = personTypeRepository.findById(requestDto.getPersonTypeId())
-                .orElseThrow(() -> new EntityNotFoundException("Person type not found with ID: " + requestDto.getPersonTypeId()));
+                .orElseThrow(() -> new ResourceNotFoundException(PersonDetailsErrorMessages.PERSON_TYPE_NOT_FOUND_ID + requestDto.getPersonTypeId()));
 
         personDetailsMapper.updateEntityFromDto(requestDto, personDetails);
         personDetails.setPersonType(personType);
@@ -132,22 +134,18 @@ public class PersonDetailsServiceImpl extends BaseBulkUploadService<PersonDetail
         log.info("Deleting person details with ID: {}", id);
 
         PersonDetails personDetails = personDetailsRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Person details not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(PersonDetailsErrorMessages.PERSON_DETAILS_NOT_FOUND_ID + id));
 
         // Check if person details is being used by a vendor
         if (vendorRepository.countByVendorDetailsId(id) > 0) {
             String personName = buildPersonName(personDetails);
-            throw new IllegalArgumentException(
-                    "Cannot delete person details for '" + personName + 
-                    "' because it is being used by a vendor. Please delete the vendor first.");
+            throw new BadRequestException(String.format(PersonDetailsErrorMessages.CANNOT_DELETE_USED_BY_VENDOR, personName));
         }
 
         // Check if person details is being used by a landlord
         if (landlordRepository.countByLandlordDetailsId(id) > 0) {
             String personName = buildPersonName(personDetails);
-            throw new IllegalArgumentException(
-                    "Cannot delete person details for '" + personName + 
-                    "' because it is being used by a landlord. Please delete the landlord first.");
+            throw new BadRequestException(String.format(PersonDetailsErrorMessages.CANNOT_DELETE_USED_BY_LANDLORD, personName));
         }
 
         personDetailsRepository.delete(personDetails);

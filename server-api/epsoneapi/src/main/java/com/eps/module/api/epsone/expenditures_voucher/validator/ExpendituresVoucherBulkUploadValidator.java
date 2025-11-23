@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.expenditures_voucher.validator;
 
 import com.eps.module.api.epsone.cost_item.repository.CostItemRepository;
+import com.eps.module.api.epsone.expenditures_voucher.constant.ExpendituresVoucherErrorMessages;
 import com.eps.module.api.epsone.expenditures_voucher.dto.ExpendituresVoucherBulkUploadDto;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
 import com.eps.module.api.epsone.voucher.repository.VoucherRepository;
@@ -38,41 +39,41 @@ public class ExpendituresVoucherBulkUploadValidator implements BulkRowValidator<
 
         // Validate Cost Item Name (Required, FK)
         if (rowData.getCostItemName() == null || rowData.getCostItemName().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "Cost Item Name", "Cost item name is required", rowData.getCostItemName()));
+            errors.add(createError(rowNumber, "Cost Item Name", ExpendituresVoucherErrorMessages.COST_ITEM_NAME_REQUIRED, rowData.getCostItemName()));
         } else {
             String costItemName = rowData.getCostItemName().trim();
             boolean exists = costItemRepository.existsByCostItemForIgnoreCase(costItemName);
             if (!exists) {
-                errors.add(createError(rowNumber, "Cost Item Name", "Cost item '" + costItemName + "' not found", costItemName));
+                errors.add(createError(rowNumber, "Cost Item Name", ExpendituresVoucherErrorMessages.COST_ITEM_NOT_FOUND_NAME + costItemName, costItemName));
             }
         }
 
         // Validate Voucher Number (Required, FK)
         if (rowData.getVoucherNumber() == null || rowData.getVoucherNumber().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "Voucher Number", "Voucher number is required", rowData.getVoucherNumber()));
+            errors.add(createError(rowNumber, "Voucher Number", ExpendituresVoucherErrorMessages.VOUCHER_NUMBER_REQUIRED, rowData.getVoucherNumber()));
         } else {
             String voucherNumber = rowData.getVoucherNumber().trim();
             boolean exists = voucherRepository.existsByVoucherNumberIgnoreCase(voucherNumber);
             if (!exists) {
-                errors.add(createError(rowNumber, "Voucher Number", "Voucher '" + voucherNumber + "' not found", voucherNumber));
+                errors.add(createError(rowNumber, "Voucher Number", ExpendituresVoucherErrorMessages.VOUCHER_NOT_FOUND_NUMBER + voucherNumber, voucherNumber));
             }
         }
 
         // Validate Managed Project Code (Required, FK)
         if (rowData.getManagedProjectCode() == null || rowData.getManagedProjectCode().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "Managed Project Code", "Managed Project code is required", rowData.getManagedProjectCode()));
+            errors.add(createError(rowNumber, "Managed Project Code", ExpendituresVoucherErrorMessages.MANAGED_PROJECT_CODE_REQUIRED, rowData.getManagedProjectCode()));
         } else {
             String projectCode = rowData.getManagedProjectCode().trim();
             boolean exists = managedProjectRepository.existsByProjectCodeIgnoreCase(projectCode);
             if (!exists) {
-                errors.add(createError(rowNumber, "Managed Project Code", "Managed Project '" + projectCode + "' not found", projectCode));
+                errors.add(createError(rowNumber, "Managed Project Code", ExpendituresVoucherErrorMessages.MANAGED_PROJECT_NOT_FOUND_CODE + projectCode, projectCode));
             }
         }
 
         // Validate Incurred Date (Optional)
         if (rowData.getIncurredDate() != null && !rowData.getIncurredDate().trim().isEmpty()) {
             if (!isValidDate(rowData.getIncurredDate().trim())) {
-                errors.add(createError(rowNumber, "Incurred Date", "Invalid date format. Use yyyy-MM-dd, dd/MM/yyyy, or MM/dd/yyyy", rowData.getIncurredDate()));
+                errors.add(createError(rowNumber, "Incurred Date", ExpendituresVoucherErrorMessages.INCURRED_DATE_INVALID, rowData.getIncurredDate()));
             }
         }
 

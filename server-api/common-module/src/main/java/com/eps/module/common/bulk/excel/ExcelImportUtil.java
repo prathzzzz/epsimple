@@ -1,5 +1,7 @@
 package com.eps.module.common.bulk.excel;
 
+import com.eps.module.common.constant.CommonErrorMessages;
+import com.eps.module.common.exception.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.dhatim.fastexcel.reader.ReadableWorkbook;
 import org.dhatim.fastexcel.reader.Row;
@@ -70,7 +72,7 @@ public class ExcelImportUtil {
                         results.add(dto);
                     } catch (Exception e) {
                         log.error("Error parsing row {}: {}", rowNumber, e.getMessage());
-                        throw new RuntimeException("Error parsing row " + rowNumber + ": " + e.getMessage(), e);
+                        throw new BadRequestException(CommonErrorMessages.EXCEL_PARSE_ERROR + rowNumber + ": " + e.getMessage());
                     }
                     
                     rowNumber++;

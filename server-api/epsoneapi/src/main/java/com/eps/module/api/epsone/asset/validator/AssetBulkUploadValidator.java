@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.asset.validator;
 
+import com.eps.module.api.epsone.asset.constant.AssetErrorMessages;
 import com.eps.module.api.epsone.asset.dto.AssetBulkUploadDto;
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
 import com.eps.module.api.epsone.asset_category.repository.AssetCategoryRepository;
@@ -60,13 +61,13 @@ public class AssetBulkUploadValidator implements BulkRowValidator<AssetBulkUploa
             String assetTagId = rowData.getAssetTagId().trim();
             if (assetTagId.length() < 5 || assetTagId.length() > 50) {
                 errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                        "Asset Tag ID must be between 5 and 50 characters"));
+                        AssetErrorMessages.ASSET_TAG_LENGTH_INVALID));
             } else if (!ASSET_TAG_PATTERN.matcher(assetTagId).matches()) {
                 errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                        "Asset Tag ID must be uppercase alphanumeric"));
+                        AssetErrorMessages.ASSET_TAG_FORMAT_INVALID));
             } else if (assetRepository.findByAssetTagId(assetTagId).isPresent()) {
                 errors.add(createError(rowNumber, "DUPLICATE_ERROR", 
-                        "Asset with tag ID '" + assetTagId + "' already exists"));
+                        AssetErrorMessages.ASSET_TAG_ALREADY_EXISTS + assetTagId));
             }
         } else {
             log.debug("No asset tag ID provided - will be auto-generated");
@@ -74,41 +75,41 @@ public class AssetBulkUploadValidator implements BulkRowValidator<AssetBulkUploa
 
         // Validate Asset Type (required)
         if (isBlank(rowData.getAssetTypeName())) {
-            errors.add(createError(rowNumber, "VALIDATION_ERROR", "Asset Type is required"));
+            errors.add(createError(rowNumber, "VALIDATION_ERROR", AssetErrorMessages.ASSET_TYPE_REQUIRED));
         } else if (!assetTypeRepository.findByTypeNameIgnoreCase(rowData.getAssetTypeName()).isPresent()) {
             errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                    "Asset Type '" + rowData.getAssetTypeName() + "' does not exist"));
+                    AssetErrorMessages.ASSET_TYPE_NOT_FOUND + rowData.getAssetTypeName()));
         }
 
         // Validate Asset Category (required)
         if (isBlank(rowData.getAssetCategoryName())) {
-            errors.add(createError(rowNumber, "VALIDATION_ERROR", "Asset Category is required"));
+            errors.add(createError(rowNumber, "VALIDATION_ERROR", AssetErrorMessages.ASSET_CATEGORY_REQUIRED));
         } else if (!assetCategoryRepository.findByCategoryNameIgnoreCase(rowData.getAssetCategoryName()).isPresent()) {
             errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                    "Asset Category '" + rowData.getAssetCategoryName() + "' does not exist"));
+                    AssetErrorMessages.ASSET_CATEGORY_NOT_FOUND + rowData.getAssetCategoryName()));
         }
 
         // Validate Vendor (required)
         if (isBlank(rowData.getVendorCode())) {
-            errors.add(createError(rowNumber, "VALIDATION_ERROR", "Vendor Code is required"));
+            errors.add(createError(rowNumber, "VALIDATION_ERROR", AssetErrorMessages.VENDOR_CODE_REQUIRED));
         } else if (!vendorRepository.existsByVendorCodeAlt(rowData.getVendorCode().trim())) {
             errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                    "Vendor with code '" + rowData.getVendorCode() + "' does not exist"));
+                    String.format(AssetErrorMessages.VENDOR_NOT_FOUND_CODE, rowData.getVendorCode())));
         }
 
         // Validate Lender Bank (required)
         if (isBlank(rowData.getLenderBankName())) {
-            errors.add(createError(rowNumber, "VALIDATION_ERROR", "Lender Bank Name is required"));
+            errors.add(createError(rowNumber, "VALIDATION_ERROR", AssetErrorMessages.LENDER_BANK_REQUIRED));
         } else if (!bankRepository.findByBankNameIgnoreCase(rowData.getLenderBankName()).isPresent()) {
             errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                    "Bank '" + rowData.getLenderBankName() + "' does not exist"));
+                    String.format(AssetErrorMessages.LENDER_BANK_NOT_FOUND, rowData.getLenderBankName())));
         }
 
         // Validate Status Code (optional)
         if (!isBlank(rowData.getStatusCode())) {
             if (!genericStatusTypeRepository.findByStatusCodeIgnoreCase(rowData.getStatusCode()).isPresent()) {
                 errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                        "Status Code '" + rowData.getStatusCode() + "' does not exist"));
+                        String.format(AssetErrorMessages.STATUS_CODE_NOT_FOUND, rowData.getStatusCode())));
             }
         }
 
@@ -116,7 +117,7 @@ public class AssetBulkUploadValidator implements BulkRowValidator<AssetBulkUploa
         if (!isBlank(rowData.getSerialNumber())) {
             if (assetRepository.findBySerialNumber(rowData.getSerialNumber().trim()).isPresent()) {
                 errors.add(createError(rowNumber, "DUPLICATE_ERROR", 
-                        "Asset with serial number '" + rowData.getSerialNumber() + "' already exists"));
+                        AssetErrorMessages.SERIAL_NUMBER_ALREADY_EXISTS + rowData.getSerialNumber()));
             }
             validateLength(rowData.getSerialNumber(), "Serial Number", 100, rowNumber, errors);
         }
@@ -143,11 +144,11 @@ public class AssetBulkUploadValidator implements BulkRowValidator<AssetBulkUploa
                 Integer warrantyPeriod = Integer.parseInt(rowData.getWarrantyPeriod().trim());
                 if (warrantyPeriod < 0) {
                     errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                            "Warranty Period cannot be negative"));
+                            AssetErrorMessages.WARRANTY_PERIOD_NEGATIVE));
                 }
             } catch (NumberFormatException e) {
                 errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                        "Warranty Period must be a valid integer"));
+                        AssetErrorMessages.WARRANTY_PERIOD_INVALID));
             }
         }
 
@@ -170,7 +171,7 @@ public class AssetBulkUploadValidator implements BulkRowValidator<AssetBulkUploa
         
         if (!foundSite && !foundDatacenter && !foundWarehouse) {
             errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                    "Location Code '" + locationCode + "' not found in Site, Datacenter, or Warehouse"));
+                    String.format(AssetErrorMessages.LOCATION_CODE_NOT_FOUND, locationCode)));
             return;
         }
 
@@ -195,10 +196,10 @@ public class AssetBulkUploadValidator implements BulkRowValidator<AssetBulkUploa
         // Validate Placement Status (required when placement location is specified)
         if (isBlank(rowData.getPlacementStatusCode())) {
             errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                    "Placement Status Code is required when Location Code is specified"));
+                    AssetErrorMessages.PLACEMENT_STATUS_REQUIRED));
         } else if (!genericStatusTypeRepository.findByStatusCodeIgnoreCase(rowData.getPlacementStatusCode()).isPresent()) {
             errors.add(createError(rowNumber, "REFERENCE_ERROR", 
-                    "Placement Status Code '" + rowData.getPlacementStatusCode() + "' does not exist"));
+                    String.format(AssetErrorMessages.PLACEMENT_STATUS_NOT_FOUND, rowData.getPlacementStatusCode())));
         }
 
         // Validate common placement dates
@@ -241,7 +242,7 @@ public class AssetBulkUploadValidator implements BulkRowValidator<AssetBulkUploa
             }
 
             errors.add(createError(rowNumber, "VALIDATION_ERROR",
-                    fieldName + " must be in YYYY-MM-DD format or a valid Excel date/serial"));
+                    String.format(AssetErrorMessages.DATE_FORMAT_INVALID, fieldName)));
         }
     }
 
@@ -251,11 +252,11 @@ public class AssetBulkUploadValidator implements BulkRowValidator<AssetBulkUploa
                 BigDecimal decimal = new BigDecimal(value.trim());
                 if (decimal.compareTo(BigDecimal.ZERO) < 0) {
                     errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                            fieldName + " cannot be negative"));
+                            String.format(AssetErrorMessages.DECIMAL_NEGATIVE, fieldName)));
                 }
             } catch (NumberFormatException e) {
                 errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                        fieldName + " must be a valid decimal number"));
+                        String.format(AssetErrorMessages.DECIMAL_INVALID, fieldName)));
             }
         }
     }
@@ -263,7 +264,7 @@ public class AssetBulkUploadValidator implements BulkRowValidator<AssetBulkUploa
     private void validateLength(String value, String fieldName, int maxLength, int rowNumber, List<BulkUploadErrorDto> errors) {
         if (value != null && value.length() > maxLength) {
             errors.add(createError(rowNumber, "VALIDATION_ERROR", 
-                    fieldName + " cannot exceed " + maxLength + " characters"));
+                    String.format(AssetErrorMessages.LENGTH_EXCEEDED, fieldName, maxLength)));
         }
     }
 

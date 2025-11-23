@@ -4,6 +4,7 @@ import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTyp
 import com.eps.module.api.epsone.location.repository.LocationRepository;
 import com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository;
 import com.eps.module.api.epsone.person_details.repository.PersonDetailsRepository;
+import com.eps.module.api.epsone.site.constant.SiteErrorMessages;
 import com.eps.module.api.epsone.site.dto.SiteBulkUploadDto;
 import com.eps.module.api.epsone.site.dto.SiteErrorReportDto;
 import com.eps.module.api.epsone.site.dto.SiteRequestDto;
@@ -17,6 +18,7 @@ import com.eps.module.bank.ManagedProject;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.Location;
 import com.eps.module.person.PersonDetails;
@@ -57,12 +59,12 @@ public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Si
 
         // Check if site code already exists
         if (siteRepository.existsBySiteCode(requestDto.getSiteCode())) {
-            throw new IllegalArgumentException("Site with code '" + requestDto.getSiteCode() + "' already exists");
+            throw new ConflictException(String.format(SiteErrorMessages.SITE_CODE_EXISTS, requestDto.getSiteCode()));
         }
 
         // Validate required location exists
         Location location = locationRepository.findById(requestDto.getLocationId())
-            .orElseThrow(() -> new ResourceNotFoundException("Location not found with id: " + requestDto.getLocationId()));
+            .orElseThrow(() -> new ResourceNotFoundException(SiteErrorMessages.LOCATION_NOT_FOUND_ID + requestDto.getLocationId()));
 
         Site site = siteMapper.toEntity(requestDto);
         site.setLocation(location);
@@ -81,18 +83,18 @@ public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Si
         log.info("Updating site with ID: {}", id);
 
         Site existingSite = siteRepository.findByIdWithDetails(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Site not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(SiteErrorMessages.SITE_NOT_FOUND_ID + id));
 
         // Check if site code is being changed and if it already exists
         if (!existingSite.getSiteCode().equals(requestDto.getSiteCode())) {
             if (siteRepository.existsBySiteCodeAndIdNot(requestDto.getSiteCode(), id)) {
-                throw new IllegalArgumentException("Site with code '" + requestDto.getSiteCode() + "' already exists");
+                throw new ConflictException(String.format(SiteErrorMessages.SITE_CODE_EXISTS, requestDto.getSiteCode()));
             }
         }
 
         // Validate required location exists
         Location location = locationRepository.findById(requestDto.getLocationId())
-            .orElseThrow(() -> new ResourceNotFoundException("Location not found with id: " + requestDto.getLocationId()));
+            .orElseThrow(() -> new ResourceNotFoundException(SiteErrorMessages.LOCATION_NOT_FOUND_ID + requestDto.getLocationId()));
 
         siteMapper.updateEntityFromDto(requestDto, existingSite);
         existingSite.setLocation(location);
@@ -111,32 +113,32 @@ public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Si
         log.info("Deleting site with ID: {}", id);
 
         Site site = siteRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Site not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(SiteErrorMessages.SITE_NOT_FOUND_ID + id));
 
         // Check for dependent AssetsOnSite
         long assetsOnSiteCount = siteRepository.countAssetsOnSiteBySiteId(id);
         if (assetsOnSiteCount > 0) {
             String errorMessage = String.format(
-                    "Cannot delete site '%s' because it has %d asset%s assigned to it. Please remove or reassign these assets first.",
+                    SiteErrorMessages.CANNOT_DELETE_SITE_ASSETS,
                     site.getSiteCode(),
                     assetsOnSiteCount,
                     assetsOnSiteCount > 1 ? "s" : ""
             );
             log.warn("Failed to delete site with ID {}: {}", id, errorMessage);
-            throw new IllegalStateException(errorMessage);
+            throw new ConflictException(errorMessage);
         }
 
         // Check for dependent SiteActivityWorkExpenditure
         long siteActivityWorkExpenditureCount = siteRepository.countSiteActivityWorkExpenditureBySiteId(id);
         if (siteActivityWorkExpenditureCount > 0) {
             String errorMessage = String.format(
-                    "Cannot delete site '%s' because it has %d activity work expenditure record%s. Please remove these records first.",
+                    SiteErrorMessages.CANNOT_DELETE_SITE_EXPENDITURE,
                     site.getSiteCode(),
                     siteActivityWorkExpenditureCount,
                     siteActivityWorkExpenditureCount > 1 ? "s" : ""
             );
             log.warn("Failed to delete site with ID {}: {}", id, errorMessage);
-            throw new IllegalStateException(errorMessage);
+            throw new ConflictException(errorMessage);
         }
 
         siteRepository.deleteById(id);
@@ -147,7 +149,7 @@ public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Si
     @Transactional(readOnly = true)
     public SiteResponseDto getSiteById(Long id) {
         Site site = siteRepository.findByIdWithDetails(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Site not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(SiteErrorMessages.SITE_NOT_FOUND_ID + id));
         return siteMapper.toResponseDto(site);
     }
 
@@ -181,7 +183,7 @@ public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Si
         // Set project if provided
         if (requestDto.getProjectId() != null) {
             ManagedProject project = managedProjectRepository.findById(requestDto.getProjectId())
-                .orElseThrow(() -> new ResourceNotFoundException("Managed Project not found with id: " + requestDto.getProjectId()));
+                .orElseThrow(() -> new ResourceNotFoundException(SiteErrorMessages.MANAGED_PROJECT_NOT_FOUND_ID + requestDto.getProjectId()));
             site.setProject(project);
         } else {
             site.setProject(null);
@@ -190,7 +192,7 @@ public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Si
         // Set site category if provided
         if (requestDto.getSiteCategoryId() != null) {
             SiteCategory siteCategory = siteCategoryRepository.findById(requestDto.getSiteCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Site Category not found with id: " + requestDto.getSiteCategoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException(SiteErrorMessages.SITE_CATEGORY_NOT_FOUND_ID + requestDto.getSiteCategoryId()));
             site.setSiteCategory(siteCategory);
         } else {
             site.setSiteCategory(null);
@@ -199,7 +201,7 @@ public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Si
         // Set site type if provided
         if (requestDto.getSiteTypeId() != null) {
             SiteType siteType = siteTypeRepository.findById(requestDto.getSiteTypeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Site Type not found with id: " + requestDto.getSiteTypeId()));
+                .orElseThrow(() -> new ResourceNotFoundException(SiteErrorMessages.SITE_TYPE_NOT_FOUND_ID + requestDto.getSiteTypeId()));
             site.setSiteType(siteType);
         } else {
             site.setSiteType(null);
@@ -208,7 +210,7 @@ public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Si
         // Set site status if provided
         if (requestDto.getSiteStatusId() != null) {
             GenericStatusType siteStatus = genericStatusTypeRepository.findById(requestDto.getSiteStatusId())
-                .orElseThrow(() -> new ResourceNotFoundException("Site Status not found with id: " + requestDto.getSiteStatusId()));
+                .orElseThrow(() -> new ResourceNotFoundException(SiteErrorMessages.SITE_STATUS_NOT_FOUND_ID + requestDto.getSiteStatusId()));
             site.setSiteStatus(siteStatus);
         } else {
             site.setSiteStatus(null);
@@ -225,7 +227,7 @@ public class SiteServiceImpl extends BaseBulkUploadService<SiteBulkUploadDto, Si
     private void setPersonContact(Site site, Long personId, String contactType) {
         if (personId != null) {
             PersonDetails person = personDetailsRepository.findById(personId)
-                .orElseThrow(() -> new ResourceNotFoundException("Person Details not found with id: " + personId));
+                .orElseThrow(() -> new ResourceNotFoundException(SiteErrorMessages.PERSON_DETAILS_NOT_FOUND_ID + personId));
 
             switch (contactType) {
                 case "channelManager":

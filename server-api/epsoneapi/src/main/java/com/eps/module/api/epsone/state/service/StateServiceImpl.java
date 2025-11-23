@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.state.service;
 
+import com.eps.module.api.epsone.state.constant.StateErrorMessages;
 import com.eps.module.api.epsone.state.dto.StateBulkUploadDto;
 import com.eps.module.api.epsone.state.dto.StateRequestDto;
 import com.eps.module.api.epsone.state.dto.StateResponseDto;
@@ -11,7 +12,8 @@ import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.api.epsone.state.dto.StateErrorReportDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
-import com.eps.module.common.exception.CustomException;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.State;
 import com.eps.module.location.City;
 import lombok.RequiredArgsConstructor;
@@ -43,12 +45,12 @@ public class StateServiceImpl extends BaseBulkUploadService<StateBulkUploadDto, 
 
         // Check if state name already exists
         if (stateRepository.existsByStateName(stateRequestDto.getStateName())) {
-            throw new CustomException("State with name '" + stateRequestDto.getStateName() + "' already exists");
+            throw new ConflictException(String.format(StateErrorMessages.STATE_NAME_EXISTS, stateRequestDto.getStateName()));
         }
 
         // Check if state code already exists
         if (stateRepository.existsByStateCode(stateRequestDto.getStateCode())) {
-            throw new CustomException("State with code '" + stateRequestDto.getStateCode() + "' already exists");
+            throw new ConflictException(String.format(StateErrorMessages.STATE_CODE_EXISTS, stateRequestDto.getStateCode()));
         }
 
         State state = stateMapper.toEntity(stateRequestDto);
@@ -63,7 +65,7 @@ public class StateServiceImpl extends BaseBulkUploadService<StateBulkUploadDto, 
     public StateResponseDto getStateById(Long id) {
         log.info("Fetching state with ID: {}", id);
         State state = stateRepository.findById(id)
-                .orElseThrow(() -> new CustomException("State not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(StateErrorMessages.STATE_NOT_FOUND_ID + id));
         return stateMapper.toResponseDto(state);
     }
 
@@ -99,19 +101,19 @@ public class StateServiceImpl extends BaseBulkUploadService<StateBulkUploadDto, 
         log.info("Updating state with ID: {}", id);
 
         State existingState = stateRepository.findById(id)
-                .orElseThrow(() -> new CustomException("State not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(StateErrorMessages.STATE_NOT_FOUND_ID + id));
 
         // Check if state name is being changed and if it already exists
         if (!existingState.getStateName().equals(stateRequestDto.getStateName())) {
             if (stateRepository.existsByStateName(stateRequestDto.getStateName())) {
-                throw new CustomException("State with name '" + stateRequestDto.getStateName() + "' already exists");
+                throw new ConflictException(String.format(StateErrorMessages.STATE_NAME_EXISTS, stateRequestDto.getStateName()));
             }
         }
 
         // Check if state code is being changed and if it already exists
         if (!existingState.getStateCode().equals(stateRequestDto.getStateCode())) {
             if (stateRepository.existsByStateCode(stateRequestDto.getStateCode())) {
-                throw new CustomException("State with code '" + stateRequestDto.getStateCode() + "' already exists");
+                throw new ConflictException(String.format(StateErrorMessages.STATE_CODE_EXISTS, stateRequestDto.getStateCode()));
             }
         }
 
@@ -128,7 +130,7 @@ public class StateServiceImpl extends BaseBulkUploadService<StateBulkUploadDto, 
         log.info("Deleting state with ID: {}", id);
 
         State state = stateRepository.findById(id)
-                .orElseThrow(() -> new CustomException("State not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(StateErrorMessages.STATE_NOT_FOUND_ID + id));
 
         // Check if state is being used by any cities (fetch only first 6 for efficiency)
         Page<City> citiesPage = cityRepository.findByStateId(id, PageRequest.of(0, 6));
@@ -143,19 +145,16 @@ public class StateServiceImpl extends BaseBulkUploadService<StateBulkUploadDto, 
                     .map(City::getCityName)
                     .collect(Collectors.joining(", "));
             
-            StringBuilder errorMessage = new StringBuilder();
-            errorMessage.append("Cannot delete '").append(state.getStateName())
-                       .append("' state because it is being used by ")
-                       .append(totalCount).append(totalCount > 1 ? " cities: " : " city: ")
-                       .append(cityNames);
+            String errorMessage = String.format(
+                    StateErrorMessages.CANNOT_DELETE_STATE_CITIES,
+                    state.getStateName(),
+                    totalCount,
+                    totalCount > 1 ? "cities" : "city",
+                    cityNames,
+                    totalCount > 5 ? " and " + (totalCount - 5) + " more" : ""
+            );
             
-            if (totalCount > 5) {
-                errorMessage.append(" and ").append(totalCount - 5).append(" more");
-            }
-            
-            errorMessage.append(". Please delete or reassign these cities first.");
-            
-            throw new CustomException(errorMessage.toString());
+            throw new ConflictException(errorMessage);
         }
 
         stateRepository.delete(state);

@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.bank.validator;
 
+import com.eps.module.api.epsone.bank.constant.BankErrorMessages;
 import com.eps.module.api.epsone.bank.dto.BankBulkUploadDto;
 import com.eps.module.api.epsone.bank.repository.BankRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -24,12 +25,12 @@ public class BankBulkUploadValidator implements BulkRowValidator<BankBulkUploadD
         if (dto.getBankName() == null || dto.getBankName().trim().isEmpty()) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Bank name is required")
+                    .errorMessage(BankErrorMessages.BANK_NAME_REQUIRED)
                     .build());
         } else if (dto.getBankName().length() > 255) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Bank name cannot exceed 255 characters")
+                    .errorMessage(BankErrorMessages.BANK_NAME_TOO_LONG)
                     .build());
         }
 
@@ -38,20 +39,20 @@ public class BankBulkUploadValidator implements BulkRowValidator<BankBulkUploadD
             if (dto.getRbiBankCode().length() > 10) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("RBI bank code cannot exceed 10 characters")
+                        .errorMessage(BankErrorMessages.RBI_CODE_TOO_LONG)
                         .build());
             }
             if (!dto.getRbiBankCode().matches("^[A-Za-z0-9]+$")) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("RBI bank code can only contain letters and numbers")
+                        .errorMessage(BankErrorMessages.RBI_CODE_INVALID_FORMAT)
                         .build());
             }
             // Check for duplicate RBI code
             if (bankRepository.existsByRbiBankCode(dto.getRbiBankCode())) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("RBI bank code '" + dto.getRbiBankCode() + "' already exists")
+                        .errorMessage(String.format(BankErrorMessages.RBI_CODE_EXISTS, dto.getRbiBankCode()))
                         .build());
             }
         }
@@ -61,20 +62,20 @@ public class BankBulkUploadValidator implements BulkRowValidator<BankBulkUploadD
             if (dto.getEpsBankCode().length() > 10) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("EPS bank code cannot exceed 10 characters")
+                        .errorMessage(BankErrorMessages.EPS_CODE_TOO_LONG)
                         .build());
             }
             if (!dto.getEpsBankCode().matches("^[A-Za-z0-9_-]+$")) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("EPS bank code can only contain letters, numbers, hyphens and underscores")
+                        .errorMessage(BankErrorMessages.EPS_CODE_INVALID_FORMAT)
                         .build());
             }
             // Check for duplicate EPS code
             if (bankRepository.existsByEpsBankCode(dto.getEpsBankCode())) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("EPS bank code '" + dto.getEpsBankCode() + "' already exists")
+                        .errorMessage(String.format(BankErrorMessages.EPS_CODE_EXISTS, dto.getEpsBankCode()))
                         .build());
             }
         }
@@ -84,20 +85,20 @@ public class BankBulkUploadValidator implements BulkRowValidator<BankBulkUploadD
             if (dto.getBankCodeAlt().length() > 10) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Alternate bank code cannot exceed 10 characters")
+                        .errorMessage(BankErrorMessages.ALT_CODE_TOO_LONG)
                         .build());
             }
             if (!dto.getBankCodeAlt().matches("^[A-Za-z0-9_-]+$")) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Alternate bank code can only contain letters, numbers, hyphens and underscores")
+                        .errorMessage(BankErrorMessages.ALT_CODE_INVALID_FORMAT)
                         .build());
             }
             // Check for duplicate alternate code
             if (bankRepository.existsByBankCodeAlt(dto.getBankCodeAlt())) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage("Alternate bank code '" + dto.getBankCodeAlt() + "' already exists")
+                        .errorMessage(String.format(BankErrorMessages.ALT_CODE_EXISTS, dto.getBankCodeAlt()))
                         .build());
             }
         }
@@ -106,7 +107,7 @@ public class BankBulkUploadValidator implements BulkRowValidator<BankBulkUploadD
         if (dto.getBankLogo() != null && dto.getBankLogo().length() > 500) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .errorMessage("Bank logo URL cannot exceed 500 characters")
+                    .errorMessage(BankErrorMessages.LOGO_URL_TOO_LONG)
                     .build());
         }
 

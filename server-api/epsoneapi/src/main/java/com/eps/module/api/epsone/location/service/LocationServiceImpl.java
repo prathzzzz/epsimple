@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.location.service;
 
 import com.eps.module.api.epsone.city.repository.CityRepository;
+import com.eps.module.api.epsone.location.constant.LocationErrorMessages;
 import com.eps.module.api.epsone.location.dto.LocationBulkUploadDto;
 import com.eps.module.api.epsone.location.dto.LocationRequestDto;
 import com.eps.module.api.epsone.location.dto.LocationResponseDto;
@@ -14,6 +15,7 @@ import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.api.epsone.location.dto.LocationErrorReportDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.location.City;
 import com.eps.module.location.Location;
@@ -53,7 +55,7 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
         // Validate city exists
         City city = cityRepository.findById(locationRequestDto.getCityId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "City not found with ID: " + locationRequestDto.getCityId()));
+                        LocationErrorMessages.CITY_NOT_FOUND_ID + locationRequestDto.getCityId()));
 
         Location location = locationMapper.toEntity(locationRequestDto);
         location.setCity(city);
@@ -69,7 +71,7 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
     public LocationResponseDto getLocationById(Long id) {
         log.info("Fetching location with ID: {}", id);
         Location location = locationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Location not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(LocationErrorMessages.LOCATION_NOT_FOUND_ID + id));
         return locationMapper.toResponseDto(location);
     }
 
@@ -95,13 +97,13 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
         log.info("Updating location with ID: {}", id);
 
         Location existingLocation = locationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Location not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(LocationErrorMessages.LOCATION_NOT_FOUND_ID + id));
 
         // Validate city exists if cityId is being updated
         if (!existingLocation.getCity().getId().equals(locationRequestDto.getCityId())) {
             City city = cityRepository.findById(locationRequestDto.getCityId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "City not found with ID: " + locationRequestDto.getCityId()));
+                            LocationErrorMessages.CITY_NOT_FOUND_ID + locationRequestDto.getCityId()));
             existingLocation.setCity(city);
         }
 
@@ -117,7 +119,7 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
         log.info("Deleting location with ID: {}", id);
 
         Location location = locationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Location not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(LocationErrorMessages.LOCATION_NOT_FOUND_ID + id));
 
         // Check if this location is being used by any sites
         log.debug("Checking for dependent sites for location ID: {}", id);
@@ -133,7 +135,7 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
             
             String siteNamesList = String.join(", ", siteNames);
             String errorMessage = String.format(
-                    "Cannot delete '%s' location because it is being used by %d site%s: %s%s. Please delete or reassign these sites first.",
+                    LocationErrorMessages.CANNOT_DELETE_LOCATION_IN_USE_BY_SITES,
                     location.getLocationName(),
                     totalCount,
                     totalCount > 1 ? "s" : "",
@@ -142,7 +144,7 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
             );
             
             log.warn("Attempted to delete location '{}' which is referenced by {} sites", location.getLocationName(), totalCount);
-            throw new IllegalStateException(errorMessage);
+            throw new ConflictException(errorMessage);
         }
 
         // Check if this location is being used by any warehouses
@@ -159,7 +161,7 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
             
             String warehouseNamesList = String.join(", ", warehouseNames);
             String errorMessage = String.format(
-                    "Cannot delete '%s' location because it is being used by %d warehouse%s: %s%s. Please delete or reassign these warehouses first.",
+                    LocationErrorMessages.CANNOT_DELETE_LOCATION_IN_USE_BY_WAREHOUSES,
                     location.getLocationName(),
                     totalCount,
                     totalCount > 1 ? "s" : "",
@@ -168,7 +170,7 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
             );
             
             log.warn("Attempted to delete location '{}' which is referenced by {} warehouses", location.getLocationName(), totalCount);
-            throw new IllegalStateException(errorMessage);
+            throw new ConflictException(errorMessage);
         }
 
         // Check if this location is being used by any datacenters
@@ -185,7 +187,7 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
             
             String datacenterNamesList = String.join(", ", datacenterNames);
             String errorMessage = String.format(
-                    "Cannot delete '%s' location because it is being used by %d datacenter%s: %s%s. Please delete or reassign these datacenters first.",
+                    LocationErrorMessages.CANNOT_DELETE_LOCATION_IN_USE_BY_DATACENTERS,
                     location.getLocationName(),
                     totalCount,
                     totalCount > 1 ? "s" : "",
@@ -194,7 +196,7 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
             );
             
             log.warn("Attempted to delete location '{}' which is referenced by {} datacenters", location.getLocationName(), totalCount);
-            throw new IllegalStateException(errorMessage);
+            throw new ConflictException(errorMessage);
         }
 
         locationRepository.delete(location);

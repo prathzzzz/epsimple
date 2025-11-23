@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.cost_type.validator;
 
 import com.eps.module.api.epsone.cost_category.repository.CostCategoryRepository;
+import com.eps.module.api.epsone.cost_type.constant.CostTypeErrorMessages;
 import com.eps.module.api.epsone.cost_type.dto.CostTypeBulkUploadDto;
 import com.eps.module.api.epsone.cost_type.repository.CostTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -27,14 +28,14 @@ public class CostTypeBulkUploadValidator implements BulkRowValidator<CostTypeBul
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Name")
-                    .errorMessage("Type name is required")
+                    .errorMessage(CostTypeErrorMessages.TYPE_NAME_REQUIRED)
                     .rejectedValue(rowData.getTypeName())
                     .build());
         } else if (rowData.getTypeName().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Name")
-                    .errorMessage("Type name cannot exceed 100 characters")
+                    .errorMessage(CostTypeErrorMessages.TYPE_NAME_TOO_LONG)
                     .rejectedValue(rowData.getTypeName())
                     .build());
         }
@@ -44,7 +45,7 @@ public class CostTypeBulkUploadValidator implements BulkRowValidator<CostTypeBul
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Description")
-                    .errorMessage("Type description is required")
+                    .errorMessage(CostTypeErrorMessages.TYPE_DESCRIPTION_REQUIRED)
                     .rejectedValue(rowData.getTypeDescription())
                     .build());
         }
@@ -54,7 +55,7 @@ public class CostTypeBulkUploadValidator implements BulkRowValidator<CostTypeBul
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Cost Category Name")
-                    .errorMessage("Cost category name is required")
+                    .errorMessage(CostTypeErrorMessages.COST_CATEGORY_NAME_REQUIRED)
                     .rejectedValue(rowData.getCostCategoryName())
                     .build());
         } else {
@@ -64,7 +65,7 @@ public class CostTypeBulkUploadValidator implements BulkRowValidator<CostTypeBul
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Cost Category Name")
-                        .errorMessage("Cost category '" + rowData.getCostCategoryName() + "' does not exist")
+                        .errorMessage(String.format(CostTypeErrorMessages.COST_CATEGORY_NOT_FOUND_NAME, rowData.getCostCategoryName()))
                         .rejectedValue(rowData.getCostCategoryName())
                         .build());
             }

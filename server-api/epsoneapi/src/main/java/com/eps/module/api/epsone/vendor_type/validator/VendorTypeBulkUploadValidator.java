@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.vendor_type.validator;
 
+import com.eps.module.api.epsone.vendor_type.constant.VendorTypeErrorMessages;
 import com.eps.module.api.epsone.vendor_type.dto.VendorTypeBulkUploadDto;
 import com.eps.module.api.epsone.vendor_type.repository.VendorTypeRepository;
 import com.eps.module.api.epsone.vendor_category.repository.VendorCategoryRepository;
@@ -27,14 +28,14 @@ public class VendorTypeBulkUploadValidator implements BulkRowValidator<VendorTyp
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Name")
-                    .errorMessage("Vendor type name is required")
+                    .errorMessage(VendorTypeErrorMessages.VENDOR_TYPE_NAME_REQUIRED)
                     .rejectedValue(rowData.getTypeName())
                     .build());
         } else if (rowData.getTypeName().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Type Name")
-                    .errorMessage("Vendor type name cannot exceed 100 characters")
+                    .errorMessage(VendorTypeErrorMessages.VENDOR_TYPE_NAME_MAX_LENGTH)
                     .rejectedValue(rowData.getTypeName())
                     .build());
         }
@@ -44,7 +45,7 @@ public class VendorTypeBulkUploadValidator implements BulkRowValidator<VendorTyp
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Vendor Category Name")
-                    .errorMessage("Vendor category name is required")
+                    .errorMessage(VendorTypeErrorMessages.VENDOR_CATEGORY_NAME_REQUIRED)
                     .rejectedValue(rowData.getVendorCategoryName())
                     .build());
         } else {
@@ -57,7 +58,7 @@ public class VendorTypeBulkUploadValidator implements BulkRowValidator<VendorTyp
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Vendor Category Name")
-                        .errorMessage("Vendor category '" + rowData.getVendorCategoryName() + "' not found")
+                        .errorMessage(String.format(VendorTypeErrorMessages.VENDOR_CATEGORY_NOT_FOUND_NAME, rowData.getVendorCategoryName()))
                         .rejectedValue(rowData.getVendorCategoryName())
                         .build());
             }
@@ -68,7 +69,7 @@ public class VendorTypeBulkUploadValidator implements BulkRowValidator<VendorTyp
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Description")
-                    .errorMessage("Description cannot exceed 5000 characters")
+                    .errorMessage(VendorTypeErrorMessages.DESCRIPTION_MAX_LENGTH)
                     .rejectedValue(rowData.getDescription())
                     .build());
         }

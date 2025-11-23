@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.cost_item.validator;
 
+import com.eps.module.api.epsone.cost_item.constant.CostItemErrorMessages;
 import com.eps.module.api.epsone.cost_item.dto.CostItemBulkUploadDto;
 import com.eps.module.api.epsone.cost_item.repository.CostItemRepository;
 import com.eps.module.api.epsone.cost_type.repository.CostTypeRepository;
@@ -27,14 +28,14 @@ public class CostItemBulkUploadValidator implements BulkRowValidator<CostItemBul
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Cost Item For")
-                    .errorMessage("Cost item for is required")
+                    .errorMessage(CostItemErrorMessages.COST_ITEM_FOR_REQUIRED)
                     .rejectedValue(rowData.getCostItemFor())
                     .build());
         } else if (rowData.getCostItemFor().length() > 255) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Cost Item For")
-                    .errorMessage("Cost item for cannot exceed 255 characters")
+                    .errorMessage(CostItemErrorMessages.COST_ITEM_FOR_TOO_LONG)
                     .rejectedValue(rowData.getCostItemFor())
                     .build());
         }
@@ -44,7 +45,7 @@ public class CostItemBulkUploadValidator implements BulkRowValidator<CostItemBul
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Cost Type Name")
-                    .errorMessage("Cost type name is required")
+                    .errorMessage(CostItemErrorMessages.COST_TYPE_NAME_REQUIRED)
                     .rejectedValue(rowData.getCostTypeName())
                     .build());
         } else {
@@ -54,7 +55,7 @@ public class CostItemBulkUploadValidator implements BulkRowValidator<CostItemBul
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Cost Type Name")
-                        .errorMessage("Cost type '" + rowData.getCostTypeName() + "' does not exist")
+                        .errorMessage(String.format(CostItemErrorMessages.COST_TYPE_NOT_FOUND_NAME, rowData.getCostTypeName()))
                         .rejectedValue(rowData.getCostTypeName())
                         .build());
             }

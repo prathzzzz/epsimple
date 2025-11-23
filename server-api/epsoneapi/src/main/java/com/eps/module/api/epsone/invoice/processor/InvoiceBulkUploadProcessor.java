@@ -5,8 +5,10 @@ import com.eps.module.api.epsone.invoice.repository.InvoiceRepository;
 import com.eps.module.api.epsone.invoice.validator.InvoiceBulkUploadValidator;
 import com.eps.module.api.epsone.payee_details.repository.PayeeDetailsRepository;
 import com.eps.module.api.epsone.payee.repository.PayeeRepository;
+import com.eps.module.api.epsone.payee.constant.PayeeErrorMessages;
 import com.eps.module.api.epsone.payment_details.repository.PaymentDetailsRepository;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.payment.Invoice;
 import com.eps.module.payment.Payee;
 import com.eps.module.payment.PayeeDetails;
@@ -52,10 +54,10 @@ public class InvoiceBulkUploadProcessor extends BulkUploadProcessor<InvoiceBulkU
         // Find Payee by PayeeDetails name
         PayeeDetails payeeDetails = payeeDetailsRepository
                 .findByPayeeNameIgnoreCase(dto.getPayeeName().trim())
-                .orElseThrow(() -> new RuntimeException("Payee details not found: " + dto.getPayeeName()));
+                .orElseThrow(() -> new ResourceNotFoundException(PayeeErrorMessages.PAYEE_DETAILS_NOT_FOUND + dto.getPayeeName()));
 
         Payee payee = payeeRepository.findByPayeeDetailsId(payeeDetails.getId())
-                .orElseThrow(() -> new RuntimeException("Payee not found for payee details: " + dto.getPayeeName()));
+                .orElseThrow(() -> new ResourceNotFoundException(PayeeErrorMessages.PAYEE_NOT_FOUND_FOR_DETAILS + dto.getPayeeName()));
 
         // Find Payment Details (optional)
         PaymentDetails paymentDetails = null;

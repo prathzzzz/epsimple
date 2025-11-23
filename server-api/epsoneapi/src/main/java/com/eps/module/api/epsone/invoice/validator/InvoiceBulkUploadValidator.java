@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.invoice.validator;
 
+import com.eps.module.api.epsone.invoice.constant.InvoiceErrorMessages;
 import com.eps.module.api.epsone.invoice.dto.InvoiceBulkUploadDto;
 import com.eps.module.api.epsone.invoice.repository.InvoiceRepository;
 import com.eps.module.api.epsone.payee_details.repository.PayeeDetailsRepository;
@@ -39,49 +40,49 @@ public class InvoiceBulkUploadValidator implements BulkRowValidator<InvoiceBulkU
 
         // Validate Invoice Number (Required, Max 100, Unique)
         if (rowData.getInvoiceNumber() == null || rowData.getInvoiceNumber().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "Invoice Number", "Invoice number is required", rowData.getInvoiceNumber()));
+            errors.add(createError(rowNumber, "Invoice Number", InvoiceErrorMessages.INVOICE_NUMBER_REQUIRED, rowData.getInvoiceNumber()));
         } else {
             String invoiceNumber = rowData.getInvoiceNumber().trim();
             if (invoiceNumber.length() > 100) {
-                errors.add(createError(rowNumber, "Invoice Number", "Invoice number cannot exceed 100 characters", invoiceNumber));
+                errors.add(createError(rowNumber, "Invoice Number", InvoiceErrorMessages.INVOICE_NUMBER_TOO_LONG, invoiceNumber));
             }
             if (invoiceRepository.existsByInvoiceNumber(invoiceNumber)) {
-                errors.add(createError(rowNumber, "Invoice Number", "Invoice number '" + invoiceNumber + "' already exists", invoiceNumber));
+                errors.add(createError(rowNumber, "Invoice Number", String.format(InvoiceErrorMessages.INVOICE_NUMBER_EXISTS, invoiceNumber), invoiceNumber));
             }
         }
 
         // Validate Invoice Date (Required)
         if (rowData.getInvoiceDate() == null || rowData.getInvoiceDate().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "Invoice Date", "Invoice date is required", rowData.getInvoiceDate()));
+            errors.add(createError(rowNumber, "Invoice Date", InvoiceErrorMessages.INVOICE_DATE_REQUIRED, rowData.getInvoiceDate()));
         } else if (!isValidDate(rowData.getInvoiceDate().trim())) {
-            errors.add(createError(rowNumber, "Invoice Date", "Invalid date format. Use yyyy-MM-dd, dd/MM/yyyy, or MM/dd/yyyy", rowData.getInvoiceDate()));
+            errors.add(createError(rowNumber, "Invoice Date", InvoiceErrorMessages.INVALID_DATE_FORMAT, rowData.getInvoiceDate()));
         }
 
         // Validate Invoice Received Date (Optional)
         if (rowData.getInvoiceReceivedDate() != null && !rowData.getInvoiceReceivedDate().trim().isEmpty()) {
             if (!isValidDate(rowData.getInvoiceReceivedDate().trim())) {
-                errors.add(createError(rowNumber, "Invoice Received Date", "Invalid date format", rowData.getInvoiceReceivedDate()));
+                errors.add(createError(rowNumber, "Invoice Received Date", InvoiceErrorMessages.INVALID_DATE_FORMAT, rowData.getInvoiceReceivedDate()));
             }
         }
 
         // Validate Order Number (Optional, Max 100)
         if (rowData.getOrderNumber() != null && rowData.getOrderNumber().trim().length() > 100) {
-            errors.add(createError(rowNumber, "Order Number", "Order number cannot exceed 100 characters", rowData.getOrderNumber()));
+            errors.add(createError(rowNumber, "Order Number", InvoiceErrorMessages.ORDER_NUMBER_TOO_LONG, rowData.getOrderNumber()));
         }
 
         // Validate Vendor Name (Optional, Max 255)
         if (rowData.getVendorName() != null && rowData.getVendorName().trim().length() > 255) {
-            errors.add(createError(rowNumber, "Vendor Name", "Vendor name cannot exceed 255 characters", rowData.getVendorName()));
+            errors.add(createError(rowNumber, "Vendor Name", InvoiceErrorMessages.VENDOR_NAME_TOO_LONG, rowData.getVendorName()));
         }
 
         // Validate Payee Name (Required, FK)
         if (rowData.getPayeeName() == null || rowData.getPayeeName().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "Payee Name", "Payee name is required", rowData.getPayeeName()));
+            errors.add(createError(rowNumber, "Payee Name", InvoiceErrorMessages.PAYEE_NAME_REQUIRED, rowData.getPayeeName()));
         } else {
             String payeeName = rowData.getPayeeName().trim();
             boolean exists = payeeDetailsRepository.existsByPayeeNameIgnoreCase(payeeName);
             if (!exists) {
-                errors.add(createError(rowNumber, "Payee Name", "Payee '" + payeeName + "' not found", payeeName));
+                errors.add(createError(rowNumber, "Payee Name", String.format(InvoiceErrorMessages.PAYEE_NOT_FOUND_NAME, payeeName), payeeName));
             }
         }
 
@@ -90,7 +91,7 @@ public class InvoiceBulkUploadValidator implements BulkRowValidator<InvoiceBulkU
             String txnNumber = rowData.getPaymentTransactionNumber().trim();
             boolean exists = paymentDetailsRepository.existsByTransactionNumberIgnoreCase(txnNumber);
             if (!exists) {
-                errors.add(createError(rowNumber, "Payment Transaction Number", "Payment transaction '" + txnNumber + "' not found", txnNumber));
+                errors.add(createError(rowNumber, "Payment Transaction Number", String.format(InvoiceErrorMessages.PAYMENT_TXN_NOT_FOUND, txnNumber), txnNumber));
             }
         }
 
@@ -102,7 +103,7 @@ public class InvoiceBulkUploadValidator implements BulkRowValidator<InvoiceBulkU
 
         // Validate Payment Status (Optional, Max 20)
         if (rowData.getPaymentStatus() != null && rowData.getPaymentStatus().trim().length() > 20) {
-            errors.add(createError(rowNumber, "Payment Status", "Payment status cannot exceed 20 characters", rowData.getPaymentStatus()));
+            errors.add(createError(rowNumber, "Payment Status", InvoiceErrorMessages.PAYMENT_STATUS_TOO_LONG, rowData.getPaymentStatus()));
         }
 
         // Validate Numeric Fields
@@ -126,7 +127,7 @@ public class InvoiceBulkUploadValidator implements BulkRowValidator<InvoiceBulkU
 
         // Validate Total Invoice Value (Required)
         if (rowData.getTotalInvoiceValue() == null || rowData.getTotalInvoiceValue().trim().isEmpty()) {
-            errors.add(createError(rowNumber, "Total Invoice Value", "Total invoice value is required", rowData.getTotalInvoiceValue()));
+            errors.add(createError(rowNumber, "Total Invoice Value", InvoiceErrorMessages.TOTAL_INVOICE_VALUE_REQUIRED, rowData.getTotalInvoiceValue()));
         } else {
             validateOptionalBigDecimal(rowData.getTotalInvoiceValue(), "Total Invoice Value", 12, 2, rowNumber, errors);
         }
@@ -175,7 +176,7 @@ public class InvoiceBulkUploadValidator implements BulkRowValidator<InvoiceBulkU
 
     private void validateOptionalDate(String dateStr, String fieldName, int rowNumber, List<BulkUploadErrorDto> errors) {
         if (dateStr != null && !dateStr.trim().isEmpty() && !isValidDate(dateStr.trim())) {
-            errors.add(createError(rowNumber, fieldName, "Invalid date format. Use yyyy-MM-dd, dd/MM/yyyy, or MM/dd/yyyy", dateStr));
+            errors.add(createError(rowNumber, fieldName, InvoiceErrorMessages.INVALID_DATE_FORMAT, dateStr));
         }
     }
 
@@ -184,14 +185,14 @@ public class InvoiceBulkUploadValidator implements BulkRowValidator<InvoiceBulkU
             try {
                 new BigDecimal(value.trim());
             } catch (NumberFormatException e) {
-                errors.add(createError(rowNumber, fieldName, "Invalid number format", value));
+                errors.add(createError(rowNumber, fieldName, InvoiceErrorMessages.INVALID_NUMBER_FORMAT, value));
             }
         }
     }
 
     private void validateMaxLength(String value, String fieldName, int maxLength, int rowNumber, List<BulkUploadErrorDto> errors) {
         if (value != null && value.trim().length() > maxLength) {
-            errors.add(createError(rowNumber, fieldName, fieldName + " cannot exceed " + maxLength + " characters", value));
+            errors.add(createError(rowNumber, fieldName, String.format(InvoiceErrorMessages.FIELD_TOO_LONG, fieldName, maxLength), value));
         }
     }
 

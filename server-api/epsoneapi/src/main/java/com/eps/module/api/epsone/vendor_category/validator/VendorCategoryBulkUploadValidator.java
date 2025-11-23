@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.vendor_category.validator;
 
+import com.eps.module.api.epsone.vendor_category.constant.VendorCategoryErrorMessages;
 import com.eps.module.api.epsone.vendor_category.dto.VendorCategoryBulkUploadDto;
 import com.eps.module.api.epsone.vendor_category.repository.VendorCategoryRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -24,14 +25,14 @@ public class VendorCategoryBulkUploadValidator implements BulkRowValidator<Vendo
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Category Name")
-                    .errorMessage("Category name is required")
+                    .errorMessage(VendorCategoryErrorMessages.CATEGORY_NAME_REQUIRED)
                     .rejectedValue(rowData.getCategoryName())
                     .build());
         } else if (rowData.getCategoryName().length() > 100) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Category Name")
-                    .errorMessage("Category name cannot exceed 100 characters")
+                    .errorMessage(VendorCategoryErrorMessages.CATEGORY_NAME_TOO_LONG)
                     .rejectedValue(rowData.getCategoryName())
                     .build());
         }

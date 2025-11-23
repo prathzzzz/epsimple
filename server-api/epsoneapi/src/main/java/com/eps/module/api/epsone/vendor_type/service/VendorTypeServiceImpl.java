@@ -2,6 +2,7 @@ package com.eps.module.api.epsone.vendor_type.service;
 
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.api.epsone.vendor_category.repository.VendorCategoryRepository;
+import com.eps.module.api.epsone.vendor_type.constant.VendorTypeErrorMessages;
 import com.eps.module.api.epsone.vendor_type.dto.VendorTypeBulkUploadDto;
 import com.eps.module.api.epsone.vendor_type.dto.VendorTypeErrorReportDto;
 import com.eps.module.api.epsone.vendor_type.dto.VendorTypeRequestDto;
@@ -12,6 +13,8 @@ import com.eps.module.api.epsone.vendor_type.repository.VendorTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.vendor.Vendor;
 import com.eps.module.vendor.VendorCategory;
@@ -42,12 +45,12 @@ public class VendorTypeServiceImpl extends BaseBulkUploadService<VendorTypeBulkU
     public VendorTypeResponseDto createVendorType(VendorTypeRequestDto requestDto) {
         // Check if vendor type name already exists
         if (vendorTypeRepository.existsByTypeNameIgnoreCase(requestDto.getTypeName())) {
-            throw new IllegalArgumentException("Vendor type with name '" + requestDto.getTypeName() + "' already exists");
+            throw new ConflictException(String.format(VendorTypeErrorMessages.VENDOR_TYPE_NAME_EXISTS, requestDto.getTypeName()));
         }
         
         // Validate and fetch vendor category
         VendorCategory vendorCategory = vendorCategoryRepository.findById(requestDto.getVendorCategoryId())
-            .orElseThrow(() -> new IllegalArgumentException("Vendor category not found with id: " + requestDto.getVendorCategoryId()));
+            .orElseThrow(() -> new ResourceNotFoundException(VendorTypeErrorMessages.VENDOR_CATEGORY_NOT_FOUND_ID + requestDto.getVendorCategoryId()));
         
         VendorType vendorType = vendorTypeMapper.toEntity(requestDto);
         vendorType.setVendorCategory(vendorCategory);
@@ -59,16 +62,16 @@ public class VendorTypeServiceImpl extends BaseBulkUploadService<VendorTypeBulkU
     @Transactional
     public VendorTypeResponseDto updateVendorType(Long id, VendorTypeRequestDto requestDto) {
         VendorType existingVendorType = vendorTypeRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Vendor type not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(VendorTypeErrorMessages.VENDOR_TYPE_NOT_FOUND_ID + id));
         
         // Check if vendor type name already exists for another vendor type
         if (vendorTypeRepository.existsByTypeNameAndIdNot(requestDto.getTypeName(), id)) {
-            throw new IllegalArgumentException("Vendor type with name '" + requestDto.getTypeName() + "' already exists");
+            throw new ConflictException(String.format(VendorTypeErrorMessages.VENDOR_TYPE_NAME_EXISTS, requestDto.getTypeName()));
         }
         
         // Validate and fetch vendor category
         VendorCategory vendorCategory = vendorCategoryRepository.findById(requestDto.getVendorCategoryId())
-            .orElseThrow(() -> new IllegalArgumentException("Vendor category not found with id: " + requestDto.getVendorCategoryId()));
+            .orElseThrow(() -> new ResourceNotFoundException(VendorTypeErrorMessages.VENDOR_CATEGORY_NOT_FOUND_ID + requestDto.getVendorCategoryId()));
         
         vendorTypeMapper.updateEntityFromDto(requestDto, existingVendorType);
         existingVendorType.setVendorCategory(vendorCategory);
@@ -80,7 +83,7 @@ public class VendorTypeServiceImpl extends BaseBulkUploadService<VendorTypeBulkU
     @Transactional
     public void deleteVendorType(Long id) {
         VendorType vendorType = vendorTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vendor type not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(VendorTypeErrorMessages.VENDOR_TYPE_NOT_FOUND_ID + id));
 
         // Check for dependent vendors
         long vendorCount = vendorRepository.countByVendorTypeId(id);
@@ -97,12 +100,10 @@ public class VendorTypeServiceImpl extends BaseBulkUploadService<VendorTypeBulkU
                     .collect(Collectors.joining(", "));
 
             // Add "and X more" if there are more than 5
-            String moreText = vendorCount > 5 ? " and " + (vendorCount - 5) + " more" : "";
+            String moreText = vendorCount > 5 ? String.format(VendorTypeErrorMessages.CANNOT_DELETE_VENDOR_TYPE_USED_MORE, vendorCount - 5) : "";
 
-            throw new IllegalArgumentException(
-                    "Cannot delete '" + vendorType.getTypeName() + "' vendor type because it is being used by " + 
-                    vendorCount + " vendor(s): " + vendorNames + moreText + ". " +
-                    "Please delete or reassign these vendors first.");
+            throw new ConflictException(String.format(VendorTypeErrorMessages.CANNOT_DELETE_VENDOR_TYPE_USED,
+                    vendorType.getTypeName(), vendorCount, vendorNames) + moreText + VendorTypeErrorMessages.CANNOT_DELETE_VENDOR_TYPE_SUFFIX);
         }
 
         vendorTypeRepository.deleteById(id);
@@ -112,7 +113,7 @@ public class VendorTypeServiceImpl extends BaseBulkUploadService<VendorTypeBulkU
     @Transactional(readOnly = true)
     public VendorTypeResponseDto getVendorTypeById(Long id) {
         VendorType vendorType = vendorTypeRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Vendor type not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(VendorTypeErrorMessages.VENDOR_TYPE_NOT_FOUND_ID + id));
         return vendorTypeMapper.toResponseDto(vendorType);
     }
 

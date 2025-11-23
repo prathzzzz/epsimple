@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.warehouse.bulk;
 
 import com.eps.module.api.epsone.location.repository.LocationRepository;
+import com.eps.module.api.epsone.warehouse.constant.WarehouseErrorMessages;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseBulkUploadDto;
 import com.eps.module.api.epsone.warehouse.repository.WarehouseRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -29,7 +30,7 @@ public class WarehouseBulkUploadValidator implements BulkRowValidator<WarehouseB
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Warehouse Name")
-                    .errorMessage("Warehouse Name is required")
+                    .errorMessage(WarehouseErrorMessages.WAREHOUSE_NAME_REQUIRED)
                     .rejectedValue(rowData.getWarehouseName())
                     .build());
         }
@@ -38,7 +39,7 @@ public class WarehouseBulkUploadValidator implements BulkRowValidator<WarehouseB
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Location Name")
-                    .errorMessage("Location Name is required")
+                    .errorMessage(WarehouseErrorMessages.LOCATION_NAME_REQUIRED)
                     .rejectedValue(rowData.getLocationName())
                     .build());
         }
@@ -48,7 +49,7 @@ public class WarehouseBulkUploadValidator implements BulkRowValidator<WarehouseB
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Warehouse Name")
-                    .errorMessage("Warehouse Name must not exceed 255 characters")
+                    .errorMessage(WarehouseErrorMessages.WAREHOUSE_NAME_LENGTH_EXCEEDED)
                     .rejectedValue(rowData.getWarehouseName())
                     .build());
         }
@@ -57,7 +58,7 @@ public class WarehouseBulkUploadValidator implements BulkRowValidator<WarehouseB
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Warehouse Code")
-                    .errorMessage("Warehouse Code must not exceed 50 characters")
+                    .errorMessage(WarehouseErrorMessages.WAREHOUSE_CODE_LENGTH_EXCEEDED)
                     .rejectedValue(rowData.getWarehouseCode())
                     .build());
         }
@@ -66,7 +67,7 @@ public class WarehouseBulkUploadValidator implements BulkRowValidator<WarehouseB
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Warehouse Type")
-                    .errorMessage("Warehouse Type must not exceed 100 characters")
+                    .errorMessage(WarehouseErrorMessages.WAREHOUSE_TYPE_LENGTH_EXCEEDED)
                     .rejectedValue(rowData.getWarehouseType())
                     .build());
         }
@@ -75,7 +76,7 @@ public class WarehouseBulkUploadValidator implements BulkRowValidator<WarehouseB
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Location Name")
-                    .errorMessage("Location Name must not exceed 100 characters")
+                    .errorMessage(WarehouseErrorMessages.LOCATION_NAME_LENGTH_EXCEEDED)
                     .rejectedValue(rowData.getLocationName())
                     .build());
         }
@@ -87,7 +88,7 @@ public class WarehouseBulkUploadValidator implements BulkRowValidator<WarehouseB
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Location Name")
-                        .errorMessage("Location '" + rowData.getLocationName() + "' not found in system")
+                        .errorMessage(String.format(WarehouseErrorMessages.LOCATION_NOT_FOUND_NAME, rowData.getLocationName()))
                         .rejectedValue(rowData.getLocationName())
                         .build());
             }
@@ -98,7 +99,7 @@ public class WarehouseBulkUploadValidator implements BulkRowValidator<WarehouseB
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Warehouse Code")
-                    .errorMessage("Warehouse Code must contain only uppercase letters, numbers, hyphens, and underscores")
+                    .errorMessage(WarehouseErrorMessages.WAREHOUSE_CODE_INVALID_FORMAT)
                     .rejectedValue(rowData.getWarehouseCode())
                     .build());
         }

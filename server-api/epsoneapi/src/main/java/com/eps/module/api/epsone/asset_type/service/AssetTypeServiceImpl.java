@@ -1,6 +1,7 @@
 package com.eps.module.api.epsone.asset_type.service;
 
 import com.eps.module.api.epsone.asset.repository.AssetRepository;
+import com.eps.module.api.epsone.asset_type.constant.AssetTypeErrorMessages;
 import com.eps.module.api.epsone.asset_type.dto.AssetTypeBulkUploadDto;
 import com.eps.module.api.epsone.asset_type.dto.AssetTypeErrorReportDto;
 import com.eps.module.api.epsone.asset_type.dto.AssetTypeRequestDto;
@@ -12,6 +13,8 @@ import com.eps.module.asset.AssetType;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -38,12 +41,12 @@ public class AssetTypeServiceImpl extends BaseBulkUploadService<AssetTypeBulkUpl
     public AssetTypeResponseDto createAssetType(AssetTypeRequestDto requestDto) {
         // Check if type name already exists
         if (assetTypeRepository.existsByTypeNameIgnoreCase(requestDto.getTypeName())) {
-            throw new IllegalArgumentException("Asset type with name '" + requestDto.getTypeName() + "' already exists");
+            throw new ConflictException(String.format(AssetTypeErrorMessages.ASSET_TYPE_NAME_ALREADY_EXISTS, requestDto.getTypeName()));
         }
 
         // Check if type code already exists
         if (assetTypeRepository.existsByTypeCodeIgnoreCase(requestDto.getTypeCode())) {
-            throw new IllegalArgumentException("Asset type with code '" + requestDto.getTypeCode() + "' already exists");
+            throw new ConflictException(String.format(AssetTypeErrorMessages.ASSET_TYPE_CODE_ALREADY_EXISTS, requestDto.getTypeCode()));
         }
 
         AssetType assetType = assetTypeMapper.toEntity(requestDto);
@@ -55,16 +58,16 @@ public class AssetTypeServiceImpl extends BaseBulkUploadService<AssetTypeBulkUpl
     @Transactional
     public AssetTypeResponseDto updateAssetType(Long id, AssetTypeRequestDto requestDto) {
         AssetType existingAssetType = assetTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asset type not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetTypeErrorMessages.ASSET_TYPE_NOT_FOUND_ID + id));
 
         // Check if type name already exists for another asset type
         if (assetTypeRepository.existsByTypeNameAndIdNot(requestDto.getTypeName(), id)) {
-            throw new IllegalArgumentException("Asset type with name '" + requestDto.getTypeName() + "' already exists");
+            throw new ConflictException(String.format(AssetTypeErrorMessages.ASSET_TYPE_NAME_ALREADY_EXISTS, requestDto.getTypeName()));
         }
 
         // Check if type code already exists for another asset type
         if (assetTypeRepository.existsByTypeCodeAndIdNot(requestDto.getTypeCode(), id)) {
-            throw new IllegalArgumentException("Asset type with code '" + requestDto.getTypeCode() + "' already exists");
+            throw new ConflictException(String.format(AssetTypeErrorMessages.ASSET_TYPE_CODE_ALREADY_EXISTS, requestDto.getTypeCode()));
         }
 
         assetTypeMapper.updateEntityFromDto(requestDto, existingAssetType);
@@ -78,20 +81,20 @@ public class AssetTypeServiceImpl extends BaseBulkUploadService<AssetTypeBulkUpl
         log.info("Deleting asset type with ID: {}", id);
 
         AssetType assetType = assetTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asset type not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetTypeErrorMessages.ASSET_TYPE_NOT_FOUND_ID + id));
 
         // Check for dependent assets
         long assetCount = assetRepository.countByAssetTypeId(id);
         if (assetCount > 0) {
             String errorMessage = String.format(
-                    "Cannot delete '%s' asset type because it is being used by %d asset%s. Please delete or reassign these assets first.",
+                    AssetTypeErrorMessages.CANNOT_DELETE_ASSET_TYPE_IN_USE,
                     assetType.getTypeName(),
                     assetCount,
                     assetCount == 1 ? "" : "s"
             );
 
             log.warn("Cannot delete asset type ID {} - has {} dependent assets", id, assetCount);
-            throw new IllegalStateException(errorMessage);
+            throw new ConflictException(errorMessage);
         }
 
         assetTypeRepository.deleteById(id);
@@ -102,7 +105,7 @@ public class AssetTypeServiceImpl extends BaseBulkUploadService<AssetTypeBulkUpl
     @Transactional(readOnly = true)
     public AssetTypeResponseDto getAssetTypeById(Long id) {
         AssetType assetType = assetTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asset type not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(AssetTypeErrorMessages.ASSET_TYPE_NOT_FOUND_ID + id));
         return assetTypeMapper.toResponseDto(assetType);
     }
 

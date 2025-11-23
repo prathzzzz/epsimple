@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.site_type.service;
 
+import com.eps.module.api.epsone.site_type.constant.SiteTypeErrorMessages;
 import com.eps.module.api.epsone.site_type.dto.SiteTypeBulkUploadDto;
 import com.eps.module.api.epsone.site_type.dto.SiteTypeErrorReportDto;
 import com.eps.module.api.epsone.site_type.dto.SiteTypeRequestDto;
@@ -10,6 +11,7 @@ import com.eps.module.api.epsone.site_type.repository.SiteTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.site.SiteType;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,11 @@ public class SiteTypeServiceImpl extends BaseBulkUploadService<SiteTypeBulkUploa
     @Override
     @Transactional
     public SiteTypeResponseDto createSiteType(SiteTypeRequestDto requestDto) {
+        // Check if type name already exists
+        if (repository.existsByTypeNameIgnoreCase(requestDto.getTypeName())) {
+            throw new ConflictException(String.format(SiteTypeErrorMessages.SITE_TYPE_NAME_EXISTS, requestDto.getTypeName()));
+        }
+        
         SiteType siteType = mapper.toEntity(requestDto);
         SiteType savedSiteType = repository.save(siteType);
         return mapper.toResponseDto(savedSiteType);
@@ -64,7 +71,7 @@ public class SiteTypeServiceImpl extends BaseBulkUploadService<SiteTypeBulkUploa
     @Transactional(readOnly = true)
     public SiteTypeResponseDto getSiteTypeById(Long id) {
         SiteType siteType = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Site Type not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(SiteTypeErrorMessages.SITE_TYPE_NOT_FOUND_ID + id));
         return mapper.toResponseDto(siteType);
     }
 
@@ -72,7 +79,14 @@ public class SiteTypeServiceImpl extends BaseBulkUploadService<SiteTypeBulkUploa
     @Transactional
     public SiteTypeResponseDto updateSiteType(Long id, SiteTypeRequestDto requestDto) {
         SiteType siteType = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Site Type not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(SiteTypeErrorMessages.SITE_TYPE_NOT_FOUND_ID + id));
+        
+        // Check if type name is being changed and if it already exists
+        if (!siteType.getTypeName().equals(requestDto.getTypeName())) {
+            if (repository.existsByTypeNameIgnoreCase(requestDto.getTypeName())) {
+                throw new ConflictException(String.format(SiteTypeErrorMessages.SITE_TYPE_NAME_EXISTS, requestDto.getTypeName()));
+            }
+        }
         
         mapper.updateEntityFromDto(requestDto, siteType);
         SiteType updatedSiteType = repository.save(siteType);
@@ -83,7 +97,7 @@ public class SiteTypeServiceImpl extends BaseBulkUploadService<SiteTypeBulkUploa
     @Transactional
     public void deleteSiteType(Long id) {
         if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Site Type not found with id: " + id);
+            throw new ResourceNotFoundException(SiteTypeErrorMessages.SITE_TYPE_NOT_FOUND_ID + id);
         }
         repository.deleteById(id);
     }

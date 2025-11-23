@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.cost_category.service;
 
+import com.eps.module.api.epsone.cost_category.constant.CostCategoryErrorMessages;
 import com.eps.module.api.epsone.cost_category.dto.CostCategoryBulkUploadDto;
 import com.eps.module.api.epsone.cost_category.dto.CostCategoryErrorReportDto;
 import com.eps.module.api.epsone.cost_category.dto.CostCategoryRequestDto;
@@ -11,6 +12,8 @@ import com.eps.module.api.epsone.cost_type.repository.CostTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.CostCategory;
 import com.eps.module.cost.CostType;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +44,7 @@ public class CostCategoryServiceImpl extends BaseBulkUploadService<CostCategoryB
         log.info("Creating cost category: {}", requestDto.getCategoryName());
 
         if (costCategoryRepository.existsByCategoryNameIgnoreCase(requestDto.getCategoryName())) {
-            throw new IllegalArgumentException("Cost category '" + requestDto.getCategoryName() + "' already exists");
+            throw new ConflictException(String.format(CostCategoryErrorMessages.COST_CATEGORY_ALREADY_EXISTS, requestDto.getCategoryName()));
         }
 
         CostCategory entity = costCategoryMapper.toEntity(requestDto);
@@ -80,7 +83,7 @@ public class CostCategoryServiceImpl extends BaseBulkUploadService<CostCategoryB
     public CostCategoryResponseDto getCostCategoryById(Long id) {
         log.info("Fetching cost category by ID: {}", id);
         CostCategory entity = costCategoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(CostCategoryErrorMessages.COST_CATEGORY_NOT_FOUND_ID + id));
         return costCategoryMapper.toResponseDto(entity);
     }
 
@@ -90,10 +93,10 @@ public class CostCategoryServiceImpl extends BaseBulkUploadService<CostCategoryB
         log.info("Updating cost category with ID: {}", id);
 
         CostCategory existing = costCategoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(CostCategoryErrorMessages.COST_CATEGORY_NOT_FOUND_ID + id));
 
         if (costCategoryRepository.existsByCategoryNameAndIdNot(requestDto.getCategoryName(), id)) {
-            throw new IllegalArgumentException("Cost category '" + requestDto.getCategoryName() + "' already exists");
+            throw new ConflictException(String.format(CostCategoryErrorMessages.COST_CATEGORY_ALREADY_EXISTS, requestDto.getCategoryName()));
         }
 
         costCategoryMapper.updateEntityFromDto(requestDto, existing);
@@ -108,7 +111,7 @@ public class CostCategoryServiceImpl extends BaseBulkUploadService<CostCategoryB
         log.info("Deleting cost category with ID: {}", id);
 
         CostCategory costCategory = costCategoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(CostCategoryErrorMessages.COST_CATEGORY_NOT_FOUND_ID + id));
 
         Page<CostType> dependentCostTypes = costTypeRepository.findByCostCategoryId(id, PageRequest.of(0, 6));
 
@@ -121,13 +124,13 @@ public class CostCategoryServiceImpl extends BaseBulkUploadService<CostCategoryB
 
             String typeNamesList = String.join(", ", typeNames);
             String errorMessage = String.format(
-                    "Cannot delete '%s' cost category because it is being used by %d cost type%s: %s. Please delete or reassign these cost types first.",
+                    CostCategoryErrorMessages.CANNOT_DELETE_COST_CATEGORY_IN_USE,
                     costCategory.getCategoryName(),
                     totalCount,
                     totalCount > 1 ? "s" : "",
                     typeNamesList
             );
-            throw new IllegalStateException(errorMessage);
+            throw new ConflictException(errorMessage);
         }
 
         costCategoryRepository.deleteById(id);

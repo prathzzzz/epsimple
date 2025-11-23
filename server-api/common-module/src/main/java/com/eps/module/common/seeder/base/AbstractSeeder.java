@@ -1,5 +1,7 @@
 package com.eps.module.common.seeder.base;
 
+import com.eps.module.common.constant.CommonErrorMessages;
+import com.eps.module.common.exception.InternalServerErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 
@@ -29,7 +31,7 @@ public abstract class AbstractSeeder implements BaseSeeder {
             
         } catch (Exception e) {
             log.error("Error occurred while seeding {}: {}", getSeederName(), e.getMessage(), e);
-            throw new RuntimeException("Failed to seed " + getSeederName(), e);
+            throw new InternalServerErrorException(CommonErrorMessages.SEEDER_FAILURE + getSeederName(), e);
         }
         
         return CompletableFuture.completedFuture(null);

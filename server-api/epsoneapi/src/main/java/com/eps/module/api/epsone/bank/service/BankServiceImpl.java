@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.bank.service;
 
+import com.eps.module.api.epsone.bank.constant.BankErrorMessages;
 import com.eps.module.api.epsone.bank.dto.BankRequestDto;
 import com.eps.module.api.epsone.bank.dto.BankResponseDto;
 import com.eps.module.api.epsone.bank.dto.BankBulkUploadDto;
@@ -17,6 +18,7 @@ import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
 import com.eps.module.payment.PayeeDetails;
+import com.eps.module.common.exception.BadRequestException;
 import com.eps.module.common.exception.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -86,7 +88,7 @@ public class BankServiceImpl extends BaseBulkUploadService<BankBulkUploadDto, Ba
     public BankResponseDto getBankById(Long id) {
         log.info("Fetching bank with ID: {}", id);
         Bank bank = bankRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Bank not found with ID: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(BankErrorMessages.BANK_NOT_FOUND_ID + id));
         return bankMapper.toResponseDto(bank);
     }
 
@@ -112,7 +114,7 @@ public class BankServiceImpl extends BaseBulkUploadService<BankBulkUploadDto, Ba
         log.info("Updating bank with ID: {}", id);
 
         Bank existingBank = bankRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Bank not found with ID: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(BankErrorMessages.BANK_NOT_FOUND_ID + id));
 
         // Validate updated data
         bankHelper.validateBankUniquenessForUpdate(id, bankRequestDto, existingBank);
@@ -129,7 +131,7 @@ public class BankServiceImpl extends BaseBulkUploadService<BankBulkUploadDto, Ba
         log.info("Updating bank with ID: {} with logo", id);
 
         Bank existingBank = bankRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Bank not found with ID: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(BankErrorMessages.BANK_NOT_FOUND_ID + id));
 
         // Validate updated data
         bankHelper.validateBankUniquenessForUpdate(id, bankRequestDto, existingBank);
@@ -162,7 +164,7 @@ public class BankServiceImpl extends BaseBulkUploadService<BankBulkUploadDto, Ba
         log.info("Deleting bank with ID: {}", id);
 
         Bank bank = bankRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Bank not found with ID: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(BankErrorMessages.BANK_NOT_FOUND_ID + id));
 
         // Check if this bank is being used by any Managed Projects
         log.debug("Checking for dependent Managed Projects for bank ID: {}", id);
@@ -178,7 +180,7 @@ public class BankServiceImpl extends BaseBulkUploadService<BankBulkUploadDto, Ba
             
             String projectNamesList = String.join(", ", projectNames);
             String errorMessage = String.format(
-                    "Cannot delete '%s' bank because it is being used by %d Managed Project%s: %s%s. Please delete or reassign these Managed Projects first.",
+                    BankErrorMessages.CANNOT_DELETE_BANK_MANAGED_PROJECT,
                     bank.getBankName(),
                     totalCount,
                     totalCount > 1 ? "s" : "",
@@ -187,7 +189,7 @@ public class BankServiceImpl extends BaseBulkUploadService<BankBulkUploadDto, Ba
             );
             
             log.warn("Attempted to delete bank '{}' which is referenced by {} Managed Projects", bank.getBankName(), totalCount);
-            throw new IllegalStateException(errorMessage);
+            throw new BadRequestException(errorMessage);
         }
 
         // Check if this bank is being used by any payee details
@@ -204,7 +206,7 @@ public class BankServiceImpl extends BaseBulkUploadService<BankBulkUploadDto, Ba
             
             String payeeNamesList = String.join(", ", payeeNames);
             String errorMessage = String.format(
-                    "Cannot delete '%s' bank because it is being used by %d payee detail%s: %s%s. Please delete or reassign these payee details first.",
+                    BankErrorMessages.CANNOT_DELETE_BANK_PAYEE_DETAILS,
                     bank.getBankName(),
                     totalCount,
                     totalCount > 1 ? "s" : "",
@@ -213,7 +215,7 @@ public class BankServiceImpl extends BaseBulkUploadService<BankBulkUploadDto, Ba
             );
             
             log.warn("Attempted to delete bank '{}' which is referenced by {} payee details", bank.getBankName(), totalCount);
-            throw new IllegalStateException(errorMessage);
+            throw new BadRequestException(errorMessage);
         }
 
         // Delete logo file if exists

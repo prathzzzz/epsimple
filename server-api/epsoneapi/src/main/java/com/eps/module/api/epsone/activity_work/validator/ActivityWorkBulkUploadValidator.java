@@ -1,8 +1,9 @@
 package com.eps.module.api.epsone.activity_work.validator;
 
-import com.eps.module.api.epsone.activities.repository.ActivitiesRepository;
+import com.eps.module.api.epsone.activity_work.constant.ActivityWorkErrorMessages;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkBulkUploadDto;
 import com.eps.module.api.epsone.activity_work.repository.ActivityWorkRepository;
+import com.eps.module.api.epsone.activities.repository.ActivitiesRepository;
 import com.eps.module.api.epsone.generic_status_type.repository.GenericStatusTypeRepository;
 import com.eps.module.api.epsone.vendor.repository.VendorRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
@@ -43,7 +44,7 @@ public class ActivityWorkBulkUploadValidator implements BulkRowValidator<Activit
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Activities Name")
-                    .errorMessage("Activities name is required")
+                    .errorMessage(ActivityWorkErrorMessages.ACTIVITIES_NAME_REQUIRED)
                     .rejectedValue(rowData.getActivitiesName())
                     .build());
         } else {
@@ -53,7 +54,7 @@ public class ActivityWorkBulkUploadValidator implements BulkRowValidator<Activit
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Activities Name")
-                        .errorMessage("Activities '" + rowData.getActivitiesName() + "' not found")
+                        .errorMessage(String.format(ActivityWorkErrorMessages.ACTIVITIES_NOT_FOUND_NAME, rowData.getActivitiesName()))
                         .rejectedValue(rowData.getActivitiesName())
                         .build());
             }
@@ -64,7 +65,7 @@ public class ActivityWorkBulkUploadValidator implements BulkRowValidator<Activit
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Vendor Name")
-                    .errorMessage("Vendor name is required")
+                    .errorMessage(ActivityWorkErrorMessages.VENDOR_NAME_REQUIRED)
                     .rejectedValue(rowData.getVendorName())
                     .build());
         } else {
@@ -74,7 +75,7 @@ public class ActivityWorkBulkUploadValidator implements BulkRowValidator<Activit
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Vendor Name")
-                        .errorMessage("Vendor '" + rowData.getVendorName() + "' not found")
+                        .errorMessage(String.format(ActivityWorkErrorMessages.VENDOR_NOT_FOUND_NAME, rowData.getVendorName()))
                         .rejectedValue(rowData.getVendorName())
                         .build());
             }
@@ -86,7 +87,7 @@ public class ActivityWorkBulkUploadValidator implements BulkRowValidator<Activit
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Vendor Order Number")
-                        .errorMessage("Vendor order number cannot exceed 100 characters")
+                        .errorMessage(ActivityWorkErrorMessages.VENDOR_ORDER_NUMBER_MAX_LENGTH)
                         .rejectedValue(rowData.getVendorOrderNumber())
                         .build());
             }
@@ -98,7 +99,7 @@ public class ActivityWorkBulkUploadValidator implements BulkRowValidator<Activit
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Work Order Date")
-                        .errorMessage("Invalid date format. Use yyyy-MM-dd, dd/MM/yyyy, or MM/dd/yyyy")
+                        .errorMessage(ActivityWorkErrorMessages.INVALID_DATE_FORMAT)
                         .rejectedValue(rowData.getWorkOrderDate())
                         .build());
             }
@@ -110,7 +111,7 @@ public class ActivityWorkBulkUploadValidator implements BulkRowValidator<Activit
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Work Start Date")
-                        .errorMessage("Invalid date format. Use yyyy-MM-dd, dd/MM/yyyy, or MM/dd/yyyy")
+                        .errorMessage(ActivityWorkErrorMessages.INVALID_DATE_FORMAT)
                         .rejectedValue(rowData.getWorkStartDate())
                         .build());
             }
@@ -122,7 +123,7 @@ public class ActivityWorkBulkUploadValidator implements BulkRowValidator<Activit
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Work Completion Date")
-                        .errorMessage("Invalid date format. Use yyyy-MM-dd, dd/MM/yyyy, or MM/dd/yyyy")
+                        .errorMessage(ActivityWorkErrorMessages.INVALID_DATE_FORMAT)
                         .rejectedValue(rowData.getWorkCompletionDate())
                         .build());
             }
@@ -133,7 +134,7 @@ public class ActivityWorkBulkUploadValidator implements BulkRowValidator<Activit
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
                     .fieldName("Status Type Code")
-                    .errorMessage("Status type code is required")
+                    .errorMessage(ActivityWorkErrorMessages.STATUS_TYPE_CODE_REQUIRED)
                     .rejectedValue(rowData.getStatusTypeCode())
                     .build());
         } else {
@@ -143,7 +144,7 @@ public class ActivityWorkBulkUploadValidator implements BulkRowValidator<Activit
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
                         .fieldName("Status Type Code")
-                        .errorMessage("Status type code '" + rowData.getStatusTypeCode() + "' not found")
+                        .errorMessage(String.format(ActivityWorkErrorMessages.STATUS_TYPE_CODE_NOT_FOUND, rowData.getStatusTypeCode()))
                         .rejectedValue(rowData.getStatusTypeCode())
                         .build());
             }

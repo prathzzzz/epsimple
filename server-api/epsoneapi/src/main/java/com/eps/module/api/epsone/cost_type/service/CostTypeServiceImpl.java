@@ -2,6 +2,7 @@ package com.eps.module.api.epsone.cost_type.service;
 
 import com.eps.module.api.epsone.cost_category.repository.CostCategoryRepository;
 import com.eps.module.api.epsone.cost_item.repository.CostItemRepository;
+import com.eps.module.api.epsone.cost_type.constant.CostTypeErrorMessages;
 import com.eps.module.api.epsone.cost_type.dto.CostTypeBulkUploadDto;
 import com.eps.module.api.epsone.cost_type.dto.CostTypeErrorReportDto;
 import com.eps.module.api.epsone.cost_type.dto.CostTypeRequestDto;
@@ -12,6 +13,8 @@ import com.eps.module.api.epsone.cost_type.repository.CostTypeRepository;
 import com.eps.module.common.bulk.dto.BulkUploadErrorDto;
 import com.eps.module.common.bulk.processor.BulkUploadProcessor;
 import com.eps.module.common.bulk.service.BaseBulkUploadService;
+import com.eps.module.common.exception.ConflictException;
+import com.eps.module.common.exception.ResourceNotFoundException;
 import com.eps.module.cost.CostCategory;
 import com.eps.module.cost.CostType;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +45,7 @@ public class CostTypeServiceImpl extends BaseBulkUploadService<CostTypeBulkUploa
         log.info("Creating cost type: {}", requestDto.getTypeName());
         
         CostCategory costCategory = costCategoryRepository.findById(requestDto.getCostCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + requestDto.getCostCategoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException(CostTypeErrorMessages.COST_CATEGORY_NOT_FOUND_ID + requestDto.getCostCategoryId()));
         
         CostType entity = CostType.builder()
                 .typeName(requestDto.getTypeName())
@@ -86,7 +89,7 @@ public class CostTypeServiceImpl extends BaseBulkUploadService<CostTypeBulkUploa
     public CostTypeResponseDto getCostTypeById(Long id) {
         log.info("Fetching cost type by ID: {}", id);
         CostType entity = costTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost type not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(CostTypeErrorMessages.COST_TYPE_NOT_FOUND_ID + id));
         return costTypeMapper.toResponseDto(entity);
     }
     
@@ -96,10 +99,10 @@ public class CostTypeServiceImpl extends BaseBulkUploadService<CostTypeBulkUploa
         log.info("Updating cost type with ID: {}", id);
         
         CostType existing = costTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost type not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(CostTypeErrorMessages.COST_TYPE_NOT_FOUND_ID + id));
         
         CostCategory costCategory = costCategoryRepository.findById(requestDto.getCostCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("Cost category not found with id: " + requestDto.getCostCategoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException(CostTypeErrorMessages.COST_CATEGORY_NOT_FOUND_ID + requestDto.getCostCategoryId()));
         
         existing.setTypeName(requestDto.getTypeName());
         existing.setTypeDescription(requestDto.getTypeDescription());
@@ -117,13 +120,13 @@ public class CostTypeServiceImpl extends BaseBulkUploadService<CostTypeBulkUploa
         log.info("Deleting cost type with ID: {}", id);
         
         CostType costType = costTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cost type not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(CostTypeErrorMessages.COST_TYPE_NOT_FOUND_ID + id));
         
         // Check if cost type is being used by any cost items
         long costItemCount = costItemRepository.countByCostTypeId(id);
         if (costItemCount > 0) {
-            throw new IllegalStateException(
-                    String.format("Cannot delete cost type '%s' because it is being used by %d cost item(s). Please delete the cost item(s) first.",
+            throw new ConflictException(
+                    String.format(CostTypeErrorMessages.CANNOT_DELETE_COST_TYPE_IN_USE,
                             costType.getTypeName(), costItemCount));
         }
         
