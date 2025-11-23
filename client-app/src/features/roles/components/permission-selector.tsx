@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -34,6 +34,12 @@ export function PermissionSelector({
     new Set()
   )
 
+  // Use ref to always have latest onChange without causing re-renders
+  const onChangeRef = React.useRef(onChange)
+  React.useEffect(() => {
+    onChangeRef.current = onChange
+  }, [onChange])
+
   const { data: permissionsByCategory, isLoading } =
     usePermissionsByCategory(enabled)
 
@@ -67,13 +73,22 @@ export function PermissionSelector({
   // Auto-expand categories when searching
   React.useEffect(() => {
     if (searchTerm && filteredPermissionsByCategory) {
-      setExpandedCategories(
-        new Set(Object.keys(filteredPermissionsByCategory))
-      )
+      const categories = Object.keys(filteredPermissionsByCategory)
+      setExpandedCategories((prev) => {
+        // Only update if categories have changed to avoid infinite loops
+        const prevArray = Array.from(prev)
+        if (
+          categories.length === prevArray.length &&
+          categories.every((c) => prev.has(c))
+        ) {
+          return prev
+        }
+        return new Set(categories)
+      })
     }
   }, [searchTerm, filteredPermissionsByCategory])
 
-  const toggleCategory = (category: string) => {
+  const toggleCategory = useCallback((category: string) => {
     setExpandedCategories((prev) => {
       const next = new Set(prev)
       if (next.has(category)) {
@@ -83,30 +98,31 @@ export function PermissionSelector({
       }
       return next
     })
-  }
+  }, [])
 
-  const togglePermission = (permissionId: number) => {
+  const togglePermission = useCallback((permissionId: number) => {
     if (disabled) return
     const newValue = value.includes(permissionId)
       ? value.filter((id) => id !== permissionId)
       : [...value, permissionId]
-    onChange(newValue)
-  }
+    onChangeRef.current(newValue)
+  }, [disabled, value])
 
-  const selectAllInCategory = (permissions: PermissionDTO[]) => {
+  const selectAllInCategory = useCallback((permissions: PermissionDTO[]) => {
     if (disabled) return
     const permissionIds = permissions.map((p) => p.id)
     const allSelected = permissionIds.every((id) => value.includes(id))
 
     if (allSelected) {
       // Deselect all in this category
-      onChange(value.filter((id) => !permissionIds.includes(id)))
+      const newValue = value.filter((id) => !permissionIds.includes(id))
+      onChangeRef.current(newValue)
     } else {
       // Select all in this category
       const newValue = [...new Set([...value, ...permissionIds])]
-      onChange(newValue)
+      onChangeRef.current(newValue)
     }
-  }
+  }, [disabled, value])
 
   if (isLoading) {
     return (
@@ -217,11 +233,11 @@ export function PermissionSelector({
                     {permissions.map((permission) => (
                       <label
                         key={permission.id}
-                        htmlFor={`permission-${permission.id}`}
                         className={cn(
-                          "flex items-start gap-3 rounded-md p-2 transition-colors",
-                          "hover:bg-accent cursor-pointer",
-                          value.includes(permission.id) && "bg-accent/50"
+                          "flex items-start gap-3 rounded-md p-2 transition-colors cursor-pointer",
+                          "hover:bg-accent",
+                          value.includes(permission.id) && "bg-accent/50",
+                          disabled && "opacity-50 cursor-not-allowed"
                         )}
                       >
                         <Checkbox

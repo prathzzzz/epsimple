@@ -77,16 +77,9 @@ function RoleSelection({
       {roles.map((role) => {
         const isChecked = value.includes(role.id)
         return (
-          <div
+          <label
             key={role.id}
             className='flex flex-row items-start space-x-3 space-y-0 rounded-lg border p-3 hover:bg-accent cursor-pointer'
-            onClick={(e) => {
-              e.preventDefault()
-              const newValue = isChecked
-                ? value.filter((id) => id !== role.id)
-                : [...value, role.id]
-              onChange(newValue)
-            }}
           >
             <Checkbox
               checked={isChecked}
@@ -96,14 +89,13 @@ function RoleSelection({
                   : value.filter((id) => id !== role.id)
                 onChange(newValue)
               }}
-              onClick={(e) => e.stopPropagation()}
             />
             <div className='flex-1 space-y-1 leading-none'>
               <div className='flex items-center gap-2'>
                 <Shield className='h-4 w-4 text-muted-foreground' />
-                <label className='text-sm font-medium cursor-pointer'>
+                <span className='text-sm font-medium'>
                   {role.name}
-                </label>
+                </span>
                 {role.isSystemRole && (
                   <Badge variant='outline' className='text-xs'>
                     System
@@ -116,7 +108,7 @@ function RoleSelection({
                 </p>
               )}
             </div>
-          </div>
+          </label>
         )
       })}
     </div>

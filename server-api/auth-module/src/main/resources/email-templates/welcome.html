@@ -13,254 +13,177 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
-            color: #1f2937;
-            background: #f3f4f6;
-            padding: 20px;
+            color: #333333;
+            background-color: #f5f5f5;
+            padding: 40px 20px;
         }
-        .email-wrapper {
-            max-width: 600px;
+        .email-container {
+            max-width: 560px;
             margin: 0 auto;
             background: #ffffff;
-            border-radius: 16px;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        .content {
-            padding: 40px 30px;
-            background: #ffffff;
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 32px 40px;
+            text-align: center;
         }
-        .greeting {
+        .header h1 {
+            color: #ffffff;
             font-size: 24px;
             font-weight: 600;
-            color: #1f2937;
+            margin: 0;
+        }
+        .content {
+            padding: 40px;
+        }
+        .greeting {
+            font-size: 20px;
+            color: #333333;
+            margin-bottom: 24px;
+        }
+        .text {
+            font-size: 15px;
+            color: #666666;
+            line-height: 1.6;
             margin-bottom: 20px;
         }
-        .message {
-            font-size: 16px;
-            color: #4b5563;
-            margin-bottom: 16px;
-        }
-        .credentials-container {
-            background: #f9fafb;
-            border-radius: 12px;
-            padding: 24px;
-            margin: 30px 0;
-            border: 1px solid #e5e7eb;
-        }
-        .credential-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid #d1d5db;
+        .credentials-box {
+            background: #f8f9fa;
             border-radius: 8px;
-            margin-bottom: 8px;
+            padding: 24px;
+            margin: 32px 0;
         }
-        .credential-row:last-child {
-            border-bottom: none;
+        .credential-item {
+            margin-bottom: 20px;
+        }
+        .credential-item:last-child {
             margin-bottom: 0;
-        }
-        .credential-info {
-            flex: 1;
-            min-width: 0;
         }
         .credential-label {
             font-size: 12px;
-            font-weight: 600;
-            color: #6b7280;
+            color: #999999;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
         }
         .credential-value {
             font-size: 15px;
-            font-weight: 500;
-            color: #111827;
+            color: #333333;
+            font-weight: 600;
             font-family: 'Courier New', monospace;
             word-break: break-all;
         }
-        .password-notice {
-            font-size: 13px;
-            color: #6b7280;
-            margin: 20px 0;
-        }
-        .security-notice {
-            background: #eff6ff;
-            border-left: 4px solid #3b82f6;
-            padding: 16px 20px;
-            border-radius: 8px;
+        .notice {
+            background: #e7f3ff;
+            border-left: 4px solid #2196f3;
+            padding: 16px;
+            border-radius: 4px;
             margin: 24px 0;
         }
-        .security-notice p {
+        .notice-text {
             font-size: 14px;
-            color: #1e40af;
+            color: #0d47a1;
             margin: 0;
         }
-        .security-notice strong {
-            color: #1e3a8a;
-        }
-        .cta-button {
+        .button {
             display: inline-block;
             background: #667eea;
-            color: white !important;
-            padding: 14px 32px;
-            border-radius: 8px;
+            color: #ffffff;
             text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 6px;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 15px;
             margin: 24px 0;
-            transition: background 0.2s;
         }
-        .cta-button:hover {
-            background: #5568d3;
+        .button-container {
+            text-align: center;
         }
         .divider {
             height: 1px;
-            background: linear-gradient(to right, transparent, #e5e7eb, transparent);
-            margin: 30px 0;
+            background: #e0e0e0;
+            margin: 32px 0;
         }
         .footer {
-            background: #f9fafb;
-            padding: 30px;
+            background: #fafafa;
+            padding: 32px 40px;
             text-align: center;
-            border-top: 1px solid #e5e7eb;
         }
         .footer-text {
             font-size: 13px;
-            color: #6b7280;
-            margin: 8px 0;
+            color: #999999;
+            margin: 4px 0;
         }
-        .footer-brand {
-            font-size: 14px;
-            font-weight: 600;
-            color: #667eea;
-            margin-bottom: 8px;
-        }
-        .support-link {
+        .link {
             color: #667eea;
             text-decoration: none;
-            font-weight: 600;
-        }
-        .support-link:hover {
-            text-decoration: underline;
         }
         @media only screen and (max-width: 600px) {
             body {
-                padding: 10px;
+                padding: 20px 10px;
+            }
+            .header {
+                padding: 24px 20px;
+            }
+            .header h1 {
+                font-size: 20px;
             }
             .content {
-                padding: 30px 20px;
-            }
-            .credential-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-            .cta-button {
-                padding: 12px 24px;
-                font-size: 14px;
-            }
-        }
-
-        /* Dark Mode Support */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: #0f172a !important;
-            }
-            .email-wrapper {
-                background: #1e293b !important;
-                color: #f1f5f9 !important;
-            }
-            .content {
-                background: #1e293b !important;
-            }
-            .greeting {
-                color: #f1f5f9 !important;
-            }
-            .message {
-                color: #cbd5e1 !important;
-            }
-            .credentials-container {
-                background: #334155 !important;
-                border-color: #475569 !important;
-            }
-            .credential-label {
-                color: #94a3b8 !important;
-            }
-            .credential-value {
-                color: #f1f5f9 !important;
-                background: #475569 !important;
-                border-color: #64748b !important;
-            }
-            .credential-row {
-                border-color: #475569 !important;
-            }
-            .copy-button {
-                color: #818cf8 !important;
-            }
-            .copy-button:hover {
-                color: #a5b4fc !important;
+                padding: 32px 24px;
             }
             .footer {
-                background: #0f172a !important;
-                border-top-color: #334155 !important;
-            }
-            .footer-text {
-                color: #94a3b8 !important;
+                padding: 24px 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="email-wrapper">
-        <!-- Main Content -->
+    <div class="email-container">
+        <div class="header">
+            <h1>Welcome to EpsOne</h1>
+        </div>
+        
         <div class="content">
-            <div class="greeting">Welcome, {{userName}}! 👋</div>
+            <div class="greeting">Hello {{userName}},</div>
             
-            <p class="message">
-                Your account has been created successfully. Use the credentials below to sign in:
+            <p class="text">
+                Your account has been successfully created. Use the credentials below to sign in to your account.
             </p>
             
-            <!-- Credentials Display -->
-            <div class="credentials-container">
-                <div class="credential-row">
-                    <div class="credential-info">
-                        <div class="credential-label">Email</div>
-                        <div class="credential-value">{{userEmail}}</div>
-                    </div>
+            <div class="credentials-box">
+                <div class="credential-item">
+                    <div class="credential-label">Email Address</div>
+                    <div class="credential-value">{{userEmail}}</div>
                 </div>
-                <div class="credential-row">
-                    <div class="credential-info">
-                        <div class="credential-label">Temporary Password</div>
-                        <div class="credential-value">{{temporaryPassword}}</div>
-                    </div>
+                <div class="credential-item">
+                    <div class="credential-label">Temporary Password</div>
+                    <div class="credential-value">{{temporaryPassword}}</div>
                 </div>
             </div>
             
-            <center>
-                <p class="password-notice">
-                    Please change your password after first login
+            <div class="notice">
+                <p class="notice-text">
+                    <strong>Important:</strong> Please change your password after your first login for security purposes.
                 </p>
-            </center>
+            </div>
             
-            <center>
-                <a href="http://epsone.electronicpay.in:9090/sign-in" class="cta-button">
-                    🚀 Login to Your Account
-                </a>
-            </center>
+            <div class="button-container">
+                <a href="http://epsone.electronicpay.in:9090/sign-in" class="button">Login to Your Account</a>
+            </div>
             
             <div class="divider"></div>
             
-            <p class="message">
-                Need help? Contact us at <a href="mailto:pratham.karia@electronicpay.in" class="support-link">pratham.karia@electronicpay.in</a>
+            <p class="text">
+                Need help? Contact us at <a href="mailto:pratham.karia@electronicpay.in" class="link">pratham.karia@electronicpay.in</a>
             </p>
         </div>
         
-        <!-- Footer -->
         <div class="footer">
-            <div class="footer-brand">EpsOne</div>
+            <p class="footer-text"><strong>EpsOne</strong></p>
             <p class="footer-text">&copy; 2025 EpsOne. All rights reserved.</p>
-            <p class="footer-text">This is an automated message, please do not reply to this email.</p>
+            <p class="footer-text">This is an automated message, please do not reply.</p>
         </div>
     </div>
 </body>
