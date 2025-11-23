@@ -10,9 +10,10 @@ import org.mapstruct.ReportingPolicy;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
+import org.mapstruct.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, builder = @Builder(disableBuilder = true))
 public abstract class PayeeDetailsMapper {
 
     @Autowired

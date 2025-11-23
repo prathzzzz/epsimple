@@ -8,12 +8,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 /**
@@ -23,6 +28,11 @@ import java.util.UUID;
  * - Masked query parameters (hides sensitive data)
  * - HTTP status code
  * - Request duration in milliseconds
+ * - Request/Response body (conditionally based on profile and status)
+ * 
+ * Body Logging Strategy:
+ * - DEV: Always log request/response body (for debugging)
+ * - PROD: Log body ONLY for failures (status >= 400) - masked and truncated
  * 
  * Uses MDC (Mapped Diagnostic Context) for thread-safe logging context.
  * Runs before Spring Security to capture all requests including auth failures.
@@ -34,6 +44,19 @@ import java.util.UUID;
 public class RequestLoggingFilter extends OncePerRequestFilter {
 
     private final SensitiveDataMasker sensitiveDataMasker;
+
+    @Value("${spring.profiles.active:dev}")
+    private String activeProfile;
+
+    @Value("${logging.request.body.enabled:true}")
+    private boolean logRequestBody;
+
+    @Value("${logging.request.body.max-length:5000}")
+    private int maxBodyLength;
+
+    // In production, only log body for failures
+    @Value("${logging.request.body.only-on-error:false}")
+    private boolean logBodyOnlyOnError;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -54,22 +77,29 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             MDC.put("clientIP", clientIp);
         }
 
+        // Wrap request and response to cache body for logging
+        ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
+        ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
+
         // Start timer for duration calculation
         long startTime = System.currentTimeMillis();
 
         try {
-            // Log incoming request
-            logRequest(request, requestId);
+            // Log incoming request (without body initially)
+            logRequest(wrappedRequest, requestId, false);
 
             // Continue with the filter chain
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(wrappedRequest, wrappedResponse);
 
         } finally {
             // Calculate request duration
             long duration = System.currentTimeMillis() - startTime;
 
-            // Log response (always executed, even if exception occurs)
-            logResponse(request, response, requestId, duration);
+            // Log response with body if needed
+            logResponse(wrappedRequest, wrappedResponse, requestId, duration);
+
+            // Copy cached response body back to actual response
+            wrappedResponse.copyBodyToResponse();
 
             // Clear MDC to prevent memory leaks
             MDC.clear();
@@ -79,7 +109,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     /**
      * Logs the incoming HTTP request with masked sensitive data.
      */
-    private void logRequest(HttpServletRequest request, String requestId) {
+    private void logRequest(ContentCachingRequestWrapper request, String requestId, boolean includeBody) {
         String method = request.getMethod();
         String uri = request.getRequestURI();
         String queryString = request.getQueryString();
@@ -91,13 +121,25 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         }
 
         log.info("[REQUEST] {} | {} | {}{}", requestId, method, uri, maskedQuery);
+
+        // Log request body if enabled and it's a JSON/text request
+        if (includeBody && logRequestBody && shouldLogBody(request)) {
+            String requestBody = getRequestBody(request);
+            if (requestBody != null && !requestBody.isEmpty()) {
+                String maskedBody = sensitiveDataMasker.maskRequestBody(requestBody);
+                String truncatedBody = truncateIfNeeded(maskedBody);
+                log.info("[REQUEST BODY] {} | {}", requestId, truncatedBody);
+            }
+        }
     }
 
     /**
      * Logs the HTTP response with status code and duration.
+     * In production, logs request/response body ONLY for failures (status >= 400).
+     * In development, always logs body.
      */
-    private void logResponse(HttpServletRequest request,
-                            HttpServletResponse response,
+    private void logResponse(ContentCachingRequestWrapper request,
+                            ContentCachingResponseWrapper response,
                             String requestId,
                             long duration) {
         String method = request.getMethod();
@@ -106,17 +148,121 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
 
         log.info("[RESPONSE] {} | {} | {} | {} | {}ms", requestId, method, uri, status, duration);
 
+        // Determine if we should log body
+        boolean isError = status >= 400;
+        boolean shouldLogBodyNow = logRequestBody && (!logBodyOnlyOnError || isError);
+
+        // Log request body for errors (if we didn't log it earlier)
+        if (shouldLogBodyNow && shouldLogBody(request)) {
+            String requestBody = getRequestBody(request);
+            if (requestBody != null && !requestBody.isEmpty()) {
+                String maskedBody = sensitiveDataMasker.maskRequestBody(requestBody);
+                String truncatedBody = truncateIfNeeded(maskedBody);
+                
+                if (isError) {
+                    log.error("[REQUEST BODY] {} | {}", requestId, truncatedBody);
+                } else {
+                    log.info("[REQUEST BODY] {} | {}", requestId, truncatedBody);
+                }
+            }
+        }
+
+        // Log response body for errors or in dev mode
+        if (shouldLogBodyNow && shouldLogBody(response)) {
+            String responseBody = getResponseBody(response);
+            if (responseBody != null && !responseBody.isEmpty()) {
+                String maskedBody = sensitiveDataMasker.maskRequestBody(responseBody);
+                String truncatedBody = truncateIfNeeded(maskedBody);
+                
+                if (isError) {
+                    log.error("[RESPONSE BODY] {} | {}", requestId, truncatedBody);
+                } else {
+                    log.info("[RESPONSE BODY] {} | {}", requestId, truncatedBody);
+                }
+            }
+        }
+
         // Log warning for slow requests (> 1 second)
         if (duration > 1000) {
             log.warn("[SLOW REQUEST] {} | {} | {} took {}ms", requestId, method, uri, duration);
         }
 
-        // Log error for failed requests
+        // Log error status codes
         if (status >= 500) {
             log.error("[SERVER ERROR] {} | {} | {} returned {}", requestId, method, uri, status);
         } else if (status == 401 || status == 403) {
             log.warn("[AUTH FAILURE] {} | {} | {} returned {}", requestId, method, uri, status);
+        } else if (status >= 400) {
+            log.warn("[CLIENT ERROR] {} | {} | {} returned {}", requestId, method, uri, status);
         }
+    }
+
+    /**
+     * Extract request body from cached wrapper.
+     */
+    private String getRequestBody(ContentCachingRequestWrapper request) {
+        byte[] content = request.getContentAsByteArray();
+        if (content.length > 0) {
+            return new String(content, StandardCharsets.UTF_8);
+        }
+        return null;
+    }
+
+    /**
+     * Extract response body from cached wrapper.
+     */
+    private String getResponseBody(ContentCachingResponseWrapper response) {
+        byte[] content = response.getContentAsByteArray();
+        if (content.length > 0) {
+            return new String(content, StandardCharsets.UTF_8);
+        }
+        return null;
+    }
+
+    /**
+     * Check if we should log the body based on content type.
+     */
+    private boolean shouldLogBody(HttpServletRequest request) {
+        String contentType = request.getContentType();
+        if (contentType == null) {
+            return false;
+        }
+        
+        // Only log JSON, XML, text content types
+        return contentType.contains(MediaType.APPLICATION_JSON_VALUE) ||
+               contentType.contains(MediaType.APPLICATION_XML_VALUE) ||
+               contentType.contains(MediaType.TEXT_PLAIN_VALUE) ||
+               contentType.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+    }
+
+    /**
+     * Check if we should log the response body based on content type.
+     */
+    private boolean shouldLogBody(ContentCachingResponseWrapper response) {
+        String contentType = response.getContentType();
+        if (contentType == null) {
+            return false;
+        }
+        
+        // Only log JSON, XML, text content types
+        return contentType.contains(MediaType.APPLICATION_JSON_VALUE) ||
+               contentType.contains(MediaType.APPLICATION_XML_VALUE) ||
+               contentType.contains(MediaType.TEXT_PLAIN_VALUE);
+    }
+
+    /**
+     * Truncate body if it exceeds max length to prevent log bloat.
+     */
+    private String truncateIfNeeded(String body) {
+        if (body == null) {
+            return "";
+        }
+        
+        if (body.length() > maxBodyLength) {
+            return body.substring(0, maxBodyLength) + "... [TRUNCATED - " + body.length() + " total chars]";
+        }
+        
+        return body;
     }
 
     /**
