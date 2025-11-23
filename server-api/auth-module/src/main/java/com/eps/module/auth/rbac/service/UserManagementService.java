@@ -8,6 +8,7 @@ import com.eps.module.auth.entity.User;
 import com.eps.module.auth.mapper.UserMapper;
 import com.eps.module.auth.repository.RoleRepository;
 import com.eps.module.auth.repository.UserRepository;
+import com.eps.module.auth.repository.PasswordResetTokenRepository;
 import com.eps.module.auth.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class UserManagementService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
@@ -153,6 +155,9 @@ public class UserManagementService {
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        // Delete related password reset tokens first
+        passwordResetTokenRepository.deleteByUser(user);
 
         userRepository.delete(user);
         log.info("Deleted user: {}", user.getEmail());
