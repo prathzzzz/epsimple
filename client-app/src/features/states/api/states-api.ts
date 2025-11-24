@@ -2,6 +2,43 @@ import api from '@/lib/api'
 import { flattenPageResponse, type BackendPageResponse, type FlatPageResponse } from '@/lib/api-utils'
 import { useQuery } from '@tanstack/react-query'
 
+/**
+ * Helper function to capitalize the first letter of each word in a string
+ * Example: "new delhi" -> "New Delhi"
+ */
+function capitalizeWords(input: string): string {
+  if (!input) return input
+  
+  return input
+    .trim()
+    .split(/\s+/)
+    .map(word => {
+      if (!word) return word
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    })
+    .join(' ')
+}
+
+/**
+ * Helper function to transform string to uppercase
+ * Example: "mh" -> "MH"
+ */
+function toUpperCase(input: string): string {
+  if (!input) return input
+  return input.trim().toUpperCase()
+}
+
+/**
+ * Transform state form data to ensure proper formatting
+ */
+function transformStateData(data: StateFormData): StateFormData {
+  return {
+    stateName: capitalizeWords(data.stateName),
+    stateCode: toUpperCase(data.stateCode),
+    stateCodeAlt: data.stateCodeAlt ? toUpperCase(data.stateCodeAlt) : data.stateCodeAlt,
+  }
+}
+
 export interface State {
   id: number
   stateName: string
@@ -61,13 +98,15 @@ export const statesApi = {
 
   // Create new state
   create: async (data: StateFormData): Promise<ApiResponse<State>> => {
-    const response = await api.post<ApiResponse<State>>('/api/states', data)
+    const transformedData = transformStateData(data)
+    const response = await api.post<ApiResponse<State>>('/api/states', transformedData)
     return response.data
   },
 
   // Update state
   update: async (id: number, data: StateFormData): Promise<ApiResponse<State>> => {
-    const response = await api.put<ApiResponse<State>>(`/api/states/${id}`, data)
+    const transformedData = transformStateData(data)
+    const response = await api.put<ApiResponse<State>>(`/api/states/${id}`, transformedData)
     return response.data
   },
 
