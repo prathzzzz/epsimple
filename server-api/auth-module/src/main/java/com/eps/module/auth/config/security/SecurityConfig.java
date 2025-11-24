@@ -76,13 +76,16 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allow localhost and server IP for both dev and prod
+        // Allow localhost and server IP for both dev and prod (HTTP and HTTPS)
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",                  // Dev frontend
                 "http://localhost:5173",                  // Dev frontend (Vite)
-                "http://localhost:9090",                  // Prod frontend (localhost)
-                "http://192.168.83.23:9090",             // Prod frontend (server IP)
-                "http://epsone.electronicpay.in:9090"    // Prod frontend (domain)
+                "http://localhost:9090",                  // Prod frontend (localhost HTTP)
+                "https://localhost:9090",                 // Prod frontend (localhost HTTPS)
+                "http://192.168.83.23:9090",             // Prod frontend (server IP HTTP)
+                "https://192.168.83.23:9090",            // Prod frontend (server IP HTTPS)
+                "http://epsone.electronicpay.in:9090",   // Prod frontend (domain HTTP)
+                "https://epsone.electronicpay.in:9090"   // Prod frontend (domain HTTPS)
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

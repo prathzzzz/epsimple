@@ -35,7 +35,7 @@ public class LocationBulkUploadProcessor extends BulkUploadProcessor<LocationBul
         City city = cityRepository.findByCityName(dto.getCityName())
                 .orElseThrow(() -> new IllegalStateException("City not found: " + dto.getCityName()));
 
-        Location location = Location.builder()
+        return Location.builder()
                 .locationName(dto.getLocationName())
                 .address(dto.getAddress())
                 .district(dto.getDistrict())
@@ -46,8 +46,6 @@ public class LocationBulkUploadProcessor extends BulkUploadProcessor<LocationBul
                 .longitude(dto.getLongitude())
                 .latitude(dto.getLatitude())
                 .build();
-
-        return location;
     }
 
     @Override
@@ -58,7 +56,7 @@ public class LocationBulkUploadProcessor extends BulkUploadProcessor<LocationBul
     @Override
     protected boolean isEmptyRow(LocationBulkUploadDto dto) {
         return (dto.getLocationName() == null || dto.getLocationName().trim().isEmpty()) &&
-               (dto.getCityName() == null || dto.getCityName().trim().isEmpty());
+                (dto.getCityName() == null || dto.getCityName().trim().isEmpty());
     }
 
     @Override
