@@ -323,7 +323,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         }
 
         // Skip actuator health checks (too noisy)
-        if (path.startsWith("/actuator/health") || path.startsWith("/actuator/prometheus")) {
+        if (path.contains("/actuator/health") || path.contains("/actuator/prometheus")) {
             return true;
         }
 
