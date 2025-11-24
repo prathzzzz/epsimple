@@ -67,9 +67,7 @@ public class CityServiceImpl extends BaseBulkUploadService<CityBulkUploadDto, Ci
         return city -> CityBulkUploadDto.builder()
                 .cityName(city.getCityName())
                 .cityCode(city.getCityCode())
-                .stateName(city.getState() != null ? city.getState().getStateName() : null)
                 .stateCode(city.getState() != null ? city.getState().getStateCode() : null)
-                .stateCodeAlt(city.getState() != null ? city.getState().getStateCodeAlt() : null)
                 .build();
     }
 
@@ -81,9 +79,7 @@ public class CityServiceImpl extends BaseBulkUploadService<CityBulkUploadDto, Ci
                 .errorMessage(error.getErrorMessage())
                 .cityName(error.getRowData() != null ? (String) error.getRowData().get("cityName") : null)
                 .cityCode(error.getRowData() != null ? (String) error.getRowData().get("cityCode") : null)
-                .stateName(error.getRowData() != null ? (String) error.getRowData().get("stateName") : null)
                 .stateCode(error.getRowData() != null ? (String) error.getRowData().get("stateCode") : null)
-                .stateCodeAlt(error.getRowData() != null ? (String) error.getRowData().get("stateCodeAlt") : null)
                 .build();
     }
 
@@ -100,14 +96,6 @@ public class CityServiceImpl extends BaseBulkUploadService<CityBulkUploadDto, Ci
         // Validate state exists
         State state = stateRepository.findById(requestDto.getStateId())
                 .orElseThrow(() -> new ResourceNotFoundException(CityErrorMessages.STATE_NOT_FOUND_ID + requestDto.getStateId()));
-
-        // Check for duplicate city code if provided
-        if (requestDto.getCityCode() != null && !requestDto.getCityCode().isEmpty()) {
-            cityRepository.findByCityCode(requestDto.getCityCode())
-                    .ifPresent(existingCity -> {
-                        throw new ConflictException(CityErrorMessages.CITY_CODE_EXISTS + requestDto.getCityCode());
-                    });
-        }
 
         City city = cityMapper.toEntity(requestDto);
         city.setState(state);
@@ -177,15 +165,6 @@ public class CityServiceImpl extends BaseBulkUploadService<CityBulkUploadDto, Ci
         // Validate state exists
         State state = stateRepository.findById(requestDto.getStateId())
                 .orElseThrow(() -> new ResourceNotFoundException(CityErrorMessages.STATE_NOT_FOUND_ID + requestDto.getStateId()));
-
-        // Check for duplicate city code if changed
-        if (requestDto.getCityCode() != null && !requestDto.getCityCode().isEmpty() &&
-                !requestDto.getCityCode().equals(city.getCityCode())) {
-            cityRepository.findByCityCode(requestDto.getCityCode())
-                    .ifPresent(existingCity -> {
-                        throw new ConflictException(CityErrorMessages.CITY_CODE_EXISTS + requestDto.getCityCode());
-                    });
-        }
 
         cityMapper.updateEntityFromDto(requestDto, city);
         city.setState(state);

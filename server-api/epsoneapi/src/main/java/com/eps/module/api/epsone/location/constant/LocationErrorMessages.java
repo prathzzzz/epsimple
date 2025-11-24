@@ -10,6 +10,8 @@ public class LocationErrorMessages {
     // Bulk Upload Validation Messages
     public static final String LOCATION_NAME_REQUIRED = "Location name is required";
     public static final String LOCATION_NAME_TOO_LONG = "Location name cannot exceed 255 characters";
+    public static final String LOCATION_NAME_DUPLICATE = "Location name already exists: ";
+    public static final String LOCATION_NAME_INVALID_FORMAT = "Location name must contain at least one alphabetic character";
     public static final String ADDRESS_TOO_LONG = "Address cannot exceed 5000 characters";
     public static final String DISTRICT_TOO_LONG = "District name cannot exceed 100 characters";
     public static final String CITY_NAME_REQUIRED = "City name is required";
@@ -17,10 +19,8 @@ public class LocationErrorMessages {
     public static final String PINCODE_INVALID_FORMAT = "Pincode must be exactly 6 digits";
     public static final String REGION_TOO_LONG = "Region cannot exceed 50 characters";
     public static final String ZONE_TOO_LONG = "Zone cannot exceed 50 characters";
-    public static final String LONGITUDE_INVALID_RANGE = "Longitude must be between -180 and 180";
-    public static final String LONGITUDE_INVALID_FORMAT = "Invalid longitude format";
-    public static final String LATITUDE_INVALID_RANGE = "Latitude must be between -90 and 90";
-    public static final String LATITUDE_INVALID_FORMAT = "Invalid latitude format";
+    public static final String LONGITUDE_TOO_LONG = "Longitude cannot exceed 50 characters";
+    public static final String LATITUDE_TOO_LONG = "Latitude cannot exceed 50 characters";
 
     private LocationErrorMessages() {}
 }

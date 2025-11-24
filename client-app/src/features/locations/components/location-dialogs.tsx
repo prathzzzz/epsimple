@@ -15,8 +15,8 @@ export function LocationDialogs() {
 
   const bulkUploadConfig = {
     entityName: 'Location',
-    uploadEndpoint: '/api/locations/bulk/upload',
-    errorReportEndpoint: '/api/locations/bulk/export-error-report',
+    uploadEndpoint: '/api/locations/bulk-upload',
+    errorReportEndpoint: '/api/locations/export-errors',
     onSuccess: handleBulkUploadSuccess,
   }
 

@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Entity
 @Table(name = "location")
 @Getter
@@ -50,15 +48,11 @@ public class Location extends BaseEntity {
     @Column(length = 50)
     private String zone;
 
-    @DecimalMin(value = "-180.0", message = "Longitude must be between -180 and 180")
-    @DecimalMax(value = "180.0", message = "Longitude must be between -180 and 180")
-    @Digits(integer = 3, fraction = 8, message = "Longitude must have max 3 integer digits and 8 decimal digits")
-    @Column(precision = 10, scale = 8)
-    private BigDecimal longitude;
+    @Size(max = 50, message = "Longitude cannot exceed 50 characters")
+    @Column(length = 50)
+    private String longitude;
 
-    @DecimalMin(value = "-90.0", message = "Latitude must be between -90 and 90")
-    @DecimalMax(value = "90.0", message = "Latitude must be between -90 and 90")
-    @Digits(integer = 2, fraction = 8, message = "Latitude must have max 2 integer digits and 8 decimal digits")
-    @Column(precision = 10, scale = 8)
-    private BigDecimal latitude;
+    @Size(max = 50, message = "Latitude cannot exceed 50 characters")
+    @Column(length = 50)
+    private String latitude;
 }

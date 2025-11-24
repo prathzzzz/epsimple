@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -24,8 +23,8 @@ public class LocationResponseDto {
     private String pincode;
     private String region;
     private String zone;
-    private BigDecimal longitude;
-    private BigDecimal latitude;
+    private String longitude;
+    private String latitude;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

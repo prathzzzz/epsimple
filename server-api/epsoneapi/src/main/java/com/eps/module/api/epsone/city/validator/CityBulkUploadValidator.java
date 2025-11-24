@@ -28,7 +28,7 @@ public class CityBulkUploadValidator implements BulkRowValidator<CityBulkUploadD
     public List<BulkUploadErrorDto> validate(CityBulkUploadDto rowData, int rowNumber) {
         List<BulkUploadErrorDto> errors = new ArrayList<>();
         
-        // Validate City Name
+        // Validate City Name (required)
         if (rowData.getCityName() == null || rowData.getCityName().trim().isEmpty()) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
@@ -64,76 +64,24 @@ public class CityBulkUploadValidator implements BulkRowValidator<CityBulkUploadD
             }
         }
         
-        // Validate State Name (required)
-        if (rowData.getStateName() == null || rowData.getStateName().trim().isEmpty()) {
+        // Validate State Code (required) - used to map to state
+        if (rowData.getStateCode() == null || rowData.getStateCode().trim().isEmpty()) {
             errors.add(BulkUploadErrorDto.builder()
                     .rowNumber(rowNumber)
-                    .fieldName("State Name")
-                    .errorMessage(CityErrorMessages.STATE_NAME_REQUIRED)
-                    .rejectedValue(rowData.getStateName())
+                    .fieldName("State Code")
+                    .errorMessage(CityErrorMessages.STATE_CODE_REQUIRED)
+                    .rejectedValue(rowData.getStateCode())
                     .build());
-            
-            // Also check if state code or state code alt are empty when state name is missing
-            if (rowData.getStateCode() == null || rowData.getStateCode().trim().isEmpty()) {
-                errors.add(BulkUploadErrorDto.builder()
-                        .rowNumber(rowNumber)
-                        .fieldName("State Code")
-                        .errorMessage(CityErrorMessages.STATE_CODE_REQUIRED)
-                        .rejectedValue(rowData.getStateCode())
-                        .build());
-            }
-            
-            if (rowData.getStateCodeAlt() == null || rowData.getStateCodeAlt().trim().isEmpty()) {
-                errors.add(BulkUploadErrorDto.builder()
-                        .rowNumber(rowNumber)
-                        .fieldName("State Code Alt")
-                        .errorMessage(CityErrorMessages.STATE_CODE_ALT_REQUIRED)
-                        .rejectedValue(rowData.getStateCodeAlt())
-                        .build());
-            }
         } else {
-            // Check if state exists by name
-            var stateOpt = stateRepository.findByStateName(rowData.getStateName().trim());
+            // Check if state exists by state code
+            var stateOpt = stateRepository.findByStateCode(rowData.getStateCode().trim().toUpperCase());
             if (stateOpt.isEmpty()) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .fieldName("State Name")
-                        .errorMessage(CityErrorMessages.STATE_NOT_FOUND_NAME + rowData.getStateName())
-                        .rejectedValue(rowData.getStateName())
+                        .fieldName("State Code")
+                        .errorMessage(CityErrorMessages.STATE_NOT_FOUND_CODE + rowData.getStateCode())
+                        .rejectedValue(rowData.getStateCode())
                         .build());
-            } else {
-                // If state code or state code alt are provided, validate they match
-                var state = stateOpt.get();
-                
-                if (rowData.getStateCode() != null && !rowData.getStateCode().trim().isEmpty()) {
-                    if (!rowData.getStateCode().trim().equalsIgnoreCase(state.getStateCode())) {
-                        errors.add(BulkUploadErrorDto.builder()
-                                .rowNumber(rowNumber)
-                                .fieldName("State Code")
-                                .errorMessage(String.format(CityErrorMessages.STATE_CODE_MISMATCH, rowData.getStateCode(), rowData.getStateName(), state.getStateCode()))
-                                .rejectedValue(rowData.getStateCode())
-                                .build());
-                    }
-                }
-                
-                if (rowData.getStateCodeAlt() != null && !rowData.getStateCodeAlt().trim().isEmpty()) {
-                    String expectedAlt = state.getStateCodeAlt();
-                    if (expectedAlt != null && !rowData.getStateCodeAlt().trim().equalsIgnoreCase(expectedAlt)) {
-                        errors.add(BulkUploadErrorDto.builder()
-                                .rowNumber(rowNumber)
-                                .fieldName("State Code Alt")
-                                .errorMessage(String.format(CityErrorMessages.STATE_CODE_ALT_MISMATCH, rowData.getStateCodeAlt(), rowData.getStateName(), expectedAlt))
-                                .rejectedValue(rowData.getStateCodeAlt())
-                                .build());
-                    } else if (expectedAlt == null) {
-                        errors.add(BulkUploadErrorDto.builder()
-                                .rowNumber(rowNumber)
-                                .fieldName("State Code Alt")
-                                .errorMessage(String.format(CityErrorMessages.STATE_NO_ALT_CODE, rowData.getStateName()))
-                                .rejectedValue(rowData.getStateCodeAlt())
-                                .build());
-                    }
-                }
             }
         }
         
@@ -142,10 +90,11 @@ public class CityBulkUploadValidator implements BulkRowValidator<CityBulkUploadD
     
     @Override
     public boolean isDuplicate(CityBulkUploadDto rowData) {
-        // Check if city code already exists (if provided)
-        if (rowData.getCityCode() != null && !rowData.getCityCode().trim().isEmpty()) {
-            return cityRepository.findByCityCode(rowData.getCityCode().trim()).isPresent();
+        // Check if city name already exists (unique constraint)
+        if (rowData.getCityName() != null && !rowData.getCityName().trim().isEmpty()) {
+            return cityRepository.findByCityName(rowData.getCityName().trim()).isPresent();
         }
+        
         return false;
     }
 }

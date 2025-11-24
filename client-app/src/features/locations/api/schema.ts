@@ -1,10 +1,19 @@
 import { z } from 'zod';
 
+const capitalizeWords = (str: string): string => {
+  return str
+    .split(/\s+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 export const locationFormSchema = z.object({
   locationName: z
     .string()
     .min(1, 'Location name is required')
-    .max(255, 'Location name cannot exceed 255 characters'),
+    .max(255, 'Location name cannot exceed 255 characters')
+    .regex(/.*[a-zA-Z].*/, 'Location name must contain at least one alphabetic character')
+    .transform(val => capitalizeWords(val.trim())),
   address: z
     .string()
     .max(5000, 'Address cannot exceed 5000 characters')
@@ -16,11 +25,14 @@ export const locationFormSchema = z.object({
     .optional()
     .or(z.literal('')),
   cityId: z.number().min(1, 'City is required'),
-  pincode: z
-    .string()
-    .regex(/^[0-9]{6}$/, 'Pincode must be exactly 6 digits')
-    .optional()
-    .or(z.literal('')),
+  pincode: z.preprocess(
+    (val) => (typeof val === 'string' ? val.trim() : val),
+    z
+      .string()
+      .regex(/^[0-9]{6}$/, 'Pincode must be exactly 6 digits')
+      .optional()
+      .or(z.literal(''))
+  ),
   region: z
     .string()
     .max(50, 'Region cannot exceed 50 characters')
@@ -32,17 +44,15 @@ export const locationFormSchema = z.object({
     .optional()
     .or(z.literal('')),
   longitude: z
-    .number()
-    .min(-180, 'Longitude must be between -180 and 180')
-    .max(180, 'Longitude must be between -180 and 180')
+    .string()
+    .max(50, 'Longitude cannot exceed 50 characters')
     .optional()
-    .nullable(),
+    .or(z.literal('')),
   latitude: z
-    .number()
-    .min(-90, 'Latitude must be between -90 and 90')
-    .max(90, 'Latitude must be between -90 and 90')
+    .string()
+    .max(50, 'Latitude cannot exceed 50 characters')
     .optional()
-    .nullable(),
+    .or(z.literal('')),
 });
 
 export type LocationFormData = z.infer<typeof locationFormSchema>;
@@ -58,8 +68,8 @@ export interface Location {
   pincode?: string;
   region?: string;
   zone?: string;
-  longitude?: number;
-  latitude?: number;
+  longitude?: string;
+  latitude?: string;
   createdAt: string;
   updatedAt: string;
 }

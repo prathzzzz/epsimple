@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,25 +43,9 @@ public class LocationBulkUploadProcessor extends BulkUploadProcessor<LocationBul
                 .pincode(dto.getPincode())
                 .region(dto.getRegion())
                 .zone(dto.getZone())
+                .longitude(dto.getLongitude())
+                .latitude(dto.getLatitude())
                 .build();
-
-        // Parse longitude if provided
-        if (dto.getLongitude() != null && !dto.getLongitude().trim().isEmpty()) {
-            try {
-                location.setLongitude(new BigDecimal(dto.getLongitude()));
-            } catch (NumberFormatException e) {
-                log.warn("Invalid longitude format for location: {}", dto.getLocationName());
-            }
-        }
-
-        // Parse latitude if provided
-        if (dto.getLatitude() != null && !dto.getLatitude().trim().isEmpty()) {
-            try {
-                location.setLatitude(new BigDecimal(dto.getLatitude()));
-            } catch (NumberFormatException e) {
-                log.warn("Invalid latitude format for location: {}", dto.getLocationName());
-            }
-        }
 
         return location;
     }

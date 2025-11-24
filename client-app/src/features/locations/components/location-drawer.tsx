@@ -79,8 +79,8 @@ export function LocationDrawer() {
       pincode: '',
       region: '',
       zone: '',
-      longitude: null,
-      latitude: null,
+      longitude: '',
+      latitude: '',
     },
   });
 
@@ -94,8 +94,8 @@ export function LocationDrawer() {
         pincode: selectedLocation.pincode || '',
         region: selectedLocation.region || '',
         zone: selectedLocation.zone || '',
-        longitude: selectedLocation.longitude || null,
-        latitude: selectedLocation.latitude || null,
+        longitude: selectedLocation.longitude || '',
+        latitude: selectedLocation.latitude || '',
       });
     } else {
       form.reset({
@@ -106,8 +106,8 @@ export function LocationDrawer() {
         pincode: '',
         region: '',
         zone: '',
-        longitude: null,
-        latitude: null,
+        longitude: '',
+        latitude: '',
       });
     }
   }, [selectedLocation, form]);
@@ -118,7 +118,7 @@ export function LocationDrawer() {
       ...data,
       address: data.address || undefined,
       district: data.district || undefined,
-      pincode: data.pincode || undefined,
+      pincode: data.pincode ? data.pincode.trim() : undefined,
       region: data.region || undefined,
       zone: data.zone || undefined,
       longitude: data.longitude || undefined,
@@ -354,16 +354,8 @@ export function LocationDrawer() {
                     <FormLabel>Latitude</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        step="0.00000001"
-                        placeholder="e.g., 12.9349"
+                        placeholder="e.g., 12.9349 or N 12° 56' 5.64''"
                         {...field}
-                        value={field.value ?? ''}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? Number.parseFloat(e.target.value) : null
-                          )
-                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -379,16 +371,8 @@ export function LocationDrawer() {
                     <FormLabel>Longitude</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        step="0.00000001"
-                        placeholder="e.g., 77.6212"
+                        placeholder="e.g., 77.6212 or E 77° 37' 16.32''"
                         {...field}
-                        value={field.value ?? ''}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? Number.parseFloat(e.target.value) : null
-                          )
-                        }
                       />
                     </FormControl>
                     <FormMessage />

@@ -22,20 +22,14 @@ public class CityErrorReportDto {
     @ExcelColumn(value = "City Code", order = 3)
     private String cityCode;
     
-    // State fields
-    @ExcelColumn(value = "State Name", order = 4)
-    private String stateName;
-    
-    @ExcelColumn(value = "State Code", order = 5)
+    // State field
+    @ExcelColumn(value = "State Code", order = 4)
     private String stateCode;
     
-    @ExcelColumn(value = "State Code Alt", order = 6)
-    private String stateCodeAlt;
-    
     // Error fields
-    @ExcelColumn(value = "Error Type", order = 7, required = true)
+    @ExcelColumn(value = "Error Type", order = 5, required = true)
     private String errorType;
     
-    @ExcelColumn(value = "Error Message", order = 8, required = true)
+    @ExcelColumn(value = "Error Message", order = 6, required = true)
     private String errorMessage;
 }

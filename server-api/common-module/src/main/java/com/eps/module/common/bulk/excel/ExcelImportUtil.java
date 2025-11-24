@@ -219,7 +219,23 @@ public class ExcelImportUtil {
             // This works for STRING, NUMBER, and FORMULA cells
             String cellText = row.getCellText(columnIndex);
             if (cellText != null && !cellText.isEmpty()) {
-                return cellText.trim();
+                String trimmed = cellText.trim();
+                
+                // Fix floating-point precision issues: if the value looks like a decimal with trailing zeros
+                // or unnecessary precision, clean it up
+                if (trimmed.matches("^-?\\d+\\.\\d+$")) {
+                    try {
+                        // Parse as BigDecimal to preserve precision, then strip trailing zeros
+                        BigDecimal bd = new BigDecimal(trimmed);
+                        // Remove trailing zeros and unnecessary decimal point
+                        return bd.stripTrailingZeros().toPlainString();
+                    } catch (NumberFormatException e) {
+                        // If parsing fails, return as-is
+                        return trimmed;
+                    }
+                }
+                
+                return trimmed;
             }
             
             return "";

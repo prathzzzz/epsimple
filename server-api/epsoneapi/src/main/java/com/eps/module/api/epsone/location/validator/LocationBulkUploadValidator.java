@@ -35,6 +35,18 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
                     .rowNumber(rowNumber)
                     .errorMessage(LocationErrorMessages.LOCATION_NAME_TOO_LONG)
                     .build());
+        } else {
+            // Check if location name contains at least one alphabetic character
+            if (!dto.getLocationName().matches(".*[a-zA-Z].*")) {
+                errors.add(BulkUploadErrorDto.builder()
+                        .rowNumber(rowNumber)
+                        .errorMessage(LocationErrorMessages.LOCATION_NAME_INVALID_FORMAT)
+                        .build());
+            } else {
+                // Capitalize location name
+                String capitalizedName = capitalizeWords(dto.getLocationName().trim());
+                dto.setLocationName(capitalizedName);
+            }
         }
 
         // Validate address (optional, max 5000 chars)
@@ -70,13 +82,20 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
             }
         }
 
-        // Validate pincode (optional, must be 6 digits if provided)
+        // Validate and clean pincode (optional, must be 6 digits if provided)
         if (dto.getPincode() != null && !dto.getPincode().trim().isEmpty()) {
-            if (!dto.getPincode().matches("^[0-9]{6}$")) {
+            String trimmedPincode = dto.getPincode().trim();
+            // Remove any non-digit characters (spaces, hyphens, etc.)
+            String cleanedPincode = trimmedPincode.replaceAll("[^0-9]", "");
+            
+            if (!cleanedPincode.matches("^[0-9]{6}$")) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage(LocationErrorMessages.PINCODE_INVALID_FORMAT)
+                        .errorMessage(LocationErrorMessages.PINCODE_INVALID_FORMAT + " (received: '" + dto.getPincode() + "', cleaned: '" + cleanedPincode + "', length: " + cleanedPincode.length() + ")")
                         .build());
+            } else {
+                // Set the cleaned pincode back to DTO so it's saved correctly
+                dto.setPincode(cleanedPincode);
             }
         }
 
@@ -98,36 +117,20 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
 
         // Validate longitude (optional)
         if (dto.getLongitude() != null && !dto.getLongitude().trim().isEmpty()) {
-            try {
-                BigDecimal longitude = new BigDecimal(dto.getLongitude());
-                if (longitude.compareTo(new BigDecimal("-180")) < 0 || longitude.compareTo(new BigDecimal("180")) > 0) {
-                    errors.add(BulkUploadErrorDto.builder()
-                            .rowNumber(rowNumber)
-                            .errorMessage(LocationErrorMessages.LONGITUDE_INVALID_RANGE)
-                            .build());
-                }
-            } catch (NumberFormatException e) {
+            if (dto.getLongitude().length() > 50) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage(LocationErrorMessages.LONGITUDE_INVALID_FORMAT)
+                        .errorMessage(LocationErrorMessages.LONGITUDE_TOO_LONG)
                         .build());
             }
         }
 
         // Validate latitude (optional)
         if (dto.getLatitude() != null && !dto.getLatitude().trim().isEmpty()) {
-            try {
-                BigDecimal latitude = new BigDecimal(dto.getLatitude());
-                if (latitude.compareTo(new BigDecimal("-90")) < 0 || latitude.compareTo(new BigDecimal("90")) > 0) {
-                    errors.add(BulkUploadErrorDto.builder()
-                            .rowNumber(rowNumber)
-                            .errorMessage(LocationErrorMessages.LATITUDE_INVALID_RANGE)
-                            .build());
-                }
-            } catch (NumberFormatException e) {
+            if (dto.getLatitude().length() > 50) {
                 errors.add(BulkUploadErrorDto.builder()
                         .rowNumber(rowNumber)
-                        .errorMessage(LocationErrorMessages.LATITUDE_INVALID_FORMAT)
+                        .errorMessage(LocationErrorMessages.LATITUDE_TOO_LONG)
                         .build());
             }
         }
@@ -139,5 +142,29 @@ public class LocationBulkUploadValidator implements BulkRowValidator<LocationBul
     public boolean isDuplicate(LocationBulkUploadDto dto) {
         // Check for duplicate location name (case-insensitive)
         return locationRepository.findByLocationName(dto.getLocationName()).isPresent();
+    }
+
+    /**
+     * Capitalize the first letter of each word in a string
+     */
+    private String capitalizeWords(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+        
+        String[] words = input.split("\\s+");
+        StringBuilder result = new StringBuilder();
+        
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                if (result.length() > 0) {
+                    result.append(" ");
+                }
+                result.append(word.substring(0, 1).toUpperCase())
+                      .append(word.substring(1).toLowerCase());
+            }
+        }
+        
+        return result.toString();
     }
 }

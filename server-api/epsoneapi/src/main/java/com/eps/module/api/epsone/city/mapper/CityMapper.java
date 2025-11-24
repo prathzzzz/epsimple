@@ -14,6 +14,19 @@ public interface CityMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "state", ignore = true)
     City toEntity(CityRequestDto requestDto);
+    
+    /**
+     * Hook to process city data before mapping from request DTO
+     */
+    @AfterMapping
+    default void processCityFromRequest(@MappingTarget City city, CityRequestDto dto) {
+        if (dto.getCityName() != null) {
+            city.setCityName(capitalizeFirstLetter(dto.getCityName()));
+        }
+        if (dto.getCityCode() != null && !dto.getCityCode().trim().isEmpty()) {
+            city.setCityCode(transformToUpperCase(dto.getCityCode()));
+        }
+    }
 
     @Mapping(source = "state.id", target = "stateId")
     @Mapping(source = "state.stateName", target = "stateName")
@@ -28,9 +41,7 @@ public interface CityMapper {
     void updateEntityFromDto(CityRequestDto requestDto, @MappingTarget City city);
 
     // Bulk upload mapping
-    @Mapping(source = "state.stateName", target = "stateName")
     @Mapping(source = "state.stateCode", target = "stateCode")
-    @Mapping(source = "state.stateCodeAlt", target = "stateCodeAlt")
     @AfterMapping
     default void processCity(@MappingTarget CityBulkUploadDto dto, City city) {
         if (city.getCityName() != null) {
@@ -39,16 +50,8 @@ public interface CityMapper {
         if (city.getCityCode() != null) {
             dto.setCityCode(transformToUpperCase(city.getCityCode()));
         }
-        if (city.getState() != null) {
-            if (city.getState().getStateName() != null) {
-                dto.setStateName(capitalizeFirstLetter(city.getState().getStateName()));
-            }
-            if (city.getState().getStateCode() != null) {
-                dto.setStateCode(transformToUpperCase(city.getState().getStateCode()));
-            }
-            if (city.getState().getStateCodeAlt() != null) {
-                dto.setStateCodeAlt(transformToUpperCase(city.getState().getStateCodeAlt()));
-            }
+        if (city.getState() != null && city.getState().getStateCode() != null) {
+            dto.setStateCode(transformToUpperCase(city.getState().getStateCode()));
         }
     }
 

@@ -31,9 +31,9 @@ public class CityBulkUploadProcessor extends BulkUploadProcessor<CityBulkUploadD
     
     @Override
     protected City convertToEntity(CityBulkUploadDto dto) {
-        // Find state by name
-        State state = stateRepository.findByStateName(dto.getStateName().trim())
-                .orElseThrow(() -> new IllegalArgumentException("State not found with name: " + dto.getStateName()));
+        // Find state by state code
+        State state = stateRepository.findByStateCode(dto.getStateCode().trim().toUpperCase())
+                .orElseThrow(() -> new IllegalArgumentException("State not found with code: " + dto.getStateCode()));
         
         return City.builder()
                 .cityName(capitalizeFirstLetter(dto.getCityName()))
@@ -52,12 +52,12 @@ public class CityBulkUploadProcessor extends BulkUploadProcessor<CityBulkUploadD
         Map<String, Object> rowData = new HashMap<>();
         rowData.put("cityName", dto.getCityName());
         rowData.put("cityCode", dto.getCityCode());
-        rowData.put("stateName", dto.getStateName());
+        rowData.put("stateCode", dto.getStateCode());
         
-        // Look up state to get state code and state code alt
-        if (dto.getStateName() != null) {
-            stateRepository.findByStateName(dto.getStateName().trim()).ifPresent(state -> {
-                rowData.put("stateCode", state.getStateCode());
+        // Look up state by state code to get additional state info
+        if (dto.getStateCode() != null) {
+            stateRepository.findByStateCode(dto.getStateCode().trim().toUpperCase()).ifPresent(state -> {
+                rowData.put("stateName", state.getStateName());
                 rowData.put("stateCodeAlt", state.getStateCodeAlt());
             });
         }
@@ -67,9 +67,9 @@ public class CityBulkUploadProcessor extends BulkUploadProcessor<CityBulkUploadD
     
     @Override
     protected boolean isEmptyRow(CityBulkUploadDto dto) {
-        // Consider row empty if all required fields (cityName and stateName) are null or blank
+        // Consider row empty if all required fields (cityName and stateCode) are null or blank
         return (dto.getCityName() == null || dto.getCityName().trim().isEmpty()) &&
-               (dto.getStateName() == null || dto.getStateName().trim().isEmpty());
+               (dto.getStateCode() == null || dto.getStateCode().trim().isEmpty());
     }
     
     /**

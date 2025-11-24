@@ -52,6 +52,11 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
     public LocationResponseDto createLocation(LocationRequestDto locationRequestDto) {
         log.info("Creating new location: {}", locationRequestDto.getLocationName());
 
+        // Check for duplicate location name
+        if (locationRepository.findByLocationName(locationRequestDto.getLocationName()).isPresent()) {
+            throw new ConflictException("Location name already exists: " + locationRequestDto.getLocationName());
+        }
+
         // Validate city exists
         City city = cityRepository.findById(locationRequestDto.getCityId())
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -98,6 +103,14 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
 
         Location existingLocation = locationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(LocationErrorMessages.LOCATION_NOT_FOUND_ID + id));
+
+        // Check for duplicate location name (excluding current location)
+        locationRepository.findByLocationName(locationRequestDto.getLocationName())
+                .ifPresent(location -> {
+                    if (!location.getId().equals(id)) {
+                        throw new ConflictException("Location name already exists: " + locationRequestDto.getLocationName());
+                    }
+                });
 
         // Validate city exists if cityId is being updated
         if (!existingLocation.getCity().getId().equals(locationRequestDto.getCityId())) {
@@ -248,8 +261,8 @@ public class LocationServiceImpl extends BaseBulkUploadService<LocationBulkUploa
                 .pincode(location.getPincode())
                 .region(location.getRegion())
                 .zone(location.getZone())
-                .longitude(location.getLongitude() != null ? location.getLongitude().toString() : null)
-                .latitude(location.getLatitude() != null ? location.getLatitude().toString() : null)
+                .longitude(location.getLongitude())
+                .latitude(location.getLatitude())
                 .build();
     }
 

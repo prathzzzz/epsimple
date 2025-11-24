@@ -4,6 +4,44 @@ import api from "@/lib/api";
 import { type BackendPageResponse, type FlatPageResponse, flattenPageResponse } from "@/lib/api-utils";
 import type { City, CityFormData } from "./schema";
 
+/**
+ * Helper function to capitalize the first letter of each word in a string
+ * Example: "new delhi" -> "New Delhi"
+ * Example: "MUMBAI" -> "Mumbai"
+ */
+function capitalizeWords(input: string): string {
+  if (!input) return input
+  
+  return input
+    .trim()
+    .split(/\s+/)
+    .map(word => {
+      if (!word) return word
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    })
+    .join(' ')
+}
+
+/**
+ * Helper function to transform string to uppercase
+ * Example: "mum" -> "MUM"
+ */
+function toUpperCase(input: string): string {
+  if (!input) return input
+  return input.trim().toUpperCase()
+}
+
+/**
+ * Transform city form data to ensure proper formatting
+ */
+function transformCityData(data: CityFormData): CityFormData {
+  return {
+    cityName: capitalizeWords(data.cityName),
+    cityCode: data.cityCode ? toUpperCase(data.cityCode) : data.cityCode,
+    stateId: data.stateId,
+  }
+}
+
 const CITY_ENDPOINTS = {
   BASE: "/api/cities",
   SEARCH: "/api/cities/search",
@@ -81,7 +119,8 @@ export const cityApi = {
     const queryClient = useQueryClient();
     return useMutation({
       mutationFn: async (data: CityFormData) => {
-        const response = await api.post<ApiResponse<City>>(CITY_ENDPOINTS.BASE, data);
+        const transformedData = transformCityData(data);
+        const response = await api.post<ApiResponse<City>>(CITY_ENDPOINTS.BASE, transformedData);
         return response.data.data;
       },
       onSuccess: () => {
@@ -99,7 +138,8 @@ export const cityApi = {
     const queryClient = useQueryClient();
     return useMutation({
       mutationFn: async ({ id, data }: { id: number; data: CityFormData }) => {
-        const response = await api.put<ApiResponse<City>>(CITY_ENDPOINTS.BY_ID(id), data);
+        const transformedData = transformCityData(data);
+        const response = await api.put<ApiResponse<City>>(CITY_ENDPOINTS.BY_ID(id), transformedData);
         return response.data.data;
       },
       onSuccess: () => {

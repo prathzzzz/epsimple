@@ -123,24 +123,24 @@ public class LocationController {
 
     // ========== Bulk Upload Endpoints ==========
 
-    @PostMapping("/bulk/upload")
+    @PostMapping("/bulk-upload")
     @RequireAdmin
     public SseEmitter bulkUpload(@RequestParam("file") MultipartFile file) throws IOException {
-        log.info("POST /api/locations/bulk/upload - Starting bulk upload with file: {}", file.getOriginalFilename());
+        log.info("POST /api/locations/bulk-upload - Starting bulk upload with file: {}", file.getOriginalFilename());
         return bulkUploadHelper.bulkUpload(file, locationService);
     }
 
-    @GetMapping("/bulk/export-template")
+    @GetMapping("/download-template")
     @RequireAdmin
-    public ResponseEntity<byte[]> exportTemplate() throws IOException {
-        log.info("GET /api/locations/bulk/export-template - Exporting template");
+    public ResponseEntity<byte[]> downloadTemplate() throws IOException {
+        log.info("GET /api/locations/download-template - Downloading template");
         return bulkUploadHelper.downloadTemplate(locationService);
     }
 
-    @PostMapping("/bulk/export-error-report")
+    @PostMapping("/export-errors")
     @RequireAdmin
-    public ResponseEntity<byte[]> exportErrorReport(@RequestBody BulkUploadProgressDto progressData) throws IOException {
-        log.info("POST /api/locations/bulk/export-error-report - Exporting error report");
+    public ResponseEntity<byte[]> exportErrors(@RequestBody BulkUploadProgressDto progressData) throws IOException {
+        log.info("POST /api/locations/export-errors - Exporting error report");
         return bulkUploadHelper.exportErrors(progressData, locationService);
     }
 }

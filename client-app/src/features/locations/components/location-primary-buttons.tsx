@@ -29,7 +29,7 @@ export function LocationPrimaryButtons() {
   const handleDownloadTemplate = async () => {
     setIsDownloadingTemplate(true)
     try {
-      await downloadFile('/api/locations/bulk/export-template', 'Location_Upload_Template.xlsx')
+      await downloadFile('/api/locations/download-template', 'Location_Upload_Template.xlsx')
       toast.success('Template downloaded successfully')
     } catch (error) {
       toast.error('Failed to download template', {

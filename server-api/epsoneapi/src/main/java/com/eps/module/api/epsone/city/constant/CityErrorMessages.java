@@ -15,6 +15,7 @@ public class CityErrorMessages {
     public static final String STATE_CODE_REQUIRED = "State code is required (or provide State Name to look it up)";
     public static final String STATE_CODE_ALT_REQUIRED = "Alternate state code is required (or provide State Name to look it up)";
     public static final String STATE_NOT_FOUND_NAME = "State not found with name: ";
+    public static final String STATE_NOT_FOUND_CODE = "State not found with code: ";
     public static final String STATE_CODE_MISMATCH = "State code '%s' does not match state '%s' (expected: %s)";
     public static final String STATE_CODE_ALT_MISMATCH = "Alternate state code '%s' does not match state '%s' (expected: %s)";
     public static final String STATE_NO_ALT_CODE = "State '%s' does not have an alternate code";
