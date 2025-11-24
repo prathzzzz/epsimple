@@ -135,15 +135,46 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <excludeGroupIds>com.eps.module.auth,com.eps.module.entity,com.eps.module.crypto,com.eps.module.common</excludeGroupIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
+                    <layout>ZIP</layout>
+                    <includes>
+                        <include>
+                            <groupId>com.eps.module.auth</groupId>
+                            <artifactId>auth-module</artifactId>
+                        </include>
+                        <include>
+                            <groupId>com.eps.module.entity</groupId>
+                            <artifactId>entity-module</artifactId>
+                        </include>
+                        <include>
+                            <groupId>com.eps.module.crypto</groupId>
+                            <artifactId>crypto-module</artifactId>
+                        </include>
+                        <include>
+                            <groupId>com.eps.module.common</groupId>
+                            <artifactId>common-module</artifactId>
+                        </include>
+                    </includes>
                 </configuration>
             </plugin>
         </plugins>
