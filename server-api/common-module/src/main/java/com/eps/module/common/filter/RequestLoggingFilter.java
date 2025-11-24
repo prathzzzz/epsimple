@@ -327,6 +327,12 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             return true;
         }
 
+        // Skip bulk upload endpoints (SSE streaming) to prevent response buffering
+        // ContentCachingResponseWrapper buffers the response which breaks SSE
+        if (path.contains("/bulk-upload")) {
+            return true;
+        }
+
         return false;
     }
 }
