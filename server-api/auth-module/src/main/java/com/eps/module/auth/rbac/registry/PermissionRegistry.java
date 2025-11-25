@@ -8,20 +8,24 @@ import java.util.List;
 
 /**
  * Permission registry that defines all entity scopes and auto-generates permissions.
- * Auto-generates 5 basic permissions (CREATE, UPDATE, DELETE, BULK_UPLOAD, EXPORT) for all entity scopes.
- * READ permission removed - all authenticated users can read all data except USER/ROLE management.
+ * Auto-generates 6 basic permissions (READ, CREATE, UPDATE, DELETE, BULK_UPLOAD, EXPORT) for all entity scopes.
+ * 
+ * NOTE: Core Masters (STATE, CITY, BANK, etc.) are ADMIN-ONLY and don't have individual permissions.
+ * They are protected by @RequireAdmin annotation and only users with ALL permission can access them.
+ * 
  * Custom permissions can be added manually as needed.
  */
 @Component
 public class PermissionRegistry {
 
     // Basic actions auto-generated for every scope
-    // READ removed - all authenticated users can read all data except USER/ROLE (admin-only)
     private static final String[] BASIC_ACTIONS = {
-            "CREATE", "UPDATE", "DELETE", "BULK_UPLOAD", "EXPORT"
+            "READ", "CREATE", "UPDATE", "DELETE", "BULK_UPLOAD", "EXPORT"
     };
 
-    // Core Master Scopes (ADMIN only)
+    // Core Master Scopes - ADMIN ONLY (no individual permissions generated)
+    // These are managed exclusively by users with ALL permission
+    // Kept here for reference and getCategoryForScope() method
     private static final String[] CORE_MASTER_SCOPES = {
             "STATE", "CITY", "LOCATION", "WAREHOUSE", "DATACENTER",
             "ASSET_TYPE", "ASSET_CATEGORY", "MOVEMENT_TYPE", "ASSET_TAG_GENERATOR",
@@ -62,7 +66,8 @@ public class PermissionRegistry {
     };
 
     /**
-     * Get all permissions including auto-generated basic permissions and custom permissions
+     * Get all permissions including auto-generated basic permissions and custom permissions.
+     * NOTE: Core Masters are excluded - they are admin-only (@RequireAdmin).
      */
     public List<PermissionDefinition> getAllPermissions() {
         List<PermissionDefinition> permissions = new ArrayList<>();
@@ -70,14 +75,14 @@ public class PermissionRegistry {
         // Add super admin permission
         permissions.add(PermissionDefinition.builder()
                 .name("ALL")
-                .description("Complete system access - Super Administrator")
+                .description("Complete system access - Super Administrator (includes Core Masters)")
                 .scope("SYSTEM")
                 .action("ALL")
                 .category("System Administration")
                 .build());
 
-        // Auto-generate basic 6 for Core Masters
-        generateBasicPermissions(permissions, CORE_MASTER_SCOPES, "Core Masters");
+        // NOTE: Core Masters are NOT included - they are admin-only
+        // Users need ALL permission to manage Core Masters
 
         // Auto-generate basic 6 for Operational
         generateBasicPermissions(permissions, OPERATIONAL_SCOPES, "Operations");
@@ -98,16 +103,27 @@ public class PermissionRegistry {
     }
 
     /**
-     * Get all scopes defined in the registry
+     * Get all scopes that have assignable permissions.
+     * NOTE: Core Master scopes are excluded - they are admin-only.
      */
     public List<String> getAllScopes() {
         List<String> allScopes = new ArrayList<>();
-        allScopes.addAll(List.of(CORE_MASTER_SCOPES));
+        // Core Masters excluded - admin only
         allScopes.addAll(List.of(OPERATIONAL_SCOPES));
         allScopes.addAll(List.of(FINANCIAL_SCOPES));
         allScopes.addAll(List.of(PEOPLE_ORG_SCOPES));
         allScopes.addAll(List.of(SYSTEM_SCOPES));
         return allScopes;
+    }
+
+    /**
+     * Check if a scope is a Core Master (admin-only)
+     */
+    public boolean isCoreMasterScope(String scope) {
+        for (String s : CORE_MASTER_SCOPES) {
+            if (s.equals(scope)) return true;
+        }
+        return false;
     }
 
     /**
@@ -133,8 +149,8 @@ public class PermissionRegistry {
     }
 
     /**
-     * Generate 5 basic permissions for each scope in the category
-     * (CREATE, UPDATE, DELETE, BULK_UPLOAD, EXPORT - READ removed as it's open to all)
+     * Generate 6 basic permissions for each scope in the category
+     * (READ, CREATE, UPDATE, DELETE, BULK_UPLOAD, EXPORT)
      */
     private void generateBasicPermissions(List<PermissionDefinition> permissions, String[] scopes, String category) {
         for (String scope : scopes) {

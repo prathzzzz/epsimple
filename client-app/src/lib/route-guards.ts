@@ -13,6 +13,11 @@ interface PermissionGuardOptions {
 }
 
 /**
+ * Normalize permission string to uppercase for consistent comparison
+ */
+const normalizePermission = (permission: string): string => permission.toUpperCase()
+
+/**
  * Route guard that checks if user has required permissions
  * Throws a redirect to /errors/forbidden if user lacks permissions
  * 
@@ -28,7 +33,8 @@ export function requirePermission(options: PermissionGuardOptions) {
     throw redirect({ to: '/errors/$error', params: { error: 'forbidden' } })
   }
 
-  const userPermissions = user.allPermissions || []
+  // Normalize all user permissions to uppercase for case-insensitive comparison
+  const userPermissions = (user.allPermissions || []).map(normalizePermission)
   const isUserAdmin = userPermissions.includes('ALL')
 
   // Admin has access to everything
@@ -41,22 +47,24 @@ export function requirePermission(options: PermissionGuardOptions) {
     throw redirect({ to: '/errors/$error', params: { error: 'forbidden' } })
   }
 
-  // Check single permission
-  if (options.permission && !userPermissions.includes(options.permission)) {
+  // Check single permission (case-insensitive)
+  if (options.permission && !userPermissions.includes(normalizePermission(options.permission))) {
     throw redirect({ to: '/errors/$error', params: { error: 'forbidden' } })
   }
 
-  // Check any permissions (OR logic)
+  // Check any permissions (OR logic, case-insensitive)
   if (options.anyPermissions) {
-    const hasAny = options.anyPermissions.some(p => userPermissions.includes(p))
+    const normalizedRequired = options.anyPermissions.map(normalizePermission)
+    const hasAny = normalizedRequired.some(p => userPermissions.includes(p))
     if (!hasAny) {
       throw redirect({ to: '/errors/$error', params: { error: 'forbidden' } })
     }
   }
 
-  // Check all permissions (AND logic)
+  // Check all permissions (AND logic, case-insensitive)
   if (options.allPermissions) {
-    const hasAll = options.allPermissions.every(p => userPermissions.includes(p))
+    const normalizedRequired = options.allPermissions.map(normalizePermission)
+    const hasAll = normalizedRequired.every(p => userPermissions.includes(p))
     if (!hasAll) {
       throw redirect({ to: '/errors/$error', params: { error: 'forbidden' } })
     }

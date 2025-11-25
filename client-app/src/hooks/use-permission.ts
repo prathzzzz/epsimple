@@ -1,11 +1,36 @@
 import { useAuth } from '@/context/auth-provider'
 
 /**
+ * Normalize permission string to uppercase for consistent comparison
+ */
+const normalizePermission = (permission: string): string => permission.toUpperCase()
+
+/**
  * Hook for checking user permissions
  * Provides convenient methods to check if user has specific permissions
  */
 export function usePermission() {
   const { user } = useAuth()
+
+  // Get normalized user permissions (uppercase)
+  const getNormalizedUserPermissions = (): string[] => {
+    if (user?.allPermissions && user.allPermissions.length > 0) {
+      return user.allPermissions.map(normalizePermission)
+    }
+    
+    // Fallback: Extract permissions from roles
+    if (user?.roles) {
+      const permissions = new Set<string>()
+      user.roles.forEach(role => {
+        role.permissions?.forEach(p => {
+          permissions.add(normalizePermission(p.name))
+        })
+      })
+      return Array.from(permissions)
+    }
+    
+    return []
+  }
 
   /**
    * Check if user has a specific permission
@@ -15,19 +40,24 @@ export function usePermission() {
   const hasPermission = (permission: string): boolean => {
     if (!user) return false
     
-    // Check if user has "ALL" permission (admin) in allPermissions
-    if (user.allPermissions?.includes('ALL')) return true
+    const normalizedPermission = normalizePermission(permission)
+    const userPermissions = getNormalizedUserPermissions()
+    
+    // Check if user has "ALL" permission (admin)
+    if (userPermissions.includes('ALL')) return true
     
     // Fallback: Check roles if allPermissions is null/undefined
     if (!user.allPermissions || user.allPermissions.length === 0) {
       // Check if any role has the permission
       return user.roles?.some(role => 
-        role.permissions?.some(p => p.name === 'ALL' || p.name === permission)
+        role.permissions?.some(p => 
+          normalizePermission(p.name) === 'ALL' || normalizePermission(p.name) === normalizedPermission
+        )
       ) ?? false
     }
     
     // Check if user has the specific permission
-    return user.allPermissions?.includes(permission) ?? false
+    return userPermissions.includes(normalizedPermission)
   }
 
   /**
@@ -38,21 +68,24 @@ export function usePermission() {
   const hasAnyPermission = (permissions: string[]): boolean => {
     if (!user) return false
     
+    const userPermissions = getNormalizedUserPermissions()
+    const normalizedPermissions = permissions.map(normalizePermission)
+    
     // Admin has all permissions
-    if (user.allPermissions?.includes('ALL')) return true
+    if (userPermissions.includes('ALL')) return true
     
     // Fallback: Check roles if allPermissions is null/undefined
     if (!user.allPermissions || user.allPermissions.length === 0) {
       return user.roles?.some(role => 
         role.permissions?.some(p => 
-          p.name === 'ALL' || permissions.includes(p.name)
+          normalizePermission(p.name) === 'ALL' || normalizedPermissions.includes(normalizePermission(p.name))
         )
       ) ?? false
     }
     
     // Check if user has any of the permissions
-    return permissions.some(permission => 
-      user.allPermissions?.includes(permission)
+    return normalizedPermissions.some(permission => 
+      userPermissions.includes(permission)
     )
   }
 
@@ -64,28 +97,31 @@ export function usePermission() {
   const hasAllPermissions = (permissions: string[]): boolean => {
     if (!user) return false
     
+    const userPermissions = getNormalizedUserPermissions()
+    const normalizedPermissions = permissions.map(normalizePermission)
+    
     // Admin has all permissions
-    if (user.allPermissions?.includes('ALL')) return true
+    if (userPermissions.includes('ALL')) return true
     
     // Fallback: Check roles if allPermissions is null/undefined
     if (!user.allPermissions || user.allPermissions.length === 0) {
       // If user has ALL permission in any role, return true
       const hasAllPerm = user.roles?.some(role => 
-        role.permissions?.some(p => p.name === 'ALL')
+        role.permissions?.some(p => normalizePermission(p.name) === 'ALL')
       )
       if (hasAllPerm) return true
       
       // Otherwise check if user has all specific permissions
-      return permissions.every(permission => 
+      return normalizedPermissions.every(permission => 
         user.roles?.some(role => 
-          role.permissions?.some(p => p.name === permission)
+          role.permissions?.some(p => normalizePermission(p.name) === permission)
         ) ?? false
       )
     }
     
     // Check if user has all of the permissions
-    return permissions.every(permission => 
-      user.allPermissions?.includes(permission)
+    return normalizedPermissions.every(permission => 
+      userPermissions.includes(permission)
     )
   }
 
@@ -96,12 +132,14 @@ export function usePermission() {
   const isAdmin = (): boolean => {
     if (!user) return false
     
+    const userPermissions = getNormalizedUserPermissions()
+    
     // Check allPermissions first
-    if (user.allPermissions?.includes('ALL')) return true
+    if (userPermissions.includes('ALL')) return true
     
     // Fallback: Check if any role has ALL permission
     return user.roles?.some(role => 
-      role.permissions?.some(p => p.name === 'ALL')
+      role.permissions?.some(p => normalizePermission(p.name) === 'ALL')
     ) ?? false
   }
 

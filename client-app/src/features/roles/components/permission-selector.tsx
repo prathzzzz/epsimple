@@ -100,13 +100,43 @@ export function PermissionSelector({
     })
   }, [])
 
+  // Helper to find the READ permission for a given scope
+  const findReadPermissionForScope = useCallback((scope: string): PermissionDTO | undefined => {
+    return allPermissions.find(p => p.scope === scope && p.action === 'READ')
+  }, [allPermissions])
+
+  // Helper to check if a permission requires READ (any action except READ itself)
+  const requiresRead = useCallback((action: string): boolean => {
+    return ['CREATE', 'UPDATE', 'DELETE', 'BULK_UPLOAD', 'EXPORT'].includes(action)
+  }, [])
+
   const togglePermission = useCallback((permissionId: number) => {
     if (disabled) return
-    const newValue = value.includes(permissionId)
-      ? value.filter((id) => id !== permissionId)
-      : [...value, permissionId]
+    
+    const permission = allPermissions.find(p => p.id === permissionId)
+    if (!permission) return
+
+    const isSelecting = !value.includes(permissionId)
+    let newValue: number[]
+
+    if (isSelecting) {
+      // When selecting a permission that requires READ, also select READ
+      newValue = [...value, permissionId]
+      
+      if (requiresRead(permission.action)) {
+        const readPermission = findReadPermissionForScope(permission.scope)
+        if (readPermission && !newValue.includes(readPermission.id)) {
+          newValue.push(readPermission.id)
+        }
+      }
+    } else {
+      // When deselecting, just remove the permission
+      // Don't auto-deselect READ as other permissions might still need it
+      newValue = value.filter((id) => id !== permissionId)
+    }
+
     onChangeRef.current(newValue)
-  }, [disabled, value])
+  }, [disabled, value, allPermissions, findReadPermissionForScope, requiresRead])
 
   const selectAllInCategory = useCallback((permissions: PermissionDTO[]) => {
     if (disabled) return
@@ -119,10 +149,22 @@ export function PermissionSelector({
       onChangeRef.current(newValue)
     } else {
       // Select all in this category
-      const newValue = [...new Set([...value, ...permissionIds])]
-      onChangeRef.current(newValue)
+      // Also include any required READ permissions from other categories
+      const newValue = new Set([...value, ...permissionIds])
+      
+      // For each permission being selected, ensure its scope's READ permission is included
+      permissions.forEach(permission => {
+        if (requiresRead(permission.action)) {
+          const readPermission = findReadPermissionForScope(permission.scope)
+          if (readPermission) {
+            newValue.add(readPermission.id)
+          }
+        }
+      })
+      
+      onChangeRef.current([...newValue])
     }
-  }, [disabled, value])
+  }, [disabled, value, findReadPermissionForScope, requiresRead])
 
   if (isLoading) {
     return (

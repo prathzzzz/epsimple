@@ -44,13 +44,13 @@ export const sidebarData: SidebarData = {
           title: 'Users',
           url: '/users',
           icon: Users,
-          requireAdmin: true,
+          permission: 'USER:READ',
         },
         {
           title: 'Roles & Permissions',
           url: '/roles',
           icon: Shield,
-          requireAdmin: true,
+          permission: 'ROLE:READ',
         },
       ],
     },
@@ -221,15 +221,17 @@ export const sidebarData: SidebarData = {
         {
           title: 'Activity Management',
           icon: Activity,
-          permission: 'ACTIVITY:READ',
+          anyPermissions: ['ACTIVITY_LIST:READ', 'ACTIVITY_WORK:READ'],
           items: [
             {
               title: 'Activities',
               url: '/activities-list',
+              permission: 'ACTIVITY_LIST:READ',
             },
             {
               title: 'Activity Works',
               url: '/activity-works',
+              permission: 'ACTIVITY_WORK:READ',
             },
           ],
         },
@@ -269,34 +271,34 @@ export const sidebarData: SidebarData = {
         {
           title: 'Expenditures',
           icon: Landmark,
-          anyPermissions: ['ASSET_EXPENDITURE_AND_ACTIVITY_WORK:READ'],
+          anyPermissions: ['EXPENDITURE_INVOICE:READ', 'EXPENDITURE_VOUCHER:READ', 'ASSET_EXPENDITURE:READ', 'SITE_ACTIVITY_WORK_EXPENDITURE:READ'],
           items: [
             {
               title: 'Invoice Expenditures',
               url: '/expenditures/invoices',
-              permission: 'ASSET_EXPENDITURE_AND_ACTIVITY_WORK:READ',
+              permission: 'EXPENDITURE_INVOICE:READ',
             },
             {
               title: 'Voucher Expenditures',
               url: '/expenditures/vouchers',
-              permission: 'ASSET_EXPENDITURE_AND_ACTIVITY_WORK:READ',
+              permission: 'EXPENDITURE_VOUCHER:READ',
             },
           ],
         },
         {
           title: 'Payment Management',
           icon: Landmark,
-          anyPermissions: ['PAYMENT_DETAIL:READ', 'PAYEE_DETAIL:READ', 'PAYEE:READ'],
+          anyPermissions: ['PAYMENT:READ', 'PAYEE_DETAILS:READ', 'PAYEE:READ'],
           items: [
             {
               title: 'Payment Details',
               url: '/payment-details',
-              permission: 'PAYMENT_DETAIL:READ',
+              permission: 'PAYMENT:READ',
             },
             {
               title: 'Payee Details',
               url: '/payee-details',
-              permission: 'PAYEE_DETAIL:READ',
+              permission: 'PAYEE_DETAILS:READ',
             },
             {
               title: 'Payees',
