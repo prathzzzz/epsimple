@@ -6,12 +6,17 @@ import com.eps.module.api.epsone.asset_placement.dto.AssetsOnWarehouseResponseDt
 import com.eps.module.asset.Asset;
 import com.eps.module.asset.AssetsOnWarehouse;
 import com.eps.module.asset.AssetMovementTracker;
+import com.eps.module.auth.audit.AuditUserResolver;
 import com.eps.module.status.GenericStatusType;
 import com.eps.module.warehouse.Warehouse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class AssetsOnWarehouseMapper {
+
+    private final AuditUserResolver auditUserResolver;
 
     public AssetsOnWarehouse toEntity(
             AssetsOnWarehouseRequestDto dto,
@@ -85,6 +90,10 @@ public class AssetsOnWarehouseMapper {
                 .vacatedOn(assetsOnWarehouse.getVacatedOn())
                 .disposedOn(assetsOnWarehouse.getDisposedOn())
                 .scrappedOn(assetsOnWarehouse.getScrappedOn())
+                .createdAt(assetsOnWarehouse.getCreatedAt())
+                .updatedAt(assetsOnWarehouse.getUpdatedAt())
+                .createdBy(auditUserResolver.resolveUserName(assetsOnWarehouse.getCreatedBy()))
+                .updatedBy(auditUserResolver.resolveUserName(assetsOnWarehouse.getUpdatedBy()))
                 .build();
     }
 }

@@ -19,4 +19,6 @@ public class StateResponseDto {
     private String stateCodeAlt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }

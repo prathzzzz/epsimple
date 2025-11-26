@@ -25,4 +25,6 @@ public class PersonDetailsResponseDto {
     private String correspondenceAddress;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }

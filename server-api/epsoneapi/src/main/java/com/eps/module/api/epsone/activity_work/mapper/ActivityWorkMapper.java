@@ -4,12 +4,17 @@ import com.eps.module.activity.Activities;
 import com.eps.module.activity.ActivityWork;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkRequestDto;
 import com.eps.module.api.epsone.activity_work.dto.ActivityWorkResponseDto;
+import com.eps.module.auth.audit.AuditUserResolver;
 import com.eps.module.status.GenericStatusType;
 import com.eps.module.vendor.Vendor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ActivityWorkMapper {
+
+    private final AuditUserResolver auditUserResolver;
 
     public ActivityWork toEntity(ActivityWorkRequestDto dto, Activities activities, Vendor vendor, GenericStatusType statusType) {
         return ActivityWork.builder()
@@ -48,6 +53,8 @@ public class ActivityWorkMapper {
                 .statusTypeName(activityWork.getStatusType().getStatusName())
                 .createdAt(activityWork.getCreatedAt())
                 .updatedAt(activityWork.getUpdatedAt())
+                .createdBy(auditUserResolver.resolveUserName(activityWork.getCreatedBy()))
+                .updatedBy(auditUserResolver.resolveUserName(activityWork.getUpdatedBy()))
                 .build();
     }
 

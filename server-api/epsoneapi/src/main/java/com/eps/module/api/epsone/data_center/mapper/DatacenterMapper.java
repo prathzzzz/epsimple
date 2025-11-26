@@ -2,12 +2,17 @@ package com.eps.module.api.epsone.data_center.mapper;
 
 import com.eps.module.api.epsone.data_center.dto.DatacenterRequestDto;
 import com.eps.module.api.epsone.data_center.dto.DatacenterResponseDto;
+import com.eps.module.auth.audit.AuditUserResolver;
 import com.eps.module.location.Location;
 import com.eps.module.warehouse.Datacenter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class DatacenterMapper {
+
+    private final AuditUserResolver auditUserResolver;
 
     public Datacenter toEntity(DatacenterRequestDto dto, Location location) {
         return Datacenter.builder()
@@ -37,6 +42,8 @@ public class DatacenterMapper {
                 .stateName(datacenter.getLocation().getCity().getState().getStateName())
                 .createdAt(datacenter.getCreatedAt())
                 .updatedAt(datacenter.getUpdatedAt())
+                .createdBy(auditUserResolver.resolveUserName(datacenter.getCreatedBy()))
+                .updatedBy(auditUserResolver.resolveUserName(datacenter.getUpdatedBy()))
                 .build();
     }
 }

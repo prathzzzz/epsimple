@@ -2,12 +2,15 @@ package com.eps.module.api.epsone.state.mapper;
 
 import com.eps.module.api.epsone.state.dto.StateRequestDto;
 import com.eps.module.api.epsone.state.dto.StateResponseDto;
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.location.State;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface StateMapper {
 
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     StateResponseDto toResponseDto(State state);
 
     State toEntity(StateRequestDto stateRequestDto);

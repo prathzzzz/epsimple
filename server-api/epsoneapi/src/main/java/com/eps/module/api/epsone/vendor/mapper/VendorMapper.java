@@ -2,10 +2,11 @@ package com.eps.module.api.epsone.vendor.mapper;
 
 import com.eps.module.api.epsone.vendor.dto.VendorRequestDto;
 import com.eps.module.api.epsone.vendor.dto.VendorResponseDto;
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.vendor.Vendor;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface VendorMapper {
 
     @Mapping(target = "vendorType", ignore = true)
@@ -18,6 +19,8 @@ public interface VendorMapper {
     @Mapping(source = "vendorDetails.id", target = "vendorDetailsId")
     @Mapping(target = "vendorName", expression = "java(buildFullName(entity))")
     @Mapping(source = "vendorDetails.contactNumber", target = "vendorContact")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     VendorResponseDto toDto(Vendor entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

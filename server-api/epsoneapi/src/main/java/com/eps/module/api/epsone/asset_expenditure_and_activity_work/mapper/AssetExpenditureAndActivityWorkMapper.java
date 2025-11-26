@@ -5,11 +5,16 @@ import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetEx
 import com.eps.module.api.epsone.asset_expenditure_and_activity_work.dto.AssetExpenditureAndActivityWorkResponseDto;
 import com.eps.module.asset.Asset;
 import com.eps.module.asset.AssetExpenditureAndActivityWork;
+import com.eps.module.auth.audit.AuditUserResolver;
 import com.eps.module.cost.ExpendituresInvoice;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class AssetExpenditureAndActivityWorkMapper {
+
+    private final AuditUserResolver auditUserResolver;
 
     public AssetExpenditureAndActivityWork toEntity(
             AssetExpenditureAndActivityWorkRequestDto dto,
@@ -66,6 +71,8 @@ public class AssetExpenditureAndActivityWorkMapper {
                 // Timestamps
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .createdBy(auditUserResolver.resolveUserName(entity.getCreatedBy()))
+                .updatedBy(auditUserResolver.resolveUserName(entity.getUpdatedBy()))
                 .build();
     }
 }

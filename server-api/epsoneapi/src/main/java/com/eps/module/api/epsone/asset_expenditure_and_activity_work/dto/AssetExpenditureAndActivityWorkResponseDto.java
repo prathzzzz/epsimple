@@ -34,4 +34,6 @@ public class AssetExpenditureAndActivityWorkResponseDto {
     // Timestamps
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }

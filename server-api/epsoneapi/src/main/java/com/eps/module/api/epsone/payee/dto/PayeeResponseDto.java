@@ -26,4 +26,6 @@ public class PayeeResponseDto {
     private String landlordName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }

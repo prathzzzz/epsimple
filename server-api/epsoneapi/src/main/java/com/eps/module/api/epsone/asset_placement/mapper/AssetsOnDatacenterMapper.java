@@ -6,12 +6,17 @@ import com.eps.module.api.epsone.asset_placement.dto.AssetsOnDatacenterResponseD
 import com.eps.module.asset.Asset;
 import com.eps.module.asset.AssetsOnDatacenter;
 import com.eps.module.asset.AssetMovementTracker;
+import com.eps.module.auth.audit.AuditUserResolver;
 import com.eps.module.status.GenericStatusType;
 import com.eps.module.warehouse.Datacenter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class AssetsOnDatacenterMapper {
+
+    private final AuditUserResolver auditUserResolver;
 
     public AssetsOnDatacenter toEntity(
             AssetsOnDatacenterRequestDto dto,
@@ -85,6 +90,10 @@ public class AssetsOnDatacenterMapper {
                 .vacatedOn(assetsOnDatacenter.getVacatedOn())
                 .disposedOn(assetsOnDatacenter.getDisposedOn())
                 .scrappedOn(assetsOnDatacenter.getScrappedOn())
+                .createdAt(assetsOnDatacenter.getCreatedAt())
+                .updatedAt(assetsOnDatacenter.getUpdatedAt())
+                .createdBy(auditUserResolver.resolveUserName(assetsOnDatacenter.getCreatedBy()))
+                .updatedBy(auditUserResolver.resolveUserName(assetsOnDatacenter.getUpdatedBy()))
                 .build();
     }
 }

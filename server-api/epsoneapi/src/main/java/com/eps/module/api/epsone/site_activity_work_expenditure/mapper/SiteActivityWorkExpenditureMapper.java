@@ -3,13 +3,18 @@ package com.eps.module.api.epsone.site_activity_work_expenditure.mapper;
 import com.eps.module.activity.ActivityWork;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureRequestDto;
 import com.eps.module.api.epsone.site_activity_work_expenditure.dto.SiteActivityWorkExpenditureResponseDto;
+import com.eps.module.auth.audit.AuditUserResolver;
 import com.eps.module.cost.ExpendituresInvoice;
 import com.eps.module.site.Site;
 import com.eps.module.site.SiteActivityWorkExpenditure;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class SiteActivityWorkExpenditureMapper {
+
+    private final AuditUserResolver auditUserResolver;
 
     public SiteActivityWorkExpenditure toEntity(
             SiteActivityWorkExpenditureRequestDto dto,
@@ -61,6 +66,8 @@ public class SiteActivityWorkExpenditureMapper {
                 // Timestamps
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .createdBy(auditUserResolver.resolveUserName(entity.getCreatedBy()))
+                .updatedBy(auditUserResolver.resolveUserName(entity.getUpdatedBy()))
                 .build();
     }
 }

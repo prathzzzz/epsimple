@@ -1,5 +1,6 @@
 package com.eps.module.auth.config.security;
 
+import com.eps.module.auth.audit.AuditingAuthenticationDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -85,12 +85,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (jwtUtil.validateToken(token, userDetails)) {
                     log.debug("JWT token validated successfully for user: {}", username);
+                    
+                    // Extract user ID from token for auditing
+                    Long userId = jwtUtil.extractUserId(token);
+                    
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities()
                     );
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    
+                    // Set custom authentication details with user ID for auditing
+                    authToken.setDetails(new AuditingAuthenticationDetails(request, userId));
+                    
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    log.debug("Authentication set for user: {} with {} authorities", username, userDetails.getAuthorities().size());
+                    log.debug("Authentication set for user: {} (ID: {}) with {} authorities", username, userId, userDetails.getAuthorities().size());
                 } else {
                     log.warn("JWT token validation failed for user: {}", username);
                 }

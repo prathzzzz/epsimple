@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.payment_details.mapper;
 
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.api.epsone.payment_details.dto.PaymentDetailsRequestDto;
 import com.eps.module.api.epsone.payment_details.dto.PaymentDetailsResponseDto;
 import com.eps.module.crypto.service.CryptoService;
@@ -10,17 +11,22 @@ import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, builder = @Builder(disableBuilder = true))
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, builder = @Builder(disableBuilder = true), uses = {AuditFieldMapper.class})
 public abstract class PaymentDetailsMapper {
 
     @Autowired
     protected CryptoService cryptoService;
+
+    @Autowired
+    protected AuditFieldMapper auditFieldMapper;
 
     @Mapping(target = "paymentMethodId", source = "paymentMethod.id")
     @Mapping(target = "paymentMethodName", source = "paymentMethod.methodName")
     @Mapping(target = "vpa", source = "vpa", qualifiedByName = "decryptField")
     @Mapping(target = "beneficiaryName", source = "beneficiaryName", qualifiedByName = "decryptField")
     @Mapping(target = "beneficiaryAccountNumber", source = "beneficiaryAccountNumber", qualifiedByName = "decryptField")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     public abstract PaymentDetailsResponseDto toResponseDto(PaymentDetails paymentDetails);
 
     @Mapping(target = "paymentMethod", source = "paymentMethodId", qualifiedByName = "mapPaymentMethod")

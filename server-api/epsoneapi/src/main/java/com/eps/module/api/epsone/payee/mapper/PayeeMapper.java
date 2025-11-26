@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.payee.mapper;
 
+import com.eps.module.auth.audit.AuditUserResolver;
 import com.eps.module.payment.Payee;
 import com.eps.module.payment.PayeeDetails;
 import com.eps.module.payment.PayeeType;
@@ -7,10 +8,14 @@ import com.eps.module.vendor.Landlord;
 import com.eps.module.vendor.Vendor;
 import com.eps.module.api.epsone.payee.dto.PayeeRequestDto;
 import com.eps.module.api.epsone.payee.dto.PayeeResponseDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class PayeeMapper {
+
+    private final AuditUserResolver auditUserResolver;
 
     public Payee toEntity(PayeeRequestDto dto, PayeeType payeeType, PayeeDetails payeeDetails, Vendor vendor, Landlord landlord) {
         return Payee.builder()
@@ -43,6 +48,8 @@ public class PayeeMapper {
                 .landlordName(payee.getLandlord() != null ? buildLandlordName(payee.getLandlord()) : null)
                 .createdAt(payee.getCreatedAt())
                 .updatedAt(payee.getUpdatedAt())
+                .createdBy(auditUserResolver.resolveUserName(payee.getCreatedBy()))
+                .updatedBy(auditUserResolver.resolveUserName(payee.getUpdatedBy()))
                 .build();
     }
 

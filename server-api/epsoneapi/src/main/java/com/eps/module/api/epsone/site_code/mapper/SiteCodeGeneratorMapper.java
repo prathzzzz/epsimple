@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.site_code.mapper;
 
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.api.epsone.site_code.dto.GeneratedSiteCodeDto;
 import com.eps.module.api.epsone.site_code.dto.SiteCodeGeneratorRequestDto;
 import com.eps.module.api.epsone.site_code.dto.SiteCodeGeneratorResponseDto;
@@ -12,7 +13,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface SiteCodeGeneratorMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -31,6 +32,8 @@ public interface SiteCodeGeneratorMapper {
     @Mapping(source = "state.id", target = "stateId")
     @Mapping(source = "state.stateName", target = "stateName")
     @Mapping(source = "state.stateCode", target = "stateCode")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     SiteCodeGeneratorResponseDto toDto(SiteCodeGenerator entity);
 
     @Named("buildSiteCode")

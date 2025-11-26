@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.asset.mapper;
 
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.api.epsone.asset.dto.AssetRequestDto;
 import com.eps.module.api.epsone.asset.dto.AssetResponseDto;
 import com.eps.module.asset.Asset;
@@ -14,7 +15,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface AssetMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -39,6 +40,8 @@ public interface AssetMapper {
     @Mapping(target = "lenderBankCode", source = "asset.lenderBank.bankCodeAlt")
     @Mapping(target = "statusTypeId", source = "asset.statusType.id")
     @Mapping(target = "statusTypeName", source = "asset.statusType.statusName")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     AssetResponseDto toDto(Asset asset);
 
     @Mapping(target = "id", ignore = true)

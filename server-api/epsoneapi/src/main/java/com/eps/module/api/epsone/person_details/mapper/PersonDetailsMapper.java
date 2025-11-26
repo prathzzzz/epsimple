@@ -2,10 +2,11 @@ package com.eps.module.api.epsone.person_details.mapper;
 
 import com.eps.module.api.epsone.person_details.dto.PersonDetailsRequestDto;
 import com.eps.module.api.epsone.person_details.dto.PersonDetailsResponseDto;
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.person.PersonDetails;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface PersonDetailsMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -15,6 +16,8 @@ public interface PersonDetailsMapper {
     @Mapping(source = "personType.id", target = "personTypeId")
     @Mapping(source = "personType.typeName", target = "personTypeName")
     @Mapping(target = "fullName", expression = "java(buildFullName(personDetails))")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     PersonDetailsResponseDto toResponseDto(PersonDetails personDetails);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

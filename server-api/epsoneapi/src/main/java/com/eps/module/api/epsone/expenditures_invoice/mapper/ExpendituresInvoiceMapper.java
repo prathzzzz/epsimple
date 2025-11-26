@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.expenditures_invoice.mapper;
 
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.api.epsone.expenditures_invoice.dto.ExpendituresInvoiceRequestDto;
 import com.eps.module.api.epsone.expenditures_invoice.dto.ExpendituresInvoiceResponseDto;
 import com.eps.module.cost.ExpendituresInvoice;
@@ -9,7 +10,7 @@ import com.eps.module.bank.ManagedProject;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public abstract class ExpendituresInvoiceMapper {
 
     @Autowired
@@ -20,6 +21,9 @@ public abstract class ExpendituresInvoiceMapper {
 
     @Autowired
     private com.eps.module.api.epsone.managed_project.repository.ManagedProjectRepository managedProjectRepository;
+
+    @Autowired
+    protected AuditFieldMapper auditFieldMapper;
 
     @Mapping(target = "costItemId", source = "costItem.id")
     @Mapping(target = "costItemFor", source = "costItem.costItemFor")
@@ -33,6 +37,8 @@ public abstract class ExpendituresInvoiceMapper {
     @Mapping(target = "projectName", source = "managedProject.projectName")
     @Mapping(target = "projectCode", source = "managedProject.projectCode")
     @Mapping(target = "bankName", source = "managedProject.bank.bankName")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     public abstract ExpendituresInvoiceResponseDto toResponseDto(ExpendituresInvoice expendituresInvoice);
 
     @Mapping(target = "costItem", source = "costItemId", qualifiedByName = "mapCostItem")

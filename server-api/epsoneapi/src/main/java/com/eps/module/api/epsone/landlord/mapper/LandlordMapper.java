@@ -2,10 +2,11 @@ package com.eps.module.api.epsone.landlord.mapper;
 
 import com.eps.module.api.epsone.landlord.dto.LandlordRequestDto;
 import com.eps.module.api.epsone.landlord.dto.LandlordResponseDto;
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.vendor.Landlord;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface LandlordMapper {
 
     @Mapping(target = "landlordDetails", ignore = true)
@@ -14,6 +15,8 @@ public interface LandlordMapper {
     @Mapping(source = "landlordDetails.id", target = "landlordDetailsId")
     @Mapping(target = "landlordName", expression = "java(buildFullName(entity))")
     @Mapping(source = "landlordDetails.contactNumber", target = "landlordPhone")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     LandlordResponseDto toDto(Landlord entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

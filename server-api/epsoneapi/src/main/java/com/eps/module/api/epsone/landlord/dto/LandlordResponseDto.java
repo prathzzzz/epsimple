@@ -21,4 +21,6 @@ public class LandlordResponseDto {
     private BigDecimal rentSharePercentage;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }

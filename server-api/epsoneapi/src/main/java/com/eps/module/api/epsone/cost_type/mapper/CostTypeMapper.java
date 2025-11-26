@@ -2,12 +2,13 @@ package com.eps.module.api.epsone.cost_type.mapper;
 
 import com.eps.module.api.epsone.cost_type.dto.CostTypeRequestDto;
 import com.eps.module.api.epsone.cost_type.dto.CostTypeResponseDto;
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.cost.CostType;
 import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface CostTypeMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -16,6 +17,8 @@ public interface CostTypeMapper {
 
     @Mapping(source = "costCategory.id", target = "costCategoryId")
     @Mapping(source = "costCategory.categoryName", target = "costCategoryName")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     CostTypeResponseDto toResponseDto(CostType entity);
 
     List<CostTypeResponseDto> toResponseDtoList(List<CostType> entities);

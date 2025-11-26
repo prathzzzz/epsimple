@@ -27,4 +27,6 @@ public class ActivityWorkResponseDto {
     private String statusTypeName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }

@@ -78,6 +78,35 @@ public class JwtUtil {
         return token;
     }
 
+    public String generateToken(String username, Long userId) {
+        log.debug("Generating JWT token for user: {} with ID: {}", username, userId);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        String token = createToken(claims, username);
+        log.debug("JWT token generated successfully for user: {}", username);
+        return token;
+    }
+
+    public Long extractUserId(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            Object userId = claims.get("userId");
+            if (userId != null) {
+                if (userId instanceof Integer) {
+                    return ((Integer) userId).longValue();
+                } else if (userId instanceof Long) {
+                    return (Long) userId;
+                } else if (userId instanceof Number) {
+                    return ((Number) userId).longValue();
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("Failed to extract userId from token: {}", e.getMessage());
+            return null;
+        }
+    }
+
     private String createToken(Map<String, Object> claims, String username) {
         return Jwts
                 .builder()

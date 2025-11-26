@@ -83,8 +83,8 @@ public class AuthService {
         user = userRepository.save(user);
         log.info("User created with ID: {} for email: {}", user.getId(), user.getEmail());
 
-        // Generate JWT token
-        String token = jwtUtil.generateToken(user.getEmail());
+        // Generate JWT token with user ID
+        String token = jwtUtil.generateToken(user.getEmail(), user.getId());
         log.debug("JWT token generated for user: {}", user.getEmail());
 
         // Set JWT in cookie
@@ -132,8 +132,8 @@ public class AuthService {
             throw new UnauthorizedException("User account is deactivated");
         }
 
-        // Generate JWT token
-        String token = jwtUtil.generateToken(user.getEmail());
+        // Generate JWT token with user ID
+        String token = jwtUtil.generateToken(user.getEmail(), user.getId());
         log.debug("JWT token generated for user: {}", user.getEmail());
 
         // Set JWT in cookie

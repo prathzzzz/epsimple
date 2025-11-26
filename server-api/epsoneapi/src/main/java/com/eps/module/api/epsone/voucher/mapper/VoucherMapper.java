@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.voucher.mapper;
 
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.api.epsone.voucher.dto.VoucherRequestDto;
 import com.eps.module.api.epsone.voucher.dto.VoucherResponseDto;
 import com.eps.module.payment.Voucher;
@@ -7,7 +8,7 @@ import com.eps.module.payment.Payee;
 import com.eps.module.payment.PaymentDetails;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface VoucherMapper {
 
     @Mapping(target = "payeeId", source = "payee.id")
@@ -15,6 +16,8 @@ public interface VoucherMapper {
     @Mapping(target = "payeeTypeName", source = "payee.payeeType.payeeType")
     @Mapping(target = "paymentDetailsId", source = "paymentDetails.id")
     @Mapping(target = "transactionNumber", source = "paymentDetails.transactionNumber")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     VoucherResponseDto toResponseDto(Voucher voucher);
 
     @Mapping(target = "payee", source = "payeeId", qualifiedByName = "mapPayee")

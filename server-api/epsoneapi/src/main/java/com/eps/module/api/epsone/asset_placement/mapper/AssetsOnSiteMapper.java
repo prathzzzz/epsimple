@@ -6,12 +6,17 @@ import com.eps.module.api.epsone.asset_placement.dto.AssetsOnSiteResponseDto;
 import com.eps.module.asset.Asset;
 import com.eps.module.asset.AssetsOnSite;
 import com.eps.module.asset.AssetMovementTracker;
+import com.eps.module.auth.audit.AuditUserResolver;
 import com.eps.module.site.Site;
 import com.eps.module.status.GenericStatusType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class AssetsOnSiteMapper {
+
+    private final AuditUserResolver auditUserResolver;
 
     public AssetsOnSite toEntity(
             AssetsOnSiteRequestDto dto,
@@ -86,6 +91,10 @@ public class AssetsOnSiteMapper {
                 .activatedOn(assetsOnSite.getActivatedOn())
                 .decommissionedOn(assetsOnSite.getDecommissionedOn())
                 .vacatedOn(assetsOnSite.getVacatedOn())
+                .createdAt(assetsOnSite.getCreatedAt())
+                .updatedAt(assetsOnSite.getUpdatedAt())
+                .createdBy(auditUserResolver.resolveUserName(assetsOnSite.getCreatedBy()))
+                .updatedBy(auditUserResolver.resolveUserName(assetsOnSite.getUpdatedBy()))
                 .build();
     }
 }

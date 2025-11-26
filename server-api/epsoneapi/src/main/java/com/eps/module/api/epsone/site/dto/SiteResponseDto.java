@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -105,4 +106,10 @@ public class SiteResponseDto {
     private String cassetteType2;
     private String cassetteType3;
     private String cassetteType4;
+
+    // Timestamps and audit
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }

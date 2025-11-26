@@ -2,12 +2,17 @@ package com.eps.module.api.epsone.warehouse.mapper;
 
 import com.eps.module.api.epsone.warehouse.dto.WarehouseRequestDto;
 import com.eps.module.api.epsone.warehouse.dto.WarehouseResponseDto;
+import com.eps.module.auth.audit.AuditUserResolver;
 import com.eps.module.location.Location;
 import com.eps.module.warehouse.Warehouse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class WarehouseMapper {
+
+    private final AuditUserResolver auditUserResolver;
 
     public Warehouse toEntity(WarehouseRequestDto dto, Location location) {
         return Warehouse.builder()
@@ -37,6 +42,8 @@ public class WarehouseMapper {
                 .stateName(warehouse.getLocation().getCity().getState().getStateName())
                 .createdAt(warehouse.getCreatedAt())
                 .updatedAt(warehouse.getUpdatedAt())
+                .createdBy(auditUserResolver.resolveUserName(warehouse.getCreatedBy()))
+                .updatedBy(auditUserResolver.resolveUserName(warehouse.getUpdatedBy()))
                 .build();
     }
 }

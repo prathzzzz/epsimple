@@ -2,11 +2,12 @@ package com.eps.module.api.epsone.site.mapper;
 
 import com.eps.module.api.epsone.site.dto.SiteRequestDto;
 import com.eps.module.api.epsone.site.dto.SiteResponseDto;
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.person.PersonDetails;
 import com.eps.module.site.Site;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface SiteMapper {
 
     @Mapping(target = "projectId", source = "project.id")
@@ -32,6 +33,8 @@ public interface SiteMapper {
     @Mapping(target = "bankPersonContactName", expression = "java(buildFullName(site.getBankPersonContact()))")
     @Mapping(target = "masterFranchiseeContactId", source = "masterFranchiseeContact.id")
     @Mapping(target = "masterFranchiseeContactName", expression = "java(buildFullName(site.getMasterFranchiseeContact()))")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     SiteResponseDto toResponseDto(Site site);
 
     @Mapping(target = "id", ignore = true)

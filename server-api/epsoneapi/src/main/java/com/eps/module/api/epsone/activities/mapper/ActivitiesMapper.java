@@ -1,15 +1,18 @@
 package com.eps.module.api.epsone.activities.mapper;
 
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.activity.Activities;
 import com.eps.module.activity.Activity;
 import com.eps.module.api.epsone.activities.dto.ActivitiesRequestDto;
 import com.eps.module.api.epsone.activities.dto.ActivitiesResponseDto;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface ActivitiesMapper {
 
     @Mapping(source = "activity.id", target = "activityId")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     ActivitiesResponseDto toResponseDto(Activities activities);
 
     @Mapping(target = "activity", ignore = true)

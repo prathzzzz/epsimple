@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -39,4 +40,9 @@ public class AssetsOnDatacenterResponseDto {
     private LocalDate vacatedOn;
     private LocalDate disposedOn;
     private LocalDate scrappedOn;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }

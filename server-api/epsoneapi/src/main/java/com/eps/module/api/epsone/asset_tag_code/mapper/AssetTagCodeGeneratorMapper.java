@@ -5,13 +5,14 @@ import com.eps.module.api.epsone.asset_tag_code.dto.AssetTagCodeGeneratorRespons
 import com.eps.module.api.epsone.asset_tag_code.dto.GeneratedAssetTagDto;
 import com.eps.module.asset.AssetCategory;
 import com.eps.module.asset.AssetTagCodeGenerator;
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.bank.Bank;
 import com.eps.module.vendor.Vendor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface AssetTagCodeGeneratorMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -36,6 +37,8 @@ public interface AssetTagCodeGeneratorMapper {
     @Mapping(target = "bankId", source = "generator.bank.id")
     @Mapping(target = "bankName", source = "generator.bank.bankName")
     @Mapping(target = "bankCode", source = "generator.bank.bankCodeAlt")
+    @Mapping(target = "createdBy", source = "generator.createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "generator.updatedBy", qualifiedByName = "mapUpdatedBy")
     AssetTagCodeGeneratorResponseDto toResponseDto(AssetTagCodeGenerator generator);
 
     default GeneratedAssetTagDto buildGeneratedTag(

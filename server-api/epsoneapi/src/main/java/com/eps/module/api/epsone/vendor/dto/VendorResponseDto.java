@@ -23,4 +23,6 @@ public class VendorResponseDto {
     private String vendorCodeAlt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }

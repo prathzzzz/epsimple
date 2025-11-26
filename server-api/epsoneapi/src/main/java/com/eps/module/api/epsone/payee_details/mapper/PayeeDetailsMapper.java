@@ -2,6 +2,7 @@ package com.eps.module.api.epsone.payee_details.mapper;
 
 import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsRequestDto;
 import com.eps.module.api.epsone.payee_details.dto.PayeeDetailsResponseDto;
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.crypto.service.CryptoService;
 import com.eps.module.payment.PayeeDetails;
 import org.mapstruct.Mapper;
@@ -13,7 +14,7 @@ import org.mapstruct.Named;
 import org.mapstruct.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, builder = @Builder(disableBuilder = true))
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, builder = @Builder(disableBuilder = true), uses = {AuditFieldMapper.class})
 public abstract class PayeeDetailsMapper {
 
     @Autowired
@@ -44,6 +45,8 @@ public abstract class PayeeDetailsMapper {
     @Mapping(target = "aadhaarNumber", source = "aadhaarNumber", qualifiedByName = "decryptField")
     @Mapping(target = "beneficiaryName", source = "beneficiaryName", qualifiedByName = "decryptField")
     @Mapping(target = "accountNumber", source = "accountNumber", qualifiedByName = "decryptField")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     public abstract PayeeDetailsResponseDto toDto(PayeeDetails entity);
 
     @Named("decryptField")

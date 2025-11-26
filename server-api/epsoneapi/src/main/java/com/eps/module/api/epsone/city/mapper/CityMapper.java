@@ -1,5 +1,6 @@
 package com.eps.module.api.epsone.city.mapper;
 
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.api.epsone.city.dto.CityBulkUploadDto;
 import com.eps.module.api.epsone.city.dto.CityRequestDto;
 import com.eps.module.api.epsone.city.dto.CityResponseDto;
@@ -8,7 +9,7 @@ import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface CityMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -31,6 +32,8 @@ public interface CityMapper {
     @Mapping(source = "state.id", target = "stateId")
     @Mapping(source = "state.stateName", target = "stateName")
     @Mapping(source = "state.stateCode", target = "stateCode")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     CityResponseDto toResponseDto(City city);
 
     List<CityResponseDto> toResponseDtoList(List<City> cities);

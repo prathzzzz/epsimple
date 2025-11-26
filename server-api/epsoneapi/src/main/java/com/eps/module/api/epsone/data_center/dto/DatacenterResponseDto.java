@@ -23,4 +23,6 @@ public class DatacenterResponseDto {
     private String stateName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }

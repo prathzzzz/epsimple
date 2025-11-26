@@ -24,4 +24,6 @@ public class PayeeDetailsResponseDto {
     private String accountNumber;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }

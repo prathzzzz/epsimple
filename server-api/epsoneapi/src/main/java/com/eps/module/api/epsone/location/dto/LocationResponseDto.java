@@ -27,4 +27,6 @@ public class LocationResponseDto {
     private String latitude;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }
