@@ -1,8 +1,9 @@
 package com.eps.module.auth.mapper;
 
-import com.eps.module.auth.dto.PermissionDTO;
-import com.eps.module.auth.dto.RoleDTO;
+import com.eps.module.auth.audit.AuditFieldMapper;
 import com.eps.module.auth.dto.UserDTO;
+import com.eps.module.auth.rbac.dto.PermissionDTO;
+import com.eps.module.auth.rbac.dto.RoleDTO;
 import com.eps.module.auth.entity.Permission;
 import com.eps.module.auth.entity.Role;
 import com.eps.module.auth.entity.User;
@@ -16,17 +17,23 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AuditFieldMapper.class})
 public interface UserMapper {
 
     @Mapping(target = "allPermissions", source = "roles", qualifiedByName = "extractAllPermissions")
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     UserDTO toDTO(User user);
 
     @Mapping(target = "password", ignore = true)
     User toEntity(UserDTO userDTO);
 
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     RoleDTO toRoleDTO(Role role);
 
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "mapCreatedBy")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "mapUpdatedBy")
     PermissionDTO toPermissionDTO(Permission permission);
 
     /**

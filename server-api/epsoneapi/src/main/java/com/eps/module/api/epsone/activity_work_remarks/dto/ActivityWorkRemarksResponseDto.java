@@ -17,4 +17,10 @@ public class ActivityWorkRemarksResponseDto {
     private LocalDateTime commentedOn;
     private Long commentedBy;
     private String commentedByName; // For future user integration
+    
+    // Audit fields from BaseEntity
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }
