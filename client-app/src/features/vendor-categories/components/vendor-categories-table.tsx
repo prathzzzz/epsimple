@@ -73,7 +73,7 @@ export function VendorCategoriesTable<TData, TValue>({
   });
 
   const vendorCategories = (data?.data?.content || []) as TData[];
-  const totalPages = data?.data?.totalPages || 0;
+  const totalPages = data?.data?.page?.totalPages || 0;
 
   // Reset to first page when search query changes
   useEffect(() => {
