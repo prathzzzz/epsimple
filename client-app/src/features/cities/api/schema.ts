@@ -43,7 +43,7 @@ export const cityFormSchema = z.object({
     )
     .optional()
     .or(z.literal(""))
-    .transform(val => val ? toUpperCase(val) : val),
+    .transform(val => val?.trim() ? toUpperCase(val) : undefined),
   stateId: z.number().min(1, "State is required"),
 });
 

@@ -37,7 +37,7 @@ function toUpperCase(input: string): string {
 function transformCityData(data: CityFormData): CityFormData {
   return {
     cityName: capitalizeWords(data.cityName),
-    cityCode: data.cityCode ? toUpperCase(data.cityCode) : data.cityCode,
+    cityCode: data.cityCode?.trim() ? toUpperCase(data.cityCode) : undefined,
     stateId: data.stateId,
   }
 }
