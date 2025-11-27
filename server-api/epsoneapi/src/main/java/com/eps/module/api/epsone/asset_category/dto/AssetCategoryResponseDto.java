@@ -18,6 +18,7 @@ public class AssetCategoryResponseDto {
     private String categoryCode;
     private String assetCodeAlt;
     private String description;
+    private Double depreciation;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

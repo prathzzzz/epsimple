@@ -49,6 +49,26 @@ export const assetCategoryColumns: ColumnDef<AssetCategory>[] = [
     },
   },
   {
+    accessorKey: "depreciation",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Depreciation" />
+    ),
+    cell: ({ row }) => {
+      const depreciation = row.getValue("depreciation") as number | null;
+      return (
+        <div className="flex space-x-2">
+          {depreciation !== null ? (
+            <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10 dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30">
+              {depreciation}%
+            </span>
+          ) : (
+            "-"
+          )}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "description",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Description" />

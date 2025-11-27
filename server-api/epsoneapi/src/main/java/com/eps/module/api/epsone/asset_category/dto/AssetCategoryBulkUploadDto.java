@@ -23,4 +23,7 @@ public class AssetCategoryBulkUploadDto {
 
     @ExcelColumn(value = "Description", order = 4, example = "Cash Dispensing Machine")
     private String description;
+
+    @ExcelColumn(value = "Depreciation", order = 5, example = "14.29")
+    private Double depreciation;
 }

@@ -28,4 +28,7 @@ public class AssetCategory extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "depreciation")
+    private Double depreciation;
 }

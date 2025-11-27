@@ -27,6 +27,9 @@ public class AssetCategoryErrorReportDto {
     @ExcelColumn(value = "Description", order = 5)
     private String description;
 
-    @ExcelColumn(value = "Error Message", order = 6)
+    @ExcelColumn(value = "Depreciation", order = 6)
+    private Double depreciation;
+
+    @ExcelColumn(value = "Error Message", order = 7)
     private String errorMessage;
 }

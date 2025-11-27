@@ -35,6 +35,7 @@ public class AssetCategoryBulkUploadProcessor extends BulkUploadProcessor<AssetC
                 .description(dto.getDescription() != null && !dto.getDescription().isBlank() 
                         ? dto.getDescription().trim() 
                         : null)
+                .depreciation(dto.getDepreciation())
                 .build();
     }
 
@@ -50,6 +51,7 @@ public class AssetCategoryBulkUploadProcessor extends BulkUploadProcessor<AssetC
         rowData.put("categoryCode", dto.getCategoryCode());
         rowData.put("assetCodeAlt", dto.getAssetCodeAlt());
         rowData.put("description", dto.getDescription());
+        rowData.put("depreciation", dto.getDepreciation());
         return rowData;
     }
 
@@ -58,6 +60,7 @@ public class AssetCategoryBulkUploadProcessor extends BulkUploadProcessor<AssetC
         return (dto.getCategoryName() == null || dto.getCategoryName().isBlank()) &&
                (dto.getCategoryCode() == null || dto.getCategoryCode().isBlank()) &&
                (dto.getAssetCodeAlt() == null || dto.getAssetCodeAlt().isBlank()) &&
-               (dto.getDescription() == null || dto.getDescription().isBlank());
+               (dto.getDescription() == null || dto.getDescription().isBlank()) &&
+               dto.getDepreciation() == null;
     }
 }

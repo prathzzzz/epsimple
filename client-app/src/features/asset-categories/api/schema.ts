@@ -6,6 +6,7 @@ export interface AssetCategory {
   categoryCode: string;
   assetCodeAlt: string;
   description: string | null;
+  depreciation: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -30,6 +31,12 @@ export const assetCategoryFormSchema = z.object({
     .max(5000, "Description cannot exceed 5000 characters")
     .optional()
     .or(z.literal("")),
+  depreciation: z
+    .number()
+    .min(0, "Depreciation cannot be negative")
+    .max(100, "Depreciation cannot exceed 100%")
+    .nullable()
+    .optional(),
 });
 
 export type AssetCategoryFormData = z.infer<typeof assetCategoryFormSchema>;

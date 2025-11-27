@@ -170,6 +170,7 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
                 .categoryCode(entity.getCategoryCode())
                 .assetCodeAlt(entity.getAssetCodeAlt())
                 .description(entity.getDescription())
+                .depreciation(entity.getDepreciation())
                 .build();
     }
 
@@ -184,7 +185,8 @@ public class AssetCategoryServiceImpl extends BaseBulkUploadService<AssetCategor
             builder.categoryName((String) error.getRowData().get("categoryName"))
                     .categoryCode((String) error.getRowData().get("categoryCode"))
                     .assetCodeAlt((String) error.getRowData().get("assetCodeAlt"))
-                    .description((String) error.getRowData().get("description"));
+                    .description((String) error.getRowData().get("description"))
+                    .depreciation((Double) error.getRowData().get("depreciation"));
         }
 
         return builder.build();

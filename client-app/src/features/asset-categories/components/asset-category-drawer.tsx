@@ -41,6 +41,7 @@ export function AssetCategoryDrawer() {
       categoryCode: "",
       assetCodeAlt: "",
       description: "",
+      depreciation: null,
     },
   });
 
@@ -51,6 +52,7 @@ export function AssetCategoryDrawer() {
         categoryCode: editingAssetCategory.categoryCode,
         assetCodeAlt: editingAssetCategory.assetCodeAlt,
         description: editingAssetCategory.description || "",
+        depreciation: editingAssetCategory.depreciation,
       });
     } else {
       form.reset({
@@ -58,6 +60,7 @@ export function AssetCategoryDrawer() {
         categoryCode: "",
         assetCodeAlt: "",
         description: "",
+        depreciation: null,
       });
     }
   }, [editingAssetCategory, form]);
@@ -169,6 +172,30 @@ export function AssetCategoryDrawer() {
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="depreciation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Depreciation (%)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="Enter depreciation percentage"
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        field.onChange(value === "" ? null : parseFloat(value));
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
