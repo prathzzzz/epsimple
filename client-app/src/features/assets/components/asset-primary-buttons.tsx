@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, FileUp, Plus, MapPin, ChevronDown, Loader2, FileSpreadsheet } from "lucide-react";
+import { Download, FileUp, Plus, MapPin, ChevronDown, Loader2, FileSpreadsheet, Calculator } from "lucide-react";
 import { useAssetContext } from "../context/asset-provider";
 import { toast } from "sonner";
 import { downloadFile } from "@/lib/api-utils";
 import { useExport } from "@/hooks/useExport";
 import { PermissionGuard } from "@/components/permission-guard";
+import { AssetFinancialExportDialog } from "@/features/asset-financials";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ export function AssetPrimaryButtons() {
 
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
   const [isDownloadingPlacementTemplate, setIsDownloadingPlacementTemplate] = useState(false);
+  const [isFinancialExportDialogOpen, setIsFinancialExportDialogOpen] = useState(false);
   
   const { isExporting, handleExport } = useExport({
     entityName: 'Asset',
@@ -67,7 +69,7 @@ export function AssetPrimaryButtons() {
   return (
     <div className="flex items-center gap-2">
       {/* Bulk Actions Dropdown */}
-      <PermissionGuard anyPermissions={["ASSET:BULK_UPLOAD", "ASSET:EXPORT"]}>
+      <PermissionGuard anyPermissions={["ASSET:BULK_UPLOAD", "ASSET:EXPORT", "ASSET:FINANCIAL_EXPORT"]}>
         <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -145,6 +147,15 @@ export function AssetPrimaryButtons() {
             <span>Export All Data</span>
           </DropdownMenuItem>
           </PermissionGuard>
+          <PermissionGuard permission="ASSET:FINANCIAL_EXPORT">
+          <DropdownMenuItem 
+            onClick={() => setIsFinancialExportDialogOpen(true)} 
+            className="cursor-pointer"
+          >
+            <Calculator className="h-4 w-4 mr-2 text-green-600" />
+            <span>Export Financial Report</span>
+          </DropdownMenuItem>
+          </PermissionGuard>
         </DropdownMenuContent>
       </DropdownMenu>
       </PermissionGuard>
@@ -160,6 +171,12 @@ export function AssetPrimaryButtons() {
         Add Asset
       </Button>
       </PermissionGuard>
+
+      {/* Financial Export Dialog */}
+      <AssetFinancialExportDialog 
+        open={isFinancialExportDialogOpen} 
+        onOpenChange={setIsFinancialExportDialogOpen} 
+      />
     </div>
   );
 }

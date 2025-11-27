@@ -205,6 +205,8 @@ public class Permissions {
     public static final String ASSET_TRANSFER = "ASSET:TRANSFER";
     public static final String ASSET_VIEW_MOVEMENT_HISTORY = "ASSET:VIEW_MOVEMENT_HISTORY";
     public static final String ASSET_VIEW_CURRENT_LOCATION = "ASSET:VIEW_CURRENT_LOCATION";
+    public static final String ASSET_FINANCIAL_VIEW = "ASSET:FINANCIAL_VIEW";
+    public static final String ASSET_FINANCIAL_EXPORT = "ASSET:FINANCIAL_EXPORT";
 
     // ========== OPERATIONS - SITE ==========
     public static final String SITE_CREATE = "SITE:CREATE";

@@ -78,17 +78,20 @@ SELECT setval('generic_status_type_id_seq', 15);
 -- -----------------------------------------------------
 -- ASSET_CATEGORY (No FK dependencies)
 -- -----------------------------------------------------
-INSERT INTO public.asset_category (id, created_at, created_by, updated_at, updated_by, asset_code_alt, category_code, category_name, description) VALUES
-(1, NOW(), 1, NOW(), 1, 'ATM', 'ATM001', 'ATM Machine', 'Automated Teller Machines'),
-(2, NOW(), 1, NOW(), 1, 'UPS', 'UPS001', 'UPS', 'Uninterruptible Power Supply Units'),
-(3, NOW(), 1, NOW(), 1, 'AC', 'AC001', 'Air Conditioner', 'Air Conditioning Units'),
-(4, NOW(), 1, NOW(), 1, 'GEN', 'GEN001', 'Generator', 'Power Generators'),
-(5, NOW(), 1, NOW(), 1, 'SRV', 'SRV001', 'Server', 'Server Machines'),
-(6, NOW(), 1, NOW(), 1, 'NET', 'NET001', 'Network Equipment', 'Routers, Switches, Firewalls'),
-(7, NOW(), 1, NOW(), 1, 'CAM', 'CAM001', 'CCTV Camera', 'Security Cameras'),
-(8, NOW(), 1, NOW(), 1, 'SFE', 'SFE001', 'Safe', 'Security Safes'),
-(9, NOW(), 1, NOW(), 1, 'FUR', 'FUR001', 'Furniture', 'Office Furniture'),
-(10, NOW(), 1, NOW(), 1, 'CDM', 'CDM001', 'Cash Deposit Machine', 'Cash Deposit Machines');
+INSERT INTO public.asset_category 
+(id, created_at, created_by, updated_at, updated_by, asset_code_alt, category_code, category_name, description, depreciation) 
+VALUES
+(1, NOW(), 1, NOW(), 1, 'ATM', 'ATM001', 'ATM Machine', 'Automated Teller Machines', 10.0),
+(2, NOW(), 1, NOW(), 1, 'UPS', 'UPS001', 'UPS', 'Uninterruptible Power Supply Units', 15.0),
+(3, NOW(), 1, NOW(), 1, 'AC', 'AC001', 'Air Conditioner', 'Air Conditioning Units', 10.0),
+(4, NOW(), 1, NOW(), 1, 'GEN', 'GEN001', 'Generator', 'Power Generators', 12.0),
+(5, NOW(), 1, NOW(), 1, 'SRV', 'SRV001', 'Server', 'Server Machines', 20.0),
+(6, NOW(), 1, NOW(), 1, 'NET', 'NET001', 'Network Equipment', 'Routers, Switches, Firewalls', 20.0),
+(7, NOW(), 1, NOW(), 1, 'CAM', 'CAM001', 'CCTV Camera', 'Security Cameras', 15.0),
+(8, NOW(), 1, NOW(), 1, 'SFE', 'SFE001', 'Safe', 'Security Safes', 5.0),
+(9, NOW(), 1, NOW(), 1, 'FUR', 'FUR001', 'Furniture', 'Office Furniture', 10.0),
+(10, NOW(), 1, NOW(), 1, 'CDM', 'CDM001', 'Cash Deposit Machine', 'Cash Deposit Machines', 10.0);
+
 
 SELECT setval('asset_category_id_seq', 10);
 

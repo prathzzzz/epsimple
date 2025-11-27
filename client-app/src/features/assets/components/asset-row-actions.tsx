@@ -1,5 +1,5 @@
 import type { Row } from '@tanstack/react-table'
-import { MoreHorizontal, Pencil, Trash, History, MapPin, Receipt } from 'lucide-react'
+import { MoreHorizontal, Pencil, Trash, History, MapPin, Receipt, Calculator } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { PermissionGuard } from '@/components/permission-guard'
@@ -29,6 +29,8 @@ export function AssetRowActions({ row }: AssetRowActionsProps) {
     setAssetForMovement,
     setIsPlacementDialogOpen,
     setAssetForPlacement,
+    setIsFinancialDialogOpen,
+    setAssetForFinancial,
   } = useAssetContext()
 
   const handleEdit = () => {
@@ -58,6 +60,11 @@ export function AssetRowActions({ row }: AssetRowActionsProps) {
     })
   }
 
+  const handleViewFinancials = () => {
+    setAssetForFinancial(asset)
+    setIsFinancialDialogOpen(true)
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -76,6 +83,10 @@ export function AssetRowActions({ row }: AssetRowActionsProps) {
           Place Asset
         </DropdownMenuItem>
         </PermissionGuard>
+        <DropdownMenuItem onClick={handleViewFinancials}>
+          <Calculator className="mr-2 h-4 w-4" />
+          Financial Details
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleManageExpenditures}>
           <Receipt className="mr-2 h-4 w-4" />
           Manage Expenditures

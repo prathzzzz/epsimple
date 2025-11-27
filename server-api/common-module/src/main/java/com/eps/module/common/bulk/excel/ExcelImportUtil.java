@@ -36,21 +36,37 @@ public class ExcelImportUtil {
     public <T> List<T> parseExcelFile(MultipartFile file, Class<T> clazz) throws IOException {
         List<T> results = new ArrayList<>();
         
+        log.debug("Parsing Excel file: name={}, size={}, contentType={}", 
+                file.getOriginalFilename(), file.getSize(), file.getContentType());
+        
         try (ReadableWorkbook workbook = new ReadableWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getFirstSheet();
+            log.debug("Sheet name: {}", sheet.getName());
             
             // Get annotated fields
             Map<String, FieldInfo> fieldMap = getFieldMap(clazz);
             
             try (Stream<Row> rows = sheet.openStream()) {
-                Iterator<Row> rowIterator = rows.iterator();
+                List<Row> rowList = rows.toList();
+                log.debug("Total rows in sheet: {}", rowList.size());
                 
-                if (!rowIterator.hasNext()) {
+                if (rowList.isEmpty()) {
                     throw new IllegalArgumentException("Excel file is empty");
                 }
                 
+                // Log first few rows for debugging
+                for (int i = 0; i < Math.min(3, rowList.size()); i++) {
+                    Row r = rowList.get(i);
+                    StringBuilder rowContent = new StringBuilder();
+                    for (int j = 0; j < r.getCellCount(); j++) {
+                        if (j > 0) rowContent.append(" | ");
+                        rowContent.append("[").append(j).append("]=").append(getCellValueAsString(r, j));
+                    }
+                    log.debug("Row {} content: {}", i, rowContent);
+                }
+                
                 // Read header row
-                Row headerRow = rowIterator.next();
+                Row headerRow = rowList.get(0);
                 Map<Integer, String> columnMapping = buildColumnMapping(headerRow, fieldMap);
                 
                 if (columnMapping.isEmpty()) {
@@ -58,12 +74,10 @@ public class ExcelImportUtil {
                 }
                 
                 // Read data rows
-                int rowNumber = 2; // Start from 2 (1 is header)
-                while (rowIterator.hasNext()) {
-                    Row row = rowIterator.next();
+                for (int rowNumber = 1; rowNumber < rowList.size(); rowNumber++) {
+                    Row row = rowList.get(rowNumber);
                     
                     if (isEmptyRow(row)) {
-                        rowNumber++;
                         continue;
                     }
                     
@@ -71,11 +85,9 @@ public class ExcelImportUtil {
                         T dto = parseRow(row, columnMapping, fieldMap, clazz);
                         results.add(dto);
                     } catch (Exception e) {
-                        log.error("Error parsing row {}: {}", rowNumber, e.getMessage());
-                        throw new BadRequestException(CommonErrorMessages.EXCEL_PARSE_ERROR + rowNumber + ": " + e.getMessage());
+                        log.error("Error parsing row {}: {}", rowNumber + 1, e.getMessage());
+                        throw new BadRequestException(CommonErrorMessages.EXCEL_PARSE_ERROR + (rowNumber + 1) + ": " + e.getMessage());
                     }
-                    
-                    rowNumber++;
                 }
             }
         }
@@ -109,16 +121,27 @@ public class ExcelImportUtil {
     private Map<Integer, String> buildColumnMapping(Row headerRow, Map<String, FieldInfo> fieldMap) {
         Map<Integer, String> columnMapping = new HashMap<>();
         
+        log.debug("Expected columns from DTO: {}", fieldMap.keySet());
+        log.debug("Header row cell count: {}", headerRow.getCellCount());
+        
         for (int i = 0; i < headerRow.getCellCount(); i++) {
-            String headerName = getCellValueAsString(headerRow, i).trim();
-            // Remove asterisk if present (required marker)
-            headerName = headerName.replaceAll("\\s*\\*$", "");
+            String rawHeaderName = getCellValueAsString(headerRow, i);
+            String headerName = rawHeaderName.trim();
+            log.debug("Column {}: raw='{}', trimmed='{}'", i, rawHeaderName, headerName);
             
-            if (fieldMap.containsKey(headerName)) {
-                columnMapping.put(i, headerName);
+            // Remove asterisk if present (required marker)
+            String normalizedHeader = headerName.replaceAll("\\s*\\*$", "").trim();
+            log.debug("Column {} normalized: '{}'", i, normalizedHeader);
+            
+            if (fieldMap.containsKey(normalizedHeader)) {
+                columnMapping.put(i, normalizedHeader);
+                log.debug("Column {} mapped to field: {}", i, normalizedHeader);
+            } else {
+                log.debug("Column {} '{}' not found in expected columns", i, normalizedHeader);
             }
         }
         
+        log.debug("Final column mapping: {}", columnMapping);
         return columnMapping;
     }
     

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -110,4 +111,21 @@ public interface AssetsOnSiteRepository extends JpaRepository<AssetsOnSite, Long
 
     // Count assets
     long countByAssetId(Long assetId);
+
+    // Find all active site placements for financial export, with optional filters
+    @Query("SELECT aos FROM AssetsOnSite aos " +
+            "LEFT JOIN FETCH aos.asset a " +
+            "LEFT JOIN FETCH a.assetType at " +
+            "LEFT JOIN FETCH a.assetCategory ac " +
+            "LEFT JOIN FETCH a.statusType st " +
+            "LEFT JOIN FETCH aos.site s " +
+            "LEFT JOIN FETCH s.project mp " +
+            "LEFT JOIN FETCH s.location l " +
+            "WHERE aos.vacatedOn IS NULL " +
+            "AND (:managedProjectId IS NULL OR s.project.id = :managedProjectId) " +
+            "AND (:assetCategoryId IS NULL OR a.assetCategory.id = :assetCategoryId) " +
+            "ORDER BY a.assetTagId ASC")
+    List<AssetsOnSite> findAllForFinancialExport(
+            @Param("managedProjectId") Long managedProjectId,
+            @Param("assetCategoryId") Long assetCategoryId);
 }

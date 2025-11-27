@@ -22,6 +22,10 @@ interface AssetContextType {
   setIsBulkUploadDialogOpen: (open: boolean) => void
   isPlacementBulkUploadDialogOpen: boolean
   setIsPlacementBulkUploadDialogOpen: (open: boolean) => void
+  isFinancialDialogOpen: boolean
+  setIsFinancialDialogOpen: (open: boolean) => void
+  assetForFinancial: Asset | null
+  setAssetForFinancial: (asset: Asset | null) => void
 }
 
 const AssetContext = createContext<AssetContextType | undefined>(undefined)
@@ -37,6 +41,8 @@ export function AssetProvider({ children }: { children: ReactNode }) {
   const [assetForPlacement, setAssetForPlacement] = useState<Asset | null>(null)
   const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false)
   const [isPlacementBulkUploadDialogOpen, setIsPlacementBulkUploadDialogOpen] = useState(false)
+  const [isFinancialDialogOpen, setIsFinancialDialogOpen] = useState(false)
+  const [assetForFinancial, setAssetForFinancial] = useState<Asset | null>(null)
 
   return (
     <AssetContext.Provider
@@ -61,6 +67,10 @@ export function AssetProvider({ children }: { children: ReactNode }) {
         setIsBulkUploadDialogOpen,
         isPlacementBulkUploadDialogOpen,
         setIsPlacementBulkUploadDialogOpen,
+        isFinancialDialogOpen,
+        setIsFinancialDialogOpen,
+        assetForFinancial,
+        setAssetForFinancial,
       }}
     >
       {children}

@@ -205,6 +205,22 @@ public class PermissionRegistry {
                 .category("Operations")
                 .build());
 
+        customPermissions.add(PermissionDefinition.builder()
+                .name("ASSET:FINANCIAL_VIEW")
+                .description("Can view asset financial details (depreciation, WDV)")
+                .scope("ASSET")
+                .action("FINANCIAL_VIEW")
+                .category("Operations")
+                .build());
+
+        customPermissions.add(PermissionDefinition.builder()
+                .name("ASSET:FINANCIAL_EXPORT")
+                .description("Can export asset financial report")
+                .scope("ASSET")
+                .action("FINANCIAL_EXPORT")
+                .category("Operations")
+                .build());
+
         // Activity Work custom permission
         customPermissions.add(PermissionDefinition.builder()
                 .name("ACTIVITY_WORK:ASSIGN")

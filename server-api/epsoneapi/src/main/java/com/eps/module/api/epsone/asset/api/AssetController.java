@@ -1,11 +1,15 @@
 package com.eps.module.api.epsone.asset.api;
 
+import com.eps.module.api.epsone.asset.dto.AssetFinancialDetailsDto;
+import com.eps.module.api.epsone.asset.dto.AssetFinancialExportRequestDto;
+import com.eps.module.api.epsone.asset.dto.AssetFinancialExportRowDto;
 import com.eps.module.api.epsone.asset.dto.AssetRequestDto;
 import com.eps.module.api.epsone.asset.dto.AssetResponseDto;
 import com.eps.module.api.epsone.asset.service.AssetService;
 import com.eps.module.auth.rbac.annotation.RequirePermission;
 import com.eps.module.common.bulk.controller.BulkUploadControllerHelper;
 import com.eps.module.common.bulk.dto.BulkUploadProgressDto;
+import com.eps.module.common.bulk.excel.ExcelExportUtil;
 import com.eps.module.common.response.ApiResponse;
 import com.eps.module.common.response.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +18,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -30,6 +38,7 @@ public class AssetController {
 
     private final AssetService assetService;
     private final BulkUploadControllerHelper bulkUploadHelper;
+    private final ExcelExportUtil excelExportUtil;
 
     // ========== Bulk Upload Endpoints ==========
 
@@ -104,6 +113,29 @@ public class AssetController {
         return bulkUploadHelper.export(assetService);
     }
 
+    // ========== Financial Export Endpoint ==========
+
+    @RequirePermission("ASSET:FINANCIAL_EXPORT")
+    @PostMapping("/financial-export")
+    public ResponseEntity<byte[]> exportFinancialData(@RequestBody AssetFinancialExportRequestDto requestDto) throws IOException {
+        log.info("POST /api/assets/financial-export - Exporting financial data with filters: managedProjectId={}, assetCategoryId={}, wdvToDate={}, customFromDate={}, customToDate={}",
+                requestDto.getManagedProjectId(), requestDto.getAssetCategoryId(), requestDto.getWdvToDate(), requestDto.getCustomFromDate(), requestDto.getCustomToDate());
+        
+        List<AssetFinancialExportRowDto> data = assetService.getFinancialExportData(requestDto);
+        
+        byte[] excelData = excelExportUtil.exportToExcel(data, AssetFinancialExportRowDto.class, "Asset Financial Report");
+        
+        String filename = "asset_financial_report_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx";
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDispositionFormData("attachment", filename);
+        
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(excelData);
+    }
+
     // ========== CRUD Endpoints ==========
 
     @GetMapping("/{id}")
@@ -126,5 +158,13 @@ public class AssetController {
     public ResponseEntity<ApiResponse<Void>> deleteAsset(@PathVariable Long id) {
         assetService.deleteAsset(id);
         return ResponseBuilder.success(null, "Asset deleted successfully");
+    }
+
+    @RequirePermission("ASSET:FINANCIAL_VIEW")
+    @GetMapping("/{id}/financial-details")
+    public ResponseEntity<ApiResponse<AssetFinancialDetailsDto>> getAssetFinancialDetails(@PathVariable Long id) {
+        log.info("GET /api/assets/{}/financial-details - Fetching financial details", id);
+        AssetFinancialDetailsDto financialDetails = assetService.getAssetFinancialDetails(id);
+        return ResponseBuilder.success(financialDetails, "Asset financial details retrieved successfully");
     }
 }

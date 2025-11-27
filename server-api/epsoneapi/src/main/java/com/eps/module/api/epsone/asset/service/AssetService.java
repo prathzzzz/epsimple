@@ -1,5 +1,8 @@
 package com.eps.module.api.epsone.asset.service;
 
+import com.eps.module.api.epsone.asset.dto.AssetFinancialDetailsDto;
+import com.eps.module.api.epsone.asset.dto.AssetFinancialExportRequestDto;
+import com.eps.module.api.epsone.asset.dto.AssetFinancialExportRowDto;
 import com.eps.module.api.epsone.asset.dto.AssetRequestDto;
 import com.eps.module.api.epsone.asset.dto.AssetResponseDto;
 import com.eps.module.api.epsone.asset.dto.AssetBulkUploadDto;
@@ -24,4 +27,8 @@ public interface AssetService extends BulkUploadService<AssetBulkUploadDto, Asse
     AssetResponseDto updateAsset(Long id, AssetRequestDto requestDto);
 
     void deleteAsset(Long id);
+
+    AssetFinancialDetailsDto getAssetFinancialDetails(Long id);
+
+    List<AssetFinancialExportRowDto> getFinancialExportData(AssetFinancialExportRequestDto requestDto);
 }
