@@ -25,7 +25,6 @@ public class LocationRequestDto {
     @NotNull(message = "City is required")
     private Long cityId;
 
-    @Pattern(regexp = "^[0-9]{6}$", message = "Pincode must be exactly 6 digits")
     private String pincode;
 
     @Size(max = 50, message = "Region cannot exceed 50 characters")

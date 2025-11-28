@@ -24,7 +24,7 @@ public class LocationBulkUploadDto {
     @ExcelColumn(value = "City Name", order = 4, required = true, example = "Mumbai")
     private String cityName;
 
-    @ExcelColumn(value = "Pincode", order = 5, required = true, example = "400058")
+    @ExcelColumn(value = "Pincode", order = 5, required = false, example = "400058")
     private String pincode;
 
     @ExcelColumn(value = "Region", order = 6, required = true, example = "West")
