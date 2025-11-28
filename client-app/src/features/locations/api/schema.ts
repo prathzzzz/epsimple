@@ -25,11 +25,14 @@ export const locationFormSchema = z.object({
     .optional()
     .or(z.literal('')),
   cityId: z.number().min(1, 'City is required'),
-  pincode: z
-    .string()
-    .max(10, 'Pincode cannot exceed 10 characters')
-    .optional()
-    .or(z.literal('')),
+  pincode: z.preprocess(
+    (val) => (typeof val === 'string' ? val.trim() : val),
+    z
+      .string()
+      .regex(/^[0-9]{6}$/, 'Pincode must be exactly 6 digits')
+      .optional()
+      .or(z.literal(''))
+  ),
   region: z
     .string()
     .max(50, 'Region cannot exceed 50 characters')

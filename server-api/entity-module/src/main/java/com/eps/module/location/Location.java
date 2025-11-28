@@ -36,6 +36,7 @@ public class Location extends BaseEntity {
     @JoinColumn(name = "city_id", nullable = false)
     private City city;
 
+    @Pattern(regexp = "^[0-9]{6}$", message = "Pincode must be exactly 6 digits")
     @Column(length = 10)
     private String pincode;
 
