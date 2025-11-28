@@ -37,7 +37,6 @@ public class AssetsOnDatacenterMapper {
                 .commissionedOn(dto.getCommissionedOn())
                 .vacatedOn(dto.getVacatedOn())
                 .disposedOn(dto.getDisposedOn())
-                .scrappedOn(dto.getScrappedOn())
                 .build();
     }
 
@@ -60,7 +59,6 @@ public class AssetsOnDatacenterMapper {
         assetsOnDatacenter.setCommissionedOn(dto.getCommissionedOn());
         assetsOnDatacenter.setVacatedOn(dto.getVacatedOn());
         assetsOnDatacenter.setDisposedOn(dto.getDisposedOn());
-        assetsOnDatacenter.setScrappedOn(dto.getScrappedOn());
     }
 
     public AssetsOnDatacenterResponseDto toDto(AssetsOnDatacenter assetsOnDatacenter) {
@@ -89,7 +87,6 @@ public class AssetsOnDatacenterMapper {
                 .commissionedOn(assetsOnDatacenter.getCommissionedOn())
                 .vacatedOn(assetsOnDatacenter.getVacatedOn())
                 .disposedOn(assetsOnDatacenter.getDisposedOn())
-                .scrappedOn(assetsOnDatacenter.getScrappedOn())
                 .createdAt(assetsOnDatacenter.getCreatedAt())
                 .updatedAt(assetsOnDatacenter.getUpdatedAt())
                 .createdBy(auditUserResolver.resolveUserName(assetsOnDatacenter.getCreatedBy()))

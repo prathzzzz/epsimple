@@ -197,7 +197,6 @@ public class AssetLocationServiceImpl implements AssetLocationService {
                 .decommissionedOn("")
                 .vacatedOn("")
                 .disposedOn("")
-                .scrappedOn("")
                 .build());
         
         byte[] excelData = excelExportUtil.exportToExcel(

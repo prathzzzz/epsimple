@@ -68,7 +68,6 @@ const placementFormSchema = z.object({
   decommissionedOn: z.string().optional().or(z.literal('')),
   vacatedOn: z.string().optional().or(z.literal('')),
   disposedOn: z.string().optional().or(z.literal('')),
-  scrappedOn: z.string().optional().or(z.literal('')),
 });
 
 type PlacementFormData = z.infer<typeof placementFormSchema>;
@@ -184,7 +183,6 @@ export function AssetPlacementDialog({
       decommissionedOn: '',
       vacatedOn: '',
       disposedOn: '',
-      scrappedOn: '',
     },
   });
 
@@ -210,7 +208,6 @@ export function AssetPlacementDialog({
         decommissionedOn: data.decommissionedOn || undefined,
         vacatedOn: data.vacatedOn || undefined,
         disposedOn: data.disposedOn || undefined,
-        scrappedOn: data.scrappedOn || undefined,
       };
 
       const response = await api.post(endpoint, payload);
@@ -686,24 +683,6 @@ export function AssetPlacementDialog({
                       )}
                     />
                   </div>
-
-                  <FormField
-                    control={form.control}
-                    name="scrappedOn"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Scrapped On</FormLabel>
-                        <DatePicker
-                          selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date: Date | undefined) =>
-                            field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
-                          }
-                          placeholder="Select date"
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </>
               )}
 

@@ -244,7 +244,6 @@ public class AssetPlacementBulkUploadProcessor extends BulkUploadProcessor<Asset
                 .commissionedOn(parseDate(dto.getCommissionedOn()))
                 .vacatedOn(parseDate(dto.getVacatedOn()))
                 .disposedOn(parseDate(dto.getDisposedOn()))
-                .scrappedOn(parseDate(dto.getScrappedOn()))
                 .build();
 
         AssetsOnDatacenter savedPlacement = assetsOnDatacenterRepository.save(assetsOnDatacenter);
@@ -315,7 +314,6 @@ public class AssetPlacementBulkUploadProcessor extends BulkUploadProcessor<Asset
                 .commissionedOn(parseDate(dto.getCommissionedOn()))
                 .vacatedOn(parseDate(dto.getVacatedOn()))
                 .disposedOn(parseDate(dto.getDisposedOn()))
-                .scrappedOn(parseDate(dto.getScrappedOn()))
                 .build();
 
         AssetsOnWarehouse savedPlacement = assetsOnWarehouseRepository.save(assetsOnWarehouse);
@@ -350,7 +348,6 @@ public class AssetPlacementBulkUploadProcessor extends BulkUploadProcessor<Asset
         data.put("decommissionedOn", dto.getDecommissionedOn());
         data.put("vacatedOn", dto.getVacatedOn());
         data.put("disposedOn", dto.getDisposedOn());
-        data.put("scrappedOn", dto.getScrappedOn());
         return data;
     }
 

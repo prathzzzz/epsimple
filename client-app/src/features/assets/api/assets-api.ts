@@ -9,6 +9,8 @@ const ASSET_ENDPOINTS = {
   SEARCH: '/api/assets/search',
   LIST: '/api/assets/list',
   BY_ID: (id: number) => `/api/assets/${id}`,
+  SCRAP: (id: number) => `/api/assets/${id}/scrap`,
+  UNSCRAP: (id: number) => `/api/assets/${id}/unscrap`,
 }
 
 interface ApiResponse<T> {
@@ -146,6 +148,42 @@ export const assetsApi = {
       },
       enabled: searchTerm.trim().length > 0,
       staleTime: 30000, // Cache for 30 seconds
+    })
+  },
+
+  useScrap: () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+      mutationFn: async (id: number) => {
+        await api.post(ASSET_ENDPOINTS.SCRAP(id))
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['assets'] })
+        toast.success('Asset scrapped successfully')
+      },
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to scrap asset";
+        toast.error(message);
+      },
+    })
+  },
+
+  useUnscrap: () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+      mutationFn: async (id: number) => {
+        await api.post(ASSET_ENDPOINTS.UNSCRAP(id))
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['assets'] })
+        toast.success('Asset unscraped successfully')
+      },
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || "Failed to unscrap asset";
+        toast.error(message);
+      },
     })
   },
 }

@@ -13,6 +13,7 @@ import { AssetDeleteDialog } from './components/asset-delete-dialog'
 import { AssetMovementDialog } from './components/asset-movement-dialog'
 import { AssetPlacementDialog } from './components/asset-placement-dialog'
 import { AssetFinancialDialog } from './components/asset-financial-dialog'
+import { AssetScrapDialog } from './components/asset-scrap-dialog'
 import { GenericBulkUploadDialog } from '@/components/bulk-upload/GenericBulkUploadDialog'
 import { useQueryClient } from '@tanstack/react-query'
 
@@ -103,6 +104,7 @@ function AssetsContent() {
         }}
       />
       <AssetFinancialDialog />
+      <AssetScrapDialog />
     </>
   )
 }

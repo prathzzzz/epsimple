@@ -39,7 +39,6 @@ public class AssetsOnDatacenterResponseDto {
     private LocalDate commissionedOn;
     private LocalDate vacatedOn;
     private LocalDate disposedOn;
-    private LocalDate scrappedOn;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -48,7 +48,4 @@ public class AssetPlacementBulkUploadDto {
 
     @ExcelColumn(value = "Disposed On", order = 11, required = false, example = "")
     private String disposedOn;
-
-    @ExcelColumn(value = "Scrapped On", order = 12, required = false, example = "")
-    private String scrappedOn;
 }

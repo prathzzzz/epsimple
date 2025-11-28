@@ -26,6 +26,10 @@ interface AssetContextType {
   setIsFinancialDialogOpen: (open: boolean) => void
   assetForFinancial: Asset | null
   setAssetForFinancial: (asset: Asset | null) => void
+  isScrapDialogOpen: boolean
+  setIsScrapDialogOpen: (open: boolean) => void
+  assetToScrap: Asset | null
+  setAssetToScrap: (asset: Asset | null) => void
 }
 
 const AssetContext = createContext<AssetContextType | undefined>(undefined)
@@ -43,6 +47,8 @@ export function AssetProvider({ children }: { children: ReactNode }) {
   const [isPlacementBulkUploadDialogOpen, setIsPlacementBulkUploadDialogOpen] = useState(false)
   const [isFinancialDialogOpen, setIsFinancialDialogOpen] = useState(false)
   const [assetForFinancial, setAssetForFinancial] = useState<Asset | null>(null)
+  const [isScrapDialogOpen, setIsScrapDialogOpen] = useState(false)
+  const [assetToScrap, setAssetToScrap] = useState<Asset | null>(null)
 
   return (
     <AssetContext.Provider
@@ -71,6 +77,10 @@ export function AssetProvider({ children }: { children: ReactNode }) {
         setIsFinancialDialogOpen,
         assetForFinancial,
         setAssetForFinancial,
+        isScrapDialogOpen,
+        setIsScrapDialogOpen,
+        assetToScrap,
+        setAssetToScrap,
       }}
     >
       {children}

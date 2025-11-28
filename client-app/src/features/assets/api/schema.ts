@@ -54,6 +54,8 @@ export interface Asset {
   warrantyExpiryDate?: string
   endOfLifeDate?: string
   endOfSupportDate?: string
+  isScraped?: boolean
+  scrappedOn?: string
   createdAt: string
   updatedAt: string
   createdBy: string

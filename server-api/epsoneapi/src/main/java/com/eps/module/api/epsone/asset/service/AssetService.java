@@ -31,4 +31,8 @@ public interface AssetService extends BulkUploadService<AssetBulkUploadDto, Asse
     AssetFinancialDetailsDto getAssetFinancialDetails(Long id);
 
     List<AssetFinancialExportRowDto> getFinancialExportData(AssetFinancialExportRequestDto requestDto);
+
+    void scrapAsset(Long assetId);
+
+    void unscrapAsset(Long assetId);
 }

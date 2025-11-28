@@ -36,6 +36,4 @@ public class AssetsOnDatacenterRequestDto {
     private LocalDate vacatedOn;
 
     private LocalDate disposedOn;
-
-    private LocalDate scrappedOn;
 }

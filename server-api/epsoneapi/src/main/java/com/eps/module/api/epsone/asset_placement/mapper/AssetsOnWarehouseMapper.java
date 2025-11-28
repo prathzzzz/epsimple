@@ -37,7 +37,6 @@ public class AssetsOnWarehouseMapper {
                 .commissionedOn(dto.getCommissionedOn())
                 .vacatedOn(dto.getVacatedOn())
                 .disposedOn(dto.getDisposedOn())
-                .scrappedOn(dto.getScrappedOn())
                 .build();
     }
 
@@ -60,7 +59,6 @@ public class AssetsOnWarehouseMapper {
         assetsOnWarehouse.setCommissionedOn(dto.getCommissionedOn());
         assetsOnWarehouse.setVacatedOn(dto.getVacatedOn());
         assetsOnWarehouse.setDisposedOn(dto.getDisposedOn());
-        assetsOnWarehouse.setScrappedOn(dto.getScrappedOn());
     }
 
     public AssetsOnWarehouseResponseDto toDto(AssetsOnWarehouse assetsOnWarehouse) {
@@ -89,7 +87,6 @@ public class AssetsOnWarehouseMapper {
                 .commissionedOn(assetsOnWarehouse.getCommissionedOn())
                 .vacatedOn(assetsOnWarehouse.getVacatedOn())
                 .disposedOn(assetsOnWarehouse.getDisposedOn())
-                .scrappedOn(assetsOnWarehouse.getScrappedOn())
                 .createdAt(assetsOnWarehouse.getCreatedAt())
                 .updatedAt(assetsOnWarehouse.getUpdatedAt())
                 .createdBy(auditUserResolver.resolveUserName(assetsOnWarehouse.getCreatedBy()))

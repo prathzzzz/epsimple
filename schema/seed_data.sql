@@ -569,16 +569,16 @@ SELECT setval('site_id_seq', 5);
 -- ASSET (depends on ASSET_CATEGORY, ASSET_TYPE, BANK, GENERIC_STATUS_TYPE, VENDOR)
 -- -----------------------------------------------------
 INSERT INTO public.asset (id, created_at, created_by, updated_at, updated_by, asset_name, asset_tag_id, dispatch_order_date, dispatch_order_number, end_of_life_date, end_of_support_date, model_number, purchase_order_cost, purchase_order_date, purchase_order_number, serial_number, warranty_expiry_date, warranty_period, asset_category_id, asset_type_id, lender_bank_id, status_type_id, vendor_id) VALUES
-(1, NOW(), 1, NOW(), 1, 'NCR SelfServ 84 ATM', 'ATM-SBI-NCR-00001', '2024-05-15', 'DO-2024-001', '2034-05-01', '2029-05-01', 'SS84-001', 1500000.00, '2024-05-01', 'PO-2024-001', 'NCR84-SN-001', '2027-05-01', 36, 1, 1, 1, 9, 1),
-(2, NOW(), 1, NOW(), 1, 'NCR SelfServ 84 ATM', 'ATM-SBI-NCR-00002', '2024-05-20', 'DO-2024-002', '2034-05-01', '2029-05-01', 'SS84-001', 1500000.00, '2024-05-01', 'PO-2024-001', 'NCR84-SN-002', '2027-05-01', 36, 1, 1, 1, 9, 1),
-(3, NOW(), 1, NOW(), 1, 'Diebold DN Series ATM', 'ATM-HDFC-DBN-00001', '2024-06-01', 'DO-2024-003', '2034-06-01', '2029-06-01', 'DN-200', 2000000.00, '2024-05-15', 'PO-2024-002', 'DBN-DN-SN-001', '2027-05-15', 36, 1, 1, 2, 9, 2),
-(4, NOW(), 1, NOW(), 1, 'NCR SelfServ 84 ATM', 'ATM-ICICI-NCR-00001', '2024-07-01', 'DO-2024-004', '2034-07-01', '2029-07-01', 'SS84-001', 1500000.00, '2024-06-15', 'PO-2024-003', 'NCR84-SN-003', '2027-06-15', 36, 1, 1, 3, 9, 1),
-(5, NOW(), 1, NOW(), 1, 'NCR SelfServ 84 ATM', 'ATM-AXIS-NCR-00001', '2024-08-01', 'DO-2024-005', '2034-08-01', '2029-08-01', 'SS84-001', 1500000.00, '2024-07-15', 'PO-2024-004', 'NCR84-SN-004', '2027-07-15', 36, 1, 1, 4, 9, 1),
-(6, NOW(), 1, NOW(), 1, 'APC Smart-UPS 3KVA', 'UPS-SBI-APC-00001', '2024-05-10', 'DO-2024-006', '2034-05-01', '2029-05-01', 'SUA3000', 85000.00, '2024-04-25', 'PO-2024-005', 'APC-SN-001', '2027-04-25', 36, 2, 1, 1, 9, 3),
-(7, NOW(), 1, NOW(), 1, 'APC Smart-UPS 3KVA', 'UPS-SBI-APC-00002', '2024-05-15', 'DO-2024-007', '2034-05-01', '2029-05-01', 'SUA3000', 85000.00, '2024-04-25', 'PO-2024-005', 'APC-SN-002', '2027-04-25', 36, 2, 1, 1, 9, 3),
-(8, NOW(), 1, NOW(), 1, 'Daikin Split AC 1.5T', 'AC-SBI-DAI-00001', '2024-05-08', 'DO-2024-008', '2034-05-01', '2029-05-01', 'FTKF50', 45000.00, '2024-04-20', 'PO-2024-006', 'DAI-SN-001', '2027-04-20', 36, 3, 1, 1, 9, 3),
-(9, NOW(), 1, NOW(), 1, 'Daikin Split AC 1.5T', 'AC-HDFC-DAI-00001', '2024-06-05', 'DO-2024-009', '2034-06-01', '2029-06-01', 'FTKF50', 45000.00, '2024-05-20', 'PO-2024-007', 'DAI-SN-002', '2027-05-20', 36, 3, 1, 2, 9, 3),
-(10, NOW(), 1, NOW(), 1, 'Hikvision CCTV Camera', 'CAM-SBI-HIK-00001', '2024-05-12', 'DO-2024-010', '2034-05-01', '2029-05-01', 'DS-2CD', 15000.00, '2024-04-28', 'PO-2024-008', 'HIK-SN-001', '2027-04-28', 36, 7, 1, 1, 9, 3);
+(1, NOW(), 1, NOW(), 1, 'NCR SelfServ 84 ATM', 'ATMSBINCR00001', '2024-05-15', 'DO-2024-001', '2034-05-01', '2029-05-01', 'SS84-001', 1500000.00, '2024-05-01', 'PO-2024-001', 'NCR84-SN-001', '2027-05-01', 36, 1, 1, 1, 9, 1),
+(2, NOW(), 1, NOW(), 1, 'NCR SelfServ 84 ATM', 'ATMSBINCR00002', '2024-05-20', 'DO-2024-002', '2034-05-01', '2029-05-01', 'SS84-001', 1500000.00, '2024-05-01', 'PO-2024-001', 'NCR84-SN-002', '2027-05-01', 36, 1, 1, 1, 9, 1),
+(3, NOW(), 1, NOW(), 1, 'Diebold DN Series ATM', 'ATMHDFCDBN00001', '2024-06-01', 'DO-2024-003', '2034-06-01', '2029-06-01', 'DN-200', 2000000.00, '2024-05-15', 'PO-2024-002', 'DBN-DN-SN-001', '2027-05-15', 36, 1, 1, 2, 9, 2),
+(4, NOW(), 1, NOW(), 1, 'NCR SelfServ 84 ATM', 'ATMICICINCR00001', '2024-07-01', 'DO-2024-004', '2034-07-01', '2029-07-01', 'SS84-001', 1500000.00, '2024-06-15', 'PO-2024-003', 'NCR84-SN-003', '2027-06-15', 36, 1, 1, 3, 9, 1),
+(5, NOW(), 1, NOW(), 1, 'NCR SelfServ 84 ATM', 'ATMAXISNCR00001', '2024-08-01', 'DO-2024-005', '2034-08-01', '2029-08-01', 'SS84-001', 1500000.00, '2024-07-15', 'PO-2024-004', 'NCR84-SN-004', '2027-07-15', 36, 1, 1, 4, 9, 1),
+(6, NOW(), 1, NOW(), 1, 'APC Smart-UPS 3KVA', 'UPSSBIAPC00001', '2024-05-10', 'DO-2024-006', '2034-05-01', '2029-05-01', 'SUA3000', 85000.00, '2024-04-25', 'PO-2024-005', 'APC-SN-001', '2027-04-25', 36, 2, 1, 1, 9, 3),
+(7, NOW(), 1, NOW(), 1, 'APC Smart-UPS 3KVA', 'UPSSBIAPC00002', '2024-05-15', 'DO-2024-007', '2034-05-01', '2029-05-01', 'SUA3000', 85000.00, '2024-04-25', 'PO-2024-005', 'APC-SN-002', '2027-04-25', 36, 2, 1, 1, 9, 3),
+(8, NOW(), 1, NOW(), 1, 'Daikin Split AC 1.5T', 'ACSBIDAI00001', '2024-05-08', 'DO-2024-008', '2034-05-01', '2029-05-01', 'FTKF50', 45000.00, '2024-04-20', 'PO-2024-006', 'DAI-SN-001', '2027-04-20', 36, 3, 1, 1, 9, 3),
+(9, NOW(), 1, NOW(), 1, 'Daikin Split AC 1.5T', 'ACHDFCDAI00001', '2024-06-05', 'DO-2024-009', '2034-06-01', '2029-06-01', 'FTKF50', 45000.00, '2024-05-20', 'PO-2024-007', 'DAI-SN-002', '2027-05-20', 36, 3, 1, 2, 9, 3),
+(10, NOW(), 1, NOW(), 1, 'Hikvision CCTV Camera', 'CAMSBIHIK00001', '2024-05-12', 'DO-2024-010', '2034-05-01', '2029-05-01', 'DS-2CD', 15000.00, '2024-04-28', 'PO-2024-008', 'HIK-SN-001', '2027-04-28', 36, 7, 1, 1, 9, 3);
 
 SELECT setval('asset_id_seq', 10);
 
@@ -703,20 +703,20 @@ SELECT setval('assets_on_site_id_seq', 7);
 -- -----------------------------------------------------
 -- ASSETS_ON_DATACENTER (depends on ACTIVITY_WORK, ASSET, ASSET_MOVEMENT_TRACKER, GENERIC_STATUS_TYPE, DATACENTER)
 -- -----------------------------------------------------
-INSERT INTO public.assets_on_datacenter (id, created_at, created_by, updated_at, updated_by, assigned_on, commissioned_on, delivered_on, disposed_on, scrapped_on, vacated_on, activity_work_id, asset_id, asset_movement_tracker_id, asset_status_id, datacenter_id) VALUES
-(1, NOW(), 1, NOW(), 1, '2024-06-01', '2024-06-05', '2024-05-28', NULL, NULL, NULL, NULL, 10, NULL, 9, 1);
+INSERT INTO public.assets_on_datacenter (id, created_at, created_by, updated_at, updated_by, assigned_on, commissioned_on, delivered_on, disposed_on, vacated_on, activity_work_id, asset_id, asset_movement_tracker_id, asset_status_id, datacenter_id) VALUES
+(1, NOW(), 1, NOW(), 1, '2024-06-01', '2024-06-05', '2024-05-28', NULL, NULL, NULL, 10, NULL, 9, 1);
 
 SELECT setval('assets_on_datacenter_id_seq', 1);
 
 -- -----------------------------------------------------
 -- ASSETS_ON_WAREHOUSE (depends on ACTIVITY_WORK, ASSET, ASSET_MOVEMENT_TRACKER, GENERIC_STATUS_TYPE, WAREHOUSE)
 -- -----------------------------------------------------
-INSERT INTO public.assets_on_warehouse (id, created_at, created_by, updated_at, updated_by, assigned_on, commissioned_on, delivered_on, disposed_on, scrapped_on, vacated_on, activity_work_id, asset_id, asset_movement_tracker_id, asset_status_id, warehouse_id) VALUES
-(1, NOW(), 1, NOW(), 1, '2024-05-16', '2024-05-18', '2024-05-15', NULL, NULL, '2024-06-08', NULL, 1, 1, 8, 1),
-(2, NOW(), 1, NOW(), 1, '2024-05-21', '2024-05-23', '2024-05-20', NULL, NULL, '2024-06-22', NULL, 2, 3, 8, 1),
-(3, NOW(), 1, NOW(), 1, '2024-06-02', '2024-06-04', '2024-06-01', NULL, NULL, '2024-07-28', NULL, 3, 5, 8, 3),
-(4, NOW(), 1, NOW(), 1, '2024-05-11', '2024-05-13', '2024-05-10', NULL, NULL, '2024-06-10', NULL, 6, 11, 8, 1),
-(5, NOW(), 1, NOW(), 1, '2024-05-16', '2024-05-18', '2024-05-15', NULL, NULL, '2024-06-12', NULL, 7, 12, 8, 1);
+INSERT INTO public.assets_on_warehouse (id, created_at, created_by, updated_at, updated_by, assigned_on, commissioned_on, delivered_on, disposed_on, vacated_on, activity_work_id, asset_id, asset_movement_tracker_id, asset_status_id, warehouse_id) VALUES
+(1, NOW(), 1, NOW(), 1, '2024-05-16', '2024-05-18', '2024-05-15', NULL, '2024-06-08', NULL, 1, 1, 8, 1),
+(2, NOW(), 1, NOW(), 1, '2024-05-21', '2024-05-23', '2024-05-20', NULL, '2024-06-22', NULL, 2, 3, 8, 1),
+(3, NOW(), 1, NOW(), 1, '2024-06-02', '2024-06-04', '2024-06-01', NULL, '2024-07-28', NULL, 3, 5, 8, 3),
+(4, NOW(), 1, NOW(), 1, '2024-05-11', '2024-05-13', '2024-05-10', NULL, '2024-06-10', NULL, 6, 11, 8, 1),
+(5, NOW(), 1, NOW(), 1, '2024-05-16', '2024-05-18', '2024-05-15', NULL, '2024-06-12', NULL, 7, 12, 8, 1);
 
 SELECT setval('assets_on_warehouse_id_seq', 5);
 

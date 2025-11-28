@@ -167,4 +167,20 @@ public class AssetController {
         AssetFinancialDetailsDto financialDetails = assetService.getAssetFinancialDetails(id);
         return ResponseBuilder.success(financialDetails, "Asset financial details retrieved successfully");
     }
+
+    @RequirePermission("ASSET:SCRAP")
+    @PostMapping("/{id}/scrap")
+    public ResponseEntity<ApiResponse<Void>> scrapAsset(@PathVariable Long id) {
+        log.info("POST /api/assets/{}/scrap - Scrapping asset", id);
+        assetService.scrapAsset(id);
+        return ResponseBuilder.success(null, "Asset scrapped successfully");
+    }
+
+    @RequirePermission("ASSET:SCRAP")
+    @PostMapping("/{id}/unscrap")
+    public ResponseEntity<ApiResponse<Void>> unscrapAsset(@PathVariable Long id) {
+        log.info("POST /api/assets/{}/unscrap - Unscrapping asset", id);
+        assetService.unscrapAsset(id);
+        return ResponseBuilder.success(null, "Asset unscraped successfully");
+    }
 }

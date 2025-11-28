@@ -10,7 +10,6 @@ export const assetsOnWarehouseFormSchema = z.object({
   commissionedOn: z.string().optional().or(z.literal('')),
   // vacatedOn removed - now automatically managed by backend
   disposedOn: z.string().optional().or(z.literal('')),
-  scrappedOn: z.string().optional().or(z.literal('')),
 });
 
 export type AssetsOnWarehouseFormData = z.infer<typeof assetsOnWarehouseFormSchema>;
@@ -34,7 +33,6 @@ export interface AssetsOnWarehouse {
   commissionedOn?: string;
   vacatedOn?: string;
   disposedOn?: string;
-  scrappedOn?: string;
   createdAt: string;
   updatedAt: string;
 }

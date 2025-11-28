@@ -36,6 +36,4 @@ public class AssetsOnWarehouseRequestDto {
     private LocalDate vacatedOn;
 
     private LocalDate disposedOn;
-
-    private LocalDate scrappedOn;
 }

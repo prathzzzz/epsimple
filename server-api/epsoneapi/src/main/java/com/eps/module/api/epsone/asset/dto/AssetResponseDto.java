@@ -55,6 +55,10 @@ public class AssetResponseDto {
     private LocalDate endOfLifeDate;
     private LocalDate endOfSupportDate;
 
+    // Scraped info (from placement)
+    private Boolean isScraped;
+    private LocalDate scrappedOn;
+
     // Audit fields
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

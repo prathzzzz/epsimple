@@ -56,7 +56,4 @@ public class AssetsOnDatacenter extends BaseEntity {
 
     @Column(name = "disposed_on")
     private LocalDate disposedOn;
-
-    @Column(name = "scrapped_on")
-    private LocalDate scrappedOn;
 }

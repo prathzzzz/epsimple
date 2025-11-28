@@ -1,5 +1,5 @@
 import type { Row } from '@tanstack/react-table'
-import { MoreHorizontal, Pencil, Trash, History, MapPin, Receipt, Calculator } from 'lucide-react'
+import { MoreHorizontal, Pencil, Trash, History, MapPin, Receipt, Calculator, Trash2, RotateCcw } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { PermissionGuard } from '@/components/permission-guard'
@@ -31,6 +31,8 @@ export function AssetRowActions({ row }: AssetRowActionsProps) {
     setAssetForPlacement,
     setIsFinancialDialogOpen,
     setAssetForFinancial,
+    setIsScrapDialogOpen,
+    setAssetToScrap,
   } = useAssetContext()
 
   const handleEdit = () => {
@@ -65,6 +67,11 @@ export function AssetRowActions({ row }: AssetRowActionsProps) {
     setIsFinancialDialogOpen(true)
   }
 
+  const handleScrap = () => {
+    setAssetToScrap(asset)
+    setIsScrapDialogOpen(true)
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -95,6 +102,22 @@ export function AssetRowActions({ row }: AssetRowActionsProps) {
           <History className="mr-2 h-4 w-4" />
           Movement History
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <PermissionGuard permission="ASSET:SCRAP">
+        <DropdownMenuItem onClick={handleScrap} className={asset.isScraped ? 'text-green-600' : 'text-amber-600'}>
+          {asset.isScraped ? (
+            <>
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Unscrap Asset
+            </>
+          ) : (
+            <>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Scrap Asset
+            </>
+          )}
+        </DropdownMenuItem>
+        </PermissionGuard>
         <DropdownMenuSeparator />
         <PermissionGuard permission="ASSET:UPDATE">
         <DropdownMenuItem onClick={handleEdit}>

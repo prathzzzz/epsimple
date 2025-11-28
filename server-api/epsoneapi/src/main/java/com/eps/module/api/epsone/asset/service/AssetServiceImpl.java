@@ -85,7 +85,9 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
             String decommissionedOn = null;
             String vacatedOn = null;
             String disposedOn = null;
-            String scrappedOn = null;
+
+            // Get scrappedOn from asset itself (not from placement)
+            String scrappedOn = asset.getScrappedOn() != null ? asset.getScrappedOn().toString() : null;
 
             // Check Site placement
             var sitePlacement = assetsOnSiteRepository.findActiveByAssetId(asset.getId());
@@ -115,7 +117,6 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
                     commissionedOn = placement.getCommissionedOn() != null ? placement.getCommissionedOn().toString() : null;
                     vacatedOn = placement.getVacatedOn() != null ? placement.getVacatedOn().toString() : null;
                     disposedOn = placement.getDisposedOn() != null ? placement.getDisposedOn().toString() : null;
-                    scrappedOn = placement.getScrappedOn() != null ? placement.getScrappedOn().toString() : null;
                 }
             }
 
@@ -132,7 +133,6 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
                     commissionedOn = placement.getCommissionedOn() != null ? placement.getCommissionedOn().toString() : null;
                     vacatedOn = placement.getVacatedOn() != null ? placement.getVacatedOn().toString() : null;
                     disposedOn = placement.getDisposedOn() != null ? placement.getDisposedOn().toString() : null;
-                    scrappedOn = placement.getScrappedOn() != null ? placement.getScrappedOn().toString() : null;
                 }
             }
 
@@ -246,6 +246,22 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
         return name.length() > 0 ? name.toString() : null;
     }
 
+    /**
+     * Helper method to populate scraped info on AssetResponseDto from Asset entity.
+     */
+    private AssetResponseDto enrichWithScrapInfo(AssetResponseDto dto, Asset asset) {
+        if (dto == null) return dto;
+        
+        if (asset != null && asset.getScrappedOn() != null) {
+            dto.setIsScraped(true);
+            dto.setScrappedOn(asset.getScrappedOn());
+        } else {
+            dto.setIsScraped(false);
+            dto.setScrappedOn(null);
+        }
+        return dto;
+    }
+
     // ========== Existing CRUD Methods ==========
 
     @Override
@@ -277,21 +293,21 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
     @Transactional(readOnly = true)
     public Page<AssetResponseDto> getAllAssets(Pageable pageable) {
         return assetRepository.findAll(pageable)
-                .map(assetMapper::toDto);
+                .map(asset -> enrichWithScrapInfo(assetMapper.toDto(asset), asset));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<AssetResponseDto> searchAssets(String searchTerm, Pageable pageable) {
         return assetRepository.search(searchTerm, pageable)
-                .map(assetMapper::toDto);
+                .map(asset -> enrichWithScrapInfo(assetMapper.toDto(asset), asset));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AssetResponseDto> listAssets() {
         return assetRepository.findAllWithDetails().stream()
-                .map(assetMapper::toDto)
+                .map(asset -> enrichWithScrapInfo(assetMapper.toDto(asset), asset))
                 .collect(Collectors.toList());
     }
 
@@ -300,7 +316,7 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
     public AssetResponseDto getAssetById(Long id) {
         Asset asset = assetRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(AssetErrorMessages.ASSET_NOT_FOUND_ID + id));
-        return assetMapper.toDto(asset);
+        return enrichWithScrapInfo(assetMapper.toDto(asset), asset);
     }
 
     @Override
@@ -478,15 +494,14 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
                 }
             }
 
-            // Check if scraped (via datacenter placement)
-            var datacenterPlacement = assetsOnDatacenterRepository.findActiveByAssetId(asset.getId());
+            // Check if scraped (from asset entity directly)
             String isScraped = "No";
             String scrapedDate = null;
             BigDecimal lossValue = null;
             
-            if (datacenterPlacement.isPresent() && datacenterPlacement.get().getScrappedOn() != null) {
+            if (asset.getScrappedOn() != null) {
                 isScraped = "Yes";
-                scrapedDate = datacenterPlacement.get().getScrappedOn().toString();
+                scrapedDate = asset.getScrappedOn().toString();
                 lossValue = writtenDownValue; // Loss value = WDV at the time of scrapping
             }
 
@@ -568,5 +583,25 @@ public class AssetServiceImpl extends BaseBulkUploadService<AssetBulkUploadDto, 
         }
 
         return rows;
+    }
+
+    @Override
+    @Transactional
+    public void scrapAsset(Long assetId) {
+        Asset asset = assetRepository.findById(assetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id: " + assetId));
+
+        asset.setScrappedOn(LocalDate.now());
+        assetRepository.save(asset);
+    }
+
+    @Override
+    @Transactional
+    public void unscrapAsset(Long assetId) {
+        Asset asset = assetRepository.findById(assetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id: " + assetId));
+
+        asset.setScrappedOn(null);
+        assetRepository.save(asset);
     }
 }

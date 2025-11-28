@@ -85,4 +85,7 @@ public class Asset extends BaseEntity {
 
     @Column(name = "end_of_support_date")
     private LocalDate endOfSupportDate;
+
+    @Column(name = "scrapped_on")
+    private LocalDate scrappedOn;
 }
